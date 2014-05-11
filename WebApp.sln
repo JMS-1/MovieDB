@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30324.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "WebApp\WebApp.csproj", "{9CCCD5B8-89B3-4ACA-93BC-A6489E71F66D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp.UnitTests", "WebApp.UnitTests\WebApp.UnitTests.csproj", "{F651454C-59D5-4AFC-8094-D4545B510DAF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9CCCD5B8-89B3-4ACA-93BC-A6489E71F66D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CCCD5B8-89B3-4ACA-93BC-A6489E71F66D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CCCD5B8-89B3-4ACA-93BC-A6489E71F66D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CCCD5B8-89B3-4ACA-93BC-A6489E71F66D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F651454C-59D5-4AFC-8094-D4545B510DAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F651454C-59D5-4AFC-8094-D4545B510DAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F651454C-59D5-4AFC-8094-D4545B510DAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F651454C-59D5-4AFC-8094-D4545B510DAF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.Common.6.0.1304.0\lib\NET45
+	EndGlobalSection
+EndGlobal
