@@ -51,7 +51,7 @@ namespace WebApp.Controllers
         /// <returns>Eine Liste passender Ergebnisse.</returns>
         [HttpGet]
         [Route( "" )]
-        public Recording[] ShowList( int pageSize = 10, int pageIndex = 0 )
+        public SearchInformation ShowList( int pageSize = 10, int pageIndex = 0 )
         {
             // Validate parameters
             if (pageSize < 1)
@@ -79,11 +79,15 @@ namespace WebApp.Controllers
             // Always restrict number of results
             recordings = recordings.Take( pageSize );
 
-            // Get the total count
-            var total = DatabaseContext.Recordings.Query().Count();
-
             // Time to execute
-            return recordings.ToArray();
+            return
+                new SearchInformation
+                {
+                    TotalCount = DatabaseContext.Recordings.Query().Count(),
+                    Recordings = recordings.ToArray(),
+                    PageIndex = pageIndex,
+                    PageSize = pageSize,
+                };
         }
 
         /// <summary>
@@ -99,9 +103,7 @@ namespace WebApp.Controllers
                 throw new HttpResponseException( HttpStatusCode.UnsupportedMediaType );
 
             // Can only initialize an empty database
-            if (DatabaseContext.Recordings.Query().Any())
-                throw new HttpResponseException( HttpStatusCode.Forbidden );
-            if (DatabaseContext.Languages.Query().Any())
+            if (DatabaseContext.TestEmpty())
                 throw new HttpResponseException( HttpStatusCode.Forbidden );
 
             // Decode
@@ -141,12 +143,15 @@ namespace WebApp.Controllers
         /// <param name="legacyDatabaseContent">Die in die Datenbank zu übernehmenden Objekte.</param>
         private void Initialize( MovieDB.Database legacyDatabaseContent )
         {
+            // Just improve lookup speed a bit - hey, EF is not so fast...
             var languageMap = new Dictionary<string, Language>();
 
+            // Add all languages
             var dbLanguages = DatabaseContext.Languages;
             foreach (var language in new HashSet<string>( legacyDatabaseContent.Languages.Select( l => l.ToLower() ) ))
                 languageMap.Add( language, dbLanguages.Add( new Language { Short = language, Long = language, } ) );
 
+            // Add all recordings
             var dbRecordings = DatabaseContext.Recordings;
             foreach (var recording in legacyDatabaseContent.Recordings.Take( 100 ))
                 dbRecordings.Add(

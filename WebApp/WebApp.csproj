@@ -104,6 +104,12 @@
     <Content Include="App_Data\Movies_log.ldf">
       <DependentUpon>Movies.mdf</DependentUpon>
     </Content>
+    <Content Include="Content\appStyles.css">
+      <DependentUpon>appStyles.less</DependentUpon>
+    </Content>
+    <Content Include="Content\appStyles.min.css">
+      <DependentUpon>appStyles.css</DependentUpon>
+    </Content>
     <Content Include="Content\themes\base\images\animated-overlay.gif" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
@@ -166,6 +172,10 @@
     <Content Include="Content\themes\base\minified\jquery.ui.tabs.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.tooltip.min.css" />
+    <Content Include="Content\appStyles.less" />
+    <Content Include="Content\appStyles.css.map">
+      <DependentUpon>appStyles.css</DependentUpon>
+    </Content>
     <None Include="Scripts\jquery-2.1.0.intellisense.js" />
     <Content Include="default.html" />
     <Content Include="Scripts\jquery-2.1.0.js" />
@@ -210,6 +220,7 @@
     </Compile>
     <Compile Include="App_Start\GlobalStartupCode.cs" />
     <Compile Include="App_Start\UnityConfig.cs" />
+    <Compile Include="Controllers\ApplicationController.cs" />
     <Compile Include="Controllers\MovieController.cs" />
     <Compile Include="DAL\Database.cs" />
     <Compile Include="DAL\DatabaseExtensions.cs" />
@@ -217,8 +228,10 @@
     <Compile Include="DAL\RecordingRepository.cs" />
     <Compile Include="DAL\Repository.cs" />
     <Compile Include="DAL\DatabaseRequestContext.cs" />
+    <Compile Include="Models\ApplicationInformation.cs" />
     <Compile Include="Models\Language.cs" />
     <Compile Include="Models\Recording.cs" />
+    <Compile Include="Models\SearchInformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

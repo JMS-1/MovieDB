@@ -1,9 +1,34 @@
 ﻿/// <reference path='typings/jquery/jquery.d.ts' />
 /// <reference path='typings/jqueryui/jqueryui.d.ts' />
-var VCRServer;
-(function (VCRServer) {
+var MovieDatabase;
+(function (MovieDatabase) {
+    var Styles = (function () {
+        function Styles() {
+        }
+        Styles.invisble = 'invisible';
+        return Styles;
+    })();
+
+    
+
+    
+
+    
+
+    
+    ;
+
     $(function () {
-        $.ajax('movie/db').done(function (data) {
+        // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
+        $.ajax('movie/info').done(function (result) {
+            // Ab jetzt sind wir bereit
+            $('#headline').text('VCR.NET Mediendatenbank');
+            $('#main').removeClass(Styles.invisble);
+        });
+
+        // Spielkram!
+        $.ajax('movie/db').done(function (result) {
+            var x = result;
         });
 
         $('#startUpload').button().click(function (evo) {
@@ -23,5 +48,5 @@ var VCRServer;
             });
         });
     });
-})(VCRServer || (VCRServer = {}));
+})(MovieDatabase || (MovieDatabase = {}));
 //# sourceMappingURL=appCode.js.map

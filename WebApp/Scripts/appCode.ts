@@ -1,11 +1,58 @@
 ﻿/// <reference path='typings/jquery/jquery.d.ts' />
 /// <reference path='typings/jqueryui/jqueryui.d.ts' />
 
-module VCRServer {
+
+module MovieDatabase {
+
+    class Styles {
+        static invisble = 'invisible';
+    }
+
+    // Die Informationen zu einer Tonspur
+    interface ILanguage {
+        id: string;
+
+        description: string;
+    }
+
+    // Die Beschreibung einer Aufnahme
+    interface IRecording {
+        id: string;
+
+        title: string;
+
+        languages: ILanguage[];
+    }
+
+    // Das Ergebnis einer Suche
+    interface ISearchInformation {
+        page: number;
+
+        index: number;
+
+        total: number;
+
+        recordings: IRecording[];
+    }
+
+    // Einige Informationen zur Anwendungsumgebung
+    interface IApplicationInformation {
+        empty: boolean;
+    };
+
     $(() => {
+        // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
+        $.ajax('movie/info').done((result: IApplicationInformation) => {
+            // Ab jetzt sind wir bereit
+            $('#headline').text('VCR.NET Mediendatenbank');
+            $('#main').removeClass(Styles.invisble);
+        });
+
+        // Spielkram!
         $
             .ajax('movie/db')
-            .done(data => {
+            .done((result: ISearchInformation) => {
+                var x = result;
             });
 
         $('#startUpload').button()
