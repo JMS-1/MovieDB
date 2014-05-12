@@ -24,6 +24,39 @@ module MovieDatabase {
         languages: ILanguage[];
     }
 
+    // Die Eigenschaften, nach denen Aufzeichnungen sortiert werden können
+    class OrderSelector {
+        static title: string = 'title';
+
+        static created: string = 'date';
+    }
+
+    // Eine Suchanfrage
+    class SearchRequest {
+        constructor() {
+        }
+
+        size: number = 15;
+
+        page: number = 0;
+
+        order: string = OrderSelector.title;
+
+        ascending: boolean = true;
+
+        send(): JQueryPromise<ISearchInformation> {
+
+            return $.ajax('movie/db', {
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(this),
+                dataType: "json",
+                type: "POST",
+            });
+        }
+
+        static Current: SearchRequest = new SearchRequest();
+    }
+
     // Das Ergebnis einer Suche
     interface ISearchInformation {
         page: number;
@@ -47,13 +80,6 @@ module MovieDatabase {
             $('#headline').text('VCR.NET Mediendatenbank');
             $('#main').removeClass(Styles.invisble);
         });
-
-        // Spielkram!
-        $
-            .ajax('movie/db')
-            .done((result: ISearchInformation) => {
-                var x = result;
-            });
 
         $('#startUpload').button()
             .click(evo => {

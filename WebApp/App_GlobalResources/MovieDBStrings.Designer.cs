@@ -151,6 +151,15 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Nach der Eigenschaft kann nicht sortiert werden.
+        /// </summary>
+        internal static string Exception_BadProperty {
+            get {
+                return ResourceManager.GetString("Exception_BadProperty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Bisher ausgewählt: {0}.
         /// </summary>
         internal static string Format_Genres {

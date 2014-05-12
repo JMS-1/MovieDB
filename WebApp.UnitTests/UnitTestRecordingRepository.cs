@@ -6,17 +6,17 @@ using WebApp.Models;
 
 namespace WebApp.Tests
 {
-    public class RecordingRepositoryMock : IRecordingRepository
+    public class UnitTestRecordingRepository : IRecordingRepository
     {
         private readonly Recording[] m_recordings = { };
 
-        private RecordingRepositoryMock()
+        private UnitTestRecordingRepository()
         {
         }
 
-        public static RecordingRepositoryMock Create()
+        public static UnitTestRecordingRepository Create()
         {
-            return new RecordingRepositoryMock();
+            return new UnitTestRecordingRepository();
         }
 
         public Recording Add( Recording newEntity )

@@ -14,7 +14,7 @@ namespace WebApp.Tests
 
         public static UnitTestRequestContext Create( ILanguageRepository languages = null, IRecordingRepository recordings = null )
         {
-            return new UnitTestRequestContext( languages ?? LanguageRepositoryMock.Create(), recordings ?? RecordingRepositoryMock.Create() );
+            return new UnitTestRequestContext( languages ?? UnitTestLanguageRepository.Create(), recordings ?? UnitTestRecordingRepository.Create() );
         }
 
         public ILanguageRepository Languages { get; private set; }

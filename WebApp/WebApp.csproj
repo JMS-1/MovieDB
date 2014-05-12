@@ -232,6 +232,7 @@
     <Compile Include="Models\Language.cs" />
     <Compile Include="Models\Recording.cs" />
     <Compile Include="Models\SearchInformation.cs" />
+    <Compile Include="Models\SearchRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

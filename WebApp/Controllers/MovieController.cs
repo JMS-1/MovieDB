@@ -46,38 +46,36 @@ namespace WebApp.Controllers
         /// <summary>
         /// Führt eine einfache Suche durch.
         /// </summary>
-        /// <param name="pageSize">Die Anzahl der Ergebnisse pro Seite.</param>
-        /// <param name="pageIndex">Die aktuell zu verwendende Seite.</param>
         /// <returns>Eine Liste passender Ergebnisse.</returns>
         [HttpGet]
         [Route( "" )]
-        public SearchInformation ShowList( int pageSize = 10, int pageIndex = 0 )
+        public SearchInformation ShowList()
         {
-            // Validate parameters
-            if (pageSize < 1)
-                throw new InvalidOperationException( Resources.MovieDBStrings.Exception_BadPageSize );
-            if (pageSize > 250)
-                throw new InvalidOperationException( Resources.MovieDBStrings.Exception_BadPageSize );
-            if (pageIndex < 0)
-                throw new InvalidOperationException( Resources.MovieDBStrings.Exception_BadPageIndex );
+            return ShowList( null );
+        }
 
-            // Full check against limit
-            var offset = (long) pageIndex * (long) pageSize;
-            if ((offset + pageSize) > int.MaxValue)
-                throw new InvalidOperationException( Resources.MovieDBStrings.Exception_BadPageIndex );
+        /// <summary>
+        /// Führt eine einfache Suche durch.
+        /// </summary>
+        /// <param name="request">Die Beschreibung der auszuführenden Suche.</param>
+        /// <returns>Eine Liste passender Ergebnisse.</returns>
+        [HttpPost]
+        [Route( "" )]
+        public SearchInformation ShowList( [FromBody] SearchRequest request )
+        {
+            // Default
+            if (request == null)
+                request = new SearchRequest();
+
+            // Prepare
+            request.Validate();
 
             // Root query
-            var recordings = DatabaseContext.Recordings.Query();
-
-            // Apply order
-            recordings = recordings.OrderBy( recording => recording.Title );
-
-            // Apply start offset
-            if (offset > 0)
-                recordings = recordings.Skip( (int) offset );
-
-            // Always restrict number of results
-            recordings = recordings.Take( pageSize );
+            var recordings = 
+                DatabaseContext
+                    .Recordings
+                    .Query()
+                    .Apply( request );
 
             // Time to execute
             return
@@ -85,8 +83,8 @@ namespace WebApp.Controllers
                 {
                     TotalCount = DatabaseContext.Recordings.Query().Count(),
                     Recordings = recordings.ToArray(),
-                    PageIndex = pageIndex,
-                    PageSize = pageSize,
+                    PageIndex = request.PageIndex,
+                    PageSize = request.PageSize,
                 };
         }
 

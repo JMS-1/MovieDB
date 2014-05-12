@@ -1,26 +1,33 @@
 ﻿using System.Data.Entity;
-using System.Linq;
 using WebApp.Models;
 
 
 namespace WebApp.DAL
 {
+    /// <summary>
+    /// Die Schnittstelle zur Verwaltung der Sprachen.
+    /// </summary>
     public interface ILanguageRepository : IRepository<Language>
     {
     }
 
-    public class LanguageRepository : Repository<Language>, ILanguageRepository
+    /// <summary>
+    /// Die Verwaltung der Sprachen in der Datenbank.
+    /// </summary>
+    internal class LanguageRepository : Repository<Language>, ILanguageRepository
     {
+        /// <summary>
+        /// Erstellt eine neue Verwaltung.
+        /// </summary>
+        /// <param name="database">Die zugehörige Datenbank.</param>
         public LanguageRepository( Database database )
             : base( database )
         {
         }
 
-        protected override IQueryable<Language> All { get { return Database.Languages; } }
-
-        public override Language Add( Language newEntity )
-        {
-            return Database.Languages.Add( newEntity );
-        }
+        /// <summary>
+        /// Meldet alle Sprachen in der Datenbank.
+        /// </summary>
+        protected override DbSet<Language> All { get { return Database.Languages; } }
     }
 }

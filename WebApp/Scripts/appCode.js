@@ -13,6 +13,37 @@ var MovieDatabase;
 
     
 
+    // Die Eigenschaften, nach denen Aufzeichnungen sortiert werden können
+    var OrderSelector = (function () {
+        function OrderSelector() {
+        }
+        OrderSelector.title = 'title';
+
+        OrderSelector.created = 'date';
+        return OrderSelector;
+    })();
+
+    // Eine Suchanfrage
+    var SearchRequest = (function () {
+        function SearchRequest() {
+            this.size = 15;
+            this.page = 0;
+            this.order = OrderSelector.title;
+            this.ascending = true;
+        }
+        SearchRequest.prototype.send = function () {
+            return $.ajax('movie/db', {
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(this),
+                dataType: "json",
+                type: "POST"
+            });
+        };
+
+        SearchRequest.Current = new SearchRequest();
+        return SearchRequest;
+    })();
+
     
 
     
@@ -24,11 +55,6 @@ var MovieDatabase;
             // Ab jetzt sind wir bereit
             $('#headline').text('VCR.NET Mediendatenbank');
             $('#main').removeClass(Styles.invisble);
-        });
-
-        // Spielkram!
-        $.ajax('movie/db').done(function (result) {
-            var x = result;
         });
 
         $('#startUpload').button().click(function (evo) {

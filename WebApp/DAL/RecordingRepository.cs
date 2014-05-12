@@ -5,31 +5,35 @@ using WebApp.Models;
 
 namespace WebApp.DAL
 {
+    /// <summary>
+    /// Die Schnittstelle zur Verwaltung der Aufnahmen.
+    /// </summary>
     public interface IRecordingRepository : IRepository<Recording>
     {
     }
 
-    public class RecordingRepository : Repository<Recording>, IRecordingRepository
+    /// <summary>
+    /// Die Verwaltung der Aufnahmen in der Datenbank.
+    /// </summary>
+    internal class RecordingRepository : Repository<Recording>, IRecordingRepository
     {
+        /// <summary>
+        /// Erstellt eine neue Verwaltung für Aufnahmen.
+        /// </summary>
+        /// <param name="database">Die zu verwendende Datenbank.</param>
         public RecordingRepository( Database database )
             : base( database )
         {
         }
 
-        public override Recording Add( Recording newEntity )
-        {
-            return Database.Recordings.Add( newEntity );
-        }
+        /// <summary>
+        /// Meldet alle Aufnahmen in der Datenbank.
+        /// </summary>
+        protected override IQueryable<Recording> StandardQuery { get { return All.Include( recording => recording.Languages ); } }
 
-        protected override IQueryable<Recording> All
-        {
-            get
-            {
-                return
-                    Database
-                        .Recordings
-                        .Include( recording => recording.Languages );
-            }
-        }
+        /// <summary>
+        /// Meldet alle Aufnahmen in der Datenbank.
+        /// </summary>
+        protected override DbSet<Recording> All { get { return Database.Recordings; } }
     }
 }

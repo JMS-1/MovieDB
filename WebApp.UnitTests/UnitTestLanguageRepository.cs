@@ -6,17 +6,17 @@ using WebApp.Models;
 
 namespace WebApp.Tests
 {
-    public class LanguageRepositoryMock : ILanguageRepository
+    public class UnitTestLanguageRepository : ILanguageRepository
     {
         private readonly Language[] m_languages = { };
 
-        private LanguageRepositoryMock()
+        private UnitTestLanguageRepository()
         {
         }
 
-        public static LanguageRepositoryMock Create()
+        public static UnitTestLanguageRepository Create()
         {
-            return new LanguageRepositoryMock();
+            return new UnitTestLanguageRepository();
         }
 
         public Language Add( Language newEntity )

@@ -174,4 +174,7 @@
   <data name="Exception_BadPageSize" xml:space="preserve">
     <value>Die Anzahl der Ergebnisse einer Suche muss zwischen 1 und 250 liegen (jeweils einschließlich).</value>
   </data>
+  <data name="Exception_BadProperty" xml:space="preserve">
+    <value>Nach der Eigenschaft kann nicht sortiert werden</value>
+  </data>
 </root>
