@@ -186,33 +186,15 @@
     <Content Include="Scripts\jquery-2.1.0.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\Source Control\MovieDB\App_Code\IIdentifierListProvider.cs">
-      <Link>App_Code\Legacy\IIdentifierListProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Source Control\MovieDB\App_Code\MovieDBContainer.cs">
-      <Link>App_Code\Legacy\MovieDBContainer.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Source Control\MovieDB\App_Code\MovieDBDatabase.cs">
-      <Link>App_Code\Legacy\MovieDBDatabase.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Source Control\MovieDB\App_Code\MovieDBLink.cs">
-      <Link>App_Code\Legacy\MovieDBLink.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Source Control\MovieDB\App_Code\MovieDBMedia.cs">
-      <Link>App_Code\Legacy\MovieDBMedia.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Source Control\MovieDB\App_Code\MovieDBMediaTypes.cs">
-      <Link>App_Code\Legacy\MovieDBMediaTypes.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Source Control\MovieDB\App_Code\MovieDBRecording.cs">
-      <Link>App_Code\Legacy\MovieDBRecording.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Source Control\MovieDB\App_Code\MovieDBRecordingFilter.cs">
-      <Link>App_Code\Legacy\MovieDBRecordingFilter.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Source Control\MovieDB\App_Code\MovieDBSeries.cs">
-      <Link>App_Code\Legacy\MovieDBSeries.cs</Link>
-    </Compile>
+    <Compile Include="DAL\Legacy\IIdentifierListProvider.cs" />
+    <Compile Include="DAL\Legacy\MovieDBContainer.cs" />
+    <Compile Include="DAL\Legacy\MovieDBDatabase.cs" />
+    <Compile Include="DAL\Legacy\MovieDBLink.cs" />
+    <Compile Include="DAL\Legacy\MovieDBMedia.cs" />
+    <Compile Include="DAL\Legacy\MovieDBMediaTypes.cs" />
+    <Compile Include="DAL\Legacy\MovieDBRecording.cs" />
+    <Compile Include="DAL\Legacy\MovieDBRecordingFilter.cs" />
+    <Compile Include="DAL\Legacy\MovieDBSeries.cs" />
     <Compile Include="App_GlobalResources\MovieDBStrings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
