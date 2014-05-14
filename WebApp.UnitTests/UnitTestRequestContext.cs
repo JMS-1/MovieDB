@@ -6,18 +6,27 @@ namespace WebApp.Tests
 {
     public class UnitTestRequestContext : IRequestContext
     {
-        private UnitTestRequestContext( ILanguageRepository languages, IRecordingRepository recordings )
+        private UnitTestRequestContext( ILanguageRepository languages, IRecordingRepository recordings, IGenreRepository genres )
         {
+            Genres = genres;
             Languages = languages;
             Recordings = recordings;
         }
 
-        public static UnitTestRequestContext Create( ILanguageRepository languages = null, IRecordingRepository recordings = null )
+        public static UnitTestRequestContext Create( ILanguageRepository languages = null, IRecordingRepository recordings = null, IGenreRepository genres = null )
         {
-            return new UnitTestRequestContext( languages ?? UnitTestLanguageRepository.Create(), recordings ?? UnitTestRecordingRepository.Create() );
+            return
+                new UnitTestRequestContext
+                    (
+                        languages ?? UnitTestLanguageRepository.Create(),
+                        recordings ?? UnitTestRecordingRepository.Create(),
+                        genres ?? UnitTestGenreRepository.Create()
+                    );
         }
 
         public ILanguageRepository Languages { get; private set; }
+
+        public IGenreRepository Genres { get; private set; }
 
         public IRecordingRepository Recordings { get; private set; }
 

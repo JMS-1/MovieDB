@@ -71,7 +71,7 @@ namespace WebApp.Controllers
             request.Validate();
 
             // Root query
-            var recordings = 
+            var recordings =
                 DatabaseContext
                     .Recordings
                     .Query()
@@ -101,7 +101,7 @@ namespace WebApp.Controllers
                 throw new HttpResponseException( HttpStatusCode.UnsupportedMediaType );
 
             // Can only initialize an empty database
-            if (DatabaseContext.TestEmpty())
+            if (!DatabaseContext.TestEmpty())
                 throw new HttpResponseException( HttpStatusCode.Forbidden );
 
             // Decode
@@ -143,11 +143,17 @@ namespace WebApp.Controllers
         {
             // Just improve lookup speed a bit - hey, EF is not so fast...
             var languageMap = new Dictionary<string, Language>();
+            var genreMap = new Dictionary<string, Genre>();
 
             // Add all languages
             var dbLanguages = DatabaseContext.Languages;
             foreach (var language in new HashSet<string>( legacyDatabaseContent.Languages.Select( l => l.ToLower() ) ))
-                languageMap.Add( language, dbLanguages.Add( new Language { Short = language, Long = language, } ) );
+                languageMap.Add( language, dbLanguages.Add( new Language { Short = language, Long = language } ) );
+
+            // Add all genres
+            var dbGenres = DatabaseContext.Genres;
+            foreach (var genre in new HashSet<string>( legacyDatabaseContent.Genres ))
+                genreMap.Add( genre, dbGenres.Add( new Genre { Name = genre } ) );
 
             // Add all recordings
             var dbRecordings = DatabaseContext.Recordings;
@@ -156,6 +162,7 @@ namespace WebApp.Controllers
                         new Recording
                         {
                             Languages = recording.Languages.Select( language => languageMap[language.ToLower()] ).ToList(),
+                            Genres = recording.Genres.Select( genre => genreMap[genre] ).ToList(),
                             Title = recording.Title,
                             Id = recording.UniqueId,
                         } );

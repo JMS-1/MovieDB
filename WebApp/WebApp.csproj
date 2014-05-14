@@ -186,6 +186,7 @@
     <Content Include="Scripts\jquery-2.1.0.min.map" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DAL\GenreRepository.cs" />
     <Compile Include="DAL\Legacy\IIdentifierListProvider.cs" />
     <Compile Include="DAL\Legacy\MovieDBContainer.cs" />
     <Compile Include="DAL\Legacy\MovieDBDatabase.cs" />
@@ -211,6 +212,7 @@
     <Compile Include="DAL\Repository.cs" />
     <Compile Include="DAL\DatabaseRequestContext.cs" />
     <Compile Include="Models\ApplicationInformation.cs" />
+    <Compile Include="Models\Genre.cs" />
     <Compile Include="Models\Language.cs" />
     <Compile Include="Models\Recording.cs" />
     <Compile Include="Models\SearchInformation.cs" />

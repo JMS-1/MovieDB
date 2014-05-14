@@ -40,6 +40,11 @@ namespace WebApp
         public DbSet<Language> Languages { get; set; }
 
         /// <summary>
+        /// Verwaltet die Aufnahmearten.
+        /// </summary>
+        public DbSet<Genre> Genres { get; set; }
+
+        /// <summary>
         /// Wird beim Anlegen des Datenbankmodells aufgerufen.
         /// </summary>
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>

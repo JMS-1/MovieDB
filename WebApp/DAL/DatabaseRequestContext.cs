@@ -22,6 +22,11 @@ namespace WebApp.DAL
         IRecordingRepository Recordings { get; }
 
         /// <summary>
+        /// Die Verwaltung der Arten von Aufnahmen.
+        /// </summary>
+        IGenreRepository Genres { get; }
+
+        /// <summary>
         /// Beginnt das Abspeichern von Veränderungen.
         /// </summary>
         /// <returns>Die Steuereinheit für den Speichervorgang.</returns>
@@ -91,6 +96,25 @@ namespace WebApp.DAL
         }
 
         /// <summary>
+        /// Die Verwaltung der Arten von Aufnahmen.
+        /// </summary>
+        private IGenreRepository m_genres;
+
+        /// <summary>
+        /// Die Verwaltung der Arten von Aufnahmen.
+        /// </summary>
+        public IGenreRepository Genres
+        {
+            get
+            {
+                if (m_genres == null)
+                    m_genres = new GenreRepository( Database );
+
+                return m_genres;
+            }
+        }
+
+        /// <summary>
         /// Beendet diesen Zugriff auf die Datenbank endgültig.
         /// </summary>
         public void Dispose()
@@ -100,6 +124,7 @@ namespace WebApp.DAL
             {
                 m_recordings = null;
                 m_languages = null;
+                m_genres = null;
             }
         }
 

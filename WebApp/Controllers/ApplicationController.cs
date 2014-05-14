@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Web.Http;
 using WebApp.DAL;
 using WebApp.Models;
@@ -44,6 +45,7 @@ namespace WebApp.Controllers
             return
                 new ApplicationInformation
                 {
+                    NumberOfRecordings = DatabaseContext.Recordings.Query().Count(),
                     DatabaseIsEmpty = DatabaseContext.TestEmpty(),
                 };
         }

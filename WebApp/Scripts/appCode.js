@@ -13,6 +13,8 @@ var MovieDatabase;
 
     
 
+    
+
     // Die Eigenschaften, nach denen Aufzeichnungen sortiert werden können
     var OrderSelector = (function () {
         function OrderSelector() {
@@ -49,30 +51,80 @@ var MovieDatabase;
     
     ;
 
-    $(function () {
-        // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
-        $.ajax('movie/info').done(function (result) {
-            // Ab jetzt sind wir bereit
-            $('#headline').text('VCR.NET Mediendatenbank');
-            $('#main').removeClass(Styles.invisble);
-        });
-
-        $('#startUpload').button().click(function (evo) {
-            var fileInput = ($('#theFile')[0]);
+    // Repräsentiert die Anwendung als Ganzes
+    var Application = (function () {
+        function Application() {
+            var _this = this;
+            $(function () {
+                return _this.startup();
+            });
+        }
+        Application.prototype.migrate = function () {
+            var _this = this;
+            var fileInput = (this.legacyFile[0]);
             if (fileInput.files.length != 1)
                 return;
 
             var data = new FormData();
             data.append('legacyFile', fileInput.files[0]);
 
-            $.ajax('movie/db/initialize', {
+            var request = {
                 contentType: false,
                 processData: false,
                 type: 'POST',
                 data: data
-            }).done(function (data) {
+            };
+
+            $.ajax('movie/db/initialize', request).done(function () {
+                return _this.refresh();
             });
-        });
-    });
+        };
+
+        Application.prototype.refresh = function () {
+            var _this = this;
+            this.requestApplicationInformation().done(function (info) {
+                return _this.fillApplicationInformation(info);
+            });
+        };
+
+        Application.prototype.fillApplicationInformation = function (info) {
+            if (info.empty)
+                this.migrateButton.removeClass(Styles.invisble);
+            else
+                this.migrateButton.addClass(Styles.invisble);
+
+            $('#countInfo').text('(Es gibt ' + info.total + ' Aufzeichnung' + ((info.total == 1) ? '' : 'en') + ')');
+        };
+
+        Application.prototype.requestApplicationInformation = function () {
+            return $.ajax('movie/info');
+        };
+
+        Application.prototype.startup = function () {
+            var _this = this;
+            // Migration vorbereiten
+            this.legacyFile = $('#theFile');
+            this.legacyFile.change(function () {
+                return _this.migrate();
+            });
+
+            this.migrateButton = $('#migrate');
+            this.migrateButton.button().click(function () {
+                return _this.legacyFile.click();
+            });
+
+            // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
+            this.requestApplicationInformation().done(function (info) {
+                $('#headline').text('VCR.NET Mediendatenbank');
+
+                _this.fillApplicationInformation(info);
+
+                // Ab jetzt sind wir bereit
+                $('#main').removeClass(Styles.invisble);
+            });
+        };
+        Application.Current = new Application();
+        return Application;
+    })();
 })(MovieDatabase || (MovieDatabase = {}));
 //# sourceMappingURL=appCode.js.map

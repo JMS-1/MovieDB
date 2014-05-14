@@ -15,6 +15,11 @@ module MovieDatabase {
         description: string;
     }
 
+    // Die Information zu eiuner einzelnen Art von Aufnahme
+    interface IGenre {
+        id: string;
+    }
+
     // Die Beschreibung einer Aufnahme
     interface IRecording {
         id: string;
@@ -22,6 +27,8 @@ module MovieDatabase {
         title: string;
 
         languages: ILanguage[];
+
+        genres: IGenre[];
     }
 
     // Die Eigenschaften, nach denen Aufzeichnungen sortiert werden können
@@ -71,34 +78,74 @@ module MovieDatabase {
     // Einige Informationen zur Anwendungsumgebung
     interface IApplicationInformation {
         empty: boolean;
+
+        total: number;
     };
 
-    $(() => {
-        // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
-        $.ajax('movie/info').done((result: IApplicationInformation) => {
-            // Ab jetzt sind wir bereit
-            $('#headline').text('VCR.NET Mediendatenbank');
-            $('#main').removeClass(Styles.invisble);
-        });
+    // Repräsentiert die Anwendung als Ganzes
+    class Application {
+        constructor() {
+            $(() => this.startup());
+        }
 
-        $('#startUpload').button()
-            .click(evo => {
-                var fileInput = <HTMLInputElement>($('#theFile')[0]);
-                if (fileInput.files.length != 1)
-                    return;
+        static Current: Application = new Application();
 
-                var data = new FormData();
-                data.append('legacyFile', fileInput.files[0]);
+        private legacyFile: JQuery;
 
-                $
-                    .ajax('movie/db/initialize', {
-                        contentType: false,
-                        processData: false,
-                        type: 'POST',
-                        data: data,
-                    })
-                    .done(data => {
-                    })
+        private migrateButton: JQuery;
+
+        private migrate(): void {
+            var fileInput = <HTMLInputElement>(this.legacyFile[0]);
+            if (fileInput.files.length != 1)
+                return;
+
+            var data = new FormData();
+            data.append('legacyFile', fileInput.files[0]);
+
+            var request: JQueryAjaxSettings = {
+                contentType: false,
+                processData: false,
+                type: 'POST',
+                data: data,
+            };
+
+            $.ajax('movie/db/initialize', request).done(() => this.refresh());
+        }
+
+        private refresh(): void {
+            this.requestApplicationInformation().done(info => this.fillApplicationInformation(info));
+        }
+
+        private fillApplicationInformation(info: IApplicationInformation): void {
+            if (info.empty)
+                this.migrateButton.removeClass(Styles.invisble);
+            else
+                this.migrateButton.addClass(Styles.invisble);
+
+            $('#countInfo').text('(Es gibt ' + info.total + ' Aufzeichnung' + ((info.total == 1) ? '' : 'en') + ')');
+        }
+
+        private requestApplicationInformation(): JQueryPromise<IApplicationInformation> {
+            return $.ajax('movie/info');
+        }
+
+        private startup(): void {
+            // Migration vorbereiten
+            this.legacyFile = $('#theFile');
+            this.legacyFile.change(() => this.migrate());
+
+            this.migrateButton = $('#migrate');
+            this.migrateButton.button().click(() => this.legacyFile.click());
+
+            // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
+            this.requestApplicationInformation().done(info => {
+                $('#headline').text('VCR.NET Mediendatenbank');
+
+                this.fillApplicationInformation(info);
+
+                // Ab jetzt sind wir bereit
+                $('#main').removeClass(Styles.invisble);
             });
-    });
+        }
+    }
 } 
