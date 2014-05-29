@@ -45,6 +45,16 @@ namespace WebApp
         public DbSet<Genre> Genres { get; set; }
 
         /// <summary>
+        /// Alle konkreten Aufbewahrungen.
+        /// </summary>
+        public DbSet<Container> Containers { get; set; }
+
+        /// <summary>
+        /// Alle Referenzen auf konkrete Aufbewahrungen.
+        /// </summary>
+        public DbSet<ContainerReference> ContainerReferences { get; set; }
+
+        /// <summary>
         /// Wird beim Anlegen des Datenbankmodells aufgerufen.
         /// </summary>
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>

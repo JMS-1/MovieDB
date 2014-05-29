@@ -27,6 +27,16 @@ namespace WebApp.DAL
         IGenreRepository Genres { get; }
 
         /// <summary>
+        /// Die Verwaltung der Aufbewahrungen.
+        /// </summary>
+        IContainerRepository Containers { get; }
+
+        /// <summary>
+        /// Die Verwaltung der Referenzen auf Aufbewahrungen.
+        /// </summary>
+        IContainerReferenceRepository ContainerReferences { get; }
+
+        /// <summary>
         /// Beginnt das Abspeichern von Veränderungen.
         /// </summary>
         /// <returns>Die Steuereinheit für den Speichervorgang.</returns>
@@ -115,6 +125,44 @@ namespace WebApp.DAL
         }
 
         /// <summary>
+        /// Die Verwaltung der Aufbewahrungen.
+        /// </summary>
+        private IContainerRepository m_containers;
+
+        /// <summary>
+        /// Die Verwaltung der Aufbewahrungen.
+        /// </summary>
+        public IContainerRepository Containers
+        {
+            get
+            {
+                if (m_containers == null)
+                    m_containers = new ContainerRepository( Database );
+
+                return m_containers;
+            }
+        }
+
+        /// <summary>
+        /// Die Verwaltung der Referenzen auf Aufbewahrungen.
+        /// </summary>
+        private IContainerReferenceRepository m_containerReferences;
+
+        /// <summary>
+        /// Die Verwaltung der Referenzen auf Aufbewahrungen.
+        /// </summary>
+        public IContainerReferenceRepository ContainerReferences
+        {
+            get
+            {
+                if (m_containerReferences == null)
+                    m_containerReferences = new ContainerReferenceRepository( Database );
+
+                return m_containerReferences;
+            }
+        }
+
+        /// <summary>
         /// Beendet diesen Zugriff auf die Datenbank endgültig.
         /// </summary>
         public void Dispose()
@@ -122,6 +170,8 @@ namespace WebApp.DAL
             // Proper cleanup of underlying context
             using (Interlocked.Exchange( ref m_database, null ))
             {
+                m_containerReferences = null;
+                m_containers = null;
                 m_recordings = null;
                 m_languages = null;
                 m_genres = null;
