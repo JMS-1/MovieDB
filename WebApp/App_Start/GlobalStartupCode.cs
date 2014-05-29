@@ -60,7 +60,7 @@ namespace WebApp
                     GlobalConfiguration.Configure( config => config.MapHttpAttributeRoutes() );
 
                     // Prepare database
-                    Database.CreateOnce( Path.Combine( context.Server.MapPath( @"~\App_Data\Movie.mdf" ) ) );
+                    Database.CreateOnce( Path.Combine( HttpRuntime.AppDomainAppPath, @"App_Data\Movie.mdf" ) );
 
                     // Mark as initialized
                     application[_InitializationKey] = true;
