@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Data.SqlClient;
 using System.Diagnostics;
@@ -27,6 +28,7 @@ namespace WebApp
         /// Erstellt eine neue Zugriffsinstanz auf die Datenbank.
         /// </summary>
         public Database()
+            : base( _DatabaseConnectionString )
         {
             RegisterLogger();
         }
@@ -81,7 +83,7 @@ namespace WebApp
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
         protected override void OnModelCreating( DbModelBuilder modelBuilder )
         {
-            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
+            throw new UnintentionalCodeFirstException();
         }
 
         /// <summary>
@@ -90,7 +92,7 @@ namespace WebApp
         /// <param name="pathToDatabase">Der volle Pfad zur Datenbank.</param>
         public static void CreateOnce( string pathToDatabase )
         {
-            _DatabaseConnectionString = string.Format( @"Data Source=(LocalDB)\v11.0;AttachDbFilename={0};Integrated Security=True", pathToDatabase );
+            _DatabaseConnectionString = string.Format( @"Data Source=(LocalDB)\v11.0;AttachDbFilename={0};Integrated Security=True;MultipleActiveResultSets=True", pathToDatabase );
 
             // Remember and test
             if (File.Exists( _DatabasePath = pathToDatabase ))
