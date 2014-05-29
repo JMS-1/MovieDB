@@ -4,12 +4,12 @@
 		[Name]        NVARCHAR (50)   NOT NULL,
 		[Type]        TINYINT         NOT NULL,
 		[Description] NVARCHAR (2000) NULL,
-		PRIMARY KEY CLUSTERED ([Name] ASC)
+		PRIMARY KEY CLUSTERED ([Name])
 	);
 	GO
 
 	CREATE NONCLUSTERED INDEX [PK__Containers]
-		ON [dbo].[Containers]([Name] ASC);
+		ON [dbo].[Containers]([Name]);
 	GO
 
 	CREATE TABLE [dbo].[ContainerHierarchy] (
@@ -22,11 +22,11 @@
 	GO
 
 	CREATE NONCLUSTERED INDEX [IX_ContainerHierarchy_Parent]
-		ON [dbo].[ContainerHierarchy]([Parent] ASC);
+		ON [dbo].[ContainerHierarchy]([Parent]);
 	GO
 
 	CREATE NONCLUSTERED INDEX [IX_ContainerHierarchy_Child]
-		ON [dbo].[ContainerHierarchy]([Child] ASC);
+		ON [dbo].[ContainerHierarchy]([Child]);
 	GO
 
 	CREATE TRIGGER [dbo].[Delete_Container]
@@ -45,25 +45,29 @@
 	CREATE TABLE [dbo].[Genres] (
 		[Short] NVARCHAR (20)  NOT NULL,
 		[Long]  NVARCHAR (100) NOT NULL,
-		PRIMARY KEY CLUSTERED ([Short] ASC)
+		PRIMARY KEY CLUSTERED ([Short])
 	);
 	GO
 
 	CREATE UNIQUE NONCLUSTERED INDEX [PK_Genres]
-		ON [dbo].[Genres]([Short] ASC);
+		ON [dbo].[Genres]([Short]);
 	GO
 
 -- Language
 
 	CREATE TABLE [dbo].[Languages] (
-		[Short] CHAR (2)       NOT NULL,
+		[Short] NCHAR (2)      NOT NULL,
 		[Long]  NVARCHAR (100) NOT NULL,
-		PRIMARY KEY CLUSTERED ([Short] ASC)
+		PRIMARY KEY CLUSTERED ([Short])
 	);
 	GO
 
-	CREATE NONCLUSTERED INDEX [PK_Language]
-		ON [dbo].[Languages]([Short] ASC);
+	CREATE UNIQUE NONCLUSTERED INDEX [PK_Languages]
+		ON [dbo].[Languages]([Short]);
+	GO
+
+	CREATE UNIQUE NONCLUSTERED INDEX [IX_Languages_Long]
+		ON [dbo].[Languages]([Long]);
 	GO
 
 -- Links
@@ -78,11 +82,11 @@
 	GO
 
 	CREATE NONCLUSTERED INDEX [IX_Links_For]
-		ON [dbo].[Links]([For] ASC);
+		ON [dbo].[Links]([For]);
 	GO
 
 	CREATE NONCLUSTERED INDEX [IX_Links_Ordinal]
-		ON [dbo].[Links]([Ordinal] ASC);
+		ON [dbo].[Links]([Ordinal]);
 	GO
 
 -- Media
@@ -92,13 +96,13 @@
 		[Container] NVARCHAR (50)    NULL,
 		[Position]  NVARCHAR (100)   NULL,
 		[Id]        UNIQUEIDENTIFIER NOT NULL,
-		PRIMARY KEY CLUSTERED ([Id] ASC),
+		PRIMARY KEY CLUSTERED ([Id]),
 		CONSTRAINT [FK_Media_Container] FOREIGN KEY ([Container]) REFERENCES [dbo].[Containers] ([Name]) ON DELETE SET NULL
 	);
 	GO
 
 	CREATE NONCLUSTERED INDEX [PK_Media]
-		ON [dbo].[Media]([Id] ASC);
+		ON [dbo].[Media]([Id]);
 	GO
 
 -- Series
@@ -108,12 +112,12 @@
 		[Name]        NVARCHAR (50)    NOT NULL,
 		[Description] NVARCHAR (2000)  NULL,
 		[Parent]      UNIQUEIDENTIFIER NULL,
-		PRIMARY KEY CLUSTERED ([Id] ASC)
+		PRIMARY KEY CLUSTERED ([Id])
 	);
 	GO
 
 	CREATE UNIQUE NONCLUSTERED INDEX [PK_Series]
-		ON [dbo].[Series]([Id] ASC);
+		ON [dbo].[Series]([Id]);
 	GO
 
 	CREATE TRIGGER [dbo].[Delete_Series]
@@ -137,26 +141,26 @@
 		[Description] NVARCHAR (2000)  NULL,
 		[Media]       UNIQUEIDENTIFIER NULL,
 		[Series]      UNIQUEIDENTIFIER NULL,
-		PRIMARY KEY CLUSTERED ([Id] ASC),
+		PRIMARY KEY CLUSTERED ([Id]),
 		CONSTRAINT [FK_Recordings_Media] FOREIGN KEY ([Media]) REFERENCES [dbo].[Media] ([Id]) ON DELETE SET NULL,
 		CONSTRAINT [FK_Recordings_Series] FOREIGN KEY ([Series]) REFERENCES [dbo].[Series] ([Id]) ON DELETE SET NULL
 	);
 	GO
 
 	CREATE NONCLUSTERED INDEX [IX_Recordings_Created]
-		ON [dbo].[Recordings]([Created] ASC);
+		ON [dbo].[Recordings]([Created]);
 	GO
 
 	CREATE NONCLUSTERED INDEX [IX_Recordings_Name]
-		ON [dbo].[Recordings]([Name] ASC);
+		ON [dbo].[Recordings]([Name]);
 	GO
 
 	CREATE UNIQUE NONCLUSTERED INDEX [PK_Recordings]
-		ON [dbo].[Recordings]([Id] ASC);
+		ON [dbo].[Recordings]([Id]);
 	GO
 
 	CREATE NONCLUSTERED INDEX [IX_Recordings_Series]
-		ON [dbo].[Recordings]([Series] ASC);
+		ON [dbo].[Recordings]([Series]);
 	GO
 
 	CREATE TRIGGER [dbo].[Delete_Recordings]
@@ -178,15 +182,15 @@
 	GO
 
 	CREATE NONCLUSTERED INDEX [IX_RecordingGenres_Genre]
-		ON [dbo].[RecordingGenres]([Genre] ASC);
+		ON [dbo].[RecordingGenres]([Genre]);
 	GO
 
 	CREATE NONCLUSTERED INDEX [IX_RecordingGenres_Recording]
-		ON [dbo].[RecordingGenres]([Recording] ASC);
+		ON [dbo].[RecordingGenres]([Recording]);
 	GO
 
 	CREATE TABLE [dbo].[RecordingLanguages] (
-		[Language]  CHAR (2)         NOT NULL,
+		[Language]  NCHAR (2)        NOT NULL,
 		[Recording] UNIQUEIDENTIFIER NOT NULL,
 		CONSTRAINT [FK_RecordingLanguages_Language] FOREIGN KEY ([Language]) REFERENCES [dbo].[Languages] ([Short]) ON DELETE CASCADE,
 		CONSTRAINT [FK_RecordingLanguages_Recording] FOREIGN KEY ([Recording]) REFERENCES [dbo].[Recordings] ([Id]) ON DELETE CASCADE
@@ -194,9 +198,9 @@
 	GO
 
 	CREATE NONCLUSTERED INDEX [IX_RecordingLanguages_Language]
-		ON [dbo].[RecordingLanguages]([Language] ASC);
+		ON [dbo].[RecordingLanguages]([Language]);
 	GO
 
 	CREATE NONCLUSTERED INDEX [IX_RecordingLanguages_Recording]
-		ON [dbo].[RecordingLanguages]([Recording] ASC);
+		ON [dbo].[RecordingLanguages]([Recording]);
 	GO

@@ -29,16 +29,7 @@ namespace WebApp.DAL
         /// <summary>
         /// Meldet alle Aufnahmen in der Datenbank.
         /// </summary>
-        protected override IQueryable<Recording> StandardQuery
-        {
-            get
-            {
-                return
-                    All
-                        .Include( recording => recording.Languages )
-                        .Include( recording => recording.Genres );
-            }
-        }
+        protected override IQueryable<Recording> StandardQuery { get { return All; } }
 
         /// <summary>
         /// Meldet alle Aufnahmen in der Datenbank.

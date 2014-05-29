@@ -171,7 +171,7 @@ namespace WebApp.Controllers
             // Add all languages
             var dbLanguages = DatabaseContext.Languages;
             foreach (var language in new HashSet<string>( legacyDatabaseContent.Languages.Select( l => l.ToLower() ) ))
-                languageMap.Add( language, dbLanguages.Add( new Language { Short = language, Long = language } ) );
+                languageMap.Add( language, dbLanguages.Add( new Language { ShortName = language, LongName = language } ) );
 
             // Add all genres
             var dbGenres = DatabaseContext.Genres;
@@ -184,8 +184,8 @@ namespace WebApp.Controllers
                 dbRecordings.Add(
                     new Recording
                     {
-                        Languages = recording.Languages.Select( language => languageMap[language.ToLower()] ).ToList(),
-                        Genres = recording.Genres.Select( genre => genreMap[genre] ).ToList(),
+//                        Languages = recording.Languages.Select( language => languageMap[language.ToLower()] ).ToList(),
+//                        Genres = recording.Genres.Select( genre => genreMap[genre] ).ToList(),
                         Title = recording.Title,
                         Id = recording.UniqueId,
                     } );

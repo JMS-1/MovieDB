@@ -9,12 +9,37 @@ namespace WebApp.UnitTests
     /// <summary>
     /// Hilfsklasse für alle Tests, die mit der produktiven Datenbank arbeiten sollen.
     /// </summary>
-    public abstract class TestBase
+    public abstract class DatabaseTestBase
     {
         /// <summary>
         /// In diesem Verzeichnis wird die Datenbank angelegt.
         /// </summary>
         private readonly DirectoryInfo m_scratch = new DirectoryInfo( Path.Combine( Path.GetTempPath(), Guid.NewGuid().ToString() ) );
+
+        /// <summary>
+        /// Wird für jede Testmethode neu angelegt.
+        /// </summary>
+        protected Database TestContext;
+
+        /// <summary>
+        /// Wird vor jeder Testmethode aufgerufen.
+        /// </summary>
+        [SetUp]
+        public virtual void BeforeEachTest()
+        {
+            using (TestContext)
+                TestContext = new Database();
+        }
+
+        /// <summary>
+        /// Wird nach jeder Testmethode aufgerufen.
+        /// </summary>
+        [TearDown]
+        public virtual void AfterEachTest()
+        {
+            using (TestContext)
+                TestContext = null;
+        }
 
         /// <summary>
         /// Wird einmalig vor dem ersten Test aufgerufen.

@@ -25,17 +25,5 @@ namespace WebApp.Models
         [Required, StringLength( 200, MinimumLength = 1 )]
         [DataMember( Name = "title" )]
         public string Title { get; set; }
-
-        /// <summary>
-        /// Die Liste der Sprachen zur Aufzeichnung.
-        /// </summary>
-        [DataMember( Name = "languages" )]
-        public virtual ICollection<Language> Languages { get; set; }
-
-        /// <summary>
-        /// Die Art(en) der Aufnahme.
-        /// </summary>
-        [DataMember( Name = "genres" )]
-        public virtual ICollection<Genre> Genres { get; set; }
     }
 }

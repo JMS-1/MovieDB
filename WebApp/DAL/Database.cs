@@ -83,7 +83,7 @@ namespace WebApp
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
         protected override void OnModelCreating( DbModelBuilder modelBuilder )
         {
-            throw new UnintentionalCodeFirstException();
+            modelBuilder.Entity<Language>().Property( e => e.ShortName ).IsFixedLength();
         }
 
         /// <summary>
