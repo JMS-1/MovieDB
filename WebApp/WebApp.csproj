@@ -191,7 +191,6 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DAL\ContainerReferenceRepository.cs" />
     <Compile Include="DAL\ContainerRepository.cs" />
     <Compile Include="DAL\GenreRepository.cs" />
     <Compile Include="DAL\Legacy\IIdentifierListProvider.cs" />
@@ -220,7 +219,6 @@
     <Compile Include="DAL\DatabaseRequestContext.cs" />
     <Compile Include="Models\ApplicationInformation.cs" />
     <Compile Include="Models\Container.cs" />
-    <Compile Include="Models\ContainerReference.cs" />
     <Compile Include="Models\ContainerType.cs" />
     <Compile Include="Models\Genre.cs" />
     <Compile Include="Models\Language.cs" />

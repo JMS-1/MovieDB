@@ -50,11 +50,6 @@ namespace WebApp
         public DbSet<Container> Containers { get; set; }
 
         /// <summary>
-        /// Alle Referenzen auf konkrete Aufbewahrungen.
-        /// </summary>
-        public DbSet<ContainerReference> ContainerReferences { get; set; }
-
-        /// <summary>
         /// Wird beim Anlegen des Datenbankmodells aufgerufen.
         /// </summary>
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>

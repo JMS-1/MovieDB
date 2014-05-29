@@ -142,8 +142,31 @@ namespace WebApp.Controllers
         private void Initialize( MovieDB.Database legacyDatabaseContent )
         {
             // Just improve lookup speed a bit - hey, EF is not so fast...
+            var containerMap = new Dictionary<string, Container>();
             var languageMap = new Dictionary<string, Language>();
             var genreMap = new Dictionary<string, Genre>();
+
+            // Add all containers
+            var dbContainers = DatabaseContext.Containers;
+            foreach (var container in legacyDatabaseContent.Containers)
+                containerMap.Add( container.Name,
+                    dbContainers.Add(
+                        new Container
+                        {
+                            Type = (ContainerType) container.Type,
+                            Description = container.Location,
+                            Name = container.Name,
+                        } ) );
+
+            // Assign parent containers
+            foreach (var container in legacyDatabaseContent.Containers.Where( c => c.Parent != null ))
+            {
+                var dbContainer = containerMap[container.Name];
+                var parent = container.Parent;
+
+                dbContainer.ParentContainer = containerMap[parent.Name];
+                dbContainer.ParentPosition = parent.UnitIdentifier;
+            }
 
             // Add all languages
             var dbLanguages = DatabaseContext.Languages;
@@ -159,13 +182,13 @@ namespace WebApp.Controllers
             var dbRecordings = DatabaseContext.Recordings;
             foreach (var recording in legacyDatabaseContent.Recordings.Take( 100 ))
                 dbRecordings.Add(
-                        new Recording
-                        {
-                            Languages = recording.Languages.Select( language => languageMap[language.ToLower()] ).ToList(),
-                            Genres = recording.Genres.Select( genre => genreMap[genre] ).ToList(),
-                            Title = recording.Title,
-                            Id = recording.UniqueId,
-                        } );
+                    new Recording
+                    {
+                        Languages = recording.Languages.Select( language => languageMap[language.ToLower()] ).ToList(),
+                        Genres = recording.Genres.Select( genre => genreMap[genre] ).ToList(),
+                        Title = recording.Title,
+                        Id = recording.UniqueId,
+                    } );
         }
     }
 }

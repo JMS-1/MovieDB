@@ -28,7 +28,14 @@ namespace WebApp.Models
         /// Die übergeordnete Aufbewahrung, sofern vorhanden.
         /// </summary>
         [DataMember( Name = "parent" )]
-        public ContainerReference Parent { get; set; }
+        public Container ParentContainer { get; set; }
+
+        /// <summary>
+        /// Die Position in der übergeordnete Aufbewahrung, sofern vorhanden.
+        /// </summary>
+        [DataMember( Name = "positionInParent" )]
+        [StringLength( 20 ), MaxLength( 20 )]
+        public string ParentPosition { get; set; }
 
         /// <summary>
         /// Eine Kurzbeschreibung des Standorts der Aufbewahrungseinheit.

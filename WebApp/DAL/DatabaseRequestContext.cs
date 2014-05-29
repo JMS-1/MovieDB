@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Data.Entity.Validation;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,11 +33,6 @@ namespace WebApp.DAL
         /// Die Verwaltung der Aufbewahrungen.
         /// </summary>
         IContainerRepository Containers { get; }
-
-        /// <summary>
-        /// Die Verwaltung der Referenzen auf Aufbewahrungen.
-        /// </summary>
-        IContainerReferenceRepository ContainerReferences { get; }
 
         /// <summary>
         /// Beginnt das Abspeichern von Veränderungen.
@@ -144,25 +142,6 @@ namespace WebApp.DAL
         }
 
         /// <summary>
-        /// Die Verwaltung der Referenzen auf Aufbewahrungen.
-        /// </summary>
-        private IContainerReferenceRepository m_containerReferences;
-
-        /// <summary>
-        /// Die Verwaltung der Referenzen auf Aufbewahrungen.
-        /// </summary>
-        public IContainerReferenceRepository ContainerReferences
-        {
-            get
-            {
-                if (m_containerReferences == null)
-                    m_containerReferences = new ContainerReferenceRepository( Database );
-
-                return m_containerReferences;
-            }
-        }
-
-        /// <summary>
         /// Beendet diesen Zugriff auf die Datenbank endgültig.
         /// </summary>
         public void Dispose()
@@ -170,7 +149,6 @@ namespace WebApp.DAL
             // Proper cleanup of underlying context
             using (Interlocked.Exchange( ref m_database, null ))
             {
-                m_containerReferences = null;
                 m_containers = null;
                 m_recordings = null;
                 m_languages = null;
@@ -184,7 +162,17 @@ namespace WebApp.DAL
         /// <returns>Die Steuereinheit für den Speichervorgang.</returns>
         public Task<int> BeginSave()
         {
-            return Database.SaveChangesAsync();
+            try
+            {
+                return Database.SaveChangesAsync();
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var error in e.EntityValidationErrors)
+                    Trace.TraceError( string.Format( "{0}: {1}", error.Entry.Entity, string.Join( ", ", error.ValidationErrors.Select( ve => ve.ErrorMessage ) ) ) );
+
+                throw;
+            }
         }
     }
 }

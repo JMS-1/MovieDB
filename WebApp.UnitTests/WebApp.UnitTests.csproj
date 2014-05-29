@@ -48,7 +48,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UnitTestContainerReferenceRepository.cs" />
     <Compile Include="UnitTestContainerRepository.cs" />
     <Compile Include="UnitTestGenreRepository.cs" />
     <Compile Include="UnitTestLanguageRepository.cs" />

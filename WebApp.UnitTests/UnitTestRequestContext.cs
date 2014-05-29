@@ -6,16 +6,15 @@ namespace WebApp.Tests
 {
     public class UnitTestRequestContext : IRequestContext
     {
-        private UnitTestRequestContext( ILanguageRepository languages, IRecordingRepository recordings, IGenreRepository genres, IContainerRepository containers, IContainerReferenceRepository containerReferences )
+        private UnitTestRequestContext( ILanguageRepository languages, IRecordingRepository recordings, IGenreRepository genres, IContainerRepository containers )
         {
             Genres = genres;
             Languages = languages;
             Recordings = recordings;
             Containers = containers;
-            ContainerReferences = containerReferences;
         }
 
-        public static UnitTestRequestContext Create( ILanguageRepository languages = null, IRecordingRepository recordings = null, IGenreRepository genres = null, IContainerRepository containers = null, IContainerReferenceRepository containerReferences = null )
+        public static UnitTestRequestContext Create( ILanguageRepository languages = null, IRecordingRepository recordings = null, IGenreRepository genres = null, IContainerRepository containers = null )
         {
             return
                 new UnitTestRequestContext
@@ -23,8 +22,7 @@ namespace WebApp.Tests
                         languages ?? UnitTestLanguageRepository.Create(),
                         recordings ?? UnitTestRecordingRepository.Create(),
                         genres ?? UnitTestGenreRepository.Create(),
-                        containers ?? UnitTestContainerRepository.Create(),
-                        containerReferences ?? UnitTestContainerReferenceRepository.Create()
+                        containers ?? UnitTestContainerRepository.Create()
                     );
         }
 
@@ -35,8 +33,6 @@ namespace WebApp.Tests
         public IRecordingRepository Recordings { get; private set; }
 
         public IContainerRepository Containers { get; private set; }
-
-        public IContainerReferenceRepository ContainerReferences { get; private set; }
 
         public Task<int> BeginSave()
         {
