@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Web;
 using System.Web.Http;
 using Microsoft.Web.Infrastructure.DynamicModuleHelper;
@@ -57,6 +58,9 @@ namespace WebApp
 
                     // We use implicit route bindings
                     GlobalConfiguration.Configure( config => config.MapHttpAttributeRoutes() );
+
+                    // Prepare database
+                    Database.CreateOnce( Path.Combine( context.Server.MapPath( @"~\App_Data\Movie.mdf" ) ) );
 
                     // Mark as initialized
                     application[_InitializationKey] = true;

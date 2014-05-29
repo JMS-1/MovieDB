@@ -12,10 +12,18 @@ namespace WebApp
     public class Database : DbContext
     {
         /// <summary>
+        /// Führt einmalig Aktualisierungen aus.
+        /// </summary>
+        static Database()
+        {
+            System.Data.Entity.Database.SetInitializer<Database>( null );
+        }
+
+        /// <summary>
         /// Erstellt eine neue Zugriffsinstanz auf die Datenbank.
         /// </summary>
         public Database()
-            : base( "Connection" )
+            : base( "ConnectionX" )
         {
             RegisterLogger();
         }
@@ -56,6 +64,14 @@ namespace WebApp
         protected override void OnModelCreating( DbModelBuilder modelBuilder )
         {
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
+        }
+
+        /// <summary>
+        /// Legt einmalig die Datenbank an.
+        /// </summary>
+        /// <param name="pathToDatabase">Der volle Pfad zur Datenbank.</param>
+        public static void CreateOnce( string pathToDatabase )
+        {
         }
     }
 }

@@ -22,6 +22,8 @@ namespace WebApp.DAL
                 return false;
             if (context.Genres.Query().Any())
                 return false;
+            if (context.Containers.Query().Any())
+                return false;
 
             // All clear
             return true;

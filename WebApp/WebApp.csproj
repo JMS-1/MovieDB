@@ -106,10 +106,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Data\Movies.mdf" />
-    <Content Include="App_Data\Movies_log.ldf">
-      <DependentUpon>Movies.mdf</DependentUpon>
-    </Content>
+    <Content Include="App_Data\database.sql" />
     <Content Include="Content\appStyles.css">
       <DependentUpon>appStyles.less</DependentUpon>
     </Content>
