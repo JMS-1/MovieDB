@@ -36,7 +36,7 @@ namespace WebApp
         /// <summary>
         /// Der Name unserer Datenbank.
         /// </summary>
-        private const string _DatabaseName = "JmsMovieDb10";
+        private static string _DatabaseName;
 
         /// <summary>
         /// Der volle Pfad zur Datenbank.
@@ -87,12 +87,45 @@ namespace WebApp
         }
 
         /// <summary>
+        /// Entfernt die Datenbank aus der Verwaltung.
+        /// </summary>
+        public static void DetachFromDatabase()
+        {
+            // Remember and test
+            if (string.IsNullOrEmpty( _DatabasePath ))
+                return;
+            if (!File.Exists( _DatabasePath ))
+                return;
+
+            // Connect to master database
+            using (var connection = new SqlConnection( @"Data Source=(LocalDB)\v11.0;Initial Catalog=master;Integrated Security=True" ))
+            {
+                connection.Open();
+
+                // Create the database
+                using (var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = string.Format( "SELECT DB_ID('{0}')", _DatabaseName );
+                    if (cmd.ExecuteScalar() == DBNull.Value)
+                        return;
+
+                    // Must detach first
+                    cmd.CommandText = string.Format( "exec sp_detach_db '{0}'", _DatabaseName );
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+        }
+
+        /// <summary>
         /// Legt einmalig die Datenbank an.
         /// </summary>
         /// <param name="pathToDatabase">Der volle Pfad zur Datenbank.</param>
-        public static void CreateOnce( string pathToDatabase )
+        /// <param name="databaseName">Der Name der Datenbank.</param>
+        public static void CreateOnce( string pathToDatabase, string databaseName = null )
         {
             _DatabaseConnectionString = string.Format( @"Data Source=(LocalDB)\v11.0;AttachDbFilename={0};Integrated Security=True;MultipleActiveResultSets=True", pathToDatabase );
+            _DatabaseName = databaseName ?? "JmsMovieDb10";
 
             // Remember and test
             if (File.Exists( _DatabasePath = pathToDatabase ))
@@ -110,7 +143,7 @@ namespace WebApp
                     cmd.CommandText = string.Format( "SELECT DB_ID('{0}')", _DatabaseName );
                     if (cmd.ExecuteScalar() != DBNull.Value)
                     {
-                        cmd.CommandText = string.Format( "exec sp_detach_db '{0}', 'true'", _DatabaseName );
+                        cmd.CommandText = string.Format( "exec sp_detach_db '{0}'", _DatabaseName );
                         cmd.ExecuteNonQuery();
                     }
 
