@@ -45,7 +45,8 @@
 	CREATE TABLE [dbo].[Genres] (
 		[Short] NVARCHAR (20)  NOT NULL,
 		[Long]  NVARCHAR (100) NOT NULL,
-		PRIMARY KEY CLUSTERED ([Short])
+		PRIMARY KEY CLUSTERED ([Short]),
+		CONSTRAINT U_Genres_Long UNIQUE([Long]) 
 	);
 	GO
 
@@ -58,16 +59,13 @@
 	CREATE TABLE [dbo].[Languages] (
 		[Short] NCHAR (2)      NOT NULL,
 		[Long]  NVARCHAR (100) NOT NULL,
-		PRIMARY KEY CLUSTERED ([Short])
+		PRIMARY KEY CLUSTERED ([Short]),
+		CONSTRAINT U_Languages_Long UNIQUE([Long]) 
 	);
 	GO
 
 	CREATE UNIQUE NONCLUSTERED INDEX [PK_Languages]
 		ON [dbo].[Languages]([Short]);
-	GO
-
-	CREATE UNIQUE NONCLUSTERED INDEX [IX_Languages_Long]
-		ON [dbo].[Languages]([Long]);
 	GO
 
 -- Links
@@ -92,10 +90,10 @@
 -- Media
 
 	CREATE TABLE [dbo].[Media] (
+		[Id]        UNIQUEIDENTIFIER NOT NULL,
 		[Type]      TINYINT          NOT NULL,
 		[Container] NVARCHAR (50)    NULL,
 		[Position]  NVARCHAR (100)   NULL,
-		[Id]        UNIQUEIDENTIFIER NOT NULL,
 		PRIMARY KEY CLUSTERED ([Id]),
 		CONSTRAINT [FK_Media_Container] FOREIGN KEY ([Container]) REFERENCES [dbo].[Containers] ([Name]) ON DELETE SET NULL
 	);

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity;
 using System.Runtime.Serialization;
 
 
@@ -9,18 +11,31 @@ namespace WebApp.Models
     /// Eine Art von Aufnahme.
     /// </summary>
     [DataContract]
+    [Table( "Genres" )]
     public class Genre
     {
         /// <summary>
         /// Der Name der Art.
         /// </summary>
         [Required, Key, StringLength( 20, MinimumLength = 1 )]
-        [DataMember( Name = "id" )]
+        [DataMember( Name = "name" )]
+        [Column( "Short" )]
         public string Name { get; set; }
 
         /// <summary>
-        /// Wird zum korrekten Aufbau des Modells benötigt.
+        /// Der Beschreibung der Art.
         /// </summary>
-        public virtual ICollection<Recording> Recordings { get; set; }
+        [Required, StringLength( 100, MinimumLength = 1 )]
+        [DataMember( Name = "description" )]
+        [Column( "Long" )]
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Wird beim Anlegen des Datenbankmodells aufgerufen.
+        /// </summary>
+        /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
+        internal static void BuildModel( DbModelBuilder modelBuilder )
+        {
+        }
     }
 }

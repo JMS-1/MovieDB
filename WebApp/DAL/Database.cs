@@ -49,6 +49,11 @@ namespace WebApp
         private static string _DatabaseConnectionString;
 
         /// <summary>
+        /// Zum Zugriff über den SQL Server.
+        /// </summary>
+        private const string _LocalDb = @"Data Source=(LocalDB)\v11.0;Integrated Security=True";
+
+        /// <summary>
         /// Aktiviert im Testmodus die Ausgaber aller SQL Befehle.
         /// </summary>
         [Conditional( "DEBUG" )]
@@ -83,7 +88,8 @@ namespace WebApp
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
         protected override void OnModelCreating( DbModelBuilder modelBuilder )
         {
-            modelBuilder.Entity<Language>().Property( e => e.ShortName ).IsFixedLength();
+            Language.BuildModel( modelBuilder );
+            Genre.BuildModel( modelBuilder );
         }
 
         /// <summary>
@@ -98,7 +104,7 @@ namespace WebApp
                 return;
 
             // Connect to master database
-            using (var connection = new SqlConnection( @"Data Source=(LocalDB)\v11.0;Initial Catalog=master;Integrated Security=True" ))
+            using (var connection = new SqlConnection( _LocalDb + @";Initial Catalog=master" ))
             {
                 connection.Open();
 
@@ -124,7 +130,7 @@ namespace WebApp
         /// <param name="databaseName">Der Name der Datenbank.</param>
         public static void CreateOnce( string pathToDatabase, string databaseName = null )
         {
-            _DatabaseConnectionString = string.Format( @"Data Source=(LocalDB)\v11.0;AttachDbFilename={0};Integrated Security=True;MultipleActiveResultSets=True", pathToDatabase );
+            _DatabaseConnectionString = string.Format( _LocalDb + @";AttachDbFilename={0};MultipleActiveResultSets=True", pathToDatabase );
             _DatabaseName = databaseName ?? "JmsMovieDb10";
 
             // Remember and test
@@ -132,7 +138,7 @@ namespace WebApp
                 return;
 
             // Connect to master database
-            using (var connection = new SqlConnection( @"Data Source=(LocalDB)\v11.0;Initial Catalog=master;Integrated Security=True" ))
+            using (var connection = new SqlConnection( _LocalDb + @";Initial Catalog=master" ))
             {
                 connection.Open();
 

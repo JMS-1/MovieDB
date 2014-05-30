@@ -171,7 +171,7 @@ namespace WebApp.Controllers
             // Add all languages
             var dbLanguages = DatabaseContext.Languages;
             foreach (var language in new HashSet<string>( legacyDatabaseContent.Languages.Select( l => l.ToLower() ) ))
-                languageMap.Add( language, dbLanguages.Add( new Language { ShortName = language, LongName = language } ) );
+                languageMap.Add( language, dbLanguages.Add( new Language { TwoLetterIsoName = language, Description = language } ) );
 
             // Add all genres
             var dbGenres = DatabaseContext.Genres;

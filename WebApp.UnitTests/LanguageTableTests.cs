@@ -30,18 +30,18 @@ namespace WebApp.UnitTests
         {
             var languages = TestContext.Languages;
 
-            languages.Add( new Language { ShortName = "de", LongName = "Deutsch" } );
-            languages.Add( new Language { ShortName = "en", LongName = "Englisch" } );
-            languages.Add( new Language { ShortName = "fr", LongName = "Französisch" } );
+            languages.Add( new Language { TwoLetterIsoName = "de", Description = "Deutsch" } );
+            languages.Add( new Language { TwoLetterIsoName = "en", Description = "Englisch" } );
+            languages.Add( new Language { TwoLetterIsoName = "fr", Description = "Französisch" } );
 
             TestContext.SaveChanges();
 
             using (TestContext)
                 TestContext = new Database();
 
-            Assert.AreEqual( "Deutsch", TestContext.Languages.Find( "de" ).LongName, "de" );
+            Assert.AreEqual( "Deutsch", TestContext.Languages.Find( "de" ).Description, "de" );
 
-            var map = TestContext.Languages.ToDictionary( l => l.ShortName, l => l.LongName );
+            var map = TestContext.Languages.ToDictionary( l => l.TwoLetterIsoName, l => l.Description );
 
             Assert.AreEqual( "Deutsch", map["de"], "de" );
             Assert.AreEqual( "Englisch", map["en"], "en" );
@@ -59,7 +59,7 @@ namespace WebApp.UnitTests
         [ExpectedException( typeof( DbEntityValidationException ) )]
         public void ShortNameMustBeExactlyTwoCharacters( string shortName )
         {
-            TestContext.Languages.Add( new Language { ShortName = shortName, LongName = "Test" } );
+            TestContext.Languages.Add( new Language { TwoLetterIsoName = shortName, Description = "Test" } );
             TestContext.SaveChanges();
         }
 
@@ -73,7 +73,7 @@ namespace WebApp.UnitTests
         [ExpectedException( typeof( DbEntityValidationException ) )]
         public void LongNameMustHaveBetween1And100Charaters( string longName )
         {
-            TestContext.Languages.Add( new Language { ShortName = "xx", LongName = longName } );
+            TestContext.Languages.Add( new Language { TwoLetterIsoName = "xx", Description = longName } );
             TestContext.SaveChanges();
         }
 
@@ -84,8 +84,8 @@ namespace WebApp.UnitTests
         [ExpectedException( typeof( DbUpdateException ) )]
         public void ShortNameMustBeUnique()
         {
-            TestContext.Languages.Add( new Language { ShortName = "xx", LongName = "one" } );
-            TestContext.Languages.Add( new Language { ShortName = "xx", LongName = "two" } );
+            TestContext.Languages.Add( new Language { TwoLetterIsoName = "xx", Description = "one" } );
+            TestContext.Languages.Add( new Language { TwoLetterIsoName = "xx", Description = "two" } );
             TestContext.SaveChanges();
         }
 
@@ -96,8 +96,8 @@ namespace WebApp.UnitTests
         [ExpectedException( typeof( DbUpdateException ) )]
         public void LongNameMustBeUnique()
         {
-            TestContext.Languages.Add( new Language { ShortName = "x1", LongName = "long" } );
-            TestContext.Languages.Add( new Language { ShortName = "x2", LongName = "long" } );
+            TestContext.Languages.Add( new Language { TwoLetterIsoName = "x1", Description = "long" } );
+            TestContext.Languages.Add( new Language { TwoLetterIsoName = "x2", Description = "long" } );
             TestContext.SaveChanges();
         }
     }
