@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Runtime.Serialization;
@@ -35,7 +36,48 @@ namespace WebApp.Models
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
         internal static void BuildModel( DbModelBuilder modelBuilder )
         {
-            modelBuilder.Entity<Language>().Property( e => e.TwoLetterIsoName ).IsFixedLength();
+            modelBuilder
+                .Entity<Language>()
+                .Property( e => e.TwoLetterIsoName )
+                .IsFixedLength();
+        }
+    }
+
+    /// <summary>
+    /// Die Zuordnung der Sprachen zu den Aufzeichnungen.
+    /// </summary>
+    [Table( "RecordingLanguages" )]
+    public class RecordingLanguages
+    {
+        /// <summary>
+        /// Die verwendete Sprache.
+        /// </summary>
+        [Required, Key, StringLength( 2, MinimumLength = 2 )]
+        [Column( "Language", Order = 0 )]
+        public string LanguageName { get; set; }
+
+        /// <summary>
+        /// Die zugehörige Aufzeichnung.
+        /// </summary>
+        [Required, Key]
+        [Column( "Recording", Order = 1 )]
+        public Guid RecordingIdentifier { get; set; }
+
+        /// <summary>
+        /// Die zugehörige Aufzeichnung.
+        /// </summary>
+        public virtual Recording Recording { get; set; }
+
+        /// <summary>
+        /// Wird beim Anlegen des Datenbankmodells aufgerufen.
+        /// </summary>
+        /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
+        internal static void BuildModel( DbModelBuilder modelBuilder )
+        {
+            modelBuilder
+                .Entity<RecordingLanguages>()
+                .Property( e => e.LanguageName )
+                .IsFixedLength();
         }
     }
 }

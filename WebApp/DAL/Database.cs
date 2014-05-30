@@ -88,6 +88,7 @@ namespace WebApp
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
         protected override void OnModelCreating( DbModelBuilder modelBuilder )
         {
+            RecordingLanguages.BuildModel( modelBuilder );
             Recording.BuildModel( modelBuilder );
             Language.BuildModel( modelBuilder );
             Genre.BuildModel( modelBuilder );

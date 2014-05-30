@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
 using System.Linq;
@@ -20,7 +22,10 @@ namespace WebApp.UnitTests
         [Test]
         public void CanReadRecordings()
         {
-            TestContext.Recordings.ToArray();
+            TestContext
+                .Recordings
+                .Include( recording => recording.LanguageMappings )
+                .ToArray();
         }
 
         /// <summary>
@@ -126,6 +131,41 @@ namespace WebApp.UnitTests
         {
             TestContext.Recordings.Add( new Recording { Title = "A6", Description = new string( 'A', 2001 ), CreationTime = DateTime.UtcNow } );
             TestContext.SaveChanges();
+        }
+
+        /// <summary>
+        /// Es ist möglich, eine Aufzeichnung mit Sprachinformationen anzulegen.
+        /// </summary>
+        [Test]
+        public void CanAddRecordingWithLanguages()
+        {
+            var lang1 = TestContext.Languages.Add( new Language { TwoLetterIsoName = "l1", Description = "language 1" } );
+            var lang2 = TestContext.Languages.Add( new Language { TwoLetterIsoName = "l2", Description = "language 2" } );
+
+            var rec = TestContext.Recordings.Add( new Recording { Title = "A7", CreationTime = DateTime.UtcNow } );
+
+            rec.Languages.Add( lang1.TwoLetterIsoName );
+            rec.Languages.Add( lang2.TwoLetterIsoName );
+
+            TestContext.SaveChanges();
+
+            using (TestContext)
+                TestContext = new Database();
+
+            var retest =
+                TestContext
+                    .Recordings
+                    .Include( recording => recording.LanguageMappings )
+                    .FirstOrDefault( recording => recording.Id == rec.Id );
+
+            Assert.IsNotNull( retest, "id" );
+            Assert.AreNotSame( rec, retest, "cache" );
+
+            var lang = new HashSet<string>( retest.Languages );
+
+            Assert.AreEqual( 2, lang.Count, "#lang" );
+            Assert.IsTrue( lang.Contains( "l1" ), "1" );
+            Assert.IsTrue( lang.Contains( "l2" ), "2" );
         }
     }
 }

@@ -69,11 +69,28 @@ namespace WebApp.Models
         }
 
         /// <summary>
+        /// Die Liste der Sprachzuordnungen.
+        /// </summary>
+        public virtual ICollection<RecordingLanguages> LanguageMappings { get; set; }
+
+        /// <summary>
+        /// Die Liste der Sprachzuordnungen.
+        /// </summary>
+        [DataMember( Name = "languages" )]
+        [NotMapped]
+        public ICollection<string> Languages { get; set; }
+
+        /// <summary>
         /// Wird beim Anlegen des Datenbankmodells aufgerufen.
         /// </summary>
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
         internal static void BuildModel( DbModelBuilder modelBuilder )
         {
+            modelBuilder
+                .Entity<Recording>()
+                .HasMany( e => e.LanguageMappings )
+                .WithRequired( e => e.Recording )
+                .HasForeignKey( e => e.RecordingIdentifier );
         }
 
         /// <summary>
@@ -81,6 +98,8 @@ namespace WebApp.Models
         /// </summary>
         public Recording()
         {
+            Languages = CollectionMapper.Create( () => LanguageMappings, link => link.LanguageName, language => new RecordingLanguages { LanguageName = language } );
+            LanguageMappings = new List<RecordingLanguages>();
             Id = Guid.NewGuid();
         }
     }
@@ -115,22 +134,6 @@ namespace WebApp.Models
 
 	CREATE NONCLUSTERED INDEX [IX_RecordingGenres_Recording]
 		ON [dbo].[RecordingGenres]([Recording]);
-	GO
-
-	CREATE TABLE [dbo].[RecordingLanguages] (
-		[Language]  NCHAR (2)        NOT NULL,
-		[Recording] UNIQUEIDENTIFIER NOT NULL,
-		CONSTRAINT [FK_RecordingLanguages_Language] FOREIGN KEY ([Language]) REFERENCES [dbo].[Languages] ([Short]) ON DELETE CASCADE,
-		CONSTRAINT [FK_RecordingLanguages_Recording] FOREIGN KEY ([Recording]) REFERENCES [dbo].[Recordings] ([Id]) ON DELETE CASCADE
-	);
-	GO
-
-	CREATE NONCLUSTERED INDEX [IX_RecordingLanguages_Language]
-		ON [dbo].[RecordingLanguages]([Language]);
-	GO
-
-	CREATE NONCLUSTERED INDEX [IX_RecordingLanguages_Recording]
-		ON [dbo].[RecordingLanguages]([Recording]);
 	GO
 #endif
 }
