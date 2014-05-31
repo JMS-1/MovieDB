@@ -86,11 +86,6 @@ namespace WebApp.Models
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
         internal static void BuildModel( DbModelBuilder modelBuilder )
         {
-            modelBuilder
-                .Entity<Recording>()
-                .HasMany( e => e.LanguageMappings )
-                .WithRequired( e => e.Recording )
-                .HasForeignKey( e => e.RecordingIdentifier );
         }
 
         /// <summary>

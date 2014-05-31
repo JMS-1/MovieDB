@@ -24,7 +24,7 @@ namespace WebApp.UnitTests
         {
             TestContext
                 .Recordings
-                .Include( recording => recording.LanguageMappings )
+                .Include( recording => recording.LanguageMappings.Select( link => link.Language ) )
                 .ToArray();
         }
 
