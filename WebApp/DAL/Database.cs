@@ -85,11 +85,17 @@ namespace WebApp.DAL
         public DbSet<Container> Containers { get; set; }
 
         /// <summary>
+        /// Die physikalischen Medien, auf denen die Aufzeichnungen abgelegt sind.
+        /// </summary>
+        public DbSet<Storage> Media { get; set; }
+
+        /// <summary>
         /// Wird beim Anlegen des Datenbankmodells aufgerufen.
         /// </summary>
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
         protected override void OnModelCreating( DbModelBuilder modelBuilder )
         {
+            Models.Storage.BuildModel( modelBuilder );
             Recording.BuildModel( modelBuilder );
             Container.BuildModel( modelBuilder );
             Language.BuildModel( modelBuilder );
@@ -193,7 +199,7 @@ namespace WebApp.DAL
                             command.Append( active );
                         }
                     }
-           }
+            }
         }
     }
 }

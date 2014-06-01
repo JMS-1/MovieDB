@@ -83,7 +83,7 @@
 		[Id]        UNIQUEIDENTIFIER NOT NULL,
 		[Type]      TINYINT          NOT NULL,
 		[Container] NVARCHAR (50)    NULL,
-		[Position]  NVARCHAR (100)   NULL,
+		[Position]  NVARCHAR (100)   NOT NULL,
 		PRIMARY KEY CLUSTERED ([Id]),
 		CONSTRAINT [FK_Media_Container] FOREIGN KEY ([Container]) REFERENCES [dbo].[Containers] ([Name]) ON DELETE SET NULL
 	);
@@ -130,7 +130,7 @@
 		[Media]       UNIQUEIDENTIFIER NULL,
 		[Series]      UNIQUEIDENTIFIER NULL,
 		PRIMARY KEY CLUSTERED ([Id]),
-		CONSTRAINT [FK_Recordings_Media] FOREIGN KEY ([Media]) REFERENCES [dbo].[Media] ([Id]) ON DELETE SET NULL,
+		CONSTRAINT [FK_Recordings_Media] FOREIGN KEY ([Media]) REFERENCES [dbo].[Media] ([Id]),
 		CONSTRAINT [FK_Recordings_Series] FOREIGN KEY ([Series]) REFERENCES [dbo].[Series] ([Id]) ON DELETE SET NULL
 	);
 	GO

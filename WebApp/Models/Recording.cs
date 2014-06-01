@@ -69,16 +69,27 @@ namespace WebApp.Models
         }
 
         /// <summary>
+        /// Die Kennung des zugehörigen physikalischen Mediums.
+        /// </summary>
+        [Column( "Media" )]
+        public Guid? StorageIdentifier { get; set; }
+
+        /// <summary>
         /// Die Liste der Sprachzuordnungen.
         /// </summary>
         [DataMember( Name = "languages" )]
-        public ICollection<Language> Languages { get; set; }
+        public virtual ICollection<Language> Languages { get; set; }
 
         /// <summary>
         /// Die Liste der Arten.
         /// </summary>
         [DataMember( Name = "genres" )]
-        public ICollection<Genre> Genres { get; set; }
+        public virtual ICollection<Genre> Genres { get; set; }
+
+        /// <summary>
+        /// Das zugehörige Medium.
+        /// </summary>
+        public virtual Storage Storage { get; set; }
 
         /// <summary>
         /// Wird beim Anlegen des Datenbankmodells aufgerufen.
@@ -107,6 +118,13 @@ namespace WebApp.Models
                     m.MapLeftKey( "Recording" );
                     m.MapRightKey( "Genre" );
                 } );
+
+            modelBuilder
+                .Entity<Recording>()
+                .HasOptional( r => r.Storage )
+                .WithMany()
+                .HasForeignKey( r => r.StorageIdentifier )
+                .WillCascadeOnDelete( false );
         }
 
         /// <summary>
