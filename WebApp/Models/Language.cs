@@ -52,25 +52,27 @@ namespace WebApp.Models
         /// <summary>
         /// Die verwendete Sprache.
         /// </summary>
-        [Required, Key, ForeignKey( "Language" ), StringLength( 2, MinimumLength = 2 )]
+        [Required, Key, StringLength( 2, MinimumLength = 2 )]
         [Column( "Language", Order = 0 )]
         public string LanguageName { get; set; }
 
         /// <summary>
         /// Die zugehörige Aufzeichnung.
         /// </summary>
-        [Required, Key, ForeignKey( "Recording" )]
+        [Required, Key]
         [Column( "Recording", Order = 1 )]
         public Guid RecordingIdentifier { get; set; }
 
         /// <summary>
         /// Die zugehörige Sprache.
         /// </summary>
+        [ForeignKey( "LanguageName" )]
         public virtual Language Language { get; set; }
 
         /// <summary>
         /// Die zugehörige Aufzeichnung.
         /// </summary>
+        [ForeignKey( "RecordingIdentifier" )]
         public virtual Recording Recording { get; set; }
 
         /// <summary>

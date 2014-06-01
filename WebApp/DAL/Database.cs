@@ -30,6 +30,8 @@ namespace WebApp
         public Database()
             : base( _DatabaseConnectionString )
         {
+            Configuration.LazyLoadingEnabled = false;
+
             RegisterLogger();
         }
 
@@ -92,6 +94,8 @@ namespace WebApp
             Recording.BuildModel( modelBuilder );
             Language.BuildModel( modelBuilder );
             Genre.BuildModel( modelBuilder );
+
+            base.OnModelCreating( modelBuilder );
         }
 
         /// <summary>

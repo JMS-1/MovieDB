@@ -93,7 +93,7 @@ namespace WebApp.Models
         /// </summary>
         public Recording()
         {
-            Languages = CollectionMapper.Create( () => LanguageMappings, link => link.LanguageName, language => new RecordingLanguages { LanguageName = language } );
+            Languages = CollectionMapper.Create( () => LanguageMappings, link => link.LanguageName, language => new RecordingLanguages { LanguageName = language, Recording = this } );
             LanguageMappings = new List<RecordingLanguages>();
             Id = Guid.NewGuid();
         }
