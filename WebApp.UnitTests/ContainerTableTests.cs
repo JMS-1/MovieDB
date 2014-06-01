@@ -30,7 +30,7 @@ namespace WebApp.UnitTests
         [Test]
         public void CanReadContainersWithParent()
         {
-            TestContext.Containers.Include( c => c.Parent ).ToArray();
+            TestContext.Containers.Include( c => c.ParentContainer ).ToArray();
         }
 
         /// <summary>
@@ -129,12 +129,12 @@ namespace WebApp.UnitTests
         {
             var containers = TestContext.Containers;
 
-            var grandpa = containers.Add( new Container { Name = "grand", Type = ContainerType.Box, Parent = null } );
-            var parent1 = containers.Add( new Container { Name = "parent 1", Type = ContainerType.Box, Parent = grandpa } );
-            var parent2 = containers.Add( new Container { Name = "parent 2", Type = ContainerType.Box, Parent = grandpa } );
-            var child1 = containers.Add( new Container { Name = "child 1 of parent 1", Type = ContainerType.Box, Parent = parent1 } );
-            var child2 = containers.Add( new Container { Name = "child 2 of parent 1", Type = ContainerType.Box, Parent = parent1 } );
-            var child3 = containers.Add( new Container { Name = "child 1 of parent 2", Type = ContainerType.Box, Parent = parent2 } );
+            var grandpa = containers.Add( new Container { Name = "grand", Type = ContainerType.Box, ParentContainer = null } );
+            var parent1 = containers.Add( new Container { Name = "parent 1", Type = ContainerType.Box, ParentContainer = grandpa } );
+            var parent2 = containers.Add( new Container { Name = "parent 2", Type = ContainerType.Box, ParentContainer = grandpa } );
+            var child1 = containers.Add( new Container { Name = "child 1 of parent 1", Type = ContainerType.Box, ParentContainer = parent1 } );
+            var child2 = containers.Add( new Container { Name = "child 2 of parent 1", Type = ContainerType.Box, ParentContainer = parent1 } );
+            var child3 = containers.Add( new Container { Name = "child 1 of parent 2", Type = ContainerType.Box, ParentContainer = parent2 } );
 
             TestContext.SaveChanges();
 
@@ -143,12 +143,12 @@ namespace WebApp.UnitTests
 
             var all = TestContext.Containers.ToDictionary( c => c.Name );
 
-            Assert.IsNull( all["grand"].Parent, "grand" );
-            Assert.AreSame( all["grand"], all["parent 1"].Parent, "parent 1" );
-            Assert.AreSame( all["grand"], all["parent 2"].Parent, "parent 2" );
-            Assert.AreSame( all["parent 1"], all["child 1 of parent 1"].Parent, "child 1 of 1" );
-            Assert.AreSame( all["parent 1"], all["child 2 of parent 1"].Parent, "child 2 of 1" );
-            Assert.AreSame( all["parent 2"], all["child 1 of parent 2"].Parent, "child 1 of 2" );
+            Assert.IsNull( all["grand"].ParentContainer, "grand" );
+            Assert.AreSame( all["grand"], all["parent 1"].ParentContainer, "parent 1" );
+            Assert.AreSame( all["grand"], all["parent 2"].ParentContainer, "parent 2" );
+            Assert.AreSame( all["parent 1"], all["child 1 of parent 1"].ParentContainer, "child 1 of 1" );
+            Assert.AreSame( all["parent 1"], all["child 2 of parent 1"].ParentContainer, "child 2 of 1" );
+            Assert.AreSame( all["parent 2"], all["child 1 of parent 2"].ParentContainer, "child 1 of 2" );
         }
 
         /// <summary>
@@ -159,17 +159,17 @@ namespace WebApp.UnitTests
         {
             var containers = TestContext.Containers;
 
-            var inner = containers.Add( new Container { Name = "inner", Type = ContainerType.Box, Parent = null } );
-            var outer = containers.Add( new Container { Name = "outer", Type = ContainerType.Box, Parent = inner, Location = "somewhere" } );
+            var inner = containers.Add( new Container { Name = "inner", Type = ContainerType.Box, ParentContainer = null } );
+            var outer = containers.Add( new Container { Name = "outer", Type = ContainerType.Box, ParentContainer = inner, Location = "somewhere" } );
 
             TestContext.SaveChanges();
 
             using (TestContext)
                 TestContext = new DAL.Database();
 
-            var retest = TestContext.Containers.AsNoTracking().Include( c => c.Parent ).Single( c => c.Name == "outer" );
+            var retest = TestContext.Containers.AsNoTracking().Include( c => c.ParentContainer ).Single( c => c.Name == "outer" );
 
-            Assert.IsNotNull( retest.Parent, "before" );
+            Assert.IsNotNull( retest.ParentContainer, "before" );
             Assert.AreEqual( "inner", retest.ParentName, "before ParentName" );
             Assert.AreEqual( "somewhere", retest.Location, "before Location" );
 
@@ -182,9 +182,9 @@ namespace WebApp.UnitTests
             using (TestContext)
                 TestContext = new DAL.Database();
 
-            retest = TestContext.Containers.Include( c => c.Parent ).Single( c => c.Name == "outer" );
+            retest = TestContext.Containers.Include( c => c.ParentContainer ).Single( c => c.Name == "outer" );
 
-            Assert.IsNull( retest.Parent, "after" );
+            Assert.IsNull( retest.ParentContainer, "after" );
             Assert.IsNull( retest.ParentName, "after ParentName" );
             Assert.IsNull( retest.Location, "after Location" );
         }

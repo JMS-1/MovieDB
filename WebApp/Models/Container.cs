@@ -56,8 +56,7 @@ namespace WebApp.Models
         /// <summary>
         /// Die übergeordnete Aufbewahrung.
         /// </summary>
-        [ForeignKey( "ParentName" )]
-        public virtual Container Parent { get; set; }
+        public virtual Container ParentContainer { get; set; }
 
         /// <summary>
         /// Erzeugt eine neue Beschreibung.
@@ -74,6 +73,11 @@ namespace WebApp.Models
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
         internal static void BuildModel( DbModelBuilder modelBuilder )
         {
+            modelBuilder
+                .Entity<Container>()
+                .HasOptional( c => c.ParentContainer )
+                .WithMany()
+                .HasForeignKey( c => c.ParentName );
         }
     }
 }
