@@ -93,19 +93,8 @@
 		ON [dbo].[Media]([Id]);
 	GO
 
-	CREATE TRIGGER [dbo].[Modify_Media]
-		ON [dbo].[Media]
-		FOR INSERT, UPDATE
-		AS
-		BEGIN
-			SET NoCount ON		
-
-			if EXISTS(SELECT 1 FROM [dbo].[Media] GROUP BY [Container], [Position] HAVING COUNT(*) > 1)
-			BEGIN
-				ROLLBACK TRANSACTION
-				RAISERROR('Ein Ablageort wurde mehrfach verwendet', 16, 0)
-			END
-		END
+	CREATE UNIQUE NONCLUSTERED INDEX [IX_Media_ContainerPosition]
+		ON [dbo].[Media]([Container], [Position]);
 	GO
 	
 -- Series
