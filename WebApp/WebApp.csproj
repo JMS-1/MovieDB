@@ -194,8 +194,10 @@
     <Compile Include="Models\ContainerType.cs" />
     <Compile Include="Models\Genre.cs" />
     <Compile Include="Models\Language.cs" />
-    <Compile Include="Models\Storage.cs" />
-    <Compile Include="Models\MediaType.cs" />
+    <Compile Include="Models\Link.cs" />
+    <Compile Include="Models\Series.cs" />
+    <Compile Include="Models\Store.cs" />
+    <Compile Include="Models\StoreType.cs" />
     <Compile Include="Models\Recording.cs" />
     <Compile Include="Models\SearchInformation.cs" />
     <Compile Include="Models\SearchRequest.cs" />

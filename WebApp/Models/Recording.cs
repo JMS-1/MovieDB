@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Globalization;
-using System.Runtime.Serialization;
 
 
 namespace WebApp.Models
@@ -12,7 +11,6 @@ namespace WebApp.Models
     /// <summary>
     /// Eine Aufnahme.
     /// </summary>
-    [DataContract]
     [Table( "Recordings" )]
     public class Recording
     {
@@ -20,25 +18,22 @@ namespace WebApp.Models
         /// Die eindeutige Kennung der Aufnahme, über die diese permanent referenziert werden kann.
         /// </summary>
         [Required, Key]
-        [DataMember( Name = "id" )]
         [Column( "Id" )]
-        public Guid Id { get; set; }
+        public Guid Identifier { get; set; }
 
         /// <summary>
         /// Der Name der aufgezeichneten Sendung.
         /// </summary>
-        [Required, StringLength( 200, MinimumLength = 1 )]
-        [DataMember( Name = "title" )]
+        [Required, StringLength( 200 )]
         [Column( "Name" )]
         public string Title { get; set; }
 
         /// <summary>
-        /// Eine optionale Beschreibung zur aufgezeichneten Sendung.
+        /// Der Name des Entleihers.
         /// </summary>
-        [StringLength( 2000 )]
-        [DataMember( Name = "description" )]
-        [Column( "Description" )]
-        public string Description { get; set; }
+        [StringLength( 200 )]
+        [Column( "RentTo" )]
+        public string RentTo { get; set; }
 
         /// <summary>
         /// Der Zeitpunkt in GMT / UTC Notation zu dem die Aufzeichnung angelegt wurde.
@@ -54,13 +49,18 @@ namespace WebApp.Models
         public DateTime CreationTime
         {
             get { return new DateTime( CreationTimeInDatabase.Ticks, DateTimeKind.Utc ); }
-            set { CreationTimeInDatabase = value; }
+            set
+            {
+                if (value.Kind == DateTimeKind.Local)
+                    CreationTimeInDatabase = value.ToUniversalTime();
+                else
+                    CreationTimeInDatabase = value;
+            }
         }
 
         /// <summary>
         /// Der Zeitpunkt in GMT / UTC Notation zu dem die Aufzeichnung angelegt wurde.
         /// </summary>
-        [DataMember( Name = "created" )]
         [NotMapped]
         public string CreationTimeAsIsoString
         {
@@ -69,27 +69,48 @@ namespace WebApp.Models
         }
 
         /// <summary>
+        /// Eine optionale Beschreibung zur aufgezeichneten Sendung.
+        /// </summary>
+        [StringLength( 2000 )]
+        [Column( "Description" )]
+        public string Description { get; set; }
+
+        /// <summary>
         /// Die Kennung des zugehörigen physikalischen Mediums.
         /// </summary>
         [Column( "Media" )]
-        public Guid? StorageIdentifier { get; set; }
+        public Guid? StoreIdentifier { get; set; }
+
+        /// <summary>
+        /// Die Kennung der zugehörigen Serie.
+        /// </summary>
+        [Column( "Series" )]
+        public Guid? SeriesIdentifier { get; set; }
 
         /// <summary>
         /// Die Liste der Sprachzuordnungen.
         /// </summary>
-        [DataMember( Name = "languages" )]
         public virtual ICollection<Language> Languages { get; set; }
 
         /// <summary>
         /// Die Liste der Arten.
         /// </summary>
-        [DataMember( Name = "genres" )]
         public virtual ICollection<Genre> Genres { get; set; }
 
         /// <summary>
         /// Das zugehörige Medium.
         /// </summary>
-        public virtual Storage Storage { get; set; }
+        public virtual Store Store { get; set; }
+
+        /// <summary>
+        /// Die zugehörige Serie.
+        /// </summary>
+        public virtual Series Series { get; set; }
+
+        /// <summary>
+        /// Alle Verweise.
+        /// </summary>
+        public virtual ICollection<Link> Links { get; set; }
 
         /// <summary>
         /// Wird beim Anlegen des Datenbankmodells aufgerufen.
@@ -121,10 +142,23 @@ namespace WebApp.Models
 
             modelBuilder
                 .Entity<Recording>()
-                .HasOptional( r => r.Storage )
+                .HasOptional( r => r.Store )
                 .WithMany()
-                .HasForeignKey( r => r.StorageIdentifier )
+                .HasForeignKey( r => r.StoreIdentifier )
                 .WillCascadeOnDelete( false );
+
+            modelBuilder
+                .Entity<Recording>()
+                .HasOptional( r => r.Series )
+                .WithMany()
+                .HasForeignKey( r => r.SeriesIdentifier )
+                .WillCascadeOnDelete( false );
+
+            modelBuilder
+                .Entity<Recording>()
+                .HasMany( r => r.Links )
+                .WithRequired()
+                .HasForeignKey( l => l.Identifier );
         }
 
         /// <summary>
@@ -133,8 +167,9 @@ namespace WebApp.Models
         public Recording()
         {
             Languages = new List<Language>();
+            Identifier = Guid.NewGuid();
             Genres = new List<Genre>();
-            Id = Guid.NewGuid();
+            Links = new List<Link>();
         }
     }
 }

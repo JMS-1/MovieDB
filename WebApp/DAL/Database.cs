@@ -87,7 +87,17 @@ namespace WebApp.DAL
         /// <summary>
         /// Die physikalischen Medien, auf denen die Aufzeichnungen abgelegt sind.
         /// </summary>
-        public DbSet<Storage> Media { get; set; }
+        public DbSet<Store> Stores { get; set; }
+
+        /// <summary>
+        /// Alle Serien oder Gruppen zusammen gehörender Aufzeichnungen.
+        /// </summary>
+        public DbSet<Series> Series { get; set; }
+
+        /// <summary>
+        /// Alle Verweise.
+        /// </summary>
+        public DbSet<Link> Links { get; set; }
 
         /// <summary>
         /// Wird beim Anlegen des Datenbankmodells aufgerufen.
@@ -95,11 +105,13 @@ namespace WebApp.DAL
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
         protected override void OnModelCreating( DbModelBuilder modelBuilder )
         {
-            Models.Storage.BuildModel( modelBuilder );
+            Models.Series.BuildModel( modelBuilder );
             Recording.BuildModel( modelBuilder );
             Container.BuildModel( modelBuilder );
             Language.BuildModel( modelBuilder );
+            Store.BuildModel( modelBuilder );
             Genre.BuildModel( modelBuilder );
+            Link.BuildModel( modelBuilder );
 
             base.OnModelCreating( modelBuilder );
         }

@@ -5,7 +5,7 @@ namespace WebApp.Models
     /// <summary>
     /// Die einzelne Arten der physikalischen Ablage.
     /// </summary>
-    public enum MediaType : byte
+    public enum StoreType : byte
     {
         /// <summary>
         /// Unbekannt.

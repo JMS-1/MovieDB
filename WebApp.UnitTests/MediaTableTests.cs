@@ -22,7 +22,7 @@ namespace WebApp.UnitTests
         [Test]
         public void CanReadMedia()
         {
-            TestContext.Media.ToArray();
+            TestContext.Stores.ToArray();
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace WebApp.UnitTests
         [Test]
         public void CanReadMediaWithContainer()
         {
-            TestContext.Media.Include( m => m.Container ).ToArray();
+            TestContext.Stores.Include( m => m.Container ).ToArray();
         }
 
         /// <summary>
@@ -42,8 +42,8 @@ namespace WebApp.UnitTests
         {
             var id = Guid.NewGuid();
 
-            TestContext.Media.Add( new Storage { Identifier = id, Location = "A1", Type = MediaType.DVD } );
-            TestContext.Media.Add( new Storage { Identifier = id, Location = "B1", Type = MediaType.DVD } );
+            TestContext.Stores.Add( new Store { Identifier = id, Location = "A1", Type = StoreType.DVD } );
+            TestContext.Stores.Add( new Store { Identifier = id, Location = "B1", Type = StoreType.DVD } );
             TestContext.SaveChanges();
         }
 
@@ -58,8 +58,8 @@ namespace WebApp.UnitTests
         {
             var container = string.IsNullOrEmpty( containerName ) ? null : TestContext.Containers.Add( new Container { Name = containerName, Type = ContainerType.Shelf } );
 
-            TestContext.Media.Add( new Storage { Location = "A3", Type = MediaType.DVD, Container = container } );
-            TestContext.Media.Add( new Storage { Location = "A3", Type = MediaType.DVD, Container = container } );
+            TestContext.Stores.Add( new Store { Location = "A3", Type = StoreType.DVD, Container = container } );
+            TestContext.Stores.Add( new Store { Location = "A3", Type = StoreType.DVD, Container = container } );
             TestContext.SaveChanges();
         }
 
@@ -72,8 +72,8 @@ namespace WebApp.UnitTests
             var container1 = TestContext.Containers.Add( new Container { Name = "A4", Type = ContainerType.Shelf } );
             var container2 = TestContext.Containers.Add( new Container { Name = "B4", Type = ContainerType.Shelf } );
 
-            TestContext.Media.Add( new Storage { Location = "A4", Type = MediaType.DVD, Container = container1 } );
-            TestContext.Media.Add( new Storage { Location = "A4", Type = MediaType.DVD, Container = container2 } );
+            TestContext.Stores.Add( new Store { Location = "A4", Type = StoreType.DVD, Container = container1 } );
+            TestContext.Stores.Add( new Store { Location = "A4", Type = StoreType.DVD, Container = container2 } );
             TestContext.SaveChanges();
         }
 
@@ -87,7 +87,7 @@ namespace WebApp.UnitTests
         [ExpectedException( typeof( DbEntityValidationException ) )]
         public void PositionMustHaveBetween1And100Charaters( string longName )
         {
-            TestContext.Media.Add( new Storage { Location = longName, Type = MediaType.DVD } );
+            TestContext.Stores.Add( new Store { Location = longName, Type = StoreType.DVD } );
             TestContext.SaveChanges();
         }
 
@@ -98,13 +98,13 @@ namespace WebApp.UnitTests
         public void DeletingTheContainerJustResetsTheReference()
         {
             var container = TestContext.Containers.Add( new Container { Name = "A2", Type = ContainerType.Box } );
-            var media = TestContext.Media.Add( new Storage { Type = MediaType.DVD, Location = "1L", Container = container } ).Identifier;
+            var media = TestContext.Stores.Add( new Store { Type = StoreType.DVD, Location = "1L", Container = container } ).Identifier;
 
             TestContext.SaveChanges();
 
             Recreate();
 
-            var retest = TestContext.Media.AsNoTracking().Include( m => m.Container ).Single( m => m.Identifier == media );
+            var retest = TestContext.Stores.AsNoTracking().Include( m => m.Container ).Single( m => m.Identifier == media );
 
             Assert.IsNotNull( retest.Container, "before" );
             Assert.AreEqual( "A2", retest.ContainerName, "before ContainerName" );
@@ -115,7 +115,7 @@ namespace WebApp.UnitTests
 
             Recreate();
 
-            retest = TestContext.Media.AsNoTracking().Include( m => m.Container ).Single( m => m.Identifier == media );
+            retest = TestContext.Stores.AsNoTracking().Include( m => m.Container ).Single( m => m.Identifier == media );
 
             Assert.IsNull( retest.Container, "after" );
             Assert.IsNull( retest.ContainerName, "after ContainerName" );

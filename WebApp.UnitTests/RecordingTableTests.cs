@@ -26,6 +26,9 @@ namespace WebApp.UnitTests
                 .Recordings
                 .Include( recording => recording.Languages )
                 .Include( recording => recording.Genres )
+                .Include( recording => recording.Links )
+                .Include( recording => recording.Store )
+                .Include( recording => recording.Series )
                 .ToArray();
         }
 
@@ -44,7 +47,7 @@ namespace WebApp.UnitTests
                     Description = "what",
                     CreationTime = refTime,
                 } );
-            var id = created.Id;
+            var id = created.Identifier;
 
             TestContext.SaveChanges();
 
@@ -57,7 +60,7 @@ namespace WebApp.UnitTests
             Assert.AreEqual( "super", recording.Title, "Title" );
             Assert.AreEqual( "what", recording.Description, "Description" );
             Assert.AreEqual( refTime, recording.CreationTime, "CreationTime" );
-            Assert.AreEqual( id, recording.Id, "Id" );
+            Assert.AreEqual( id, recording.Identifier, "Id" );
         }
 
         /// <summary>
@@ -68,8 +71,8 @@ namespace WebApp.UnitTests
         {
             var id = Guid.NewGuid();
 
-            TestContext.Recordings.Add( new Recording { Id = id, Title = "A4", Description = "A4", CreationTime = DateTime.UtcNow } );
-            TestContext.Recordings.Add( new Recording { Id = id, Title = "B4", Description = "B4", CreationTime = DateTime.UtcNow } );
+            TestContext.Recordings.Add( new Recording { Identifier = id, Title = "A4", Description = "A4", CreationTime = DateTime.UtcNow } );
+            TestContext.Recordings.Add( new Recording { Identifier = id, Title = "B4", Description = "B4", CreationTime = DateTime.UtcNow } );
             TestContext.SaveChanges();
         }
 
@@ -155,7 +158,7 @@ namespace WebApp.UnitTests
                 TestContext
                     .Recordings
                     .Include( recording => recording.Languages )
-                    .FirstOrDefault( recording => recording.Id == rec.Id );
+                    .FirstOrDefault( recording => recording.Identifier == rec.Identifier );
 
             Assert.IsNotNull( retest, "id" );
             Assert.AreNotSame( rec, retest, "cache" );
@@ -189,7 +192,7 @@ namespace WebApp.UnitTests
                 TestContext
                     .Recordings
                     .Include( recording => recording.Genres )
-                    .FirstOrDefault( recording => recording.Id == rec.Id );
+                    .FirstOrDefault( recording => recording.Identifier == rec.Identifier );
 
             Assert.IsNotNull( retest, "id" );
             Assert.AreNotSame( rec, retest, "cache" );
@@ -208,16 +211,16 @@ namespace WebApp.UnitTests
         public void CanHaveMedia()
         {
             var container = TestContext.Containers.Add( new Container { Name = "A9", Type = ContainerType.FeatureSet } );
-            var media = TestContext.Media.Add( new Storage { Type = MediaType.RecordedDVD, Container = container, Location = "1R" } );
-            var recording = TestContext.Recordings.Add( new Recording { Title = "B9", CreationTime = DateTime.UtcNow, Storage = media } );
+            var media = TestContext.Stores.Add( new Store { Type = StoreType.RecordedDVD, Container = container, Location = "1R" } );
+            var recording = TestContext.Recordings.Add( new Recording { Title = "B9", CreationTime = DateTime.UtcNow, Store = media } );
 
             TestContext.SaveChanges();
 
             Recreate();
 
-            var retest = TestContext.Recordings.Include( r => r.Storage.Container ).Single( r => r.Title == "B9" );
+            var retest = TestContext.Recordings.Include( r => r.Store.Container ).Single( r => r.Title == "B9" );
 
-            Assert.AreEqual( "A9", retest.Storage.Container.Name, "container" );
+            Assert.AreEqual( "A9", retest.Store.Container.Name, "container" );
         }
 
         /// <summary>
@@ -227,15 +230,15 @@ namespace WebApp.UnitTests
         public void CanNotDeleteReferencedMedia()
         {
             var container = TestContext.Containers.Add( new Container { Name = "A10", Type = ContainerType.FeatureSet } );
-            var media = TestContext.Media.Add( new Storage { Type = MediaType.RecordedDVD, Container = container, Location = "2R" } );
-            var recording = TestContext.Recordings.Add( new Recording { Title = "B10", CreationTime = DateTime.UtcNow, Storage = media } );
+            var media = TestContext.Stores.Add( new Store { Type = StoreType.RecordedDVD, Container = container, Location = "2R" } );
+            var recording = TestContext.Recordings.Add( new Recording { Title = "B10", CreationTime = DateTime.UtcNow, Store = media } );
             var mediaId = media.Identifier;
 
             TestContext.SaveChanges();
 
             Recreate();
 
-            TestContext.Entry( new Storage { Identifier = mediaId } ).State = EntityState.Deleted;
+            TestContext.Entry( new Store { Identifier = mediaId } ).State = EntityState.Deleted;
             TestContext.SaveChanges();
         }
 
@@ -246,28 +249,28 @@ namespace WebApp.UnitTests
         public void DeleteMediaAfterLastRecordingIsDeleted()
         {
             var container = TestContext.Containers.Add( new Container { Name = "A11", Type = ContainerType.FeatureSet } );
-            var media = TestContext.Media.Add( new Storage { Type = MediaType.RecordedDVD, Container = container, Location = "3L" } );
-            var recording1 = TestContext.Recordings.Add( new Recording { Title = "B11", CreationTime = DateTime.UtcNow, Storage = media } ).Id;
-            var recording2 = TestContext.Recordings.Add( new Recording { Title = "C11", CreationTime = DateTime.UtcNow, Storage = media } ).Id;
+            var media = TestContext.Stores.Add( new Store { Type = StoreType.RecordedDVD, Container = container, Location = "3L" } );
+            var recording1 = TestContext.Recordings.Add( new Recording { Title = "B11", CreationTime = DateTime.UtcNow, Store = media } ).Identifier;
+            var recording2 = TestContext.Recordings.Add( new Recording { Title = "C11", CreationTime = DateTime.UtcNow, Store = media } ).Identifier;
             var mediaId = media.Identifier;
 
             TestContext.SaveChanges();
 
             Recreate();
 
-            TestContext.Entry( new Recording { Id = recording1 } ).State = EntityState.Deleted;
+            TestContext.Entry( new Recording { Identifier = recording1 } ).State = EntityState.Deleted;
             TestContext.SaveChanges();
 
             Recreate();
 
-            Assert.IsNotNull( TestContext.Media.Find( mediaId ), "first delete" );
+            Assert.IsNotNull( TestContext.Stores.Find( mediaId ), "first delete" );
 
-            TestContext.Entry( new Recording { Id = recording2 } ).State = EntityState.Deleted;
+            TestContext.Entry( new Recording { Identifier = recording2 } ).State = EntityState.Deleted;
             TestContext.SaveChanges();
 
             Recreate();
 
-            Assert.IsNull( TestContext.Media.Find( mediaId ), "second delete" );
+            Assert.IsNull( TestContext.Stores.Find( mediaId ), "second delete" );
         }
     }
 }

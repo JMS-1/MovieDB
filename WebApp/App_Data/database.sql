@@ -11,14 +11,6 @@
 	);
 	GO
 
-	CREATE NONCLUSTERED INDEX [PK__Containers]
-		ON [dbo].[Containers]([Name]);
-	GO
-
-	CREATE NONCLUSTERED INDEX [IX_Container_Parent]
-		ON [dbo].[Containers]([Parent]);
-	GO
-
 	CREATE TRIGGER [dbo].[Delete_Container]
 		ON [dbo].[Containers]
 		INSTEAD OF DELETE
@@ -36,12 +28,8 @@
 		[Short] NVARCHAR (20)  NOT NULL,
 		[Long]  NVARCHAR (100) NOT NULL,
 		PRIMARY KEY CLUSTERED ([Short]),
-		CONSTRAINT U_Genres_Long UNIQUE([Long]) 
+		CONSTRAINT [U_Genres_Long] UNIQUE ([Long]) 
 	);
-	GO
-
-	CREATE UNIQUE NONCLUSTERED INDEX [PK_Genres]
-		ON [dbo].[Genres]([Short]);
 	GO
 
 -- Language
@@ -50,12 +38,8 @@
 		[Short] NCHAR (2)      NOT NULL,
 		[Long]  NVARCHAR (100) NOT NULL,
 		PRIMARY KEY CLUSTERED ([Short]),
-		CONSTRAINT U_Languages_Long UNIQUE([Long]) 
+		CONSTRAINT [U_Languages_Long] UNIQUE ([Long]) 
 	);
-	GO
-
-	CREATE UNIQUE NONCLUSTERED INDEX [PK_Languages]
-		ON [dbo].[Languages]([Short]);
 	GO
 
 -- Links
@@ -65,7 +49,8 @@
 		[Url]         NVARCHAR (2000)  NOT NULL,
 		[Name]        NVARCHAR (100)   NOT NULL,
 		[Description] NVARCHAR (2000)  NULL,
-		[Ordinal]     INT              IDENTITY (1, 1) NOT NULL
+		[Ordinal]     INT              NOT NULL,
+		CONSTRAINT [U_Links_ForOrdinal] UNIQUE ([For], [Ordinal])
 	);
 	GO
 
@@ -85,18 +70,11 @@
 		[Container] NVARCHAR (50)    NULL,
 		[Position]  NVARCHAR (100)   NOT NULL,
 		PRIMARY KEY CLUSTERED ([Id]),
-		CONSTRAINT [FK_Media_Container] FOREIGN KEY ([Container]) REFERENCES [dbo].[Containers] ([Name]) ON DELETE SET NULL
+		CONSTRAINT [FK_Media_Container] FOREIGN KEY ([Container]) REFERENCES [dbo].[Containers] ([Name]) ON DELETE SET NULL,
+		CONSTRAINT [C_Media_ContainerPosition] UNIQUE NONCLUSTERED ([Container], [Position])
 	);
 	GO
 
-	CREATE NONCLUSTERED INDEX [PK_Media]
-		ON [dbo].[Media]([Id]);
-	GO
-
-	CREATE UNIQUE NONCLUSTERED INDEX [IX_Media_ContainerPosition]
-		ON [dbo].[Media]([Container], [Position]);
-	GO
-	
 -- Series
 
 	CREATE TABLE [dbo].[Series] (
@@ -104,22 +82,21 @@
 		[Name]        NVARCHAR (50)    NOT NULL,
 		[Description] NVARCHAR (2000)  NULL,
 		[Parent]      UNIQUEIDENTIFIER NULL,
-		PRIMARY KEY CLUSTERED ([Id])
+		PRIMARY KEY CLUSTERED ([Id]),
+		CONSTRAINT [FK_Series_Parent] FOREIGN KEY ([Parent]) REFERENCES [dbo].[Series] ([Id]),
+		CONSTRAINT [C_Series_RelativeName] UNIQUE NONCLUSTERED ([Parent], [Name])
 	);
-	GO
-
-	CREATE UNIQUE NONCLUSTERED INDEX [PK_Series]
-		ON [dbo].[Series]([Id]);
 	GO
 
 	CREATE TRIGGER [dbo].[Delete_Series]
 		ON [dbo].[Series]
-		FOR DELETE
+		INSTEAD OF DELETE
 		AS
 		BEGIN
 			SET NoCount ON
 			DELETE FROM [dbo].[Links] WHERE [For] IN (Select [Id] FROM DELETED)
 			UPDATE [dbo].[Series] SET [Parent] = NULL WHERE [Parent] IN (Select [Id] FROM DELETED)
+			DELETE FROM [dbo].[Series] WHERE [Id] IN (Select [Id] FROM DELETED)
 		END
 	GO
 
@@ -147,17 +124,13 @@
 		ON [dbo].[Recordings]([Name]);
 	GO
 
-	CREATE UNIQUE NONCLUSTERED INDEX [PK_Recordings]
-		ON [dbo].[Recordings]([Id]);
-	GO
-
 	CREATE NONCLUSTERED INDEX [IX_Recordings_Series]
 		ON [dbo].[Recordings]([Series]);
 	GO
 
 	CREATE TRIGGER [dbo].[Delete_Recordings]
 		ON [dbo].[Recordings]
-		FOR DELETE
+		AFTER DELETE
 		AS
 		BEGIN
 			SET NoCount ON

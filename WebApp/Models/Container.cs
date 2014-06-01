@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
-using System.Runtime.Serialization;
 
 
 namespace WebApp.Models
@@ -9,7 +8,6 @@ namespace WebApp.Models
     /// <summary>
     /// Ein einzelner Aufbewahrungsort.
     /// </summary>
-    [DataContract]
     [Table( "Containers" )]
     public class Container
     {
@@ -17,39 +15,34 @@ namespace WebApp.Models
         /// Der eindeutige Name der Aufbewahrung.
         /// </summary>
         [Required, Key, StringLength( 50, MinimumLength = 1 )]
-        [DataMember( Name = "name" )]
         [Column( "Name" )]
         public string Name { get; set; }
-
-        /// <summary>
-        /// Eine Kurzbeschreibung des Standorts der Aufbewahrungseinheit.
-        /// </summary>
-        [StringLength( 2000 )]
-        [DataMember( Name = "description" )]
-        [Column( "Description" )]
-        public string Description { get; set; }
 
         /// <summary>
         /// Die Art der Aufbewahrung.
         /// </summary>
         [Required]
-        [DataMember( Name = "type" )]
         [Column( "Type", TypeName = "tinyint" )]
         public ContainerType Type { get; set; }
 
         /// <summary>
+        /// Eine Kurzbeschreibung des Standorts der Aufbewahrungseinheit.
+        /// </summary>
+        [StringLength( 2000 )]
+        [Column( "Description" )]
+        public string Description { get; set; }
+
+        /// <summary>
         /// Der eindeutige Name der übergeordneten Aufbewahrung.
         /// </summary>
-        [StringLength( 50, MinimumLength = 1 )]
-        [DataMember( Name = "parentName" )]
+        [StringLength( 50 )]
         [Column( "Parent" )]
         public string ParentName { get; set; }
 
         /// <summary>
         /// Der Standord relativ zur übergeordneten Aufbewahrung.
         /// </summary>
-        [StringLength( 100, MinimumLength = 1 )]
-        [DataMember( Name = "parentLocation" )]
+        [StringLength( 100 )]
         [Column( "ParentLocation" )]
         public string Location { get; set; }
 

@@ -26,11 +26,5 @@ namespace WebApp.Models
         /// </summary>
         [DataMember( Name = "total" )]
         public int TotalCount { get; set; }
-
-        /// <summary>
-        /// Die Aufzeichnungen, die zur Suche passen.
-        /// </summary>
-        [DataMember( Name = "recordings" )]
-        public Recording[] Recordings { get; set; }
     }
 }
