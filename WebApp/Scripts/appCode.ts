@@ -18,17 +18,23 @@ module MovieDatabase {
     // Die Information zu eiuner einzelnen Art von Aufnahme
     interface IGenre {
         id: string;
+
+        description: string;
     }
 
-    // Die Beschreibung einer Aufnahme
-    interface IRecording {
+    // Die Beschreibung einer Aufnahme in der Tabelle - eine Kurzfassung
+    interface IRecordingInfo {
         id: string;
 
         title: string;
 
-        languages: ILanguage[];
+        createdAsString: string;
 
-        genres: IGenre[];
+        created: Date;
+
+        languages: string[];
+
+        genres: string[];
     }
 
     // Die Eigenschaften, nach denen Aufzeichnungen sortiert werden können
@@ -58,7 +64,17 @@ module MovieDatabase {
                 data: JSON.stringify(this),
                 dataType: "json",
                 type: "POST",
-            });
+            }).done((searchResult: ISearchInformation) => {
+                    if (searchResult == null)
+                        return;
+
+                    var recordings = searchResult.recordings;
+                    if (recordings == null)
+                        return;
+
+                    // Ein wenig Vorarbeit hübscht die Daten vom Web Service etwas auf: aus der Rohdarstellung des Datums machen wir ein Date Objekt
+                    $.each(recordings, (index, recording) => recording.created = new Date(recording.createdAsString));
+                });
         }
 
         static Current: SearchRequest = new SearchRequest();
@@ -72,7 +88,7 @@ module MovieDatabase {
 
         total: number;
 
-        recordings: IRecording[];
+        recordings: IRecordingInfo[];
     }
 
     // Einige Informationen zur Anwendungsumgebung

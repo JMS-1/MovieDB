@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Web;
 using System.Xml;
@@ -620,6 +621,63 @@ namespace MovieDB
 
             // Not found
             return null;
+        }
+
+        /// <summary>
+        /// Initialisiert die Datenbank.
+        /// </summary>
+        /// <param name="database">Die Zieldatenbank für die neue Version.</param>
+        public void CopyTo( WebApp.DAL.Database database )
+        {
+            // Just improve lookup speed a bit - hey, EF is not so fast...
+            var containerMap = new Dictionary<string, WebApp.Models.Container>();
+            var languageMap = new Dictionary<string, WebApp.Models.Language>();
+            var genreMap = new Dictionary<string, WebApp.Models.Genre>();
+
+            // Add all containers
+            var dbContainers = database.Containers;
+            foreach (var container in Containers)
+                containerMap.Add( container.Name,
+                    dbContainers.Add(
+                        new WebApp.Models.Container
+                        {
+                            Type = (WebApp.Models.ContainerType) container.Type,
+                            Location = container.Location,
+                            Name = container.Name,
+                        } ) );
+
+            // Build container hierarchy
+            foreach (var container in Containers.Where( c => c.Parent != null ))
+            {
+                var dbContainer = containerMap[container.Name];
+                var parent = container.Parent;
+
+                dbContainer.ParentContainer = containerMap[parent.Name];
+                dbContainer.Location = parent.UnitIdentifier;
+            }
+
+            // Add all languages
+            var dbLanguages = database.Languages;
+            foreach (var language in new HashSet<string>( Languages.Select( l => l.ToLower() ) ))
+                languageMap.Add( language, dbLanguages.Add( new WebApp.Models.Language { TwoLetterIsoName = language, Description = language } ) );
+
+            // Add all genres
+            var dbGenres = database.Genres;
+            foreach (var genre in new HashSet<string>( Genres ))
+                genreMap.Add( genre, dbGenres.Add( new WebApp.Models.Genre { Name = genre, Description = genre } ) );
+
+            // Add all recordings
+            var dbRecordings = database.Recordings;
+            foreach (var recording in Recordings.Take( 100 ))
+                dbRecordings.Add(
+                    new WebApp.Models.Recording
+                    {
+                        Languages = recording.Languages.Select( language => languageMap[language.ToLower()] ).ToList(),
+                        Genres = recording.Genres.Select( genre => genreMap[genre] ).ToList(),
+                        Identifier = recording.UniqueId,
+                        CreationTime = recording.Added,
+                        Title = recording.Title,
+                    } );
         }
     }
 }

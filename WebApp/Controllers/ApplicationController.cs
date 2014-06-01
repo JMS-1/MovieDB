@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Web.Http;
 using WebApp.DAL;
 using WebApp.Models;
@@ -12,29 +11,8 @@ namespace WebApp.Controllers
     /// mit den in der Datenbank abgelegten Entitäten zu tun hat.
     /// </summary>
     [RoutePrefix( "movie" )]
-    public class ApplicationController : ApiController
+    public class ApplicationController : ControllerWithDatabase
     {
-#if DISABLED
-        /// <summary>
-        /// Wir benötigen Zugriff auf die Datenbank.
-        /// </summary>
-        public IRequestContext DatabaseContext { get; private set; }
-
-        /// <summary>
-        /// Erzeugt für jeden Zugriff eine neue Instanz zum Zugriff auf die Daten.
-        /// </summary>
-        /// <param name="context">Abstraktion des Datenbankzugriffs.</param>
-        /// <exception cref="ArgumentException">Auch in Testszenarien muss eine Datenbankabstraktion
-        /// angegeben werden.</exception>
-        public ApplicationController( IRequestContext context )
-        {
-            // Just in case we forget...
-            if (context == null)
-                throw new ArgumentException( "keine Datenbank", "context" );
-
-            DatabaseContext = context;
-        }
-
         /// <summary>
         /// Meldet einige Eckdaten zur Anwendung an sich.
         /// </summary>
@@ -43,13 +21,13 @@ namespace WebApp.Controllers
         [HttpGet]
         public ApplicationInformation GetInformation()
         {
-            return
-                new ApplicationInformation
-                {
-                    NumberOfRecordings = DatabaseContext.Recordings.Query().Count(),
-                    DatabaseIsEmpty = DatabaseContext.TestEmpty(),
-                };
+            var info = new ApplicationInformation { NumberOfRecordings = Database.Recordings.Count() };
+
+            // If there are recordings there is no need to do a full check - regular operation mode optimized!
+            if (info.NumberOfRecordings < 1)
+                info.DatabaseIsEmpty = Database.IsEmpty;
+
+            return info;
         }
-#endif
     }
 }

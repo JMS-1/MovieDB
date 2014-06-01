@@ -140,6 +140,33 @@ namespace WebApp.DAL
         }
 
         /// <summary>
+        /// Gesetzt, wenn in keiner der Tabellen Einträge vorhanden sind.
+        /// </summary>
+        public bool IsEmpty
+        {
+            get
+            {
+                // In regular operation mode the first call will get the answer
+                if (Recordings.Any())
+                    return false;
+                if (Languages.Any())
+                    return false;
+                if (Genres.Any())
+                    return false;
+                if (Containers.Any())
+                    return false;
+                if (Stores.Any())
+                    return false;
+                if (Series.Any())
+                    return false;
+                if (Links.Any())
+                    return false;
+
+                return true;
+            }
+        }
+
+        /// <summary>
         /// Entfernt die Datenbank aus der Verwaltung.
         /// </summary>
         public static void DetachFromDatabase()

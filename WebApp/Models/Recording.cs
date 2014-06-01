@@ -59,16 +59,6 @@ namespace WebApp.Models
         }
 
         /// <summary>
-        /// Der Zeitpunkt in GMT / UTC Notation zu dem die Aufzeichnung angelegt wurde.
-        /// </summary>
-        [NotMapped]
-        public string CreationTimeAsIsoString
-        {
-            get { return CreationTime.ToString( "o" ); }
-            set { CreationTime = DateTime.Parse( value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind ); }
-        }
-
-        /// <summary>
         /// Eine optionale Beschreibung zur aufgezeichneten Sendung.
         /// </summary>
         [StringLength( 2000 )]

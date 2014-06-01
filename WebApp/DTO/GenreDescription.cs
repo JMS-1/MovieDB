@@ -1,0 +1,39 @@
+﻿using System.Runtime.Serialization;
+
+
+namespace WebApp.DTO
+{
+    /// <summary>
+    /// Beschreibt die Art einer Aufzeichnung.
+    /// </summary>
+    [DataContract]
+    public class GenreDescription
+    {
+        /// <summary>
+        /// Der eindeutige Kurzname der Art.
+        /// </summary>
+        [DataMember( Name = "id" )]
+        public string UniqueName { get; set; }
+
+        /// <summary>
+        /// Die eindeutige Beschreibung der Art.
+        /// </summary>
+        [DataMember( Name = "description" )]
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Erstellt eine neue Beschreibung.
+        /// </summary>
+        /// <param name="genre">Die Entität aus der Datenbank.</param>
+        /// <returns>Die gewünschte Beschreibung.</returns>
+        public static GenreDescription Create( Models.Genre genre )
+        {
+            return
+                new GenreDescription
+                {
+                    Description = genre.Description,
+                    UniqueName = genre.Name,
+                };
+        }
+    }
+}

@@ -105,11 +105,14 @@ namespace WebApp.Models
         /// <summary>
         /// Wendet die Suchbeschreibung auf eine Suche an.
         /// </summary>
-        /// <param name="recordings"></param>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        public static IQueryable<Recording> Apply( this IQueryable<Recording> recordings, SearchRequest request )
+        /// <param name="recordings">Eine Suche nach Aufzeichnungen.</param>
+        /// <param name="request">Die gewümschten Einschränkungen.</param>
+        /// <returns>Die vorbereitete Suche.</returns>
+        public static IQueryable<Recording> Apply( this IQueryable<Recording> recordings, SearchRequest request, out int totalCount )
         {
+            // Check counter after filter is applied but bevore we start restricting
+            totalCount = recordings.Count();
+
             // Apply order
             switch (request.OrderBy)
             {
@@ -127,9 +130,7 @@ namespace WebApp.Models
                 recordings = recordings.Skip( (int) offset );
 
             // Always restrict number of results
-            recordings = recordings.Take( request.PageSize );
-
-            return recordings;
+            return recordings.Take( request.PageSize );
         }
     }
 }

@@ -39,6 +39,18 @@ var MovieDatabase;
                 data: JSON.stringify(this),
                 dataType: "json",
                 type: "POST"
+            }).done(function (searchResult) {
+                if (searchResult == null)
+                    return;
+
+                var recordings = searchResult.recordings;
+                if (recordings == null)
+                    return;
+
+                // Ein wenig Vorarbeit hübscht die Daten vom Web Service etwas auf: aus der Rohdarstellung des Datums machen wir ein Date Objekt
+                $.each(recordings, function (index, recording) {
+                    return recording.created = new Date(recording.createdAsString);
+                });
             });
         };
 

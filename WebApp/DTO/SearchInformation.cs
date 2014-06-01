@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Serialization;
 
 
-namespace WebApp.Models
+namespace WebApp.DTO
 {
     /// <summary>
     /// Beschreibt das Ergebnis einer Suche.
@@ -26,5 +26,11 @@ namespace WebApp.Models
         /// </summary>
         [DataMember( Name = "total" )]
         public int TotalCount { get; set; }
+
+        /// <summary>
+        /// Alle Aufzeichnungen.
+        /// </summary>
+        [DataMember( Name = "recordings" )]
+        public RecordingForTable[] Recordings { get; set; }
     }
 }

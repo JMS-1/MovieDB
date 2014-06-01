@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -16,33 +16,12 @@ namespace WebApp.Controllers
     /// Die Schnittstelle auf die verwalteten Filme.
     /// </summary>
     [RoutePrefix( "movie/db" )]
-    public class MovieController : ApiController
+    public class MovieController : ControllerWithDatabase
     {
         /// <summary>
         /// Kann die alte Darstellung deserialisieren.
         /// </summary>
         private static readonly XmlSerializer _LegacyDeserializer = new XmlSerializer( typeof( MovieDB.Database ), MovieDB.Database.DatabaseNamespace );
-
-#if DISABLED
-        /// <summary>
-        /// Wir benötigen Zugriff auf die Datenbank.
-        /// </summary>
-        public IRequestContext DatabaseContext { get; private set; }
-
-        /// <summary>
-        /// Erzeugt für jeden Zugriff eine neue Instanz zum Zugriff auf die Daten.
-        /// </summary>
-        /// <param name="context">Abstraktion des Datenbankzugriffs.</param>
-        /// <exception cref="ArgumentException">Auch in Testszenarien muss eine Datenbankabstraktion
-        /// angegeben werden.</exception>
-        public MovieController( IRequestContext context )
-        {
-            // Just in case we forget...
-            if (context == null)
-                throw new ArgumentException( "keine Datenbank", "context" );
-
-            DatabaseContext = context;
-        }
 
         /// <summary>
         /// Führt eine einfache Suche durch.
@@ -50,7 +29,7 @@ namespace WebApp.Controllers
         /// <returns>Eine Liste passender Ergebnisse.</returns>
         [HttpGet]
         [Route( "" )]
-        public SearchInformation ShowList()
+        public DTO.SearchInformation ShowList()
         {
             return ShowList( null );
         }
@@ -62,7 +41,7 @@ namespace WebApp.Controllers
         /// <returns>Eine Liste passender Ergebnisse.</returns>
         [HttpPost]
         [Route( "" )]
-        public SearchInformation ShowList( [FromBody] SearchRequest request )
+        public DTO.SearchInformation ShowList( [FromBody] SearchRequest request )
         {
             // Default
             if (request == null)
@@ -72,20 +51,22 @@ namespace WebApp.Controllers
             request.Validate();
 
             // Root query
+            int totalCount;
             var recordings =
-                DatabaseContext
+                Database
                     .Recordings
-                    .Query()
-                    .Apply( request );
+                    .Include( r => r.Languages )
+                    .Include( r => r.Genres )
+                    .Apply( request, out totalCount );
 
             // Time to execute
             return
-                new SearchInformation
+                new DTO.SearchInformation
                 {
-                    TotalCount = DatabaseContext.Recordings.Query().Count(),
-                    Recordings = recordings.ToArray(),
+                    Recordings = recordings.Select( DTO.RecordingForTable.Create ).ToArray(),
                     PageIndex = request.PageIndex,
                     PageSize = request.PageSize,
+                    TotalCount = totalCount,
                 };
         }
 
@@ -102,7 +83,7 @@ namespace WebApp.Controllers
                 throw new HttpResponseException( HttpStatusCode.UnsupportedMediaType );
 
             // Can only initialize an empty database
-            if (!DatabaseContext.TestEmpty())
+            if (!Database.IsEmpty)
                 throw new HttpResponseException( HttpStatusCode.Forbidden );
 
             // Decode
@@ -125,72 +106,15 @@ namespace WebApp.Controllers
                     legacy.CreateMaps();
 
                     // Fill up
-                    Initialize( legacy );
+                    legacy.CopyTo( Database );
 
                     // Store
-                    await DatabaseContext.BeginSave();
+                    await Database.SaveChangesAsync();
                 }
             }
 
             // Must provide proper synchronisation code for the framework to run the request
             return Ok();
         }
-
-        /// <summary>
-        /// Initialisiert die Datenbank.
-        /// </summary>
-        /// <param name="legacyDatabaseContent">Die in die Datenbank zu übernehmenden Objekte.</param>
-        private void Initialize( MovieDB.Database legacyDatabaseContent )
-        {
-            // Just improve lookup speed a bit - hey, EF is not so fast...
-            var containerMap = new Dictionary<string, Container>();
-            var languageMap = new Dictionary<string, Language>();
-            var genreMap = new Dictionary<string, Genre>();
-
-            // Add all containers
-            var dbContainers = DatabaseContext.Containers;
-            foreach (var container in legacyDatabaseContent.Containers)
-                containerMap.Add( container.Name,
-                    dbContainers.Add(
-                        new Container
-                        {
-                            Type = (ContainerType) container.Type,
-                            Description = container.Location,
-                            Name = container.Name,
-                        } ) );
-
-            // Assign parent containers
-            foreach (var container in legacyDatabaseContent.Containers.Where( c => c.Parent != null ))
-            {
-                var dbContainer = containerMap[container.Name];
-                var parent = container.Parent;
-
-                dbContainer.ParentContainer = containerMap[parent.Name];
-                dbContainer.ParentPosition = parent.UnitIdentifier;
-            }
-
-            // Add all languages
-            var dbLanguages = DatabaseContext.Languages;
-            foreach (var language in new HashSet<string>( legacyDatabaseContent.Languages.Select( l => l.ToLower() ) ))
-                languageMap.Add( language, dbLanguages.Add( new Language { TwoLetterIsoName = language, Description = language } ) );
-
-            // Add all genres
-            var dbGenres = DatabaseContext.Genres;
-            foreach (var genre in new HashSet<string>( legacyDatabaseContent.Genres ))
-                genreMap.Add( genre, dbGenres.Add( new Genre { Name = genre } ) );
-
-            // Add all recordings
-            var dbRecordings = DatabaseContext.Recordings;
-            foreach (var recording in legacyDatabaseContent.Recordings.Take( 100 ))
-                dbRecordings.Add(
-                    new Recording
-                    {
-                        Languages = recording.Languages.Select( language => languageMap[language.ToLower()] ).ToList(),
-                        Genres = recording.Genres.Select( genre => genreMap[genre] ).ToList(),
-                        Title = recording.Title,
-                        Id = recording.UniqueId,
-                    } );
-        }
-#endif
     }
 }
