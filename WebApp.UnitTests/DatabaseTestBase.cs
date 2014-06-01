@@ -2,6 +2,7 @@
 using System.Data.SqlClient;
 using System.IO;
 using NUnit.Framework;
+using WebApp.DAL;
 
 
 namespace WebApp.UnitTests

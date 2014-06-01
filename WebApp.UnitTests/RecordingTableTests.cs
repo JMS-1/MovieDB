@@ -24,7 +24,8 @@ namespace WebApp.UnitTests
         {
             TestContext
                 .Recordings
-                .Include( recording => recording.LanguageMappings.Select( link => link.Language ) )
+                .Include( recording => recording.Languages )
+                .Include( recording => recording.Genres )
                 .ToArray();
         }
 
@@ -48,7 +49,7 @@ namespace WebApp.UnitTests
             TestContext.SaveChanges();
 
             using (TestContext)
-                TestContext = new Database();
+                TestContext = new DAL.Database();
 
             var recording = TestContext.Recordings.Find( id );
 
@@ -144,28 +145,63 @@ namespace WebApp.UnitTests
 
             var rec = TestContext.Recordings.Add( new Recording { Title = "A7", CreationTime = DateTime.UtcNow } );
 
-            rec.Languages.Add( lang1.TwoLetterIsoName );
-            rec.Languages.Add( lang2.TwoLetterIsoName );
+            rec.Languages.Add( lang1 );
+            rec.Languages.Add( lang2 );
 
             TestContext.SaveChanges();
 
             using (TestContext)
-                TestContext = new Database();
+                TestContext = new DAL.Database();
 
             var retest =
                 TestContext
                     .Recordings
-                    .Include( recording => recording.LanguageMappings )
+                    .Include( recording => recording.Languages )
                     .FirstOrDefault( recording => recording.Id == rec.Id );
 
             Assert.IsNotNull( retest, "id" );
             Assert.AreNotSame( rec, retest, "cache" );
 
-            var lang = new HashSet<string>( retest.Languages );
+            var lang = new HashSet<string>( retest.Languages.Select( l => l.TwoLetterIsoName ) );
 
             Assert.AreEqual( 2, lang.Count, "#lang" );
             Assert.IsTrue( lang.Contains( "l1" ), "1" );
             Assert.IsTrue( lang.Contains( "l2" ), "2" );
+        }
+
+        /// <summary>
+        /// Es ist möglich, eine Aufzeichnung mit Klassifikationen anzulegen.
+        /// </summary>
+        [Test]
+        public void CanAddRecordingWithGenres()
+        {
+            var genre1 = TestContext.Genres.Add( new Genre { Name = "g1", Description = "genre 1" } );
+            var genre2 = TestContext.Genres.Add( new Genre { Name = "g2", Description = "genre 2" } );
+
+            var rec = TestContext.Recordings.Add( new Recording { Title = "A8", CreationTime = DateTime.UtcNow } );
+
+            rec.Genres.Add( genre1 );
+            rec.Genres.Add( genre2 );
+
+            TestContext.SaveChanges();
+
+            using (TestContext)
+                TestContext = new DAL.Database();
+
+            var retest =
+                TestContext
+                    .Recordings
+                    .Include( recording => recording.Genres )
+                    .FirstOrDefault( recording => recording.Id == rec.Id );
+
+            Assert.IsNotNull( retest, "id" );
+            Assert.AreNotSame( rec, retest, "cache" );
+
+            var gen = new HashSet<string>( retest.Genres.Select( l => l.Name ) );
+
+            Assert.AreEqual( 2, gen.Count, "#genres" );
+            Assert.IsTrue( gen.Contains( "g1" ), "1" );
+            Assert.IsTrue( gen.Contains( "g2" ), "2" );
         }
     }
 }

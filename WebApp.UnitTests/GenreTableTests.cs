@@ -2,6 +2,7 @@
 using System.Data.Entity.Validation;
 using System.Linq;
 using NUnit.Framework;
+using WebApp.DAL;
 using WebApp.Models;
 
 

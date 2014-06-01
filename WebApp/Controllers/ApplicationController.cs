@@ -14,6 +14,7 @@ namespace WebApp.Controllers
     [RoutePrefix( "movie" )]
     public class ApplicationController : ApiController
     {
+#if DISABLED
         /// <summary>
         /// Wir benötigen Zugriff auf die Datenbank.
         /// </summary>
@@ -49,5 +50,6 @@ namespace WebApp.Controllers
                     DatabaseIsEmpty = DatabaseContext.TestEmpty(),
                 };
         }
+#endif
     }
 }

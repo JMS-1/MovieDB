@@ -71,14 +71,14 @@ namespace WebApp.Models
         /// <summary>
         /// Die Liste der Sprachzuordnungen.
         /// </summary>
-        public virtual ICollection<RecordingLanguages> LanguageMappings { get; set; }
+        [DataMember( Name = "languages" )]
+        public ICollection<Language> Languages { get; set; }
 
         /// <summary>
-        /// Die Liste der Sprachzuordnungen.
+        /// Die Liste der Arten.
         /// </summary>
-        [DataMember( Name = "languages" )]
-        [NotMapped]
-        public ICollection<string> Languages { get; set; }
+        [DataMember( Name = "genres" )]
+        public ICollection<Genre> Genres { get; set; }
 
         /// <summary>
         /// Wird beim Anlegen des Datenbankmodells aufgerufen.
@@ -86,6 +86,27 @@ namespace WebApp.Models
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
         internal static void BuildModel( DbModelBuilder modelBuilder )
         {
+            modelBuilder
+                .Entity<Recording>()
+                .HasMany( r => r.Languages )
+                .WithMany()
+                .Map( m =>
+                {
+                    m.ToTable( "RecordingLanguages" );
+                    m.MapLeftKey( "Recording" );
+                    m.MapRightKey( "Language" );
+                } );
+
+            modelBuilder
+                .Entity<Recording>()
+                .HasMany( r => r.Genres )
+                .WithMany()
+                .Map( m =>
+                {
+                    m.ToTable( "RecordingGenres" );
+                    m.MapLeftKey( "Recording" );
+                    m.MapRightKey( "Genre" );
+                } );
         }
 
         /// <summary>
@@ -93,8 +114,8 @@ namespace WebApp.Models
         /// </summary>
         public Recording()
         {
-            Languages = CollectionMapper.Create( () => LanguageMappings, link => link.LanguageName, language => new RecordingLanguages { LanguageName = language, Recording = this } );
-            LanguageMappings = new List<RecordingLanguages>();
+            Languages = new List<Language>();
+            Genres = new List<Genre>();
             Id = Guid.NewGuid();
         }
     }
@@ -113,22 +134,6 @@ namespace WebApp.Models
 
 	CREATE NONCLUSTERED INDEX [IX_Recordings_Series]
 		ON [dbo].[Recordings]([Series]);
-	GO
-
-	CREATE TABLE [dbo].[RecordingGenres] (
-		[Genre]     NVARCHAR (20)    NOT NULL,
-		[Recording] UNIQUEIDENTIFIER NOT NULL,
-		CONSTRAINT [FK_RecordingGenres_Genre] FOREIGN KEY ([Genre]) REFERENCES [dbo].[Genres] ([Short]) ON DELETE CASCADE,
-		CONSTRAINT [FK_RecordingGenres_Recording] FOREIGN KEY ([Recording]) REFERENCES [dbo].[Recordings] ([Id]) ON DELETE CASCADE
-	);
-	GO
-
-	CREATE NONCLUSTERED INDEX [IX_RecordingGenres_Genre]
-		ON [dbo].[RecordingGenres]([Genre]);
-	GO
-
-	CREATE NONCLUSTERED INDEX [IX_RecordingGenres_Recording]
-		ON [dbo].[RecordingGenres]([Recording]);
 	GO
 #endif
 }

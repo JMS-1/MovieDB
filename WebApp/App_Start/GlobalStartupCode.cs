@@ -3,6 +3,7 @@ using System.IO;
 using System.Web;
 using System.Web.Http;
 using Microsoft.Web.Infrastructure.DynamicModuleHelper;
+using WebApp.DAL;
 
 
 // Meldet die Start-Methode für diese ASP.NET Anwendung an.
@@ -52,9 +53,6 @@ namespace WebApp
                     // Maybe we are late
                     if (application[_InitializationKey] != null)
                         return;
-
-                    // Not really necessary but just to see how it's going
-                    UnityConfig.RegisterComponents( GlobalConfiguration.Configuration );
 
                     // We use implicit route bindings
                     GlobalConfiguration.Configure( config => config.MapHttpAttributeRoutes() );

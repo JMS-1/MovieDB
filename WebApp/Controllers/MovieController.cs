@@ -23,6 +23,7 @@ namespace WebApp.Controllers
         /// </summary>
         private static readonly XmlSerializer _LegacyDeserializer = new XmlSerializer( typeof( MovieDB.Database ), MovieDB.Database.DatabaseNamespace );
 
+#if DISABLED
         /// <summary>
         /// Wir benötigen Zugriff auf die Datenbank.
         /// </summary>
@@ -184,11 +185,12 @@ namespace WebApp.Controllers
                 dbRecordings.Add(
                     new Recording
                     {
-//                        Languages = recording.Languages.Select( language => languageMap[language.ToLower()] ).ToList(),
-//                        Genres = recording.Genres.Select( genre => genreMap[genre] ).ToList(),
+                        Languages = recording.Languages.Select( language => languageMap[language.ToLower()] ).ToList(),
+                        Genres = recording.Genres.Select( genre => genreMap[genre] ).ToList(),
                         Title = recording.Title,
                         Id = recording.UniqueId,
                     } );
         }
+#endif
     }
 }
