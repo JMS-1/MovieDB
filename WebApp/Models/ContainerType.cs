@@ -7,7 +7,7 @@ namespace WebApp.Models
     /// Die Art der Ablage.
     /// </summary>
     [DataContract]
-    public enum ContainerType
+    public enum ContainerType : byte
     {
         /// <summary>
         /// Nicht näher spezifiziert.

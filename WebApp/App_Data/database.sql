@@ -1,10 +1,13 @@
 ﻿-- Container
 
 	CREATE TABLE [dbo].[Containers] (
-		[Name]        NVARCHAR (50)   NOT NULL,
-		[Type]        TINYINT         NOT NULL,
-		[Description] NVARCHAR (2000) NULL,
-		PRIMARY KEY CLUSTERED ([Name])
+		[Name]				NVARCHAR (50)   NOT NULL,
+		[Type]				TINYINT         NOT NULL,
+		[Description]		NVARCHAR (2000) NULL,
+		[Parent]			NVARCHAR (50)   NULL,
+		[ParentLocation]	NVARCHAR (100)  NULL,
+		PRIMARY KEY CLUSTERED ([Name]),
+		CONSTRAINT [FK_Containers_Parent] FOREIGN KEY ([Parent]) REFERENCES [dbo].[Containers] ([Name])
 	);
 	GO
 
@@ -12,21 +15,8 @@
 		ON [dbo].[Containers]([Name]);
 	GO
 
-	CREATE TABLE [dbo].[ContainerHierarchy] (
-		[Parent]   NVARCHAR (50)  NULL,
-		[Child]    NVARCHAR (50)  NULL,
-		[Location] NVARCHAR (100) NULL,
-		CONSTRAINT [FK_ContainerHierarchy_Child] FOREIGN KEY ([Child]) REFERENCES [dbo].[Containers] ([Name]),
-		CONSTRAINT [FK_ContainerHierarchy_Parent] FOREIGN KEY ([Parent]) REFERENCES [dbo].[Containers] ([Name])
-	);
-	GO
-
-	CREATE NONCLUSTERED INDEX [IX_ContainerHierarchy_Parent]
-		ON [dbo].[ContainerHierarchy]([Parent]);
-	GO
-
-	CREATE NONCLUSTERED INDEX [IX_ContainerHierarchy_Child]
-		ON [dbo].[ContainerHierarchy]([Child]);
+	CREATE NONCLUSTERED INDEX [IX_Container_Parent]
+		ON [dbo].[Containers]([Parent]);
 	GO
 
 	CREATE TRIGGER [dbo].[Delete_Container]
@@ -35,8 +25,8 @@
 		AS
 		BEGIN
 			SET NoCount ON
-			DELETE FROM [ContainerHierarchy] WHERE Parent IN (SELECT Name FROM DELETED) OR Child IN (Select Name FROM DELETED)
-			DELETE FROM [Containers] WHERE Name IN (SELECT Name FROM DELETED)
+			UPDATE [Containers] SET [Parent] = NULL, [ParentLocation] = NULL WHERE [Parent] IN (SELECT Name FROM DELETED)
+			DELETE FROM [Containers] WHERE [Name] IN (SELECT Name FROM DELETED)
 		END
 	GO
 

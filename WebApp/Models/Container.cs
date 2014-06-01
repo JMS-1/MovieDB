@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity;
 using System.Runtime.Serialization;
 
 
@@ -8,41 +10,54 @@ namespace WebApp.Models
     /// Ein einzelner Aufbewahrungsort.
     /// </summary>
     [DataContract]
+    [Table( "Containers" )]
     public class Container
     {
+        /// <summary>
+        /// Der eindeutige Name der Aufbewahrung.
+        /// </summary>
+        [Required, Key, StringLength( 50, MinimumLength = 1 )]
+        [DataMember( Name = "name" )]
+        [Column( "Name" )]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Eine Kurzbeschreibung des Standorts der Aufbewahrungseinheit.
+        /// </summary>
+        [StringLength( 2000 )]
+        [DataMember( Name = "description" )]
+        [Column( "Description" )]
+        public string Description { get; set; }
+
         /// <summary>
         /// Die Art der Aufbewahrung.
         /// </summary>
         [Required]
         [DataMember( Name = "type" )]
+        [Column( "Type", TypeName = "tinyint" )]
         public ContainerType Type { get; set; }
 
         /// <summary>
-        /// Der eindeutige Name der Aufbewahrung.
+        /// Der eindeutige Name der übergeordneten Aufbewahrung.
         /// </summary>
-        [Required, Key, StringLength( 50 ), MaxLength( 50 ), MinLength( 1 )]
-        [DataMember( Name = "name" )]
-        public string Name { get; set; }
+        [StringLength( 50, MinimumLength = 1 )]
+        [DataMember( Name = "parentName" )]
+        [Column( "Parent" )]
+        public string ParentName { get; set; }
 
         /// <summary>
-        /// Die übergeordnete Aufbewahrung, sofern vorhanden.
+        /// Der Standord relativ zur übergeordneten Aufbewahrung.
         /// </summary>
-        [DataMember( Name = "parent" )]
-        public Container ParentContainer { get; set; }
+        [StringLength( 100, MinimumLength = 1 )]
+        [DataMember( Name = "parentLocation" )]
+        [Column( "ParentLocation" )]
+        public string Location { get; set; }
 
         /// <summary>
-        /// Die Position in der übergeordnete Aufbewahrung, sofern vorhanden.
+        /// Die übergeordnete Aufbewahrung.
         /// </summary>
-        [DataMember( Name = "positionInParent" )]
-        [StringLength( 20 ), MaxLength( 20 )]
-        public string ParentPosition { get; set; }
-
-        /// <summary>
-        /// Eine Kurzbeschreibung des Standorts der Aufbewahrungseinheit.
-        /// </summary>
-        [StringLength( 200 ), MaxLength( 200 )]
-        [DataMember( Name = "description" )]
-        public string Description { get; set; }
+        [ForeignKey( "ParentName" )]
+        public virtual Container Parent { get; set; }
 
         /// <summary>
         /// Erzeugt eine neue Beschreibung.
@@ -51,6 +66,14 @@ namespace WebApp.Models
         {
             // Set up
             Type = ContainerType.Undefined;
+        }
+
+        /// <summary>
+        /// Wird beim Anlegen des Datenbankmodells aufgerufen.
+        /// </summary>
+        /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
+        internal static void BuildModel( DbModelBuilder modelBuilder )
+        {
         }
     }
 }

@@ -91,6 +91,7 @@ namespace WebApp.DAL
         protected override void OnModelCreating( DbModelBuilder modelBuilder )
         {
             Recording.BuildModel( modelBuilder );
+            Container.BuildModel( modelBuilder );
             Language.BuildModel( modelBuilder );
             Genre.BuildModel( modelBuilder );
 
@@ -192,7 +193,7 @@ namespace WebApp.DAL
                             command.Append( active );
                         }
                     }
-            }
+           }
         }
     }
 }

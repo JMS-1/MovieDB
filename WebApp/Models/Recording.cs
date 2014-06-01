@@ -119,21 +119,4 @@ namespace WebApp.Models
             Id = Guid.NewGuid();
         }
     }
-
-#if X
--- Recordings
-
-	CREATE TABLE [dbo].[Recordings] (
-		[RentTo]      NVARCHAR (200)   NULL,
-		[Media]       UNIQUEIDENTIFIER NULL,
-		[Series]      UNIQUEIDENTIFIER NULL,
-		CONSTRAINT [FK_Recordings_Media] FOREIGN KEY ([Media]) REFERENCES [dbo].[Media] ([Id]) ON DELETE SET NULL,
-		CONSTRAINT [FK_Recordings_Series] FOREIGN KEY ([Series]) REFERENCES [dbo].[Series] ([Id]) ON DELETE SET NULL
-	);
-	GO
-
-	CREATE NONCLUSTERED INDEX [IX_Recordings_Series]
-		ON [dbo].[Recordings]([Series]);
-	GO
-#endif
 }
