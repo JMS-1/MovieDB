@@ -11,7 +11,7 @@ namespace WebApp.Models
     /// Beschreibt eine Serie oder zusammengehörige Aufzeichnungen.
     /// </summary>
     [Table( "Series" )]
-    public class Series
+    public class Series : ILinkHolder
     {
         /// <summary>
         /// Die eindeutige Kennung der Serie.

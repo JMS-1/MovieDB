@@ -272,5 +272,27 @@ namespace WebApp.UnitTests
 
             Assert.IsNull( TestContext.Stores.Find( mediaId ), "second delete" );
         }
+
+        /// <summary>
+        /// Die Beschreibung ist optional.
+        /// </summary>
+        [Test]
+        public void RentIsOptionalAndLimitedTo200Characters()
+        {
+            TestContext.Recordings.Add( new Recording { Title = "A12", CreationTime = DateTime.UtcNow, RentTo = null } );
+            TestContext.Recordings.Add( new Recording { Title = "B12", CreationTime = DateTime.UtcNow, RentTo = string.Empty } );
+            TestContext.Recordings.Add( new Recording { Title = "C12", CreationTime = DateTime.UtcNow, RentTo = new string( 'A', 200 ) } );
+            TestContext.SaveChanges();
+        }
+
+        /// <summary>
+        /// Der Verleiher kann nicht mehr als 200 Zeichen haben.
+        /// </summary>
+        [Test, ExpectedException( typeof( DbEntityValidationException ) )]
+        public void RentIsLimitedTo200Characters()
+        {
+            TestContext.Recordings.Add( new Recording { Title = "A13", CreationTime = DateTime.UtcNow, RentTo = new string( 'A', 201 ) } );
+            TestContext.SaveChanges();
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
@@ -6,6 +7,14 @@ using System.Data.Entity;
 
 namespace WebApp.Models
 {
+    /// <summary>
+    /// Wird von allen Entitäten angeboten, die Verweise verwenden.
+    /// </summary>
+    public interface ILinkHolder
+    {
+        ICollection<Link> Links { get; }
+    }
+
     /// <summary>
     /// Beschreibt einen Verweis auf eine Internetseite.
     /// </summary>
@@ -22,7 +31,7 @@ namespace WebApp.Models
         /// <summary>
         /// Der eigentliche Verweis.
         /// </summary>
-        [Required, StringLength( 2000 ), DataType( DataType.Url )]
+        [Required, StringLength( 2000 ), Url]
         [Column( "Url" )]
         public string Url { get; set; }
 

@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using System.Data.Entity.Validation;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using WebApp.Models;
 
@@ -33,6 +36,26 @@ namespace WebApp.DAL
             Configuration.LazyLoadingEnabled = false;
 
             RegisterLogger();
+        }
+
+        /// <summary>
+        /// Prüft eine Entität.
+        /// </summary>
+        /// <param name="entityEntry">Die zu prüfende Entität.</param>
+        /// <param name="items">Alle geänderten Entitäten.</param>
+        /// <returns>Das Ergebnis der Prüfung.</returns>
+        protected override DbEntityValidationResult ValidateEntity( DbEntityEntry entityEntry, IDictionary<object, object> items )
+        {
+            var linkHolder = entityEntry.Entity as ILinkHolder;
+            if (linkHolder != null)
+            {
+                var index = 0;
+
+                foreach (var link in linkHolder.Links ?? Enumerable.Empty<Link>())
+                    link.Index = index++;
+            }
+
+            return base.ValidateEntity( entityEntry, items );
         }
 
         /// <summary>

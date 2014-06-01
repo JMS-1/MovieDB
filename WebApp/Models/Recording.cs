@@ -12,7 +12,7 @@ namespace WebApp.Models
     /// Eine Aufnahme.
     /// </summary>
     [Table( "Recordings" )]
-    public class Recording
+    public class Recording : ILinkHolder
     {
         /// <summary>
         /// Die eindeutige Kennung der Aufnahme, über die diese permanent referenziert werden kann.
