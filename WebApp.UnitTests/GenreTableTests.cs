@@ -37,8 +37,7 @@ namespace WebApp.UnitTests
 
             TestContext.SaveChanges();
 
-            using (TestContext)
-                TestContext = new Database();
+            Recreate();
 
             Assert.AreEqual( "Horror", TestContext.Genres.Find( "horror" ).Description, "horror" );
 

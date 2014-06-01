@@ -49,8 +49,7 @@ namespace WebApp.UnitTests
 
             TestContext.SaveChanges();
 
-            using (TestContext)
-                TestContext = new DAL.Database();
+            Recreate();
 
             var container = TestContext.Containers.Find( "test" );
 
@@ -138,8 +137,7 @@ namespace WebApp.UnitTests
 
             TestContext.SaveChanges();
 
-            using (TestContext)
-                TestContext = new DAL.Database();
+            Recreate();
 
             var all = TestContext.Containers.ToDictionary( c => c.Name );
 
@@ -164,8 +162,7 @@ namespace WebApp.UnitTests
 
             TestContext.SaveChanges();
 
-            using (TestContext)
-                TestContext = new DAL.Database();
+            Recreate();
 
             var retest = TestContext.Containers.AsNoTracking().Include( c => c.ParentContainer ).Single( c => c.Name == "outer" );
 
@@ -179,8 +176,7 @@ namespace WebApp.UnitTests
 
             TestContext.SaveChanges();
 
-            using (TestContext)
-                TestContext = new DAL.Database();
+            Recreate();
 
             retest = TestContext.Containers.Include( c => c.ParentContainer ).Single( c => c.Name == "outer" );
 

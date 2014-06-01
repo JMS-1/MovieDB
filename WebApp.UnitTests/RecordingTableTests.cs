@@ -48,8 +48,7 @@ namespace WebApp.UnitTests
 
             TestContext.SaveChanges();
 
-            using (TestContext)
-                TestContext = new DAL.Database();
+            Recreate();
 
             var recording = TestContext.Recordings.Find( id );
 
@@ -150,8 +149,7 @@ namespace WebApp.UnitTests
 
             TestContext.SaveChanges();
 
-            using (TestContext)
-                TestContext = new DAL.Database();
+            Recreate();
 
             var retest =
                 TestContext
@@ -185,8 +183,7 @@ namespace WebApp.UnitTests
 
             TestContext.SaveChanges();
 
-            using (TestContext)
-                TestContext = new DAL.Database();
+            Recreate();
 
             var retest =
                 TestContext
@@ -202,6 +199,75 @@ namespace WebApp.UnitTests
             Assert.AreEqual( 2, gen.Count, "#genres" );
             Assert.IsTrue( gen.Contains( "g1" ), "1" );
             Assert.IsTrue( gen.Contains( "g2" ), "2" );
+        }
+
+        /// <summary>
+        /// Eine Aufzeichnung kann einem physikalischen Ablageort zugeordnet sein.
+        /// </summary>
+        [Test]
+        public void CanHaveMedia()
+        {
+            var container = TestContext.Containers.Add( new Container { Name = "A9", Type = ContainerType.FeatureSet } );
+            var media = TestContext.Media.Add( new Storage { Type = MediaType.RecordedDVD, Container = container, Location = "1R" } );
+            var recording = TestContext.Recordings.Add( new Recording { Title = "B9", CreationTime = DateTime.UtcNow, Storage = media } );
+
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            var retest = TestContext.Recordings.Include( r => r.Storage.Container ).Single( r => r.Title == "B9" );
+
+            Assert.AreEqual( "A9", retest.Storage.Container.Name, "container" );
+        }
+
+        /// <summary>
+        /// Das Löschen eines pyhsikalischen Ablageortes is nicht möglich, wenn dieser noch in Verwendung ist.
+        /// </summary>
+        [Test, ExpectedException( typeof( DbUpdateException ) )]
+        public void CanNotDeleteReferencedMedia()
+        {
+            var container = TestContext.Containers.Add( new Container { Name = "A10", Type = ContainerType.FeatureSet } );
+            var media = TestContext.Media.Add( new Storage { Type = MediaType.RecordedDVD, Container = container, Location = "2R" } );
+            var recording = TestContext.Recordings.Add( new Recording { Title = "B10", CreationTime = DateTime.UtcNow, Storage = media } );
+            var mediaId = media.Identifier;
+
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            TestContext.Entry( new Storage { Identifier = mediaId } ).State = EntityState.Deleted;
+            TestContext.SaveChanges();
+        }
+
+        /// <summary>
+        /// Ein physikalischer Ablageort wird automatisch gelöscht wenn keine Aufzeichnung mehr darauf verweist.
+        /// </summary>
+        [Test]
+        public void DeleteMediaAfterLastRecordingIsDeleted()
+        {
+            var container = TestContext.Containers.Add( new Container { Name = "A11", Type = ContainerType.FeatureSet } );
+            var media = TestContext.Media.Add( new Storage { Type = MediaType.RecordedDVD, Container = container, Location = "3L" } );
+            var recording1 = TestContext.Recordings.Add( new Recording { Title = "B11", CreationTime = DateTime.UtcNow, Storage = media } ).Id;
+            var recording2 = TestContext.Recordings.Add( new Recording { Title = "C11", CreationTime = DateTime.UtcNow, Storage = media } ).Id;
+            var mediaId = media.Identifier;
+
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            TestContext.Entry( new Recording { Id = recording1 } ).State = EntityState.Deleted;
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            Assert.IsNotNull( TestContext.Media.Find( mediaId ), "first delete" );
+
+            TestContext.Entry( new Recording { Id = recording2 } ).State = EntityState.Deleted;
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            Assert.IsNull( TestContext.Media.Find( mediaId ), "second delete" );
         }
     }
 }

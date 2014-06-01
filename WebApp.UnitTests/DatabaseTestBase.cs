@@ -28,6 +28,14 @@ namespace WebApp.UnitTests
         [SetUp]
         public virtual void BeforeEachTest()
         {
+            Recreate();
+        }
+
+        /// <summary>
+        /// Erstellt eine neue Verbindung zur Datenbank.
+        /// </summary>
+        protected void Recreate()
+        {
             using (TestContext)
                 TestContext = new Database();
         }

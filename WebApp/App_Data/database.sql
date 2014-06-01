@@ -93,6 +93,21 @@
 		ON [dbo].[Media]([Id]);
 	GO
 
+	CREATE TRIGGER [dbo].[Modify_Media]
+		ON [dbo].[Media]
+		FOR INSERT, UPDATE
+		AS
+		BEGIN
+			SET NoCount ON		
+
+			if EXISTS(SELECT 1 FROM [dbo].[Media] GROUP BY [Container], [Position] HAVING COUNT(*) > 1)
+			BEGIN
+				ROLLBACK TRANSACTION
+				RAISERROR('Ein Ablageort wurde mehrfach verwendet', 16, 0)
+			END
+		END
+	GO
+	
 -- Series
 
 	CREATE TABLE [dbo].[Series] (
@@ -158,6 +173,16 @@
 		BEGIN
 			SET NoCount ON
 			DELETE FROM [dbo].[Links] WHERE [For] IN (Select [Id] FROM DELETED)
+		END
+	GO
+
+	CREATE TRIGGER [dbo].[Update_Recordings]
+		ON [dbo].[Recordings]
+		AFTER DELETE, UPDATE
+		AS
+		BEGIN
+			SET NoCount ON
+			DELETE FROM [dbo].[Media] WHERE NOT ([Id] IN (SELECT [Media] FROM [dbo].[Recordings] WHERE [Media] IS NOT NULL))
 		END
 	GO
 
