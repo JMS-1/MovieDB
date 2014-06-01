@@ -121,7 +121,7 @@ namespace WebApp.UnitTests
         }
 
         /// <summary>
-        /// Es ist möglich eine ganze Familie von Áufbewahrungen zu erzeugen.
+        /// Es ist möglich eine ganze Familie von Aufbewahrungen zu erzeugen.
         /// </summary>
         [Test]
         public void CanCreateFamily()
