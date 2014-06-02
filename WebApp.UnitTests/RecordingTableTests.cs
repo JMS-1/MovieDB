@@ -44,6 +44,7 @@ namespace WebApp.UnitTests
                 new Recording
                 {
                     Title = "super",
+                    Store = new Store(),
                     Description = "what",
                     CreationTime = refTime,
                 } );
@@ -71,8 +72,8 @@ namespace WebApp.UnitTests
         {
             var id = Guid.NewGuid();
 
-            TestContext.Recordings.Add( new Recording { Identifier = id, Title = "A4", Description = "A4", CreationTime = DateTime.UtcNow } );
-            TestContext.Recordings.Add( new Recording { Identifier = id, Title = "B4", Description = "B4", CreationTime = DateTime.UtcNow } );
+            TestContext.Recordings.Add( new Recording { Identifier = id, Title = "A4", Description = "A4", CreationTime = DateTime.UtcNow, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Identifier = id, Title = "B4", Description = "B4", CreationTime = DateTime.UtcNow, Store = new Store() } );
             TestContext.SaveChanges();
         }
 
@@ -82,8 +83,8 @@ namespace WebApp.UnitTests
         [Test]
         public void TitleCanBeUsedMultipleTimes()
         {
-            TestContext.Recordings.Add( new Recording { Title = "A3", Description = "A3", CreationTime = DateTime.UtcNow } );
-            TestContext.Recordings.Add( new Recording { Title = "A3", Description = "B3", CreationTime = DateTime.UtcNow } );
+            TestContext.Recordings.Add( new Recording { Title = "A3", Description = "A3", CreationTime = DateTime.UtcNow, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Title = "A3", Description = "B3", CreationTime = DateTime.UtcNow, Store = new Store() } );
             TestContext.SaveChanges();
         }
 
@@ -93,8 +94,8 @@ namespace WebApp.UnitTests
         [Test]
         public void DescriptionCanBeUsedMultipleTimes()
         {
-            TestContext.Recordings.Add( new Recording { Title = "A2", Description = "A2", CreationTime = DateTime.UtcNow } );
-            TestContext.Recordings.Add( new Recording { Title = "B2", Description = "A2", CreationTime = DateTime.UtcNow } );
+            TestContext.Recordings.Add( new Recording { Title = "A2", Description = "A2", CreationTime = DateTime.UtcNow, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Title = "B2", Description = "A2", CreationTime = DateTime.UtcNow, Store = new Store() } );
             TestContext.SaveChanges();
         }
 
@@ -120,9 +121,9 @@ namespace WebApp.UnitTests
         [Test]
         public void DescriptionIsOptionalAndLimitedTo2000Characters()
         {
-            TestContext.Recordings.Add( new Recording { Title = "A1", Description = null, CreationTime = DateTime.UtcNow } );
-            TestContext.Recordings.Add( new Recording { Title = "B1", Description = string.Empty, CreationTime = DateTime.UtcNow } );
-            TestContext.Recordings.Add( new Recording { Title = "C1", Description = new string( 'A', 2000 ), CreationTime = DateTime.UtcNow } );
+            TestContext.Recordings.Add( new Recording { Title = "A1", Description = null, CreationTime = DateTime.UtcNow, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Title = "B1", Description = string.Empty, CreationTime = DateTime.UtcNow, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Title = "C1", Description = new string( 'A', 2000 ), CreationTime = DateTime.UtcNow, Store = new Store() } );
             TestContext.SaveChanges();
         }
 
@@ -145,7 +146,7 @@ namespace WebApp.UnitTests
             var lang1 = TestContext.Languages.Add( new Language { TwoLetterIsoName = "l1", Description = "language 1" } );
             var lang2 = TestContext.Languages.Add( new Language { TwoLetterIsoName = "l2", Description = "language 2" } );
 
-            var rec = TestContext.Recordings.Add( new Recording { Title = "A7", CreationTime = DateTime.UtcNow } );
+            var rec = TestContext.Recordings.Add( new Recording { Title = "A7", CreationTime = DateTime.UtcNow, Store = new Store() } );
 
             rec.Languages.Add( lang1 );
             rec.Languages.Add( lang2 );
@@ -179,7 +180,12 @@ namespace WebApp.UnitTests
             var genre1 = TestContext.Genres.Add( new Genre { Name = "g1", Description = "genre 1" } );
             var genre2 = TestContext.Genres.Add( new Genre { Name = "g2", Description = "genre 2" } );
 
-            var rec = TestContext.Recordings.Add( new Recording { Title = "A8", CreationTime = DateTime.UtcNow } );
+            var rec = TestContext.Recordings.Add( new Recording
+            {
+                CreationTime = DateTime.UtcNow,
+                Store = new Store(),
+                Title = "A8",
+            } );
 
             rec.Genres.Add( genre1 );
             rec.Genres.Add( genre2 );
@@ -279,9 +285,9 @@ namespace WebApp.UnitTests
         [Test]
         public void RentIsOptionalAndLimitedTo200Characters()
         {
-            TestContext.Recordings.Add( new Recording { Title = "A12", CreationTime = DateTime.UtcNow, RentTo = null } );
-            TestContext.Recordings.Add( new Recording { Title = "B12", CreationTime = DateTime.UtcNow, RentTo = string.Empty } );
-            TestContext.Recordings.Add( new Recording { Title = "C12", CreationTime = DateTime.UtcNow, RentTo = new string( 'A', 200 ) } );
+            TestContext.Recordings.Add( new Recording { Title = "A12", CreationTime = DateTime.UtcNow, RentTo = null, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Title = "B12", CreationTime = DateTime.UtcNow, RentTo = string.Empty, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Title = "C12", CreationTime = DateTime.UtcNow, RentTo = new string( 'A', 200 ), Store = new Store() } );
             TestContext.SaveChanges();
         }
 

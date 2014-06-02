@@ -36,7 +36,7 @@ namespace WebApp.Models
         /// <summary>
         /// Der Standord relativ zur Aufbewahrung.
         /// </summary>
-        [Required, StringLength( 100 )]
+        [StringLength( 100 )]
         [Column( "Position" )]
         public string Location { get; set; }
 

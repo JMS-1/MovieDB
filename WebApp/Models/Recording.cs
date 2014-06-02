@@ -69,7 +69,7 @@ namespace WebApp.Models
         /// Die Kennung des zugehörigen physikalischen Mediums.
         /// </summary>
         [Column( "Media" )]
-        public Guid? StoreIdentifier { get; set; }
+        public Guid StoreIdentifier { get; set; }
 
         /// <summary>
         /// Die Kennung der zugehörigen Serie.
@@ -90,6 +90,7 @@ namespace WebApp.Models
         /// <summary>
         /// Das zugehörige Medium.
         /// </summary>
+        [Required]
         public virtual Store Store { get; set; }
 
         /// <summary>
@@ -132,7 +133,7 @@ namespace WebApp.Models
 
             modelBuilder
                 .Entity<Recording>()
-                .HasOptional( r => r.Store )
+                .HasRequired( r => r.Store )
                 .WithMany()
                 .HasForeignKey( r => r.StoreIdentifier )
                 .WillCascadeOnDelete( false );

@@ -106,7 +106,7 @@ namespace WebApp.UnitTests
         [Test]
         public void CanCreateRecordingWithLinks()
         {
-            var recordings = TestContext.Recordings.Add( new Recording { CreationTime = DateTime.UtcNow, Title = "A9" } );
+            var recordings = TestContext.Recordings.Add( new Recording { CreationTime = DateTime.UtcNow, Title = "A9", Store = new Store() } );
             var recordingId = recordings.Identifier;
             recordings.Links.Add( new Link { Name = "A9", Url = "http://www.psimarron.net" } );
             recordings.Links.Add( new Link { Name = "B9", Url = "http://www.jochen-manns.de" } );
@@ -208,7 +208,7 @@ namespace WebApp.UnitTests
         {
             var linkCount = TestContext.Links.Count();
 
-            var recording = TestContext.Recordings.Add( new Recording { CreationTime = DateTime.UtcNow, Title = "A11" } );
+            var recording = TestContext.Recordings.Add( new Recording { CreationTime = DateTime.UtcNow, Title = "A11", Store = new Store() } );
             var recordingId = recording.Identifier;
             recording.Links.Add( new Link { Name = "A11", Url = "http://www.psimarron.net" } );
             recording.Links.Add( new Link { Name = "B11", Url = "http://www.jochen-manns.de" } );

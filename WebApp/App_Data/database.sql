@@ -68,10 +68,9 @@
 		[Id]        UNIQUEIDENTIFIER NOT NULL,
 		[Type]      TINYINT          NOT NULL,
 		[Container] NVARCHAR (50)    NULL,
-		[Position]  NVARCHAR (100)   NOT NULL,
+		[Position]  NVARCHAR (100)   NULL,
 		PRIMARY KEY CLUSTERED ([Id]),
-		CONSTRAINT [FK_Media_Container] FOREIGN KEY ([Container]) REFERENCES [dbo].[Containers] ([Name]) ON DELETE SET NULL,
-		CONSTRAINT [C_Media_ContainerPosition] UNIQUE NONCLUSTERED ([Container], [Position])
+		CONSTRAINT [FK_Media_Container] FOREIGN KEY ([Container]) REFERENCES [dbo].[Containers] ([Name]) ON DELETE SET NULL
 	);
 	GO
 
@@ -84,7 +83,7 @@
 		[Parent]      UNIQUEIDENTIFIER NULL,
 		PRIMARY KEY CLUSTERED ([Id]),
 		CONSTRAINT [FK_Series_Parent] FOREIGN KEY ([Parent]) REFERENCES [dbo].[Series] ([Id]),
-		CONSTRAINT [C_Series_RelativeName] UNIQUE NONCLUSTERED ([Parent], [Name])
+		CONSTRAINT [U_Series_RelativeName] UNIQUE NONCLUSTERED ([Parent], [Name])
 	);
 	GO
 
@@ -108,7 +107,7 @@
 		[RentTo]      NVARCHAR (200)   NULL,
 		[Created]     DATETIME         NOT NULL,
 		[Description] NVARCHAR (2000)  NULL,
-		[Media]       UNIQUEIDENTIFIER NULL,
+		[Media]       UNIQUEIDENTIFIER NOT NULL,
 		[Series]      UNIQUEIDENTIFIER NULL,
 		PRIMARY KEY CLUSTERED ([Id]),
 		CONSTRAINT [FK_Recordings_Media] FOREIGN KEY ([Media]) REFERENCES [dbo].[Media] ([Id]),
@@ -144,7 +143,7 @@
 		AS
 		BEGIN
 			SET NoCount ON
-			DELETE FROM [dbo].[Media] WHERE NOT ([Id] IN (SELECT [Media] FROM [dbo].[Recordings] WHERE [Media] IS NOT NULL))
+			DELETE FROM [dbo].[Media] WHERE NOT ([Id] IN (SELECT [Media] FROM [dbo].[Recordings]))
 		END
 	GO
 

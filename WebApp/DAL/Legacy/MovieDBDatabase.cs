@@ -22,6 +22,118 @@ namespace MovieDB
     public class Database
     {
         /// <summary>
+        /// Der Schlüssel für eine physikalische Ablage.
+        /// </summary>
+        private struct StoreKey : IEquatable<StoreKey>
+        {
+            /// <summary>
+            /// Der Name der Aufbewahrung.
+            /// </summary>
+            private readonly string m_container;
+
+            /// <summary>
+            /// Die relative Position in der Aufbewahrung.
+            /// </summary>
+            public readonly string Location;
+
+            /// <summary>
+            /// Die Art der Aufbewahrung.
+            /// </summary>
+            public readonly WebApp.Models.StoreType Type;
+
+            /// <summary>
+            /// Ein Kurzschlüssel.
+            /// </summary>
+            private readonly int m_hash;
+
+            /// <summary>
+            /// Erstellt einen Schlüssel.
+            /// </summary>
+            /// <param name="media">Die physikalische Ablage.</param>
+            public StoreKey( Media media )
+            {
+                if (media == null)
+                {
+                    Type = WebApp.Models.StoreType.Undefined;
+                    m_container = string.Empty;
+                    Location = string.Empty;
+                }
+                else
+                {
+                    Type = (WebApp.Models.StoreType) media.Type;
+
+                    var container = media.Container;
+                    if (container == null)
+                    {
+                        m_container = string.Empty;
+                        Location = media.Location ?? string.Empty;
+                    }
+                    else
+                    {
+                        m_container = container.Name ?? string.Empty;
+                        Location = container.UnitIdentifier ?? string.Empty;
+
+                        if (string.IsNullOrEmpty( Location ))
+                            Location = media.Location ?? string.Empty;
+                    }
+                }
+
+                m_hash = (((m_container.GetHashCode() * 911) ^ Location.GetHashCode()) * 911) ^ Type.GetHashCode();
+            }
+
+            /// <summary>
+            /// Gesetzt, wenn keine physikalische Ablage definiert ist.
+            /// </summary>
+            public bool IsGeneric { get { return string.IsNullOrEmpty( m_container ) && string.IsNullOrEmpty( Location ); } }
+
+            /// <summary>
+            /// Vergleicht diesen Schlüssel mit einem anderen.
+            /// </summary>
+            /// <param name="other">Ein anderer Schlüssel.</param>
+            /// <returns>Gesetzt, wenn die Schlüssel äquivalent sind.</returns>
+            public bool Equals( StoreKey other )
+            {
+                return
+                    (Type == other.Type) &&
+                    string.Equals( Location, other.Location ) &&
+                    string.Equals( m_container, other.m_container );
+            }
+
+            /// <summary>
+            /// Meldet einen Kurzschlüssel.
+            /// </summary>
+            /// <returns>Der gewünschte Kurzschlüssel.</returns>
+            public override int GetHashCode()
+            {
+                return m_hash;
+            }
+
+            /// <summary>
+            /// Vergleicht diesen Schlüssel mit einem beliebigen Objekt.
+            /// </summary>
+            /// <param name="obj">Irgendein Objekt.</param>
+            /// <returns>Gesetzt, wenn das Objket ein äquivalenter Schlüssel ist.</returns>
+            public override bool Equals( object obj )
+            {
+                var other = obj as StoreKey?;
+                return other.HasValue && Equals( other.Value );
+            }
+
+            /// <summary>
+            /// Ermittelt die zugehöroge Aufbewahrung.
+            /// </summary>
+            /// <param name="containerMap">Alle bekannten Aufbewahrungen.</param>
+            /// <returns>Die zugehörige Aufbewahrung.</returns>
+            public WebApp.Models.Container GetContainer( Dictionary<string, WebApp.Models.Container> containerMap )
+            {
+                if (string.IsNullOrEmpty( m_container ))
+                    return null;
+                else
+                    return containerMap[m_container];
+            }
+        }
+
+        /// <summary>
         /// XML <i>namespace</i> für die serialisierte Form der Datenbank.
         /// </summary>
         public const string DatabaseNamespace = "http://jochen-manns.de/VCR.NET/MediaDatabase";
@@ -491,123 +603,6 @@ namespace MovieDB
         }
 
         /// <summary>
-        /// Erzeugt einen Ausschnitt aller Aufzeichnungen zur Anzeige in einem Web Formular.
-        /// </summary>
-        /// <param name="filter">Einschränkende Bedingungen zur Ermitteltung der Teilmenge.</param>
-        /// <returns>Eine Sicht auf eine Tabelle mit den gewünschten Informationen.</returns>
-        public DataView CreateTable( RecordingFilter filter )
-        {
-            // Create new
-            DataTable table = new DataTable();
-
-            // Create columns
-            DataColumn guid = table.Columns.Add( "id", typeof( Guid ) );
-            DataColumn title = table.Columns.Add( "Title", typeof( string ) );
-            DataColumn created = table.Columns.Add( "Added", typeof( DateTime ) );
-            DataColumn genres = table.Columns.Add( "Genres", typeof( string ) );
-            DataColumn languages = table.Columns.Add( "Languages", typeof( string ) );
-            DataColumn rent = table.Columns.Add( "Rent", typeof( string ) );
-
-            // Create genre filter map
-            Dictionary<string, bool> genreMap = new Dictionary<string, bool>();
-
-            // Fill map
-            foreach (string genre in filter.Genres) genreMap[genre] = true;
-
-            // Load fulltext filter
-            string fulltext = string.IsNullOrEmpty( filter.Volltext ) ? null : filter.Volltext.ToLower();
-
-            // Load the series matcher
-            string series = string.IsNullOrEmpty( filter.Series ) ? null : filter.Series.ToLower();
-
-            // Fill
-            lock (this)
-                foreach (Recording recording in Recordings)
-                {
-                    // Check for genre
-                    if (genreMap.Count > 0)
-                    {
-                        // Got it
-                        int genreCount = 0;
-
-                        // Find
-                        foreach (string genre in recording.Genres)
-                            if (!string.IsNullOrEmpty( genre ))
-                                if (genreMap.ContainsKey( genre ))
-                                    ++genreCount;
-
-                        // Not found
-                        if (genreCount != genreMap.Count)
-                            continue;
-                    }
-
-                    // Check for fulltext
-                    if (!string.IsNullOrEmpty( fulltext ))
-                        if (string.IsNullOrEmpty( recording.Title ) || (recording.Title.ToLower().IndexOf( fulltext ) < 0))
-                        {
-                            // No series - no last chance
-                            if (null == recording.Series) continue;
-
-                            // Get series name
-                            string seriesName = recording.Series.FullName;
-                            if (string.IsNullOrEmpty( seriesName ) || (seriesName.ToLower().IndexOf( fulltext ) < 0)) continue;
-                        }
-
-                    // Check for series
-                    if (!string.IsNullOrEmpty( series ))
-                        if ((null == recording.Series) || !recording.Series.StartsWith( series ))
-                            continue;
-
-                    // Check for language
-                    if (!string.IsNullOrEmpty( filter.Language ))
-                    {
-                        // Not found
-                        bool found = false;
-
-                        // Test all
-                        foreach (string lang in recording.Languages)
-                            if (found = filter.Language.Equals( lang ))
-                                break;
-
-                        // Done
-                        if (!found)
-                            continue;
-                    }
-
-                    // Check for availability
-                    if (filter.IsRent)
-                        if (string.IsNullOrEmpty( recording.Rent ))
-                            continue;
-
-                    // Add it
-                    table.Rows.Add
-                        (
-                            recording.UniqueId,
-                            recording.FullTitle,
-                            recording.Added.ToLocalTime(),
-                            string.Join( "; ", recording.Genres.ToArray() ),
-                            string.Join( "; ", recording.Languages.ToArray() ),
-                            string.IsNullOrEmpty( recording.Rent ) ? null : string.Format( Resources.MovieDBStrings.Format_Rent, recording.Rent )
-                        );
-                }
-
-            // Create the view
-            DataView view = table.DefaultView;
-
-            // Create the sort
-            switch (filter.SortMode)
-            {
-                case RecordingFilter.SortModes.SortTitleAscending: view.Sort = "Title ASC"; break;
-                case RecordingFilter.SortModes.SortTitleDescending: view.Sort = "Title DESC"; break;
-                case RecordingFilter.SortModes.SortDateAscending: view.Sort = "Added ASC"; break;
-                case RecordingFilter.SortModes.SortDateDescinding: view.Sort = "Added DESC"; break;
-            }
-
-            // Report 
-            return view;
-        }
-
-        /// <summary>
         /// Ermittelt eine Aufbewahrungsinformation.
         /// </summary>
         /// <param name="name">Der eindeutige Name der Aufbewahrung.</param>
@@ -632,6 +627,7 @@ namespace MovieDB
             // Just improve lookup speed a bit - hey, EF is not so fast...
             var containerMap = new Dictionary<string, WebApp.Models.Container>();
             var languageMap = new Dictionary<string, WebApp.Models.Language>();
+            var mediaMap = new Dictionary<StoreKey, WebApp.Models.Store>();
             var genreMap = new Dictionary<string, WebApp.Models.Genre>();
 
             // Add all containers
@@ -642,7 +638,7 @@ namespace MovieDB
                         new WebApp.Models.Container
                         {
                             Type = (WebApp.Models.ContainerType) container.Type,
-                            Location = container.Location,
+                            Description = container.Location,
                             Name = container.Name,
                         } ) );
 
@@ -654,6 +650,26 @@ namespace MovieDB
 
                 dbContainer.ParentContainer = containerMap[parent.Name];
                 dbContainer.Location = parent.UnitIdentifier;
+            }
+
+            // Find all media
+            var dbStores = database.Stores;
+            foreach (var media in Recordings.Take( 100 ).Select( r => r.Location ).Where( l => l != null ))
+            {
+                var mediaKey = new StoreKey( media );
+                if (mediaKey.IsGeneric)
+                    continue;
+
+                WebApp.Models.Store existing;
+                if (!mediaMap.TryGetValue( mediaKey, out existing ))
+                    mediaMap.Add( mediaKey,
+                        dbStores.Add(
+                            new WebApp.Models.Store
+                            {
+                                Container = mediaKey.GetContainer( containerMap ),
+                                Location = mediaKey.Location,
+                                Type = mediaKey.Type,
+                            } ) );
             }
 
             // Add all languages
@@ -669,15 +685,26 @@ namespace MovieDB
             // Add all recordings
             var dbRecordings = database.Recordings;
             foreach (var recording in Recordings.Take( 100 ))
+            {
+                var mediaType = (recording.Location == null) ? WebApp.Models.StoreType.Undefined : (WebApp.Models.StoreType) recording.Location.Type;
+                var mediaKey = new StoreKey( recording.Location );
+
+                var store =
+                    mediaKey.IsGeneric
+                    ? dbStores.Add( new WebApp.Models.Store { Type = mediaType } )
+                    : mediaMap[mediaKey];
+
                 dbRecordings.Add(
                     new WebApp.Models.Recording
                     {
+                        Genres = recording.Genres.Where( genre => !string.IsNullOrEmpty( genre ) ).Select( genre => genreMap[genre] ).ToList(),
                         Languages = recording.Languages.Select( language => languageMap[language.ToLower()] ).ToList(),
-                        Genres = recording.Genres.Select( genre => genreMap[genre] ).ToList(),
                         Identifier = recording.UniqueId,
                         CreationTime = recording.Added,
                         Title = recording.Title,
+                        Store = store,
                     } );
+            }
         }
     }
 }

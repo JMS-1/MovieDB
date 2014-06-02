@@ -14,6 +14,16 @@ namespace WebApp.Models
     public class Series : ILinkHolder
     {
         /// <summary>
+        /// Das Trennzeichen zwischen Ebenen von Serien - als <see cref="string"/>.
+        /// </summary>
+        private const string JoinCharacterAsString = ">";
+
+        /// <summary>
+        /// Das Trennzeichen zwischen Ebenen von Serien - als <see cref="char"/>.
+        /// </summary>
+        private char JoinCharacter { get { return JoinCharacterAsString[0]; } }
+
+        /// <summary>
         /// Die eindeutige Kennung der Serie.
         /// </summary>
         [Required, Key]

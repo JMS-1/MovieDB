@@ -47,22 +47,6 @@ namespace WebApp.UnitTests
         }
 
         /// <summary>
-        /// Ein Ablageort muss für jede Aufbewahrung eindeutig sein.
-        /// </summary>
-        /// <param name="containerName">Der Name der Aufbewahrung.</param>
-        [TestCase( null )]
-        [TestCase( "A3" )]
-        [ExpectedException( typeof( DbUpdateException ) )]
-        public void PositionMustBeUniquePerContainer( string containerName )
-        {
-            var container = string.IsNullOrEmpty( containerName ) ? null : TestContext.Containers.Add( new Container { Name = containerName, Type = ContainerType.Shelf } );
-
-            TestContext.Stores.Add( new Store { Location = "A3", Type = StoreType.DVD, Container = container } );
-            TestContext.Stores.Add( new Store { Location = "A3", Type = StoreType.DVD, Container = container } );
-            TestContext.SaveChanges();
-        }
-
-        /// <summary>
         /// Unterschiedliche Aufbewahrung können die selben Werte für Ablageorte verwenden.
         /// </summary>
         [Test]
@@ -77,16 +61,24 @@ namespace WebApp.UnitTests
         }
 
         /// <summary>
-        /// Die Beschreibung muss gesetzt sein und zwischen 1 und 100 Zeichen haben.
+        /// Die Position darf maximal 100 Zeichen haben.
+        /// </summary>
+        [Test]
+        [ExpectedException( typeof( DbEntityValidationException ) )]
+        public void PositionIsLimitedTo100Charaters()
+        {
+            TestContext.Stores.Add( new Store { Location = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx1", Type = StoreType.DVD } );
+            TestContext.SaveChanges();
+        }
+
+        /// <summary>
+        /// Die Position ist optional.
         /// </summary>
         /// <param name="longName">Der Name für den Test.</param>
-        [TestCase( null )]
-        [TestCase( "" )]
-        [TestCase( "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx1" )]
-        [ExpectedException( typeof( DbEntityValidationException ) )]
-        public void PositionMustHaveBetween1And100Charaters( string longName )
+        [Test]
+        public void PositionIsOptional()
         {
-            TestContext.Stores.Add( new Store { Location = longName, Type = StoreType.DVD } );
+            TestContext.Stores.Add( new Store { Type = StoreType.DVD } );
             TestContext.SaveChanges();
         }
 
