@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Data.Entity;
+using System.Linq;
 using NUnit.Framework;
 
 
@@ -23,6 +24,18 @@ namespace WebApp.UnitTests
             Assert.AreEqual( 526, TestContext.Series.Count(), "#series" );
             Assert.AreEqual( 23, TestContext.Genres.Count(), "#genres" );
             Assert.AreEqual( 0, TestContext.Links.Count(), "#links" );
+        }
+
+        /// <summary>
+        /// Führ einige Stichproben auf die Seriennamen durch.
+        /// </summary>
+        [Test]
+        public void CheckFullNamesOfSeries()
+        {
+            var series = TestContext.Series.Include( s => s.ParentSeries ).ToDictionary( s => s.FullName );
+
+            for (var i = 0; i <= 11; i++)
+                Assert.AreEqual( (i >= 1) && (i <= 10), series.ContainsKey( string.Format( "Smallville > Season {0:00}", i ) ), "{0}", i );
         }
     }
 }

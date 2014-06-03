@@ -117,57 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Caption_Genres" xml:space="preserve">
-    <value>Genres ({0})</value>
-  </data>
-  <data name="Caption_Languages" xml:space="preserve">
-    <value>Sprachen ({0})</value>
-  </data>
-  <data name="Clone_Format" xml:space="preserve">
-    <value>Kopie von {0}</value>
-  </data>
-  <data name="ContainerType_DVDBox" xml:space="preserve">
-    <value>Große DVD Box</value>
-  </data>
-  <data name="ContainerType_Set" xml:space="preserve">
-    <value>Kleine DVD Box</value>
-  </data>
-  <data name="ContainerType_Shelf" xml:space="preserve">
-    <value>Regalfach</value>
-  </data>
-  <data name="ContainerType_Unknown" xml:space="preserve">
-    <value>(unbekannt)</value>
-  </data>
-  <data name="Container_CopyFormat" xml:space="preserve">
-    <value>Kopie von {0}</value>
-  </data>
-  <data name="Format_Genres" xml:space="preserve">
-    <value>Bisher ausgewählt: {0}</value>
-  </data>
-  <data name="Format_Rent" xml:space="preserve">
-    <value>(bei {0})</value>
-  </data>
-  <data name="Headline_Containers" xml:space="preserve">
-    <value>Verwaltung der Aufbewahrungsbehälter und deren Standorte</value>
-  </data>
-  <data name="HeadLine_EditOne" xml:space="preserve">
-    <value>Aufzeichnung {0}</value>
-  </data>
-  <data name="HeadLine_Series" xml:space="preserve">
-    <value>Zuordnung zur einer Serie</value>
-  </data>
-  <data name="HeadLine_SeriesInfo" xml:space="preserve">
-    <value>Informationen zur Serie {0}</value>
-  </data>
-  <data name="SeriesButton_Edit" xml:space="preserve">
-    <value>Serieninformation pflegen</value>
-  </data>
-  <data name="SeriesButton_New" xml:space="preserve">
-    <value>Serieninformation anlegen</value>
-  </data>
-  <data name="Title_AppName" xml:space="preserve">
-    <value>Willkommen zur neuen VCR.NET Mediendatenbank</value>
-  </data>
   <data name="Exception_BadPageIndex" xml:space="preserve">
     <value>Die Nummer der Ergebnisseite darf nicht negativ sein.</value>
   </data>
