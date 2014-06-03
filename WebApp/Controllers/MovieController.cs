@@ -29,9 +29,9 @@ namespace WebApp.Controllers
         /// <returns>Eine Liste passender Ergebnisse.</returns>
         [HttpGet]
         [Route( "" )]
-        public DTO.SearchInformation ShowList()
+        public DTO.SearchInformation Query()
         {
-            return ShowList( null );
+            return Query( null );
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace WebApp.Controllers
         /// <returns>Eine Liste passender Ergebnisse.</returns>
         [HttpPost]
         [Route( "" )]
-        public DTO.SearchInformation ShowList( [FromBody] SearchRequest request )
+        public DTO.SearchInformation Query( [FromBody] SearchRequest request )
         {
             // Default
             if (request == null)

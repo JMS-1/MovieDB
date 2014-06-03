@@ -72,8 +72,10 @@ namespace WebApp.Models
         /// </summary>
         public SearchRequest()
         {
+            OrderBy = SearchRequestOrderBy.Title;
+            SortAscending = true;
             PageIndex = 0;
-            PageSize = 10;
+            PageSize = 15;
         }
 
         /// <summary>
@@ -121,6 +123,13 @@ namespace WebApp.Models
                         recordings = recordings.OrderBy( recording => recording.Title );
                     else
                         recordings = recordings.OrderByDescending( recording => recording.Title );
+                    break;
+
+                case SearchRequestOrderBy.Created:
+                    if (request.SortAscending)
+                        recordings = recordings.OrderBy( recording => recording.CreationTimeInDatabase );
+                    else
+                        recordings = recordings.OrderByDescending( recording => recording.CreationTimeInDatabase );
                     break;
             }
 
