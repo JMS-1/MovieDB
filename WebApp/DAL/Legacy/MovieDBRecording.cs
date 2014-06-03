@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
 
 
@@ -14,7 +12,7 @@ namespace MovieDB
         Serializable,
         XmlType( "Recording" )
     ]
-    public class Recording : ICloneable
+    public class Recording
     {
         /// <summary>
         /// Jede Aufzeichnung erhält zur Laufzeit eine eindeutige Kennung.
@@ -70,26 +68,6 @@ namespace MovieDB
         public string Description { get; set; }
 
         /// <summary>
-        /// Berechnet einen vollen Namen zu einer Aufzeichnung, in dem auch die
-        /// zugeordnete Serie berücksichtigt wird.
-        /// </summary>
-        [XmlIgnore]
-        public string FullTitle
-        {
-            get
-            {
-                // Get the name of the parent
-                string series = (null == Series) ? null : Series.FullName;
-
-                // Merge
-                if (!string.IsNullOrEmpty( series ))
-                    return string.Format( SeriesReference.SeriesLevelJoinFormat, series, Title );
-                else
-                    return Title;
-            }
-        }
-
-        /// <summary>
         /// Erzeugt die Daten einer Aufzeichnung.
         /// </summary>
         public Recording()
@@ -101,42 +79,5 @@ namespace MovieDB
             // Mark
             UniqueId = Guid.NewGuid();
         }
-
-        /// <summary>
-        /// Erzeugt eine exakte Kopie dieser Aufzeichnung.
-        /// </summary>
-        /// <returns>Die gewünschte Kopie.</returns>
-        public Recording Clone()
-        {
-            // Create stream
-            using (MemoryStream stream = new MemoryStream())
-            {
-                // Create serializer
-                BinaryFormatter serializer = new BinaryFormatter();
-
-                // Store self
-                serializer.Serialize( stream, this );
-
-                // Reset
-                stream.Seek( 0, SeekOrigin.Begin );
-
-                // Reconstruct
-                return (Recording) serializer.Deserialize( stream );
-            }
-        }
-
-        #region ICloneable Members
-
-        /// <summary>
-        /// Erzeugt eine exakte Kopie dieser Aufzeichnung.
-        /// </summary>
-        /// <returns>Die gewünschte Kopie.</returns>
-        object ICloneable.Clone()
-        {
-            // Forward
-            return Clone();
-        }
-
-        #endregion
     }
 }

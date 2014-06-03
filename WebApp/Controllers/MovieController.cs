@@ -102,9 +102,6 @@ namespace WebApp.Controllers
                     // And parse the former object model
                     var legacy = (MovieDB.Database) _LegacyDeserializer.Deserialize( stream );
 
-                    // Prepare in memory dictionaries
-                    legacy.CreateMaps();
-
                     // Fill up
                     legacy.CopyTo( Database );
 
