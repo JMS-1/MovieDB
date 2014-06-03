@@ -37,5 +37,30 @@ namespace WebApp.UnitTests
             for (var i = 0; i <= 11; i++)
                 Assert.AreEqual( (i >= 1) && (i <= 10), series.ContainsKey( string.Format( "Smallville > Season {0:00}", i ) ), "{0}", i );
         }
+
+        /// <summary>
+        /// Prüft den Inhalt einer bestimmten Serie.
+        /// </summary>
+        [Test]
+        public void CheckSeriesContent()
+        {
+            var series =
+                TestContext
+                    .Series
+                    .Where( s => s.Name == "Series 04" )
+                    .Where( s => s.ParentSeries.Name == "Confidential" )
+                    .Where( s => s.ParentSeries.ParentSeries.Name == "Doctor Who" )
+                    .Where( s => s.ParentSeries.ParentSeries.ParentSeries == null );
+
+            var recordings =
+                TestContext
+                    .Recordings
+                    .Join( series, r => r.SeriesIdentifier, s => s.Identifier, ( r, s ) => r )
+                    .OrderBy( r => r.Title )
+                    .ToArray();
+
+            Assert.AreEqual( 14, recordings.Length, "#recordings" );
+            Assert.AreEqual( "05 Sontar-Ha", recordings[5].Title, "title" );
+        }
     }
 }
