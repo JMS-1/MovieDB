@@ -61,6 +61,21 @@ namespace WebApp.Models
         public virtual ICollection<Link> Links { get; set; }
 
         /// <summary>
+        /// Meldet den vollen Namen der Serie.
+        /// </summary>
+        public string FullName
+        {
+            get
+            {
+                var parent = ParentSeries;
+                if (parent == null)
+                    return Name;
+                else
+                    return string.Format( "{0} {1} {2}", parent.FullName, JoinCharacter, Name );
+            }
+        }
+
+        /// <summary>
         /// Erstellt eine neue Serie.
         /// </summary>
         public Series()

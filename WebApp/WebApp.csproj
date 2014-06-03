@@ -179,7 +179,6 @@
     <Compile Include="DAL\Legacy\MovieDBMedia.cs" />
     <Compile Include="DAL\Legacy\MovieDBMediaTypes.cs" />
     <Compile Include="DAL\Legacy\MovieDBRecording.cs" />
-    <Compile Include="DAL\Legacy\MovieDBRecordingFilter.cs" />
     <Compile Include="DAL\Legacy\MovieDBSeries.cs" />
     <Compile Include="App_GlobalResources\MovieDBStrings.Designer.cs">
       <AutoGen>True</AutoGen>

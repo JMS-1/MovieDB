@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
-using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Data.Entity.Validation;
 using System.Data.SqlClient;
 using System.Diagnostics;
@@ -209,7 +208,20 @@ namespace WebApp.DAL
 
             // Remember and test
             if (File.Exists( _DatabasePath = pathToDatabase ))
-                return;
+                using (var connection = new SqlConnection( _DatabaseConnectionString ))
+                {
+                    connection.Open();
+
+                    using (var cmd = connection.CreateCommand())
+                    {
+                        cmd.CommandText = string.Format( "SELECT DB_NAME()" );
+
+                        // Ask the database for or name
+                        _DatabaseName = (string) cmd.ExecuteScalar();
+                    }
+
+                    return;
+                }
 
             // Connect to master database
             using (var connection = new SqlConnection( _LocalDb + @";Initial Catalog=master" ))

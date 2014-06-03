@@ -47,6 +47,8 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Web.Extensions" />
@@ -56,6 +58,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SampleDatabaseTestBase.cs" />
     <Compile Include="LinkTableTests.cs" />
     <Compile Include="SeriesTableTests.cs" />
     <Compile Include="MediaTableTests.cs" />
@@ -70,6 +73,7 @@
     </Compile>
     <Compile Include="DatabaseTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ValidateSampleDatabase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WebApp\WebApp.csproj">
@@ -79,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Files\SampleDatabase.zip" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

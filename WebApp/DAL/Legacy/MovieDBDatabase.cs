@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -624,11 +623,15 @@ namespace MovieDB
         /// <param name="database">Die Zieldatenbank für die neue Version.</param>
         public void CopyTo( WebApp.DAL.Database database )
         {
+            database.Configuration.AutoDetectChangesEnabled = false;
+
             // Just improve lookup speed a bit - hey, EF is not so fast...
             var containerMap = new Dictionary<string, WebApp.Models.Container>();
             var languageMap = new Dictionary<string, WebApp.Models.Language>();
+            var seriesMap = new Dictionary<string, WebApp.Models.Series>();
             var mediaMap = new Dictionary<StoreKey, WebApp.Models.Store>();
             var genreMap = new Dictionary<string, WebApp.Models.Genre>();
+            var infoMap = Series.ToDictionary( series => series.Name );
 
             // Add all containers
             var dbContainers = database.Containers;
@@ -654,7 +657,7 @@ namespace MovieDB
 
             // Find all media
             var dbStores = database.Stores;
-            foreach (var media in Recordings.Take( 100 ).Select( r => r.Location ).Where( l => l != null ))
+            foreach (var media in Recordings.Select( r => r.Location ).Where( l => l != null ))
             {
                 var mediaKey = new StoreKey( media );
                 if (mediaKey.IsGeneric)
@@ -684,8 +687,27 @@ namespace MovieDB
 
             // Add all recordings
             var dbRecordings = database.Recordings;
-            foreach (var recording in Recordings.Take( 100 ))
+            foreach (var recording in Recordings)
             {
+                if (recording.Links != null)
+                    if (recording.Links.Length > 0)
+                        throw new NotSupportedException( "Verweise werden bei der Migration nicht unterstützt" );
+
+                var series = GetSeries( recording.Series, seriesMap, database );
+                if (series != null)
+                    if (series.Description == null)
+                    {
+                        Series seriesInfo;
+                        if (infoMap.TryGetValue( series.FullName, out seriesInfo ))
+                        {
+                            if (seriesInfo.Links != null)
+                                if (seriesInfo.Links.Length > 0)
+                                    throw new NotSupportedException( "Verweise werden bei der Migration nicht unterstützt" );
+
+                            series.Description = seriesInfo.Description ?? string.Empty;
+                        }
+                    }
+
                 var mediaType = (recording.Location == null) ? WebApp.Models.StoreType.Undefined : (WebApp.Models.StoreType) recording.Location.Type;
                 var mediaKey = new StoreKey( recording.Location );
 
@@ -702,9 +724,43 @@ namespace MovieDB
                         Identifier = recording.UniqueId,
                         CreationTime = recording.Added,
                         Title = recording.Title,
+                        Series = series,
                         Store = store,
                     } );
             }
+        }
+
+        /// <summary>
+        /// Ermittelt eine Serie.
+        /// </summary>
+        /// <param name="legacySeries">Die Referenz auf die Serie.</param>
+        /// <param name="seriesMap">Alle bereits bekannten Serien.</param>
+        /// <param name="database">Die Datenbank, in der die Serien verwaltet werden.</param>
+        /// <returns>Die gewünschte Serie.</returns>
+        private static WebApp.Models.Series GetSeries( SeriesReference legacySeries, Dictionary<string, WebApp.Models.Series> seriesMap, WebApp.DAL.Database database )
+        {
+            // None at all
+            if (legacySeries == null)
+                return null;
+
+            // Check out for parent
+            var legacyParent = legacySeries.Parent;
+            var parent = (legacyParent == null) ? null : GetSeries( legacyParent, seriesMap, database );
+
+            // Create in-memory instance for reference checks
+            var series = new WebApp.Models.Series { Name = legacySeries.Name, ParentSeries = parent };
+            var fullName = series.FullName;
+
+            // See if we already know it
+            WebApp.Models.Series existing;
+            if (seriesMap.TryGetValue( fullName, out existing ))
+                return existing;
+
+            // Create new
+            seriesMap.Add( fullName, series = database.Series.Add( series ) );
+
+            // Report
+            return series;
         }
     }
 }

@@ -63,6 +63,16 @@ namespace WebApp.UnitTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] SampleDatabase {
+            get {
+                object obj = ResourceManager.GetObject("SampleDatabase", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] sqlScript {
             get {
                 object obj = ResourceManager.GetObject("sqlScript", resourceCulture);
