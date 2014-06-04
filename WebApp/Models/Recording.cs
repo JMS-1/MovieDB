@@ -104,6 +104,11 @@ namespace WebApp.Models
         public virtual ICollection<Link> Links { get; set; }
 
         /// <summary>
+        /// Die zugehörige Abbildung auf die hierarchischen Namen.
+        /// </summary>
+        public virtual RecordingNameMapping NameMapping { get; set; }
+
+        /// <summary>
         /// Wird beim Anlegen des Datenbankmodells aufgerufen.
         /// </summary>
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
@@ -150,6 +155,12 @@ namespace WebApp.Models
                 .HasMany( r => r.Links )
                 .WithRequired()
                 .HasForeignKey( l => l.Identifier );
+
+            modelBuilder
+                .Entity<Recording>()
+                .HasOptional( r => r.NameMapping )
+                .WithOptionalPrincipal()
+                .Map( m => m.MapKey( "Id" ) );
         }
 
         /// <summary>
@@ -162,5 +173,19 @@ namespace WebApp.Models
             Genres = new List<Genre>();
             Links = new List<Link>();
         }
+    }
+
+    /// <summary>
+    /// Die Abbildungsvorschrift für die Ermittelung der hierarchischen Namen der Aufzeichnungen.
+    /// </summary>
+    [Table( "RecordingHierarchicalName" )]
+    public class RecordingNameMapping
+    {
+        /// <summary>
+        /// Der hierarchiche Name der Aufzeichnung.
+        /// </summary>
+        [Required, Key]
+        [Column( "HierarchicalName" )]
+        public string HierarchicalName { get; set; }
     }
 }

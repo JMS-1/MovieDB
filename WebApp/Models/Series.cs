@@ -21,7 +21,7 @@ namespace WebApp.Models
         /// <summary>
         /// Das Trennzeichen zwischen Ebenen von Serien - als <see cref="char"/>.
         /// </summary>
-        private char JoinCharacter { get { return JoinCharacterAsString[0]; } }
+        public static char JoinCharacter { get { return JoinCharacterAsString[0]; } }
 
         /// <summary>
         /// Die eindeutige Kennung der Serie.
@@ -76,6 +76,11 @@ namespace WebApp.Models
         }
 
         /// <summary>
+        /// Die zugehörige Abbildung auf die hierarchischen Namen.
+        /// </summary>
+        public virtual SeriesNameMapping NameMapping { get; set; }
+
+        /// <summary>
         /// Erstellt eine neue Serie.
         /// </summary>
         public Series()
@@ -102,6 +107,26 @@ namespace WebApp.Models
                 .HasMany( s => s.Links )
                 .WithRequired()
                 .HasForeignKey( l => l.Identifier );
+
+            modelBuilder
+                .Entity<Series>()
+                .HasOptional( s => s.NameMapping )
+                .WithOptionalPrincipal()
+                .Map( m => m.MapKey( "Id" ) );
         }
+    }
+
+    /// <summary>
+    /// Die Abbildungsvorschrift für die Ermittelung der hierarchischen Namen der Serien.
+    /// </summary>
+    [Table( "SeriesHierarchicalNames" )]
+    public class SeriesNameMapping
+    {
+        /// <summary>
+        /// Der hierarchiche Name der Serie.
+        /// </summary>
+        [Required, Key]
+        [Column( "HierarchicalName" )]
+        public string HierarchicalName { get; set; }
     }
 }

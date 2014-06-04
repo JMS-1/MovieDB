@@ -198,8 +198,8 @@
 		ON [dbo].[RecordingLanguages]([Recording]);
 	GO
 
-	CREATE VIEW [dbo].[RecordingWithHierarchicalName] AS
-		SELECT [r].[Id], IIF([r].[Series] IS NULL, [r].[Name], CONCAT([h].[HierarchicalName], ' > ', [r].[Name])) AS [Name], [r].[RentTo], [r].[Created], [r].[Description], [r].[Media], [r].[Series]
+	CREATE VIEW [dbo].[RecordingHierarchicalName] AS
+		SELECT [r].[Id], IIF([r].[Series] IS NULL, [r].[Name], CONCAT([h].[HierarchicalName], ' > ', [r].[Name])) AS [HierarchicalName]
 		FROM [dbo].Recordings [r]
 		LEFT OUTER JOIN [dbo].[SeriesHierarchicalNames] [h] ON [r].Series = [h].[Id]
 	GO

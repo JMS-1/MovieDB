@@ -21,7 +21,7 @@ namespace WebApp.UnitTests
         [Test]
         public void CanReadSeries()
         {
-            TestContext.Series.ToArray();
+            TestContext.Series.Include( s => s.NameMapping ).ToArray();
         }
 
         /// <summary>

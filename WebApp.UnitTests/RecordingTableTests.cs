@@ -29,6 +29,7 @@ namespace WebApp.UnitTests
                 .Include( recording => recording.Links )
                 .Include( recording => recording.Store )
                 .Include( recording => recording.Series )
+                .Include( recording => recording.NameMapping )
                 .ToArray();
         }
 

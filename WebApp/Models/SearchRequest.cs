@@ -16,8 +16,8 @@ namespace WebApp.Models
         /// <summary>
         /// Die Sortierung erfolgt nach dem Namen.
         /// </summary>
-        [EnumMember( Value = "title" )]
-        Title,
+        [EnumMember( Value = "titleWithSeries" )]
+        HierarchicalName,
 
         /// <summary>
         /// Die Sortierung erfolgt nach dem Datum.
@@ -72,7 +72,7 @@ namespace WebApp.Models
         /// </summary>
         public SearchRequest()
         {
-            OrderBy = SearchRequestOrderBy.Title;
+            OrderBy = SearchRequestOrderBy.HierarchicalName;
             SortAscending = true;
             PageIndex = 0;
             PageSize = 15;
@@ -118,11 +118,11 @@ namespace WebApp.Models
             // Apply order
             switch (request.OrderBy)
             {
-                case SearchRequestOrderBy.Title:
+                case SearchRequestOrderBy.HierarchicalName:
                     if (request.SortAscending)
-                        recordings = recordings.OrderBy( recording => recording.Title );
+                        recordings = recordings.OrderBy( recording => recording.NameMapping.HierarchicalName );
                     else
-                        recordings = recordings.OrderByDescending( recording => recording.Title );
+                        recordings = recordings.OrderByDescending( recording => recording.NameMapping.HierarchicalName );
                     break;
 
                 case SearchRequestOrderBy.Created:

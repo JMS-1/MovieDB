@@ -52,6 +52,12 @@ namespace WebApp.DTO
         }
 
         /// <summary>
+        /// Die eindeutige Kennung der Serie.
+        /// </summary>
+        [DataMember( Name = "series" )]
+        public Guid? Series { get; set; }
+
+        /// <summary>
         /// Erstellt eine neue Ansicht.
         /// </summary>
         /// <param name="recording">Die Entität aus der Datenbank.</param>
@@ -64,6 +70,7 @@ namespace WebApp.DTO
                 Genres = recording.Genres.Select( l => l.Description ).ToArray(),
                 RecordingIdentifier = recording.Identifier,
                 CreationTime = recording.CreationTime,
+                Series = recording.SeriesIdentifier,
                 Name = recording.Title,
             };
         }

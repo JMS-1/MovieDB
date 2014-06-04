@@ -1,6 +1,9 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
+using System.Data.Entity.Core.Objects;
 using System.Linq;
 using NUnit.Framework;
+using WebApp.Models;
 
 
 namespace WebApp.UnitTests
@@ -56,11 +59,17 @@ namespace WebApp.UnitTests
                 TestContext
                     .Recordings
                     .Join( series, r => r.SeriesIdentifier, s => s.Identifier, ( r, s ) => r )
-                    .OrderBy( r => r.Title )
+                    .Include( r => r.Languages )
+                    .Include( r => r.Genres )
+                    .Include( r => r.NameMapping )
+                    .OrderBy( r => r.NameMapping.HierarchicalName )
+                    .Skip( 1 )
+                    .Take( 12 )
                     .ToArray();
 
-            Assert.AreEqual( 14, recordings.Length, "#recordings" );
-            Assert.AreEqual( "05 Sontar-Ha", recordings[5].Title, "title" );
+            Assert.AreEqual( 12, recordings.Length, "#recordings" );
+            Assert.AreEqual( "05 Sontar-Ha", recordings[4].Title, "title" );
+            Assert.AreEqual( "Doctor Who > Confidential > Series 04 > 05 Sontar-Ha", recordings[4].NameMapping.HierarchicalName, "full name" );
         }
     }
 }
