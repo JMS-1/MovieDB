@@ -66,8 +66,8 @@ namespace WebApp.DTO
         {
             return new RecordingForTable
             {
-                Languages = recording.Languages.Select( l => l.Description ).ToArray(),
-                Genres = recording.Genres.Select( l => l.Description ).ToArray(),
+                Languages = recording.Languages.Select( l => l.Description ).OrderBy(s => s).ToArray(),
+                Genres = recording.Genres.Select( l => l.Description ).OrderBy( s => s ).ToArray(),
                 RecordingIdentifier = recording.Identifier,
                 CreationTime = recording.CreationTime,
                 Series = recording.SeriesIdentifier,
