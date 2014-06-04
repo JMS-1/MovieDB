@@ -203,7 +203,7 @@
     <Compile Include="Models\StoreType.cs" />
     <Compile Include="Models\Recording.cs" />
     <Compile Include="DTO\SearchInformation.cs" />
-    <Compile Include="Models\SearchRequest.cs" />
+    <Compile Include="DTO\SearchRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

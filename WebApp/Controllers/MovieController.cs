@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Xml.Serialization;
 using WebApp.DAL;
+using WebApp.DTO;
 using WebApp.Models;
 
 
@@ -29,7 +30,7 @@ namespace WebApp.Controllers
         /// <returns>Eine Liste passender Ergebnisse.</returns>
         [HttpGet]
         [Route( "" )]
-        public DTO.SearchInformation Query()
+        public SearchInformation Query()
         {
             return Query( null );
         }
@@ -41,7 +42,7 @@ namespace WebApp.Controllers
         /// <returns>Eine Liste passender Ergebnisse.</returns>
         [HttpPost]
         [Route( "" )]
-        public DTO.SearchInformation Query( [FromBody] SearchRequest request )
+        public SearchInformation Query( [FromBody] SearchRequest request )
         {
             // Default
             if (request == null)
@@ -60,9 +61,9 @@ namespace WebApp.Controllers
 
             // Time to execute
             return
-                new DTO.SearchInformation
+                new SearchInformation
                 {
-                    Recordings = recordings.Select( DTO.RecordingForTable.Create ).ToArray(),
+                    Recordings = recordings.Select( RecordingForTable.Create ).ToArray(),
                     PageIndex = request.PageIndex,
                     PageSize = request.PageSize,
                     TotalCount = totalCount,

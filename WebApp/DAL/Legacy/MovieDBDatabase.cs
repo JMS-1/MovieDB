@@ -294,6 +294,7 @@ namespace MovieDB
                     {
                         Genres = recording.Genres.Where( genre => !string.IsNullOrEmpty( genre ) ).Select( genre => genreMap[genre] ).ToList(),
                         Languages = recording.Languages.Select( language => languageMap[language.ToLower()] ).ToList(),
+                        RentTo = string.IsNullOrEmpty( recording.Rent ) ? null : recording.Rent,
                         Identifier = recording.UniqueId,
                         CreationTime = recording.Added,
                         Title = recording.Title,

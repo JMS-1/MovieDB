@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 
-namespace WebApp.Models
+namespace WebApp.DTO
 {
     /// <summary>
     /// Beschreibt die Sortierung der Ergebnistabelle.
@@ -83,6 +81,24 @@ namespace WebApp.Models
         public string RequiredLanguage { get; set; }
 
         /// <summary>
+        /// Die zu betrachtende Serie.
+        /// </summary>
+        [DataMember( Name = "series" )]
+        public Guid? RequiredSeries { get; set; }
+
+        /// <summary>
+        /// Gesetzt, wenn ausgeliehene Aufzeichnungen gesucht werden sollen.
+        /// </summary>
+        [DataMember( Name = "rent" )]
+        public bool? IsRent { get; set; }
+
+        /// <summary>
+        /// Ein Text, nach dem gesucht werden soll.
+        /// </summary>
+        [DataMember( Name = "text" )]
+        public string Text { get; set; }
+
+        /// <summary>
         /// Setzt eine Suche mit Standardparametern auf.
         /// </summary>
         public SearchRequest()
@@ -125,9 +141,9 @@ namespace WebApp.Models
         /// <param name="database">Die zu verwendende Datenbank.</param>
         /// <param name="request">Die gewümschten Einschränkungen.</param>
         /// <returns>Die vorbereitete Suche.</returns>
-        public static IQueryable<Recording> Apply( this DAL.Database database, SearchRequest request, out int totalCount )
+        public static IQueryable<Models.Recording> Apply( this DAL.Database database, SearchRequest request, out int totalCount )
         {
-            var recordings = (IQueryable<Recording>) database.Recordings;
+            var recordings = (IQueryable<Models.Recording>) database.Recordings;
 
             // Apply language filter
             if (!string.IsNullOrEmpty( request.RequiredLanguage ))
@@ -141,6 +157,21 @@ namespace WebApp.Models
                 // Require all genres to be available
                 recordings = recordings.Where( r => r.Genres.Any( g => g.Name == capturedGenre ) );
             }
+
+            // Apply series
+            if (request.RequiredSeries.HasValue)
+                recordings = recordings.Where( r => r.SeriesIdentifier == request.RequiredSeries.Value );
+
+            // Apply rent option
+            if (request.IsRent.HasValue)
+                if (request.IsRent.Value)
+                    recordings = recordings.Where( r => r.RentTo != null );
+                else
+                    recordings = recordings.Where( r => r.RentTo == null );
+
+            // Free text
+            if (!string.IsNullOrEmpty( request.Text ))
+                recordings = recordings.Where( r => r.NameMapping.HierarchicalName.Contains( request.Text ) );
 
             // Check counter after filter is applied but bevore we start restricting
             totalCount = recordings.Count();
