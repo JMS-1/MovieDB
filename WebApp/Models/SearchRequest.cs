@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -68,6 +71,18 @@ namespace WebApp.Models
         public long Offset { get { return checked( (int) RawOffset ); } }
 
         /// <summary>
+        /// Eine Liste von Arten, die alle berücksichtigt werden sollen.
+        /// </summary>
+        [DataMember( Name = "genres" )]
+        public readonly List<string> RequiredGenres = new List<string>();
+
+        /// <summary>
+        /// Die Sprache, die eine Aufzeichnung haben muss.
+        /// </summary>
+        [DataMember( Name = "language" )]
+        public string RequiredLanguage { get; set; }
+
+        /// <summary>
         /// Setzt eine Suche mit Standardparametern auf.
         /// </summary>
         public SearchRequest()
@@ -107,11 +122,26 @@ namespace WebApp.Models
         /// <summary>
         /// Wendet die Suchbeschreibung auf eine Suche an.
         /// </summary>
-        /// <param name="recordings">Eine Suche nach Aufzeichnungen.</param>
+        /// <param name="database">Die zu verwendende Datenbank.</param>
         /// <param name="request">Die gewümschten Einschränkungen.</param>
         /// <returns>Die vorbereitete Suche.</returns>
-        public static IQueryable<Recording> Apply( this IQueryable<Recording> recordings, SearchRequest request, out int totalCount )
+        public static IQueryable<Recording> Apply( this DAL.Database database, SearchRequest request, out int totalCount )
         {
+            var recordings = (IQueryable<Recording>) database.Recordings;
+
+            // Apply language filter
+            if (!string.IsNullOrEmpty( request.RequiredLanguage ))
+                recordings = recordings.Where( r => r.Languages.Any( l => l.TwoLetterIsoName == request.RequiredLanguage ) );
+
+            // Apply genre filter
+            foreach (var genre in request.RequiredGenres)
+            {
+                var capturedGenre = genre;
+
+                // Require all genres to be available
+                recordings = recordings.Where( r => r.Genres.Any( g => g.Name == capturedGenre ) );
+            }
+
             // Check counter after filter is applied but bevore we start restricting
             totalCount = recordings.Count();
 

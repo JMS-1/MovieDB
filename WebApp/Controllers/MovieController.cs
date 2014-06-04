@@ -54,10 +54,9 @@ namespace WebApp.Controllers
             int totalCount;
             var recordings =
                 Database
-                    .Recordings
+                    .Apply( request, out totalCount )
                     .Include( r => r.Languages )
-                    .Include( r => r.Genres )
-                    .Apply( request, out totalCount );
+                    .Include( r => r.Genres );
 
             // Time to execute
             return

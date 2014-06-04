@@ -149,5 +149,51 @@ namespace WebApp.UnitTests
             CollectionAssert.AreEquivalent( new[] { "SciFi" }, first.Genres, "genre" );
             Assert.AreEqual( new Guid( "9795cc04-1aab-4755-bab1-9bf6c3244e29" ), first.Series, "series" );
         }
+
+        /// <summary>
+        /// Sortiert nach einer Liste von Arten.
+        /// </summary>
+        [Test]
+        public void RestrictByGenreList()
+        {
+            var recordings = Controller.Query( new SearchRequest { RequiredGenres = { "scifi", "Kids" }, PageIndex = 7 } );
+
+            Assert.AreEqual( 7, recordings.PageIndex, "index" );
+            Assert.AreEqual( 15, recordings.PageSize, "size" );
+            Assert.AreEqual( 175, recordings.TotalCount, "total" );
+            Assert.AreEqual( 15, recordings.Recordings.Length, "#recordings" );
+
+            var first = recordings.Recordings[0];
+
+            Assert.AreEqual( new Guid( "46284984-6096-4e76-b4f2-669fc66e32a3" ), first.RecordingIdentifier, "identifier" );
+            Assert.AreEqual( new DateTime( 2011, 4, 16, 9, 31, 56, 687, DateTimeKind.Utc ), first.CreationTime, "time" );
+            Assert.AreEqual( "13 Monster", first.Name, "name" );
+            CollectionAssert.AreEquivalent( new[] { "de" }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { "SciFi", "Kids", "Animation" }, first.Genres, "genre" );
+            Assert.AreEqual( new Guid( "7aae563f-3a43-4975-803f-ae1c3040d9b7" ), first.Series, "series" );
+        }
+
+        /// <summary>
+        /// Suche nach einer Sprache.
+        /// </summary>
+        [Test]
+        public void RestrictByLanguage()
+        {
+            var recordings = Controller.Query( new SearchRequest { RequiredLanguage = "pt" } );
+
+            Assert.AreEqual( 0, recordings.PageIndex, "index" );
+            Assert.AreEqual( 15, recordings.PageSize, "size" );
+            Assert.AreEqual( 1, recordings.TotalCount, "total" );
+            Assert.AreEqual( 1, recordings.Recordings.Length, "#recordings" );
+
+            var first = recordings.Recordings[0];
+
+            Assert.AreEqual( new Guid( "6f6649a4-dcdc-4699-ad9c-8fcadea10fb0" ), first.RecordingIdentifier, "identifier" );
+            Assert.AreEqual( new DateTime( 2009, 6, 20, 18, 13, 29, 717, DateTimeKind.Utc ), first.CreationTime, "time" );
+            Assert.AreEqual( "Movie", first.Name, "name" );
+            CollectionAssert.AreEquivalent( new[] { "de", "en", "nl", "pt", "tr" }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { "SciFi", "Kids", "Action", "Animation" }, first.Genres, "genre" );
+            Assert.AreEqual( new Guid( "b759ab0f-e8b5-4c11-9005-e249ba8674c9" ), first.Series, "series" );
+        }
     }
 }
