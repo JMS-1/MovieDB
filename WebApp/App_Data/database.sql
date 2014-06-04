@@ -99,6 +99,10 @@
 		END
 	GO
 
+	CREATE NONCLUSTERED INDEX [IX_Series_Parent]
+		ON [dbo].[Series]([Parent]);
+	GO
+
 	CREATE VIEW [dbo].[SeriesHierarchicalName] AS		
 		WITH [SeriesHierarchy] ([Id], [HierarchicalName])
 		AS
@@ -201,6 +205,6 @@
 	CREATE VIEW [dbo].[RecordingHierarchicalName] AS
 		SELECT [r].[Id], IIF([r].[Series] IS NULL, [r].[Name], CONCAT([h].[HierarchicalName], ' > ', [r].[Name])) AS [HierarchicalName]
 		FROM [dbo].Recordings [r]
-		LEFT OUTER JOIN [dbo].[SeriesHierarchicalName] [h] ON [r].Series = [h].[Id]
+		LEFT OUTER JOIN [dbo].[SeriesHierarchicalName] [h] ON [r].[Series] = [h].[Id]
 	GO
 
