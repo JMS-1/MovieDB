@@ -1,7 +1,8 @@
-﻿using System.Linq;
+﻿using System.Data.Entity;
+using System.Linq;
 using System.Web.Http;
 using WebApp.DAL;
-using WebApp.Models;
+using WebApp.DTO;
 
 
 namespace WebApp.Controllers
@@ -21,7 +22,14 @@ namespace WebApp.Controllers
         [HttpGet]
         public ApplicationInformation GetInformation()
         {
-            var info = new ApplicationInformation { NumberOfRecordings = Database.Recordings.Count() };
+            var info =
+                new ApplicationInformation
+                {
+                    Series = Database.Series.OrderBy( s => s.NameMapping.HierarchicalName ).Include( s => s.ParentSeries ).Include( s => s.NameMapping ).Select( SeriesDescription.Create ).ToArray(),
+                    Languages = Database.Languages.OrderBy( l => l.Description ).Select( LanguageDescription.Create ).ToArray(),
+                    Genres = Database.Genres.OrderBy( g => g.Description ).Select( GenreDescription.Create ).ToArray(),
+                    NumberOfRecordings = Database.Recordings.Count(),
+                };
 
             // If there are recordings there is no need to do a full check - regular operation mode optimized!
             if (info.NumberOfRecordings < 1)

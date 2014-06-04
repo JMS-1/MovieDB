@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ControllerTestBase.cs" />
+    <Compile Include="ApplicationControllerTests.cs" />
     <Compile Include="RecordingQueryTests.cs" />
     <Compile Include="SampleDatabaseTestBase.cs" />
     <Compile Include="LinkTableTests.cs" />
