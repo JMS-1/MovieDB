@@ -99,6 +99,25 @@
 		END
 	GO
 
+	CREATE VIEW [dbo].[SeriesHierarchicalNames] AS		
+		WITH [SeriesHierarchy] ([Id], [HierarchicalName])
+		AS
+		(
+			SELECT [s].[Id], CAST([s].[Name] AS nvarchar(max)) AS [HierarchicalName] 
+			FROM [dbo].[Series] AS [s] 
+			WHERE [s].[Parent] IS NULL
+
+			UNION ALL
+
+			SELECT [s].[Id], CAST(CONCAT([HierarchicalName], ' > ', s.[Name]) AS nvarchar(max)) 
+			FROM [dbo].[Series] AS [s] 
+			INNER JOIN [SeriesHierarchy] AS [h] ON [s].[Parent] = [h].[Id]
+		)
+
+		SELECT [Id], [HierarchicalName] 
+		FROM [SeriesHierarchy]
+	GO
+
 -- Recordings
 
 	CREATE TABLE [dbo].[Recordings] (
@@ -178,3 +197,10 @@
 	CREATE NONCLUSTERED INDEX [IX_RecordingLanguages_Recording]
 		ON [dbo].[RecordingLanguages]([Recording]);
 	GO
+
+	CREATE VIEW [dbo].[RecordingWithHierarchicalName] AS
+		SELECT [r].[Id], IIF([r].[Series] IS NULL, [r].[Name], CONCAT([h].[HierarchicalName], ' > ', [r].[Name])) AS [Name], [r].[RentTo], [r].[Created], [r].[Description], [r].[Media], [r].[Series]
+		FROM [dbo].Recordings [r]
+		LEFT OUTER JOIN [dbo].[SeriesHierarchicalNames] [h] ON [r].Series = [h].[Id]
+	GO
+
