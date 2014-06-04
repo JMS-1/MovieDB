@@ -119,7 +119,7 @@ namespace WebApp.Models
     /// <summary>
     /// Die Abbildungsvorschrift für die Ermittelung der hierarchischen Namen der Serien.
     /// </summary>
-    [Table( "SeriesHierarchicalNames" )]
+    [Table( "SeriesHierarchicalName" )]
     public class SeriesNameMapping
     {
         /// <summary>

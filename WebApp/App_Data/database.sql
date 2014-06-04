@@ -99,7 +99,7 @@
 		END
 	GO
 
-	CREATE VIEW [dbo].[SeriesHierarchicalNames] AS		
+	CREATE VIEW [dbo].[SeriesHierarchicalName] AS		
 		WITH [SeriesHierarchy] ([Id], [HierarchicalName])
 		AS
 		(
@@ -201,6 +201,6 @@
 	CREATE VIEW [dbo].[RecordingHierarchicalName] AS
 		SELECT [r].[Id], IIF([r].[Series] IS NULL, [r].[Name], CONCAT([h].[HierarchicalName], ' > ', [r].[Name])) AS [HierarchicalName]
 		FROM [dbo].Recordings [r]
-		LEFT OUTER JOIN [dbo].[SeriesHierarchicalNames] [h] ON [r].Series = [h].[Id]
+		LEFT OUTER JOIN [dbo].[SeriesHierarchicalName] [h] ON [r].Series = [h].[Id]
 	GO
 
