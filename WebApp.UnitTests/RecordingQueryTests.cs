@@ -1,6 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 using WebApp.Controllers;
+using WebApp.Models;
 
 
 namespace WebApp.UnitTests
@@ -40,6 +41,113 @@ namespace WebApp.UnitTests
         [Test]
         public void ShowPage200()
         {
+            var recordings = Controller.Query( new SearchRequest { PageIndex = 200 } );
+
+            Assert.AreEqual( 200, recordings.PageIndex, "index" );
+            Assert.AreEqual( 15, recordings.PageSize, "size" );
+            Assert.AreEqual( 7725, recordings.TotalCount, "total" );
+            Assert.AreEqual( 15, recordings.Recordings.Length, "#recordings" );
+
+            var first = recordings.Recordings[0];
+
+            Assert.AreEqual( new Guid( "954d83e6-2e4f-4957-a0d1-f3283e21a6ad" ), first.RecordingIdentifier, "identifier" );
+            Assert.AreEqual( new DateTime( 2006, 12, 17, 13, 59, 9, 517, DateTimeKind.Utc ), first.CreationTime, "time" );
+            Assert.AreEqual( "Indiana Jones (1)", first.Name, "name" );
+            CollectionAssert.IsEmpty( first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { "Action" }, first.Genres, "genre" );
+            Assert.IsNull( first.Series, "series" );
+        }
+
+        /// <summary>
+        /// Wählt eine andere Anzahl von Einträgen pro Seite.
+        /// </summary>
+        [Test]
+        public void Show50RecordingsOnPage()
+        {
+            var recordings = Controller.Query( new SearchRequest { PageIndex = 154, PageSize = 50 } );
+
+            Assert.AreEqual( 154, recordings.PageIndex, "index" );
+            Assert.AreEqual( 50, recordings.PageSize, "size" );
+            Assert.AreEqual( 7725, recordings.TotalCount, "total" );
+            Assert.AreEqual( 25, recordings.Recordings.Length, "#recordings" );
+
+            var first = recordings.Recordings[0];
+
+            Assert.AreEqual( new Guid( "bc53aa8b-7403-4949-9095-2a887334d4f9" ), first.RecordingIdentifier, "identifier" );
+            Assert.AreEqual( new DateTime( 2009, 6, 11, 8, 37, 33, 227, DateTimeKind.Utc ), first.CreationTime, "time" );
+            Assert.AreEqual( "08 Marty als Baseballstar", first.Name, "name" );
+            CollectionAssert.AreEquivalent( new[] { "de" }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { "Animation", "Kids" }, first.Genres, "genre" );
+            Assert.AreEqual( new Guid( "a8dacbc4-900d-4ccb-8547-7fc940945be2" ), first.Series, "series" );
+        }
+
+        /// <summary>
+        /// Sortiert nach dem Namen abwärts.
+        /// </summary>
+        [Test]
+        public void OrderByNameDescending()
+        {
+            var recordings = Controller.Query( new SearchRequest { SortAscending = false, PageSize = 75, PageIndex = 13 } );
+
+            Assert.AreEqual( 13, recordings.PageIndex, "index" );
+            Assert.AreEqual( 75, recordings.PageSize, "size" );
+            Assert.AreEqual( 7725, recordings.TotalCount, "total" );
+            Assert.AreEqual( 75, recordings.Recordings.Length, "#recordings" );
+
+            var first = recordings.Recordings[0];
+
+            Assert.AreEqual( new Guid( "845c3d91-464a-4d21-a72f-508c48237c0d" ), first.RecordingIdentifier, "identifier" );
+            Assert.AreEqual( new DateTime( 2005, 1, 5, 22, 4, 19, 757, DateTimeKind.Utc ), first.CreationTime, "time" );
+            Assert.AreEqual( "14 Die fünfte Spezies", first.Name, "name" );
+            CollectionAssert.AreEquivalent( new[] { "de" }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { "SciFi" }, first.Genres, "genre" );
+            Assert.AreEqual( new Guid( "dd84b77c-49c4-416a-bf4d-8d95038f1817" ), first.Series, "series" );
+        }
+
+        /// <summary>
+        /// Sortiert nach dem Datum aufwärts.
+        /// </summary>
+        [Test]
+        public void OrderByDateAscending()
+        {
+            var recordings = Controller.Query( new SearchRequest { PageSize = 30, PageIndex = 38, OrderBy = SearchRequestOrderBy.Created } );
+
+            Assert.AreEqual( 38, recordings.PageIndex, "index" );
+            Assert.AreEqual( 30, recordings.PageSize, "size" );
+            Assert.AreEqual( 7725, recordings.TotalCount, "total" );
+            Assert.AreEqual( 30, recordings.Recordings.Length, "#recordings" );
+
+            var first = recordings.Recordings[0];
+
+            Assert.AreEqual( new Guid( "a727de10-b8b6-4c66-9773-1217f1610ae9" ), first.RecordingIdentifier, "identifier" );
+            Assert.AreEqual( new DateTime( 2007, 10, 6, 17, 45, 16, 390, DateTimeKind.Utc ), first.CreationTime, "time" );
+            Assert.AreEqual( "05 Earthbound ", first.Name, "name" );
+            CollectionAssert.AreEquivalent( new[] { "en" }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { "SciFi" }, first.Genres, "genre" );
+            Assert.AreEqual( new Guid( "8cba2342-8c8c-403e-b512-58a3301e8ba0" ), first.Series, "series" );
+        }
+
+        /// <summary>
+        /// Sortiert nach dem Datum abwärts.
+        /// </summary>
+        [Test]
+        public void OrderByDateDescending()
+        {
+            var recordings = Controller.Query( new SearchRequest { OrderBy = SearchRequestOrderBy.Created, SortAscending = false } );
+
+            Assert.AreEqual( 0, recordings.PageIndex, "index" );
+            Assert.AreEqual( 15, recordings.PageSize, "size" );
+            Assert.AreEqual( 7725, recordings.TotalCount, "total" );
+            Assert.AreEqual( 15, recordings.Recordings.Length, "#recordings" );
+
+            var first = recordings.Recordings[0];
+
+            Assert.AreEqual( new Guid( "b232b236-85b2-4edb-ba56-566580b08430" ), first.RecordingIdentifier, "identifier" );
+            Assert.AreEqual( new DateTime( 2014, 6, 1, 15, 4, 15, 803, DateTimeKind.Utc ), first.CreationTime, "time" );
+            Assert.AreEqual( "Continuum", first.Name, "name" );
+            CollectionAssert.AreEquivalent( new[] { "de", "en", "es" }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { "SciFi" }, first.Genres, "genre" );
+            Assert.AreEqual( new Guid( "9795cc04-1aab-4755-bab1-9bf6c3244e29" ), first.Series, "series" );
         }
     }
 }
