@@ -38,5 +38,19 @@ namespace WebApp.DTO
         /// </summary>
         [DataMember( Name = "series" )]
         public SeriesDescription[] Series { get; set; }
-    }
+
+        /// <summary>
+        /// Das Trennzeichen für die Trennung der einzelnen Ebenen in Serien.
+        /// </summary>
+        [DataMember( Name = "seriesSeparator" )]
+        public char SeriesSeparator { get; set; }
+    
+        /// <summary>
+        /// Erstellt eine neue Anwendungsinformation.
+        /// </summary>
+        public ApplicationInformation()
+        {
+            SeriesSeparator = Models.Series.JoinCharacter;
+        }
+}
 }

@@ -23,7 +23,7 @@ module MovieDatabase {
     }
 
     // Die Minimalinformation zu einer Serie
-    interface ISeriesMapping {
+    interface ISeriesMappingContract {
         id: string;
 
         parentId: string;
@@ -31,25 +31,31 @@ module MovieDatabase {
         name: string;
 
         hierarchicalName: string;
+    }
 
+    // Die vom Client erweitere Minimalinformation zu einer Serie
+    interface ISeriesMapping extends ISeriesMappingContract {
         children: ISeriesMapping[];
     }
 
     // Die Beschreibung einer Aufnahme in der Tabelle - eine Kurzfassung
-    interface IRecordingInfo {
+    interface IRecordingInfoContract {
         id: string;
 
         title: string;
 
         createdAsString: string;
 
-        created: Date;
-
         series: string;
 
         languages: string[];
 
         genres: string[];
+    }
+
+    // Die vom Client erweiterte Beschreibung einer Aufnahme in der Tabelle
+    interface IRecordingInfo extends IRecordingInfoContract {
+        created: Date;
 
         hierarchicalName: string;
     }
@@ -116,8 +122,6 @@ module MovieDatabase {
         total: number;
 
         recordings: IRecordingInfo[];
-
-        seriesSeparator: string;
     }
 
     // Einige Informationen zur Anwendungsumgebung
@@ -131,6 +135,8 @@ module MovieDatabase {
         genres: IGenre[];
 
         series: ISeriesMapping[];
+
+        seriesSeparator: string;
     };
 
     // Repräsentiert die Anwendung als Ganzes
@@ -208,11 +214,12 @@ module MovieDatabase {
         private fillResultTable(results: ISearchInformation): void {
             $.each(results.recordings, (index, recording) => {
                 if (recording.series == null)
-                    return;
+                    recording.hierarchicalName = recording.title;
+                else {
+                    var series: ISeriesMapping = this.seriesMap[recording.series];
 
-                var series: ISeriesMapping = this.seriesMap[recording.series];
-
-                recording.hierarchicalName = series.hierarchicalName + ' ' + results.seriesSeparator + ' ' + recording.title;
+                    recording.hierarchicalName = series.hierarchicalName + ' ' + this.currentApplicationInformation.seriesSeparator + ' ' + recording.title;
+                }
             });
         }
 

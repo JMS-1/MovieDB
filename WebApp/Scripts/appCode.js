@@ -17,6 +17,10 @@ var MovieDatabase;
 
     
 
+    
+
+    
+
     // Die Eigenschaften, nach denen Aufzeichnungen sortiert werden können
     var OrderSelector = (function () {
         function OrderSelector() {
@@ -144,11 +148,12 @@ var MovieDatabase;
             var _this = this;
             $.each(results.recordings, function (index, recording) {
                 if (recording.series == null)
-                    return;
+                    recording.hierarchicalName = recording.title;
+                else {
+                    var series = _this.seriesMap[recording.series];
 
-                var series = _this.seriesMap[recording.series];
-
-                recording.hierarchicalName = series.hierarchicalName + ' ' + results.seriesSeparator + ' ' + recording.title;
+                    recording.hierarchicalName = series.hierarchicalName + ' ' + _this.currentApplicationInformation.seriesSeparator + ' ' + recording.title;
+                }
             });
         };
 

@@ -33,20 +33,5 @@ namespace WebApp.DTO
         /// </summary>
         [DataMember( Name = "recordings" )]
         public RecordingForTable[] Recordings { get; set; }
-
-        /// <summary>
-        /// Das Trennzeichen für die Trennung der einzelnen Ebenen in Serien.
-        /// </summary>
-        [DataMember( Name = "seriesSeparator" )]
-        public char SeriesSeparator { get; set; }
-
-        /// <summary>
-        /// Erstellt eine neue Antwort.
-        /// </summary>
-        public SearchInformation()
-        {
-            SeriesSeparator = Series.JoinCharacter;
-        }
-
     }
 }
