@@ -23,6 +23,12 @@ namespace WebApp.DTO
         public Guid? ParentIdentifier { get; set; }
 
         /// <summary>
+        /// Der Eigenname der Serie.
+        /// </summary>
+        [DataMember( Name = "name" )]
+        public string Name { get; set; }
+
+        /// <summary>
         /// Der volle Name der Serie.
         /// </summary>
         [DataMember( Name = "hierarchicalName" )]
@@ -41,6 +47,7 @@ namespace WebApp.DTO
                     ParentIdentifier = series.ParentIdentifier,
                     UniqueIdentifier = series.Identifier,
                     FullName = series.FullName,
+                    Name = series.Name,
                 };
         }
     }

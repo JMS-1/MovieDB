@@ -22,6 +22,19 @@ module MovieDatabase {
         description: string;
     }
 
+    // Die Minimalinformation zu einer Serie
+    interface ISeriesMapping {
+        id: string;
+
+        parentId: string;
+
+        name: string;
+
+        hierarchicalName: string;
+
+        children: ISeriesMapping[];
+    }
+
     // Die Beschreibung einer Aufnahme in der Tabelle - eine Kurzfassung
     interface IRecordingInfo {
         id: string;
@@ -32,14 +45,18 @@ module MovieDatabase {
 
         created: Date;
 
+        series: string;
+
         languages: string[];
 
         genres: string[];
+
+        hierarchicalName: string;
     }
 
     // Die Eigenschaften, nach denen Aufzeichnungen sortiert werden können
     class OrderSelector {
-        static title: string = 'title';
+        static title: string = 'titleWithSeries';
 
         static created: string = 'date';
     }
@@ -56,6 +73,16 @@ module MovieDatabase {
         order: string = OrderSelector.title;
 
         ascending: boolean = true;
+
+        genres: string[] = [];
+
+        language: string;
+
+        series: string;
+
+        rent: boolean;
+
+        text: string;
 
         send(): JQueryPromise<ISearchInformation> {
 
@@ -89,6 +116,8 @@ module MovieDatabase {
         total: number;
 
         recordings: IRecordingInfo[];
+
+        seriesSeparator: string;
     }
 
     // Einige Informationen zur Anwendungsumgebung
@@ -96,6 +125,12 @@ module MovieDatabase {
         empty: boolean;
 
         total: number;
+
+        languages: ILanguage[];
+
+        genres: IGenre[];
+
+        series: ISeriesMapping[];
     };
 
     // Repräsentiert die Anwendung als Ganzes
@@ -106,9 +141,13 @@ module MovieDatabase {
 
         static Current: Application = new Application();
 
+        private currentApplicationInformation: IApplicationInformation;
+
         private legacyFile: JQuery;
 
         private migrateButton: JQuery;
+
+        private seriesMap: any;
 
         private migrate(): void {
             var fileInput = <HTMLInputElement>(this.legacyFile[0]);
@@ -132,13 +171,49 @@ module MovieDatabase {
             this.requestApplicationInformation().done(info => this.fillApplicationInformation(info));
         }
 
+        private query(): void {
+            SearchRequest.Current.send().done(results => this.fillResultTable(results));
+        }
+
         private fillApplicationInformation(info: IApplicationInformation): void {
+            this.currentApplicationInformation = info;
+
             if (info.empty)
                 this.migrateButton.removeClass(Styles.invisble);
             else
                 this.migrateButton.addClass(Styles.invisble);
 
             $('#countInfo').text('(Es gibt ' + info.total + ' Aufzeichnung' + ((info.total == 1) ? '' : 'en') + ')');
+
+            this.seriesMap = {};
+
+            $.each(info.series, (index, mapping) => {
+                mapping.children = [];
+
+                this.seriesMap[mapping.id] = mapping;
+            });
+
+            $.each(info.series, (index, mapping) => {
+                if (mapping.parentId == null)
+                    return;
+
+                var parent: ISeriesMapping = this.seriesMap[mapping.parentId];
+
+                parent.children.push(mapping);
+            });
+
+            this.query();
+        }
+
+        private fillResultTable(results: ISearchInformation): void {
+            $.each(results.recordings, (index, recording) => {
+                if (recording.series == null)
+                    return;
+
+                var series: ISeriesMapping = this.seriesMap[recording.series];
+
+                recording.hierarchicalName = series.hierarchicalName + ' ' + results.seriesSeparator + ' ' + recording.title;
+            });
         }
 
         private requestApplicationInformation(): JQueryPromise<IApplicationInformation> {
