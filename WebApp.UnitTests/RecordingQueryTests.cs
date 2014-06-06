@@ -200,6 +200,11 @@ namespace WebApp.UnitTests
             var recordings = Controller.Query( new SearchRequest { IsRent = isRent } );
 
             Assert.AreEqual( expected, recordings.TotalCount, "total" );
+
+            if (isRent)
+                Assert.AreEqual( "kann weg", recordings.Recordings[0].RentTo, "rent#0" );
+            else
+                Assert.IsNull( recordings.Recordings[0].RentTo, "rent#0" );
         }
 
         /// <summary>

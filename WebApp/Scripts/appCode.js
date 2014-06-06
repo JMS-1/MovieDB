@@ -9,6 +9,22 @@ var MovieDatabase;
         return Styles;
     })();
 
+    var DateTimeTools = (function () {
+        function DateTimeTools() {
+        }
+        DateTimeTools.toNumber = function (val) {
+            if (val < 10)
+                return '0' + val.toString();
+            else
+                return val.toString();
+        };
+
+        DateTimeTools.toStandard = function (dateTime) {
+            return DateTimeTools.toNumber(dateTime.getDate()) + '.' + DateTimeTools.toNumber(1 + dateTime.getMonth()) + '.' + dateTime.getFullYear().toString() + ' ' + DateTimeTools.toNumber(dateTime.getHours()) + ':' + DateTimeTools.toNumber(dateTime.getMinutes()) + ':' + DateTimeTools.toNumber(dateTime.getSeconds());
+        };
+        return DateTimeTools;
+    })();
+
     
 
     
@@ -39,14 +55,28 @@ var MovieDatabase;
             this.order = OrderSelector.title;
             this.ascending = true;
             this.genres = [];
+            this.language = null;
+            this.series = null;
+            this.rent = false;
+            this.text = null;
+            this.pending = 0;
         }
         SearchRequest.prototype.send = function () {
+            var _this = this;
+            // Jede Suche bekommt eine neue Nummer und es wird immer nur das letzte Ergebnis ausgewertet
+            var thisRequest = ++this.pending;
+
             return $.ajax('movie/db', {
-                contentType: "application/json; charset=utf-8",
+                contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify(this),
-                dataType: "json",
-                type: "POST"
+                dataType: 'json',
+                type: 'POST'
             }).done(function (searchResult) {
+                // Veraltete Ergebnisse überspringen wir einfach
+                searchResult.ignore = (_this.pending != thisRequest);
+                if (searchResult.ignore)
+                    return;
+
                 if (searchResult == null)
                     return;
 
@@ -109,7 +139,20 @@ var MovieDatabase;
         Application.prototype.query = function () {
             var _this = this;
             SearchRequest.Current.send().done(function (results) {
-                return _this.fillResultTable(results);
+                if (!results.ignore)
+                    _this.fillResultTable(results);
+            });
+        };
+
+        Application.prototype.setLanguages = function () {
+            var _this = this;
+            SearchRequest.Current.language = null;
+
+            this.languageFilter.empty();
+            this.languageFilter.append(new Option('(egal)', '', true, true));
+
+            $.each(this.currentApplicationInformation.languages, function (index, language) {
+                _this.languageFilter.append(new Option(language.id, language.description));
             });
         };
 
@@ -141,11 +184,21 @@ var MovieDatabase;
                 parent.children.push(mapping);
             });
 
+            this.setLanguages();
+
             this.query();
         };
 
+        /*
+        Hier werden die Rohdaten einer Suche nach Aufzeichnungen erst einmal angereichert
+        und dann als Tabellenzeilen in die Oberfläche übernommen.
+        */
         Application.prototype.fillResultTable = function (results) {
             var _this = this;
+            var tableBody = $('#recordingTable>tbody');
+
+            tableBody.empty();
+
             $.each(results.recordings, function (index, recording) {
                 if (recording.series == null)
                     recording.hierarchicalName = recording.title;
@@ -154,11 +207,31 @@ var MovieDatabase;
 
                     recording.hierarchicalName = series.hierarchicalName + ' ' + _this.currentApplicationInformation.seriesSeparator + ' ' + recording.title;
                 }
+
+                var recordingRow = $('<tr></tr>').appendTo(tableBody);
+
+                $('<td />').appendTo(recordingRow).text(recording.hierarchicalName);
+                $('<td />').appendTo(recordingRow).text(recording.languages.join('; '));
+                $('<td />').appendTo(recordingRow).text(recording.genres.join('; '));
+                $('<td />').appendTo(recordingRow).text(DateTimeTools.toStandard(recording.created));
+                $('<td />').appendTo(recordingRow).text(recording.rent);
             });
+
+            this.setQueryMode();
         };
 
         Application.prototype.requestApplicationInformation = function () {
             return $.ajax('movie/info');
+        };
+
+        Application.prototype.resetAllModes = function () {
+            $('.operationMode').addClass(Styles.invisble);
+        };
+
+        Application.prototype.setQueryMode = function () {
+            this.resetAllModes();
+
+            $('#queryMode').removeClass(Styles.invisble);
         };
 
         Application.prototype.startup = function () {
@@ -172,6 +245,14 @@ var MovieDatabase;
             this.migrateButton = $('#migrate');
             this.migrateButton.button().click(function () {
                 return _this.legacyFile.click();
+            });
+
+            this.languageFilter = $('#languageFilter');
+            this.languageFilter.change(function () {
+                SearchRequest.Current.language = _this.languageFilter.val();
+                SearchRequest.Current.page = 0;
+
+                _this.query();
             });
 
             // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss

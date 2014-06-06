@@ -17,12 +17,35 @@
     <h1 id="headline">(Bitte etwas Geduld)</h1>
     <h4 id="countInfo"></h4>
 
-    <div id="main" class="invisible">
-        <a id="migrate" class="invisible">Importieren (alte Version)</a>
-    </div>
-
     <input id="theFile" type="file" class="invisible" />
 
+    <div id="main" class="invisible">
+        <a id="migrate" class="invisible">Importieren (alte Version)</a>
+
+        <div id="queryMode" class="operationMode invisible">
+            <div class="filterArea">
+                <div class="languageFilter">
+                    Sprache: <select id="languageFilter"></select>
+                </div>
+            </div>
+                 
+            <div class="recordingTable">
+                <table id="recordingTable">
+                    <thead>
+                        <tr>
+                            <td>Name</td>
+                            <td>Sprache</td>
+                            <td>Genre</td>
+                            <td>Eingestellt</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

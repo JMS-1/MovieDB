@@ -8,6 +8,24 @@ module MovieDatabase {
         static invisble = 'invisible';
     }
 
+    class DateTimeTools {
+        private static toNumber(val: number): string {
+            if (val < 10)
+                return '0' + val.toString();
+            else
+                return val.toString();
+        }
+
+        static toStandard(dateTime: Date): string {
+            return DateTimeTools.toNumber(dateTime.getDate()) + '.' +
+                DateTimeTools.toNumber(1 + dateTime.getMonth()) + '.' +
+                dateTime.getFullYear().toString() + ' ' +
+                DateTimeTools.toNumber(dateTime.getHours()) + ':' +
+                DateTimeTools.toNumber(dateTime.getMinutes()) + ':' +
+                DateTimeTools.toNumber(dateTime.getSeconds());
+        }
+    }
+
     // Die Informationen zu einer Tonspur
     interface ILanguage {
         id: string;
@@ -43,6 +61,8 @@ module MovieDatabase {
         id: string;
 
         title: string;
+
+        rent: string;
 
         createdAsString: string;
 
@@ -82,22 +102,33 @@ module MovieDatabase {
 
         genres: string[] = [];
 
-        language: string;
+        language: string = null;
 
-        series: string;
+        series: string = null;
 
-        rent: boolean;
+        rent: boolean = false;
 
-        text: string;
+        text: string = null;
+
+        private pending: number = 0;
 
         send(): JQueryPromise<ISearchInformation> {
 
+            // Jede Suche bekommt eine neue Nummer und es wird immer nur das letzte Ergebnis ausgewertet
+            var thisRequest = ++this.pending;
+
             return $.ajax('movie/db', {
-                contentType: "application/json; charset=utf-8",
+                contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify(this),
-                dataType: "json",
-                type: "POST",
+                dataType: 'json',
+                type: 'POST',
             }).done((searchResult: ISearchInformation) => {
+
+                    // Veraltete Ergebnisse überspringen wir einfach
+                    searchResult.ignore = (this.pending != thisRequest);
+                    if (searchResult.ignore)
+                        return;
+
                     if (searchResult == null)
                         return;
 
@@ -113,8 +144,8 @@ module MovieDatabase {
         static Current: SearchRequest = new SearchRequest();
     }
 
-    // Das Ergebnis einer Suche
-    interface ISearchInformation {
+    // Das Ergebnis einer Suche so wie der Dienst sie meldet
+    interface ISearchInformationContract {
         page: number;
 
         index: number;
@@ -122,6 +153,10 @@ module MovieDatabase {
         total: number;
 
         recordings: IRecordingInfo[];
+    }
+
+    interface ISearchInformation extends ISearchInformationContract {
+        ignore: boolean;
     }
 
     // Einige Informationen zur Anwendungsumgebung
@@ -153,6 +188,8 @@ module MovieDatabase {
 
         private migrateButton: JQuery;
 
+        private languageFilter: JQuery;
+
         private seriesMap: any;
 
         private migrate(): void {
@@ -178,7 +215,21 @@ module MovieDatabase {
         }
 
         private query(): void {
-            SearchRequest.Current.send().done(results => this.fillResultTable(results));
+            SearchRequest.Current.send().done(results => {
+                if (!results.ignore)
+                    this.fillResultTable(results);
+            });
+        }
+
+        private setLanguages(): void {
+            SearchRequest.Current.language = null;
+
+            this.languageFilter.empty();
+            this.languageFilter.append(new Option('(egal)', '', true, true));
+
+            $.each(this.currentApplicationInformation.languages, (index, language) => {
+                this.languageFilter.append(new Option(language.id, language.description));
+            });
         }
 
         private fillApplicationInformation(info: IApplicationInformation): void {
@@ -208,10 +259,20 @@ module MovieDatabase {
                 parent.children.push(mapping);
             });
 
+            this.setLanguages();
+
             this.query();
         }
 
+        /*
+          Hier werden die Rohdaten einer Suche nach Aufzeichnungen erst einmal angereichert
+          und dann als Tabellenzeilen in die Oberfläche übernommen.
+        */
         private fillResultTable(results: ISearchInformation): void {
+            var tableBody = $('#recordingTable>tbody');
+
+            tableBody.empty();
+
             $.each(results.recordings, (index, recording) => {
                 if (recording.series == null)
                     recording.hierarchicalName = recording.title;
@@ -220,11 +281,31 @@ module MovieDatabase {
 
                     recording.hierarchicalName = series.hierarchicalName + ' ' + this.currentApplicationInformation.seriesSeparator + ' ' + recording.title;
                 }
+
+                var recordingRow = $('<tr></tr>').appendTo(tableBody);
+
+                $('<td />').appendTo(recordingRow).text(recording.hierarchicalName);
+                $('<td />').appendTo(recordingRow).text(recording.languages.join('; '));
+                $('<td />').appendTo(recordingRow).text(recording.genres.join('; '));
+                $('<td />').appendTo(recordingRow).text(DateTimeTools.toStandard(recording.created));
+                $('<td />').appendTo(recordingRow).text(recording.rent);
             });
+
+            this.setQueryMode();
         }
 
         private requestApplicationInformation(): JQueryPromise<IApplicationInformation> {
             return $.ajax('movie/info');
+        }
+
+        private resetAllModes(): void {
+            $('.operationMode').addClass(Styles.invisble);
+        }
+
+        private setQueryMode(): void {
+            this.resetAllModes();
+
+            $('#queryMode').removeClass(Styles.invisble);
         }
 
         private startup(): void {
@@ -234,6 +315,14 @@ module MovieDatabase {
 
             this.migrateButton = $('#migrate');
             this.migrateButton.button().click(() => this.legacyFile.click());
+
+            this.languageFilter = $('#languageFilter');
+            this.languageFilter.change(() => {
+                SearchRequest.Current.language = this.languageFilter.val();
+                SearchRequest.Current.page = 0;
+
+                this.query();
+            });
 
             // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
             this.requestApplicationInformation().done(info => {

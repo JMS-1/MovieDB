@@ -25,6 +25,12 @@ namespace WebApp.DTO
         public string Name { get; set; }
 
         /// <summary>
+        /// Der Ausleiher der Aufzeichnung.
+        /// </summary>
+        [DataMember( Name = "rent" )]
+        public string RentTo { get; set; }
+
+        /// <summary>
         /// Die Sprachen aller Tonspuren.
         /// </summary>
         [DataMember( Name = "languages" )]
@@ -66,11 +72,12 @@ namespace WebApp.DTO
         {
             return new RecordingForTable
             {
-                Languages = recording.Languages.Select( l => l.Description ).OrderBy(s => s).ToArray(),
+                Languages = recording.Languages.Select( l => l.Description ).OrderBy( s => s ).ToArray(),
                 Genres = recording.Genres.Select( l => l.Description ).OrderBy( s => s ).ToArray(),
                 RecordingIdentifier = recording.Identifier,
                 CreationTime = recording.CreationTime,
                 Series = recording.SeriesIdentifier,
+                RentTo = recording.RentTo,
                 Name = recording.Title,
             };
         }
