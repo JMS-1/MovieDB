@@ -12,8 +12,14 @@
 .filterArea {
   background-color: lightcyan;
 }
+.genreFilter {
+  background-color: lightgreen;
+}
 .languageFilter {
   background-color: antiquewhite;
+}
+.pageSize {
+  background-color: aqua;
 }
 .recordingTable {
   background-color: lightgoldenrodyellow;

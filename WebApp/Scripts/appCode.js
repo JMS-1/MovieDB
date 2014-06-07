@@ -57,7 +57,7 @@ var MovieDatabase;
             this.genres = [];
             this.language = null;
             this.series = null;
-            this.rent = false;
+            this.rent = null;
             this.text = null;
             this.pending = 0;
         }
@@ -147,6 +147,7 @@ var MovieDatabase;
         Application.prototype.setLanguages = function () {
             var _this = this;
             SearchRequest.Current.language = null;
+            SearchRequest.Current.page = 0;
 
             this.languageFilter.empty();
             this.languageFilter.append(new Option('(egal)', '', true, true));
@@ -154,6 +155,46 @@ var MovieDatabase;
             $.each(this.currentApplicationInformation.languages, function (index, language) {
                 _this.languageFilter.append(new Option(language.id, language.description));
             });
+        };
+
+        Application.prototype.setGenres = function () {
+            var _this = this;
+            this.genreFilter.empty();
+
+            $.each(this.currentApplicationInformation.genres, function (index, genre) {
+                var capturedGenre = genre;
+                var id = 'genreCheckbox' + capturedGenre.id;
+
+                $('<input />', { type: 'checkbox', id: id, name: capturedGenre.id }).appendTo(_this.genreFilter).change(function () {
+                    return _this.genreChanged(true);
+                });
+                $('<label />', { 'for': id, text: capturedGenre.description }).appendTo(_this.genreFilter);
+            });
+
+            this.genreChanged(false);
+        };
+
+        Application.prototype.selectedGenres = function (processor) {
+            this.genreFilter.children('input[type=checkbox]:checked').each(function (index, checkbox) {
+                return processor($(checkbox));
+            });
+        };
+
+        Application.prototype.genreChanged = function (query) {
+            SearchRequest.Current.genres = [];
+            SearchRequest.Current.page = 0;
+
+            this.selectedGenres(function (checkbox) {
+                return SearchRequest.Current.genres.push(checkbox.attr('name'));
+            });
+
+            if (SearchRequest.Current.genres.length < 1)
+                this.genreFilterHeader.text('(egal)');
+            else
+                this.genreFilterHeader.text(SearchRequest.Current.genres.join(' und '));
+
+            if (query)
+                this.query();
         };
 
         Application.prototype.fillApplicationInformation = function (info) {
@@ -184,6 +225,7 @@ var MovieDatabase;
                 parent.children.push(mapping);
             });
 
+            this.setGenres();
             this.setLanguages();
 
             this.query();
@@ -195,6 +237,11 @@ var MovieDatabase;
         */
         Application.prototype.fillResultTable = function (results) {
             var _this = this;
+            if (results.total < results.size)
+                this.pageSizeCount.text('');
+            else
+                this.pageSizeCount.text(' von ' + results.total);
+
             var tableBody = $('#recordingTable>tbody');
 
             tableBody.empty();
@@ -250,6 +297,35 @@ var MovieDatabase;
             this.languageFilter = $('#languageFilter');
             this.languageFilter.change(function () {
                 SearchRequest.Current.language = _this.languageFilter.val();
+                SearchRequest.Current.page = 0;
+
+                _this.query();
+            });
+
+            this.genreFilter = $('#genreFilter');
+            this.genreFilterHeader = $('#genreFilterHeader');
+
+            this.pageSize = $('#pageSize');
+            this.pageSizeCount = $('#pageSizeCount');
+            this.pageSize.change(function () {
+                SearchRequest.Current.size = parseInt(_this.pageSize.val());
+                SearchRequest.Current.page = 0;
+
+                _this.query();
+            });
+
+            $('#resetQuery').button().click(function () {
+                _this.selectedGenres(function (checkbox) {
+                    return checkbox.prop('checked', false);
+                });
+                _this.languageFilter.val(null);
+                _this.genreChanged(false);
+
+                SearchRequest.Current.language = null;
+                SearchRequest.Current.series = null;
+                SearchRequest.Current.genres = [];
+                SearchRequest.Current.rent = null;
+                SearchRequest.Current.text = null;
                 SearchRequest.Current.page = 0;
 
                 _this.query();

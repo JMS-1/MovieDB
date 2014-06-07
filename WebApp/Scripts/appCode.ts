@@ -106,7 +106,7 @@ module MovieDatabase {
 
         series: string = null;
 
-        rent: boolean = false;
+        rent: boolean = null;
 
         text: string = null;
 
@@ -146,7 +146,7 @@ module MovieDatabase {
 
     // Das Ergebnis einer Suche so wie der Dienst sie meldet
     interface ISearchInformationContract {
-        page: number;
+        size: number;
 
         index: number;
 
@@ -190,6 +190,14 @@ module MovieDatabase {
 
         private languageFilter: JQuery;
 
+        private genreFilter: JQuery;
+
+        private genreFilterHeader: JQuery;
+
+        private pageSize: JQuery;
+
+        private pageSizeCount: JQuery;
+
         private seriesMap: any;
 
         private migrate(): void {
@@ -223,6 +231,7 @@ module MovieDatabase {
 
         private setLanguages(): void {
             SearchRequest.Current.language = null;
+            SearchRequest.Current.page = 0;
 
             this.languageFilter.empty();
             this.languageFilter.append(new Option('(egal)', '', true, true));
@@ -230,6 +239,39 @@ module MovieDatabase {
             $.each(this.currentApplicationInformation.languages, (index, language) => {
                 this.languageFilter.append(new Option(language.id, language.description));
             });
+        }
+
+        private setGenres(): void {
+            this.genreFilter.empty();
+
+            $.each(this.currentApplicationInformation.genres, (index, genre) => {
+                var capturedGenre = genre;
+                var id = 'genreCheckbox' + capturedGenre.id;
+
+                $('<input />', { type: 'checkbox', id: id, name: capturedGenre.id }).appendTo(this.genreFilter).change(() => this.genreChanged(true));
+                $('<label />', { 'for': id, text: capturedGenre.description }).appendTo(this.genreFilter);
+            });
+
+            this.genreChanged(false);
+        }
+
+        private selectedGenres(processor: (checkbox: JQuery) => void): void {
+            this.genreFilter.children('input[type=checkbox]:checked').each((index, checkbox) => processor($(checkbox)));
+        }
+
+        private genreChanged(query: boolean): void {
+            SearchRequest.Current.genres = [];
+            SearchRequest.Current.page = 0;
+
+            this.selectedGenres(checkbox => SearchRequest.Current.genres.push(checkbox.attr('name')));
+
+            if (SearchRequest.Current.genres.length < 1)
+                this.genreFilterHeader.text('(egal)');
+            else
+                this.genreFilterHeader.text(SearchRequest.Current.genres.join(' und '));
+
+            if (query)
+                this.query();
         }
 
         private fillApplicationInformation(info: IApplicationInformation): void {
@@ -259,6 +301,7 @@ module MovieDatabase {
                 parent.children.push(mapping);
             });
 
+            this.setGenres();
             this.setLanguages();
 
             this.query();
@@ -269,6 +312,11 @@ module MovieDatabase {
           und dann als Tabellenzeilen in die Oberfläche übernommen.
         */
         private fillResultTable(results: ISearchInformation): void {
+            if (results.total < results.size)
+                this.pageSizeCount.text('');
+            else
+                this.pageSizeCount.text(' von ' + results.total);
+
             var tableBody = $('#recordingTable>tbody');
 
             tableBody.empty();
@@ -319,6 +367,33 @@ module MovieDatabase {
             this.languageFilter = $('#languageFilter');
             this.languageFilter.change(() => {
                 SearchRequest.Current.language = this.languageFilter.val();
+                SearchRequest.Current.page = 0;
+
+                this.query();
+            });
+
+            this.genreFilter = $('#genreFilter');
+            this.genreFilterHeader = $('#genreFilterHeader');
+
+            this.pageSize = $('#pageSize');
+            this.pageSizeCount = $('#pageSizeCount');
+            this.pageSize.change(() => {
+                SearchRequest.Current.size = parseInt(this.pageSize.val());
+                SearchRequest.Current.page = 0;
+
+                this.query();
+            });
+
+            $('#resetQuery').button().click(() => {
+                this.selectedGenres(checkbox => checkbox.prop('checked', false));
+                this.languageFilter.val(null);
+                this.genreChanged(false);
+
+                SearchRequest.Current.language = null;
+                SearchRequest.Current.series = null;
+                SearchRequest.Current.genres = [];
+                SearchRequest.Current.rent = null;
+                SearchRequest.Current.text = null;
                 SearchRequest.Current.page = 0;
 
                 this.query();
