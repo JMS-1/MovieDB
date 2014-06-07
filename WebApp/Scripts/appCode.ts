@@ -184,6 +184,8 @@ module MovieDatabase {
 
         private currentApplicationInformation: IApplicationInformation;
 
+        private busyIndicator: JQuery;
+
         private legacyFile: JQuery;
 
         private migrateButton: JQuery;
@@ -197,6 +199,8 @@ module MovieDatabase {
         private pageSize: JQuery;
 
         private pageSizeCount: JQuery;
+
+        private textSearch: JQuery;
 
         private seriesMap: any;
 
@@ -223,6 +227,9 @@ module MovieDatabase {
         }
 
         private query(): void {
+            this.busyIndicator.removeClass('stateIdle');
+            this.busyIndicator.addClass('stateBusy');
+
             SearchRequest.Current.send().done(results => {
                 if (!results.ignore)
                     this.fillResultTable(results);
@@ -275,6 +282,9 @@ module MovieDatabase {
         }
 
         private fillApplicationInformation(info: IApplicationInformation): void {
+            this.busyIndicator.removeClass('stateLoading');
+            this.busyIndicator.addClass('stateIdle');
+
             this.currentApplicationInformation = info;
 
             if (info.empty)
@@ -312,6 +322,9 @@ module MovieDatabase {
           und dann als Tabellenzeilen in die Oberfläche übernommen.
         */
         private fillResultTable(results: ISearchInformation): void {
+            this.busyIndicator.removeClass('stateBusy');
+            this.busyIndicator.addClass('stateIdle');
+
             if (results.total < results.size)
                 this.pageSizeCount.text('');
             else
@@ -356,8 +369,14 @@ module MovieDatabase {
             $('#queryMode').removeClass(Styles.invisble);
         }
 
+        private textChanged(): void {
+            SearchRequest.Current.text = this.textSearch.val();
+            SearchRequest.Current.page = 0;
+        }
+
         private startup(): void {
-            // Migration vorbereiten
+            this.busyIndicator = $('#busyIndicator');
+
             this.legacyFile = $('#theFile');
             this.legacyFile.change(() => this.migrate());
 
@@ -384,15 +403,25 @@ module MovieDatabase {
                 this.query();
             });
 
+            this.textSearch = $('#textSearch');
+            this.textSearch.on('change', () => this.textChanged());
+            this.textSearch.on('input', () => this.textChanged());
+            this.textSearch.on('keypress', (e: JQueryEventObject) => {
+                if (e.which == 13)
+                    this.query();
+            });
+
             $('#resetQuery').button().click(() => {
                 this.selectedGenres(checkbox => checkbox.prop('checked', false));
                 this.languageFilter.val(null);
+                this.textSearch.val(null);
                 this.genreChanged(false);
 
                 SearchRequest.Current.language = null;
                 SearchRequest.Current.series = null;
                 SearchRequest.Current.genres = [];
                 SearchRequest.Current.rent = null;
+                SearchRequest.Current.text = null;
                 SearchRequest.Current.text = null;
                 SearchRequest.Current.page = 0;
 

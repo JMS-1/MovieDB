@@ -138,6 +138,9 @@ var MovieDatabase;
 
         Application.prototype.query = function () {
             var _this = this;
+            this.busyIndicator.removeClass('stateIdle');
+            this.busyIndicator.addClass('stateBusy');
+
             SearchRequest.Current.send().done(function (results) {
                 if (!results.ignore)
                     _this.fillResultTable(results);
@@ -199,6 +202,9 @@ var MovieDatabase;
 
         Application.prototype.fillApplicationInformation = function (info) {
             var _this = this;
+            this.busyIndicator.removeClass('stateLoading');
+            this.busyIndicator.addClass('stateIdle');
+
             this.currentApplicationInformation = info;
 
             if (info.empty)
@@ -237,6 +243,9 @@ var MovieDatabase;
         */
         Application.prototype.fillResultTable = function (results) {
             var _this = this;
+            this.busyIndicator.removeClass('stateBusy');
+            this.busyIndicator.addClass('stateIdle');
+
             if (results.total < results.size)
                 this.pageSizeCount.text('');
             else
@@ -281,9 +290,15 @@ var MovieDatabase;
             $('#queryMode').removeClass(Styles.invisble);
         };
 
+        Application.prototype.textChanged = function () {
+            SearchRequest.Current.text = this.textSearch.val();
+            SearchRequest.Current.page = 0;
+        };
+
         Application.prototype.startup = function () {
             var _this = this;
-            // Migration vorbereiten
+            this.busyIndicator = $('#busyIndicator');
+
             this.legacyFile = $('#theFile');
             this.legacyFile.change(function () {
                 return _this.migrate();
@@ -314,17 +329,31 @@ var MovieDatabase;
                 _this.query();
             });
 
+            this.textSearch = $('#textSearch');
+            this.textSearch.on('change', function () {
+                return _this.textChanged();
+            });
+            this.textSearch.on('input', function () {
+                return _this.textChanged();
+            });
+            this.textSearch.on('keypress', function (e) {
+                if (e.which == 13)
+                    _this.query();
+            });
+
             $('#resetQuery').button().click(function () {
                 _this.selectedGenres(function (checkbox) {
                     return checkbox.prop('checked', false);
                 });
                 _this.languageFilter.val(null);
+                _this.textSearch.val(null);
                 _this.genreChanged(false);
 
                 SearchRequest.Current.language = null;
                 SearchRequest.Current.series = null;
                 SearchRequest.Current.genres = [];
                 SearchRequest.Current.rent = null;
+                SearchRequest.Current.text = null;
                 SearchRequest.Current.text = null;
                 SearchRequest.Current.page = 0;
 

@@ -17,6 +17,8 @@
     <h1 id="headline">(Bitte etwas Geduld)</h1>
     <h4 id="countInfo"></h4>
 
+    <span id="busyIndicator" class="stateLoading">*</span>
+
     <input id="theFile" type="file" class="invisible" />
 
     <div id="main" class="invisible">
@@ -30,6 +32,10 @@
 
                 <div class="languageFilter">
                     Sprache: <select id="languageFilter"></select>
+                </div>
+
+                <div class="textfilter">
+                    Suchwort: <input type="text" id="textSearch" size="60" />
                 </div>
 
                 <div class="pageSize">
