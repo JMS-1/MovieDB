@@ -84,7 +84,7 @@ namespace WebApp.DTO
         /// Die zu betrachtende Serie.
         /// </summary>
         [DataMember( Name = "series" )]
-        public Guid? RequiredSeries { get; set; }
+        public readonly List<Guid> RequiredSeries = new List<Guid>();
 
         /// <summary>
         /// Gesetzt, wenn ausgeliehene Aufzeichnungen gesucht werden sollen.
@@ -159,8 +159,8 @@ namespace WebApp.DTO
             }
 
             // Apply series
-            if (request.RequiredSeries.HasValue)
-                recordings = recordings.Where( r => r.SeriesIdentifier == request.RequiredSeries.Value );
+            if (request.RequiredSeries.Count > 0)
+                recordings = recordings.Where( r => request.RequiredSeries.Contains( r.SeriesIdentifier.Value ) );
 
             // Apply rent option
             if (request.IsRent.HasValue)

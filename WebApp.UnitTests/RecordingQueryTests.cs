@@ -217,7 +217,7 @@ namespace WebApp.UnitTests
             using (var appController = new ApplicationController())
                 series = appController.GetInformation().Series.Single( s => s.FullName == "CSI > Las Vegas > Season 13" ).UniqueIdentifier;
 
-            var recordings = Controller.Query( new SearchRequest { RequiredSeries = series } );
+            var recordings = Controller.Query( new SearchRequest { RequiredSeries = { series } } );
 
             Assert.AreEqual( 0, recordings.PageIndex, "index" );
             Assert.AreEqual( 15, recordings.PageSize, "size" );

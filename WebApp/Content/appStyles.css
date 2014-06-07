@@ -18,6 +18,9 @@
 .languageFilter {
   background-color: antiquewhite;
 }
+.seriesFilter {
+  background-color: pink;
+}
 .pageSize {
   background-color: aqua;
 }

@@ -114,13 +114,20 @@ module MovieDatabase {
 
         language: string = null;
 
-        series: string = null;
+        series: string[] = [];
 
         rent: boolean = null;
 
         text: string = null;
 
         private pending: number = 0;
+
+        private static propertyFilter(propertyName: string, propertyValue: any): any {
+            if (propertyName != 'pending')
+                return propertyValue;
+
+            return undefined;
+        }
 
         send(): JQueryPromise<ISearchInformation> {
 
@@ -129,7 +136,7 @@ module MovieDatabase {
 
             return $.ajax('movie/db', {
                 contentType: 'application/json; charset=utf-8',
-                data: JSON.stringify(this),
+                data: JSON.stringify(this, SearchRequest.propertyFilter),
                 dataType: 'json',
                 type: 'POST',
             }).done((searchResult: ISearchInformation) => {
@@ -202,6 +209,8 @@ module MovieDatabase {
 
         private languageFilter: JQuery;
 
+        private seriesFilter: JQuery;
+
         private genreFilter: JQuery;
 
         private genreFilterHeader: JQuery;
@@ -256,7 +265,19 @@ module MovieDatabase {
             this.languageFilter.append(new Option('(egal)', '', true, true));
 
             $.each(this.currentApplicationInformation.languages, (index, language) => {
-                this.languageFilter.append(new Option(language.id, language.description));
+                this.languageFilter.append(new Option(language.description, language.id));
+            });
+        }
+
+        private setSeries(): void {
+            SearchRequest.Current.series = [];
+            SearchRequest.Current.page = 0;
+
+            this.seriesFilter.empty();
+            this.seriesFilter.append(new Option('(egal)', '', true, true));
+
+            $.each(this.currentApplicationInformation.series, (index, series) => {
+                this.seriesFilter.append(new Option(series.hierarchicalName, series.id));
             });
         }
 
@@ -325,6 +346,7 @@ module MovieDatabase {
 
             this.setGenres();
             this.setLanguages();
+            this.setSeries();
 
             this.query();
         }
@@ -450,6 +472,17 @@ module MovieDatabase {
             SearchRequest.Current.page = 0;
         }
 
+        private applySeriesToFilter(series: string): void {
+            if (series.length > 0)
+                Application.applySeriesToFilter(this.seriesMap[series]);
+        }
+
+        private static applySeriesToFilter(series: ISeriesMapping): void {
+            SearchRequest.Current.series.push(series.id);
+
+            $.each(series.children, (index, child) => Application.applySeriesToFilter(child));
+        }
+
         private startup(): void {
             this.busyIndicator = $('#busyIndicator');
 
@@ -463,6 +496,16 @@ module MovieDatabase {
             this.languageFilter.change(() => {
                 SearchRequest.Current.language = this.languageFilter.val();
                 SearchRequest.Current.page = 0;
+
+                this.query();
+            });
+
+            this.seriesFilter = $('#seriesFilter');
+            this.seriesFilter.change(() => {
+                SearchRequest.Current.series = [];
+                SearchRequest.Current.page = 0;
+
+                this.applySeriesToFilter(this.seriesFilter.val());
 
                 this.query();
             });
@@ -492,11 +535,12 @@ module MovieDatabase {
             $('#resetQuery').button().click(() => {
                 this.selectedGenres(checkbox => checkbox.prop('checked', false));
                 this.languageFilter.val(null);
+                this.seriesFilter.val(null);
                 this.textSearch.val(null);
                 this.genreChanged(false);
 
                 SearchRequest.Current.language = null;
-                SearchRequest.Current.series = null;
+                SearchRequest.Current.series = [];
                 SearchRequest.Current.genres = [];
                 SearchRequest.Current.rent = null;
                 SearchRequest.Current.text = null;

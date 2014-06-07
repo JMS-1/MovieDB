@@ -66,11 +66,18 @@ var MovieDatabase;
             this.ascending = true;
             this.genres = [];
             this.language = null;
-            this.series = null;
+            this.series = [];
             this.rent = null;
             this.text = null;
             this.pending = 0;
         }
+        SearchRequest.propertyFilter = function (propertyName, propertyValue) {
+            if (propertyName != 'pending')
+                return propertyValue;
+
+            return undefined;
+        };
+
         SearchRequest.prototype.send = function () {
             var _this = this;
             // Jede Suche bekommt eine neue Nummer und es wird immer nur das letzte Ergebnis ausgewertet
@@ -78,7 +85,7 @@ var MovieDatabase;
 
             return $.ajax('movie/db', {
                 contentType: 'application/json; charset=utf-8',
-                data: JSON.stringify(this),
+                data: JSON.stringify(this, SearchRequest.propertyFilter),
                 dataType: 'json',
                 type: 'POST'
             }).done(function (searchResult) {
@@ -166,7 +173,20 @@ var MovieDatabase;
             this.languageFilter.append(new Option('(egal)', '', true, true));
 
             $.each(this.currentApplicationInformation.languages, function (index, language) {
-                _this.languageFilter.append(new Option(language.id, language.description));
+                _this.languageFilter.append(new Option(language.description, language.id));
+            });
+        };
+
+        Application.prototype.setSeries = function () {
+            var _this = this;
+            SearchRequest.Current.series = [];
+            SearchRequest.Current.page = 0;
+
+            this.seriesFilter.empty();
+            this.seriesFilter.append(new Option('(egal)', '', true, true));
+
+            $.each(this.currentApplicationInformation.series, function (index, series) {
+                _this.seriesFilter.append(new Option(series.hierarchicalName, series.id));
             });
         };
 
@@ -243,6 +263,7 @@ var MovieDatabase;
 
             this.setGenres();
             this.setLanguages();
+            this.setSeries();
 
             this.query();
         };
@@ -364,6 +385,19 @@ var MovieDatabase;
             SearchRequest.Current.page = 0;
         };
 
+        Application.prototype.applySeriesToFilter = function (series) {
+            if (series.length > 0)
+                Application.applySeriesToFilter(this.seriesMap[series]);
+        };
+
+        Application.applySeriesToFilter = function (series) {
+            SearchRequest.Current.series.push(series.id);
+
+            $.each(series.children, function (index, child) {
+                return Application.applySeriesToFilter(child);
+            });
+        };
+
         Application.prototype.startup = function () {
             var _this = this;
             this.busyIndicator = $('#busyIndicator');
@@ -382,6 +416,16 @@ var MovieDatabase;
             this.languageFilter.change(function () {
                 SearchRequest.Current.language = _this.languageFilter.val();
                 SearchRequest.Current.page = 0;
+
+                _this.query();
+            });
+
+            this.seriesFilter = $('#seriesFilter');
+            this.seriesFilter.change(function () {
+                SearchRequest.Current.series = [];
+                SearchRequest.Current.page = 0;
+
+                _this.applySeriesToFilter(_this.seriesFilter.val());
 
                 _this.query();
             });
@@ -417,11 +461,12 @@ var MovieDatabase;
                     return checkbox.prop('checked', false);
                 });
                 _this.languageFilter.val(null);
+                _this.seriesFilter.val(null);
                 _this.textSearch.val(null);
                 _this.genreChanged(false);
 
                 SearchRequest.Current.language = null;
-                SearchRequest.Current.series = null;
+                SearchRequest.Current.series = [];
                 SearchRequest.Current.genres = [];
                 SearchRequest.Current.rent = null;
                 SearchRequest.Current.text = null;
