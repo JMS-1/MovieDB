@@ -350,10 +350,10 @@ module MovieDatabase {
 
                 var pagesShown = 20;
                 var numberOfPages = Math.floor((results.total + results.size - 1) / results.size);
-                var firstIndex = Math.max(0, results.page - 1);
-                var lastIndex = Math.min(numberOfPages - 1, results.page + pagesShown - 1);
+                var firstIndex = Math.max(0, results.page - 2);
+                var lastIndex = Math.min(numberOfPages - 1, firstIndex + pagesShown - 1);
 
-                // Sieht ein bißchen komisch aus aber wir müssen zum Aufruf des Lambdas ein Closure auf die Schleifenkontrollvariable erzeugen
+                // Sieht ein bißchen komisch aus aber wir wollen zum Aufruf des Lambdas ein Closure auf die Schleifenkontrollvariable erzeugen
                 for (var index = firstIndex; index <= lastIndex; index++)
                     ((capturedIndex: number) => {
                         var anchor = $('<a href="javascript:void(0)" class="' + Styles.pageButton + '" />').appendTo(this.pageButtons).button();
@@ -361,17 +361,43 @@ module MovieDatabase {
                         if (capturedIndex == results.page)
                             anchor.addClass(Styles.activePageButton);
 
-                        if (capturedIndex < results.page) {
-                            capturedIndex = Math.max(0, capturedIndex - pagesShown + 2);
+                        // Das wäre der Normalfall
+                        anchor.text(1 + capturedIndex);
 
-                            anchor.text('<');
+                        // Das normale Layout der List ist: <Erste Seite> <Ein Block zurück> <Aktuelle Seite> <nächste Seite> ... <Ein Block vorwärts> <Letzte Seite>
+                        if (capturedIndex == results.page - 2) {
+                            if (capturedIndex > 0) {
+                                anchor.text('<<');
+
+                                capturedIndex = 0;
+                            }
                         }
-                        else if (capturedIndex > (results.page + pagesShown - 2))
-                            anchor.text('>');
-                        else
-                            anchor.text(1 + capturedIndex);
+                        else if (capturedIndex == results.page - 1) {
+                            if (results.page > pagesShown - 4) {
+                                anchor.text('<');
 
-                        if (capturedIndex != results.page)
+                                capturedIndex = results.page - (pagesShown - 4);
+                            }
+                        }
+                        else if (capturedIndex == firstIndex + pagesShown - 2) {
+                            if (capturedIndex < numberOfPages - 2)
+                                anchor.text('>');
+                        }
+                        else if (capturedIndex == firstIndex + pagesShown - 1) {
+                            if (capturedIndex < numberOfPages - 1) {
+                                anchor.text('>>');
+
+                                capturedIndex = numberOfPages - 1;
+                            }
+                        }
+
+                        // Geben wir noch einen Tooltip dazu
+                        anchor.attr('title', 'Seite ' + (1 + capturedIndex));
+
+                        // Der Link wird nur aktiv, wenn er zu einer anderen Seite führt
+                        if (capturedIndex == results.page)
+                            anchor.removeAttr('href');
+                        else
                             anchor.click(() => {
                                 SearchRequest.Current.page = capturedIndex;
 
