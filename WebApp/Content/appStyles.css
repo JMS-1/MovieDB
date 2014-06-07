@@ -24,6 +24,9 @@
 .recordingTable {
   background-color: lightgoldenrodyellow;
 }
+.pageButtons {
+  background-color: peru;
+}
 .stateLoading {
   background-color: red;
 }
@@ -32,5 +35,8 @@
 }
 .stateIdle {
   background-color: green;
+}
+.pageButtonSelected {
+  font-weight: bold;
 }
 /*# sourceMappingURL=appStyles.css.map */

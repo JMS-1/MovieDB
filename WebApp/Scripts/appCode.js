@@ -6,6 +6,16 @@ var MovieDatabase;
         function Styles() {
         }
         Styles.invisble = 'invisible';
+
+        Styles.loading = 'stateLoading';
+
+        Styles.busy = 'stateBusy';
+
+        Styles.idle = 'stateIdle';
+
+        Styles.pageButton = 'pageButton';
+
+        Styles.activePageButton = 'pageButtonSelected';
         return Styles;
     })();
 
@@ -138,8 +148,8 @@ var MovieDatabase;
 
         Application.prototype.query = function () {
             var _this = this;
-            this.busyIndicator.removeClass('stateIdle');
-            this.busyIndicator.addClass('stateBusy');
+            this.busyIndicator.removeClass(Styles.idle);
+            this.busyIndicator.addClass(Styles.busy);
 
             SearchRequest.Current.send().done(function (results) {
                 if (!results.ignore)
@@ -202,8 +212,8 @@ var MovieDatabase;
 
         Application.prototype.fillApplicationInformation = function (info) {
             var _this = this;
-            this.busyIndicator.removeClass('stateLoading');
-            this.busyIndicator.addClass('stateIdle');
+            this.busyIndicator.removeClass(Styles.loading);
+            this.busyIndicator.addClass(Styles.idle);
 
             this.currentApplicationInformation = info;
 
@@ -243,13 +253,48 @@ var MovieDatabase;
         */
         Application.prototype.fillResultTable = function (results) {
             var _this = this;
-            this.busyIndicator.removeClass('stateBusy');
-            this.busyIndicator.addClass('stateIdle');
+            this.busyIndicator.removeClass(Styles.busy);
+            this.busyIndicator.addClass(Styles.idle);
 
-            if (results.total < results.size)
+            if (results.total < results.size) {
                 this.pageSizeCount.text('');
-            else
+
+                this.pageButtons.addClass(Styles.invisble);
+            } else {
                 this.pageSizeCount.text(' von ' + results.total);
+
+                this.pageButtons.removeClass(Styles.invisble);
+                this.pageButtons.empty();
+
+                var pagesShown = 20;
+                var numberOfPages = Math.floor((results.total + results.size - 1) / results.size);
+                var firstIndex = Math.max(0, results.page - 1);
+                var lastIndex = Math.min(numberOfPages - 1, results.page + pagesShown - 1);
+
+                for (var index = firstIndex; index <= lastIndex; index++)
+                    (function (capturedIndex) {
+                        var anchor = $('<a href="javascript:void(0)" class="' + Styles.pageButton + '" />').appendTo(_this.pageButtons).button();
+
+                        if (capturedIndex == results.page)
+                            anchor.addClass(Styles.activePageButton);
+
+                        if (capturedIndex < results.page) {
+                            capturedIndex = Math.max(0, capturedIndex - pagesShown + 2);
+
+                            anchor.text('<');
+                        } else if (capturedIndex > (results.page + pagesShown - 2))
+                            anchor.text('>');
+                        else
+                            anchor.text(1 + capturedIndex);
+
+                        if (capturedIndex != results.page)
+                            anchor.click(function () {
+                                SearchRequest.Current.page = capturedIndex;
+
+                                _this.query();
+                            });
+                    })(index);
+            }
 
             var tableBody = $('#recordingTable>tbody');
 
@@ -341,6 +386,8 @@ var MovieDatabase;
                     _this.query();
             });
 
+            this.pageButtons = $('#pageButtons');
+
             $('#resetQuery').button().click(function () {
                 _this.selectedGenres(function (checkbox) {
                     return checkbox.prop('checked', false);
@@ -353,7 +400,6 @@ var MovieDatabase;
                 SearchRequest.Current.series = null;
                 SearchRequest.Current.genres = [];
                 SearchRequest.Current.rent = null;
-                SearchRequest.Current.text = null;
                 SearchRequest.Current.text = null;
                 SearchRequest.Current.page = 0;
 

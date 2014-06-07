@@ -6,6 +6,16 @@ module MovieDatabase {
 
     class Styles {
         static invisble = 'invisible';
+
+        static loading = 'stateLoading';
+
+        static busy = 'stateBusy';
+
+        static idle = 'stateIdle';
+
+        static pageButton = 'pageButton';
+
+        static activePageButton = 'pageButtonSelected';
     }
 
     class DateTimeTools {
@@ -148,7 +158,7 @@ module MovieDatabase {
     interface ISearchInformationContract {
         size: number;
 
-        index: number;
+        page: number;
 
         total: number;
 
@@ -202,6 +212,8 @@ module MovieDatabase {
 
         private textSearch: JQuery;
 
+        private pageButtons: JQuery;
+
         private seriesMap: any;
 
         private migrate(): void {
@@ -227,8 +239,8 @@ module MovieDatabase {
         }
 
         private query(): void {
-            this.busyIndicator.removeClass('stateIdle');
-            this.busyIndicator.addClass('stateBusy');
+            this.busyIndicator.removeClass(Styles.idle);
+            this.busyIndicator.addClass(Styles.busy);
 
             SearchRequest.Current.send().done(results => {
                 if (!results.ignore)
@@ -282,8 +294,8 @@ module MovieDatabase {
         }
 
         private fillApplicationInformation(info: IApplicationInformation): void {
-            this.busyIndicator.removeClass('stateLoading');
-            this.busyIndicator.addClass('stateIdle');
+            this.busyIndicator.removeClass(Styles.loading);
+            this.busyIndicator.addClass(Styles.idle);
 
             this.currentApplicationInformation = info;
 
@@ -322,13 +334,51 @@ module MovieDatabase {
           und dann als Tabellenzeilen in die Oberfläche übernommen.
         */
         private fillResultTable(results: ISearchInformation): void {
-            this.busyIndicator.removeClass('stateBusy');
-            this.busyIndicator.addClass('stateIdle');
+            this.busyIndicator.removeClass(Styles.busy);
+            this.busyIndicator.addClass(Styles.idle);
 
-            if (results.total < results.size)
+            if (results.total < results.size) {
                 this.pageSizeCount.text('');
-            else
+
+                this.pageButtons.addClass(Styles.invisble);
+            }
+            else {
                 this.pageSizeCount.text(' von ' + results.total);
+
+                this.pageButtons.removeClass(Styles.invisble);
+                this.pageButtons.empty();
+
+                var pagesShown = 20;
+                var numberOfPages = Math.floor((results.total + results.size - 1) / results.size);
+                var firstIndex = Math.max(0, results.page - 1);
+                var lastIndex = Math.min(numberOfPages - 1, results.page + pagesShown - 1);
+
+                // Sieht ein bißchen komisch aus aber wir müssen zum Aufruf des Lambdas ein Closure auf die Schleifenkontrollvariable erzeugen
+                for (var index = firstIndex; index <= lastIndex; index++)
+                    ((capturedIndex: number) => {
+                        var anchor = $('<a href="javascript:void(0)" class="' + Styles.pageButton + '" />').appendTo(this.pageButtons).button();
+
+                        if (capturedIndex == results.page)
+                            anchor.addClass(Styles.activePageButton);
+
+                        if (capturedIndex < results.page) {
+                            capturedIndex = Math.max(0, capturedIndex - pagesShown + 2);
+
+                            anchor.text('<');
+                        }
+                        else if (capturedIndex > (results.page + pagesShown - 2))
+                            anchor.text('>');
+                        else
+                            anchor.text(1 + capturedIndex);
+
+                        if (capturedIndex != results.page)
+                            anchor.click(() => {
+                                SearchRequest.Current.page = capturedIndex;
+
+                                this.query();
+                            });
+                    })(index);
+            }
 
             var tableBody = $('#recordingTable>tbody');
 
@@ -411,6 +461,8 @@ module MovieDatabase {
                     this.query();
             });
 
+            this.pageButtons = $('#pageButtons');
+
             $('#resetQuery').button().click(() => {
                 this.selectedGenres(checkbox => checkbox.prop('checked', false));
                 this.languageFilter.val(null);
@@ -421,7 +473,6 @@ module MovieDatabase {
                 SearchRequest.Current.series = null;
                 SearchRequest.Current.genres = [];
                 SearchRequest.Current.rent = null;
-                SearchRequest.Current.text = null;
                 SearchRequest.Current.text = null;
                 SearchRequest.Current.page = 0;
 
