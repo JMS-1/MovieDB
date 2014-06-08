@@ -29,8 +29,108 @@ namespace WebApp.UnitTests
                 .Include( recording => recording.Links )
                 .Include( recording => recording.Store )
                 .Include( recording => recording.Series )
-                .Include( recording => recording.NameMapping )
                 .ToArray();
+        }
+
+        /// <summary>
+        /// Der hierarchische Name wird automatisch berechnet.
+        /// </summary>
+        [Test]
+        public void CanCalculateFullName()
+        {
+            var series1 = TestContext.Series.Add( new Series { Name = "A" } ).Identifier;
+            var series2 = TestContext.Series.Add( new Series { Name = "B", ParentIdentifier = series1 } ).Identifier;
+            var series3 = TestContext.Series.Add( new Series { Name = "C", ParentIdentifier = series2 } ).Identifier;
+            var recording = TestContext.Recordings.Add( new Recording { Title = "X", CreationTime = DateTime.UtcNow, SeriesIdentifier = series3, Store = new Store { Location = "nowhere" } } ).Identifier;
+
+            // Normale Kette
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            var recover = TestContext.Recordings.Find( recording );
+            Assert.AreEqual( "A > B > C > X", recover.FullName, "initial" );
+
+            recover.Title = "Y";
+
+            // Die Aufzeichnung wurde umbenannt
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            recover = TestContext.Recordings.Find( recording );
+            Assert.AreEqual( "A > B > C > Y", recover.FullName, "title" );
+
+            TestContext.Series.Find( series2 ).Name = "M";
+
+            // Die mittlere Serie wurde umbenannt
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            recover = TestContext.Recordings.Find( recording );
+            Assert.AreEqual( "A > M > C > Y", recover.FullName, "middle" );
+
+            TestContext.Series.Find( series3 ).Name = "N";
+
+            // Die direkte Serie wurde umbenannte
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            recover = TestContext.Recordings.Find( recording );
+            Assert.AreEqual( "A > M > N > Y", recover.FullName, "inner" );
+            
+            TestContext.Series.Find( series1 ).Name = "O";
+
+            // Die äußere Serie wurde umbenannt
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            recover = TestContext.Recordings.Find( recording );
+            Assert.AreEqual( "O > M > N > Y", recover.FullName, "outer" );
+
+            TestContext.Entry( new Series { Identifier = series2 } ).State = EntityState.Deleted;
+
+            // Die mittlere Serie wurde gelöscht
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            recover = TestContext.Recordings.Find( recording );
+            Assert.AreEqual( "N > Y", recover.FullName, "remove middle" );
+
+            TestContext.Entry( new Series { Identifier = series3 } ).State = EntityState.Deleted;
+
+            // Die direkte Serie wurde gelöcht
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            recover = TestContext.Recordings.Find( recording );
+            Assert.AreEqual( "Y", recover.FullName, "remove direct" );
+
+            recover.Title = "Z";
+            recover.SeriesIdentifier = series1;
+
+            // Die Aufzeichnung wurde umbenannt und an eine Serie gehängt
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            recover = TestContext.Recordings.Find( recording );
+            Assert.AreEqual( "O > Z", recover.FullName, "reconnect" );
+
+            recover.SeriesIdentifier = null;
+ 
+            // Die Aufzeichnung wurde von der Serie gelöst
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            recover = TestContext.Recordings.Find( recording );
+            Assert.AreEqual( "Z", recover.FullName, "disconnect" );
         }
 
         /// <summary>
@@ -60,6 +160,7 @@ namespace WebApp.UnitTests
             Assert.IsNotNull( recording, "id" );
             Assert.AreNotSame( created, recording, "cache" );
             Assert.AreEqual( "super", recording.Title, "Title" );
+            Assert.AreEqual( "super", recording.FullName, "FullName" );
             Assert.AreEqual( "what", recording.Description, "Description" );
             Assert.AreEqual( refTime, recording.CreationTime, "CreationTime" );
             Assert.AreEqual( id, recording.Identifier, "Id" );

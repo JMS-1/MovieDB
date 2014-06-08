@@ -29,6 +29,13 @@ namespace WebApp.Models
         public string Title { get; set; }
 
         /// <summary>
+        /// Der volle Name der aufgezeichneten Sendung.
+        /// </summary>
+        [Column( "HierarchicalName" )]
+        [DatabaseGenerated( DatabaseGeneratedOption.Computed )]
+        public string FullName { get; set; }
+
+        /// <summary>
         /// Der Name des Entleihers.
         /// </summary>
         [StringLength( 200 )]
@@ -68,6 +75,7 @@ namespace WebApp.Models
         /// <summary>
         /// Die Kennung des zugehörigen physikalischen Mediums.
         /// </summary>
+        [Required]
         [Column( "Media" )]
         public Guid StoreIdentifier { get; set; }
 
@@ -90,7 +98,6 @@ namespace WebApp.Models
         /// <summary>
         /// Das zugehörige Medium.
         /// </summary>
-        [Required]
         public virtual Store Store { get; set; }
 
         /// <summary>
@@ -102,11 +109,6 @@ namespace WebApp.Models
         /// Alle Verweise.
         /// </summary>
         public virtual ICollection<Link> Links { get; set; }
-
-        /// <summary>
-        /// Die zugehörige Abbildung auf die hierarchischen Namen.
-        /// </summary>
-        public virtual RecordingNameMapping NameMapping { get; set; }
 
         /// <summary>
         /// Wird beim Anlegen des Datenbankmodells aufgerufen.
@@ -155,12 +157,6 @@ namespace WebApp.Models
                 .HasMany( r => r.Links )
                 .WithRequired()
                 .HasForeignKey( l => l.Identifier );
-
-            modelBuilder
-                .Entity<Recording>()
-                .HasOptional( r => r.NameMapping )
-                .WithOptionalPrincipal()
-                .Map( m => m.MapKey( "Id" ) );
         }
 
         /// <summary>
@@ -173,19 +169,5 @@ namespace WebApp.Models
             Genres = new List<Genre>();
             Links = new List<Link>();
         }
-    }
-
-    /// <summary>
-    /// Die Abbildungsvorschrift für die Ermittelung der hierarchischen Namen der Aufzeichnungen.
-    /// </summary>
-    [Table( "RecordingHierarchicalName" )]
-    public class RecordingNameMapping
-    {
-        /// <summary>
-        /// Der hierarchiche Name der Aufzeichnung.
-        /// </summary>
-        [Required, Key]
-        [Column( "HierarchicalName" )]
-        public string HierarchicalName { get; set; }
     }
 }

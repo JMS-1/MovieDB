@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Http;
 using WebApp.DAL;
@@ -25,7 +26,7 @@ namespace WebApp.Controllers
             var info =
                 new ApplicationInformation
                 {
-                    Series = Database.Series.OrderBy( s => s.NameMapping.HierarchicalName ).Include( s => s.ParentSeries ).Include( s => s.NameMapping ).Select( SeriesDescription.Create ).ToArray(),
+                    Series = Database.Series.Include( s => s.ParentSeries ).Select( SeriesDescription.Create ).OrderBy( s => s.FullName, StringComparer.InvariantCultureIgnoreCase ).ToArray(),
                     Languages = Database.Languages.OrderBy( l => l.Description ).Select( LanguageDescription.Create ).ToArray(),
                     Genres = Database.Genres.OrderBy( g => g.Description ).Select( GenreDescription.Create ).ToArray(),
                     NumberOfRecordings = Database.Recordings.Count(),

@@ -171,7 +171,7 @@ namespace WebApp.DTO
 
             // Free text
             if (!string.IsNullOrEmpty( request.Text ))
-                recordings = recordings.Where( r => r.NameMapping.HierarchicalName.Contains( request.Text ) );
+                recordings = recordings.Where( r => r.FullName.Contains( request.Text ) );
 
             // Check counter after filter is applied but bevore we start restricting
             totalCount = recordings.Count();
@@ -181,9 +181,9 @@ namespace WebApp.DTO
             {
                 case SearchRequestOrderBy.HierarchicalName:
                     if (request.SortAscending)
-                        recordings = recordings.OrderBy( recording => recording.NameMapping.HierarchicalName );
+                        recordings = recordings.OrderBy( recording => recording.FullName );
                     else
-                        recordings = recordings.OrderByDescending( recording => recording.NameMapping.HierarchicalName );
+                        recordings = recordings.OrderByDescending( recording => recording.FullName );
                     break;
 
                 case SearchRequestOrderBy.Created:

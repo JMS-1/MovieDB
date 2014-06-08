@@ -61,15 +61,14 @@ namespace WebApp.UnitTests
                     .Join( series, r => r.SeriesIdentifier, s => s.Identifier, ( r, s ) => r )
                     .Include( r => r.Languages )
                     .Include( r => r.Genres )
-                    .Include( r => r.NameMapping )
-                    .OrderBy( r => r.NameMapping.HierarchicalName )
+                    .OrderBy( r => r.FullName )
                     .Skip( 1 )
                     .Take( 12 )
                     .ToArray();
 
             Assert.AreEqual( 12, recordings.Length, "#recordings" );
             Assert.AreEqual( "05 Sontar-Ha", recordings[4].Title, "title" );
-            Assert.AreEqual( "Doctor Who > Confidential > Series 04 > 05 Sontar-Ha", recordings[4].NameMapping.HierarchicalName, "full name" );
+            Assert.AreEqual( "Doctor Who > Confidential > Series 04 > 05 Sontar-Ha", recordings[4].FullName, "full name" );
         }
     }
 }
