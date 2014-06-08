@@ -5,11 +5,11 @@
 class Styles {
     static invisble = 'invisible';
 
-    static loading = 'stateLoading';
+    static loading = 'ui-icon-power';
 
-    static busy = 'stateBusy';
+    static busy = 'ui-icon-refresh';
 
-    static idle = 'stateIdle';
+    static idle = 'ui-icon-check';
 
     static pageButton = 'pageButton';
 

@@ -12,11 +12,11 @@ var Styles = (function () {
     }
     Styles.invisble = 'invisible';
 
-    Styles.loading = 'stateLoading';
+    Styles.loading = 'ui-icon-power';
 
-    Styles.busy = 'stateBusy';
+    Styles.busy = 'ui-icon-refresh';
 
-    Styles.idle = 'stateIdle';
+    Styles.idle = 'ui-icon-check';
 
     Styles.pageButton = 'pageButton';
 
