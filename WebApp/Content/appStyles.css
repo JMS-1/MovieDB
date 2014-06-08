@@ -48,4 +48,8 @@
 .disabledOption {
   text-decoration: line-through;
 }
+.sortIndicator {
+  float: left;
+  margin-left: -0.1em;
+}
 /*# sourceMappingURL=appStyles.css.map */

@@ -23,6 +23,12 @@ var Styles = (function () {
     Styles.activePageButton = 'pageButtonSelected';
 
     Styles.disabledOption = 'disabledOption';
+
+    Styles.notSorted = 'ui-icon-arrowthick-2-n-s';
+
+    Styles.sortedUp = 'ui-icon-arrowthick-1-n';
+
+    Styles.sortedDown = 'ui-icon-arrowthick-1-s';
     return Styles;
 })();
 

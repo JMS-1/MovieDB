@@ -16,6 +16,12 @@ class Styles {
     static activePageButton = 'pageButtonSelected';
 
     static disabledOption = 'disabledOption';
+
+    static notSorted = 'ui-icon-arrowthick-2-n-s';
+
+    static sortedUp = 'ui-icon-arrowthick-1-n';
+
+    static sortedDown = 'ui-icon-arrowthick-1-s';
 }
 
 class GenreSelector {

@@ -340,6 +340,22 @@ var MovieDatabase;
             });
         };
 
+        Application.prototype.disableSort = function (indicator) {
+            indicator.removeClass(Styles.sortedDown);
+            indicator.removeClass(Styles.sortedUp);
+            indicator.addClass(Styles.notSorted);
+        };
+
+        Application.prototype.enableSort = function (indicator) {
+            var sortDown = indicator.hasClass(Styles.sortedUp);
+
+            indicator.removeClass(Styles.notSorted);
+            indicator.removeClass(sortDown ? Styles.sortedUp : Styles.sortedDown);
+            indicator.addClass(sortDown ? Styles.sortedDown : Styles.sortedUp);
+
+            return !sortDown;
+        };
+
         Application.prototype.startup = function () {
             var _this = this;
             this.genreMap = new GenreSelectors('#genreFilter');
@@ -409,6 +425,27 @@ var MovieDatabase;
 
                 SearchRequest.Current.rent = newRent;
                 SearchRequest.Current.page = 0;
+
+                _this.query();
+            });
+
+            var sortName = $('#sortName');
+            var sortDate = $('#sortDate');
+
+            sortName.click(function () {
+                _this.disableSort(sortDate);
+
+                SearchRequest.Current.ascending = _this.enableSort(sortName);
+                SearchRequest.Current.order = OrderSelector.title;
+
+                _this.query();
+            });
+
+            sortDate.click(function () {
+                _this.disableSort(sortName);
+
+                SearchRequest.Current.ascending = _this.enableSort(sortDate);
+                SearchRequest.Current.order = OrderSelector.created;
 
                 _this.query();
             });

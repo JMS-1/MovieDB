@@ -368,6 +368,22 @@ module MovieDatabase {
             $.each(series.children, (index, child) => Application.applySeriesToFilter(child));
         }
 
+        private disableSort(indicator: JQuery): void {
+            indicator.removeClass(Styles.sortedDown);
+            indicator.removeClass(Styles.sortedUp);
+            indicator.addClass(Styles.notSorted);
+        }
+
+        private enableSort(indicator: JQuery): boolean {
+            var sortDown = indicator.hasClass(Styles.sortedUp);
+
+            indicator.removeClass(Styles.notSorted);
+            indicator.removeClass(sortDown ? Styles.sortedUp : Styles.sortedDown);
+            indicator.addClass(sortDown ? Styles.sortedDown : Styles.sortedUp);
+
+            return !sortDown;
+        }
+
         private startup(): void {
             this.genreMap = new GenreSelectors('#genreFilter');
             this.seriesMap = new SeriesSelectors('#seriesFilter');
@@ -428,6 +444,27 @@ module MovieDatabase {
 
                 SearchRequest.Current.rent = newRent;
                 SearchRequest.Current.page = 0;
+
+                this.query();
+            });
+
+            var sortName = $('#sortName')
+            var sortDate = $('#sortDate');
+
+            sortName.click(() => {
+                this.disableSort(sortDate);
+
+                SearchRequest.Current.ascending = this.enableSort(sortName);
+                SearchRequest.Current.order = OrderSelector.title;
+
+                this.query();
+            });
+
+            sortDate.click(() => {
+                this.disableSort(sortName);
+
+                SearchRequest.Current.ascending = this.enableSort(sortDate);
+                SearchRequest.Current.order = OrderSelector.created;
 
                 this.query();
             });
