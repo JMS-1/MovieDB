@@ -328,7 +328,7 @@ module MovieDatabase {
 
                 var recordingRow = $('<tr></tr>').appendTo(tableBody);
 
-                $('<td />').appendTo(recordingRow).text(recording.hierarchicalName);
+                $('<a />', { text: recording.hierarchicalName, href: '#' + recording.id }).appendTo($('<td />').appendTo(recordingRow));
                 $('<td />').appendTo(recordingRow).text(recording.languages.join('; '));
                 $('<td />').appendTo(recordingRow).text(recording.genres.join('; '));
                 $('<td />').appendTo(recordingRow).text(DateTimeTools.toStandard(recording.created));
