@@ -1,21 +1,31 @@
 ﻿/// <reference path='typings/jquery/jquery.d.ts' />
 /// <reference path='typings/jqueryui/jqueryui.d.ts' />
+/// <reference path='interfaces.ts' />
+/// <reference path='uiHelper.ts' />
 
 
 module MovieDatabase {
 
-    class Styles {
-        static invisble = 'invisible';
+    // Die angereichteren Schnittstellen
 
-        static loading = 'stateLoading';
+    interface ISeriesMapping extends ISeriesMappingContract {
+        children: ISeriesMapping[];
+    }
 
-        static busy = 'stateBusy';
+    interface IRecordingInfo extends IRecordingInfoContract {
+        created: Date;
 
-        static idle = 'stateIdle';
+        hierarchicalName: string;
+    }
 
-        static pageButton = 'pageButton';
+    interface IApplicationInformation extends IApplicationInformationContract {
+        series: ISeriesMapping[];
+    };
 
-        static activePageButton = 'pageButtonSelected';
+    interface ISearchInformation extends ISearchInformationContract {
+        recordings: IRecordingInfo[];
+
+        ignore: boolean;
     }
 
     class DateTimeTools {
@@ -36,107 +46,8 @@ module MovieDatabase {
         }
     }
 
-    // Die Informationen zu einer Tonspur
-    interface ILanguage {
-        id: string;
-
-        description: string;
-    }
-
-    interface ILanguageStatistics {
-        id: string;
-
-        count: string;
-    }
-
-    // Die Information zu eiuner einzelnen Art von Aufnahme
-    interface IGenre {
-        id: string;
-
-        description: string;
-    }
-
-    interface IGenreStatistics {
-        id: string;
-
-        count: string;
-    }
-
-    // Die Minimalinformation zu einer Serie
-    interface ISeriesMappingContract {
-        id: string;
-
-        parentId: string;
-
-        name: string;
-
-        hierarchicalName: string;
-    }
-
-    interface ISeriesStatistics {
-        id: string;
-
-        count: string;
-    }
-
-    // Die vom Client erweitere Minimalinformation zu einer Serie
-    interface ISeriesMapping extends ISeriesMappingContract {
-        children: ISeriesMapping[];
-    }
-
-    // Die Beschreibung einer Aufnahme in der Tabelle - eine Kurzfassung
-    interface IRecordingInfoContract {
-        id: string;
-
-        title: string;
-
-        rent: string;
-
-        createdAsString: string;
-
-        series: string;
-
-        languages: string[];
-
-        genres: string[];
-    }
-
-    // Die vom Client erweiterte Beschreibung einer Aufnahme in der Tabelle
-    interface IRecordingInfo extends IRecordingInfoContract {
-        created: Date;
-
-        hierarchicalName: string;
-    }
-
-    // Die Eigenschaften, nach denen Aufzeichnungen sortiert werden können
-    class OrderSelector {
-        static title: string = 'titleWithSeries';
-
-        static created: string = 'date';
-    }
-
     // Eine Suchanfrage
-    class SearchRequest {
-        constructor() {
-        }
-
-        size: number = 15;
-
-        page: number = 0;
-
-        order: string = OrderSelector.title;
-
-        ascending: boolean = true;
-
-        genres: string[] = [];
-
-        language: string = null;
-
-        series: string[] = [];
-
-        rent: boolean = null;
-
-        text: string = null;
+    class SearchRequest extends SearchRequestContract {
 
         private pending: number = 0;
 
@@ -179,42 +90,6 @@ module MovieDatabase {
         static Current: SearchRequest = new SearchRequest();
     }
 
-    // Das Ergebnis einer Suche so wie der Dienst sie meldet
-    interface ISearchInformationContract {
-        size: number;
-
-        page: number;
-
-        total: number;
-
-        recordings: IRecordingInfo[];
-
-        genres: IGenreStatistics[];
-
-        languages: ILanguageStatistics[];
-
-        series: ISeriesStatistics[];
-    }
-
-    interface ISearchInformation extends ISearchInformationContract {
-        ignore: boolean;
-    }
-
-    // Einige Informationen zur Anwendungsumgebung
-    interface IApplicationInformation {
-        empty: boolean;
-
-        total: number;
-
-        languages: ILanguage[];
-
-        genres: IGenre[];
-
-        series: ISeriesMapping[];
-
-        seriesSeparator: string;
-    };
-
     // Repräsentiert die Anwendung als Ganzes
     class Application {
         constructor() {
@@ -231,12 +106,6 @@ module MovieDatabase {
 
         private migrateButton: JQuery;
 
-        private languageFilter: JQuery;
-
-        private seriesFilter: JQuery;
-
-        private genreFilter: JQuery;
-
         private genreFilterHeader: JQuery;
 
         private pageSize: JQuery;
@@ -247,9 +116,13 @@ module MovieDatabase {
 
         private pageButtons: JQuery;
 
-        private seriesMap: any;
+        private allSeries: any = {}
 
-        private genreMap: any;
+        private genreMap: GenreSelectors;
+
+        private languageMap: LanguageSelectors;
+
+        private seriesMap: SeriesSelectors;
 
         private migrate(): void {
             var fileInput = <HTMLInputElement>(this.legacyFile[0]);
@@ -287,54 +160,26 @@ module MovieDatabase {
             SearchRequest.Current.language = null;
             SearchRequest.Current.page = 0;
 
-            this.languageFilter.empty();
-            this.languageFilter.append(new Option('(egal)', '', true, true));
-
-            $.each(this.currentApplicationInformation.languages, (index, language) => {
-                this.languageFilter.append(new Option(language.description, language.id));
-            });
+            this.languageMap.initialize(this.currentApplicationInformation.languages);
         }
 
         private setSeries(): void {
             SearchRequest.Current.series = [];
             SearchRequest.Current.page = 0;
 
-            this.seriesFilter.empty();
-            this.seriesFilter.append(new Option('(egal)', '', true, true));
-
-            $.each(this.currentApplicationInformation.series, (index, series) => {
-                this.seriesFilter.append(new Option(series.hierarchicalName, series.id));
-            });
+            this.seriesMap.initialize(this.currentApplicationInformation.series);
         }
 
         private setGenres(): void {
-            this.genreFilter.empty();
-            this.genreMap = {};
-
-            $.each(this.currentApplicationInformation.genres, (index, genre) => {
-                var capturedGenre = genre;
-                var id = 'genreCheckbox' + capturedGenre.id;
-
-                $('<input />', { type: 'checkbox', id: id, name: capturedGenre.id }).appendTo(this.genreFilter).change(() => this.genreChanged(true));
-
-                this.genreMap[capturedGenre.id] = {
-                    label: $('<label />', { 'for': id, text: capturedGenre.description }).appendTo(this.genreFilter),
-                    description: capturedGenre.description
-                };
-            });
-
+            this.genreMap.initialize(this.currentApplicationInformation.genres, () => this.genreChanged(true));
             this.genreChanged(false);
-        }
-
-        private selectedGenres(processor: (checkbox: JQuery) => void): void {
-            this.genreFilter.children('input[type=checkbox]:checked').each((index, checkbox) => processor($(checkbox)));
         }
 
         private genreChanged(query: boolean): void {
             SearchRequest.Current.genres = [];
             SearchRequest.Current.page = 0;
 
-            this.selectedGenres(checkbox => SearchRequest.Current.genres.push(checkbox.attr('name')));
+            this.genreMap.foreachSelected(checkbox => SearchRequest.Current.genres.push(checkbox.attr('name')));
 
             if (SearchRequest.Current.genres.length < 1)
                 this.genreFilterHeader.text('(egal)');
@@ -343,6 +188,25 @@ module MovieDatabase {
 
             if (query)
                 this.query();
+        }
+
+        private buildSeriesMapping(): void {
+            this.allSeries = {};
+
+            $.each(this.currentApplicationInformation.series, (index, mapping) => {
+                mapping.children = [];
+
+                this.allSeries[mapping.id] = mapping;
+            });
+
+            $.each(this.currentApplicationInformation.series, (index, mapping) => {
+                if (mapping.parentId == null)
+                    return;
+
+                var parent: ISeriesMapping = this.allSeries[mapping.parentId];
+
+                parent.children.push(mapping);
+            });
         }
 
         private fillApplicationInformation(info: IApplicationInformation): void {
@@ -358,25 +222,9 @@ module MovieDatabase {
 
             $('#countInfo').text('(Es gibt ' + info.total + ' Aufzeichnung' + ((info.total == 1) ? '' : 'en') + ')');
 
-            this.seriesMap = {};
-
-            $.each(info.series, (index, mapping) => {
-                mapping.children = [];
-
-                this.seriesMap[mapping.id] = mapping;
-            });
-
-            $.each(info.series, (index, mapping) => {
-                if (mapping.parentId == null)
-                    return;
-
-                var parent: ISeriesMapping = this.seriesMap[mapping.parentId];
-
-                parent.children.push(mapping);
-            });
-
-            this.setGenres();
+            this.buildSeriesMapping();
             this.setLanguages();
+            this.setGenres();
             this.setSeries();
 
             this.query();
@@ -460,15 +308,8 @@ module MovieDatabase {
             }
 
             // Trefferanzahl für die einzelnen Aufzeichnungsarten einblenden
-            $.each(this.genreMap, (property, genre) => {
-                genre.label.text(genre.description);
-            });
-
-            $.each(results.genres, (index, genre) => {
-                var ui = this.genreMap[genre.id];
-
-                ui.label.text(ui.description + ' (' + genre.count + ')');
-            });
+            this.genreMap.setCount(results.genres);
+            this.languageMap.setCount(results.languages);
 
             var tableBody = $('#recordingTable>tbody');
 
@@ -478,7 +319,7 @@ module MovieDatabase {
                 if (recording.series == null)
                     recording.hierarchicalName = recording.title;
                 else {
-                    var series: ISeriesMapping = this.seriesMap[recording.series];
+                    var series: ISeriesMapping = this.allSeries[recording.series];
 
                     recording.hierarchicalName = series.hierarchicalName + ' ' + this.currentApplicationInformation.seriesSeparator + ' ' + recording.title;
                 }
@@ -516,7 +357,7 @@ module MovieDatabase {
 
         private applySeriesToFilter(series: string): void {
             if (series.length > 0)
-                Application.applySeriesToFilter(this.seriesMap[series]);
+                Application.applySeriesToFilter(this.allSeries[series]);
         }
 
         private static applySeriesToFilter(series: ISeriesMapping): void {
@@ -526,6 +367,10 @@ module MovieDatabase {
         }
 
         private startup(): void {
+            this.genreMap = new GenreSelectors('#genreFilter');
+            this.seriesMap = new SeriesSelectors('#seriesFilter');
+            this.languageMap = new LanguageSelectors('#languageFilter');
+
             this.busyIndicator = $('#busyIndicator');
 
             this.legacyFile = $('#theFile');
@@ -534,25 +379,22 @@ module MovieDatabase {
             this.migrateButton = $('#migrate');
             this.migrateButton.button().click(() => this.legacyFile.click());
 
-            this.languageFilter = $('#languageFilter');
-            this.languageFilter.change(() => {
-                SearchRequest.Current.language = this.languageFilter.val();
+            this.languageMap.container.change(() => {
+                SearchRequest.Current.language = this.languageMap.container.val();
                 SearchRequest.Current.page = 0;
 
                 this.query();
             });
 
-            this.seriesFilter = $('#seriesFilter');
-            this.seriesFilter.change(() => {
+            this.seriesMap.container.change(() => {
                 SearchRequest.Current.series = [];
                 SearchRequest.Current.page = 0;
 
-                this.applySeriesToFilter(this.seriesFilter.val());
+                this.applySeriesToFilter(this.seriesMap.container.val());
 
                 this.query();
             });
 
-            this.genreFilter = $('#genreFilter');
             this.genreFilterHeader = $('#genreFilterHeader');
 
             this.pageSize = $('#pageSize');
@@ -575,9 +417,9 @@ module MovieDatabase {
             this.pageButtons = $('#pageButtons');
 
             $('#resetQuery').button().click(() => {
-                this.selectedGenres(checkbox => checkbox.prop('checked', false));
-                this.languageFilter.val(null);
-                this.seriesFilter.val(null);
+                this.languageMap.resetFilter();
+                this.seriesMap.resetFilter();
+                this.genreMap.resetFilter();
                 this.textSearch.val(null);
                 this.genreChanged(false);
 

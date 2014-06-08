@@ -34,6 +34,11 @@ namespace WebApp.UnitTests
             CollectionAssert.AreEquivalent( new[] { "de", "en", "es" }, first.Languages, "language" );
             CollectionAssert.AreEquivalent( new[] { "SciFi", "Kids", "Fantasy", "Animation" }, first.Genres, "genre" );
             Assert.IsNull( first.Series, "series" );
+
+            Assert.AreEqual( 23, recordings.GenreStatistics.Length, "#genres" );
+            Assert.AreEqual( 1479, recordings.GenreStatistics.Single( g => g.Name == "Action" ).Count, "genre count" );
+            Assert.AreEqual( 13, recordings.LanguageStatistics.Length, "#languages" );
+            Assert.AreEqual( 215, recordings.LanguageStatistics.Single( g => g.Name == "fr" ).Count, "language count" );
         }
 
         /// <summary>
@@ -253,6 +258,11 @@ namespace WebApp.UnitTests
             CollectionAssert.AreEquivalent( new[] { "en" }, last.Languages, "language" );
             CollectionAssert.AreEquivalent( new[] { "Docu" }, last.Genres, "genre" );
             Assert.IsNull( last.Series, "series" );
+
+            Assert.AreEqual( 9, recordings.GenreStatistics.Length, "#genres" );
+            Assert.AreEqual( 121, recordings.GenreStatistics.Single( g => g.Name == "Action" ).Count, "genre count" );
+            Assert.AreEqual( 5, recordings.LanguageStatistics.Length, "#languages" );
+            Assert.AreEqual( 28, recordings.LanguageStatistics.Single( g => g.Name == "de" ).Count, "language count" );
         }
     }
 }

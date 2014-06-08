@@ -146,10 +146,6 @@ namespace WebApp.DTO
         {
             var recordings = (IQueryable<Models.Recording>) database.Recordings;
 
-            // Apply language filter
-            if (!string.IsNullOrEmpty( request.RequiredLanguage ))
-                recordings = recordings.Where( r => r.Languages.Any( l => l.TwoLetterIsoName == request.RequiredLanguage ) );
-
             // Apply genre filter
             foreach (var genre in request.RequiredGenres)
             {
@@ -174,27 +170,27 @@ namespace WebApp.DTO
             if (!string.IsNullOrEmpty( request.Text ))
                 recordings = recordings.Where( r => r.FullName.Contains( request.Text ) );
 
-            // Check counter after filter is applied but bevore we start restricting
-            response.TotalCount = recordings.Count();
-
-            // Do other pre-countings for user guidance
-            response.GenreStatistics =
-                recordings
-                    .SelectMany( r => r.Genres )
-                    .GroupBy( g => g.Name )
-                    .Select( g => new SearchInformation.Genre { Name = g.Key, Count = g.Count() } )
-                    .ToArray();
+            // Language statistics is made just prior to setting the language because currently only one language may be choosen
             response.LanguageStatistics =
                 recordings
                     .SelectMany( r => r.Languages )
                     .GroupBy( l => l.TwoLetterIsoName )
                     .Select( g => new SearchInformation.Language { Name = g.Key, Count = g.Count() } )
                     .ToArray();
-            response.SeriesStatistics =
+
+            // Apply language filter
+            if (!string.IsNullOrEmpty( request.RequiredLanguage ))
+                recordings = recordings.Where( r => r.Languages.Any( l => l.TwoLetterIsoName == request.RequiredLanguage ) );
+
+            // Check counter after filter is applied but bevore we start restricting
+            response.TotalCount = recordings.Count();
+
+            // Genre statistics will be made on full restriction to support multi value
+            response.GenreStatistics =
                 recordings
-                    .Select( r => r.Series )
-                    .GroupBy( s => s.Identifier )
-                    .Select( g => new SearchInformation.Series { Identifier = g.Key, Count = g.Count() } )
+                    .SelectMany( r => r.Genres )
+                    .GroupBy( g => g.Name )
+                    .Select( g => new SearchInformation.Genre { Name = g.Key, Count = g.Count() } )
                     .ToArray();
 
             // Apply order

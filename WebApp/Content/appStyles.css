@@ -42,4 +42,7 @@
 .pageButtonSelected {
   font-weight: bold;
 }
+.disabledOption {
+  text-decoration: line-through;
+}
 /*# sourceMappingURL=appStyles.css.map */

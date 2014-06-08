@@ -219,8 +219,10 @@
   <ItemGroup />
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\appCode.ts" />
+    <TypeScriptCompile Include="Scripts\interfaces.ts" />
     <TypeScriptCompile Include="Scripts\typings\jqueryui\jqueryui.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
+    <TypeScriptCompile Include="Scripts\uiHelper.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_GlobalResources\MovieDBStrings.resx">
