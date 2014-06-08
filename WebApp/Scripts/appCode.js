@@ -193,6 +193,7 @@ var MovieDatabase;
         Application.prototype.setGenres = function () {
             var _this = this;
             this.genreFilter.empty();
+            this.genreMap = {};
 
             $.each(this.currentApplicationInformation.genres, function (index, genre) {
                 var capturedGenre = genre;
@@ -201,7 +202,11 @@ var MovieDatabase;
                 $('<input />', { type: 'checkbox', id: id, name: capturedGenre.id }).appendTo(_this.genreFilter).change(function () {
                     return _this.genreChanged(true);
                 });
-                $('<label />', { 'for': id, text: capturedGenre.description }).appendTo(_this.genreFilter);
+
+                _this.genreMap[capturedGenre.id] = {
+                    label: $('<label />', { 'for': id, text: capturedGenre.description }).appendTo(_this.genreFilter),
+                    description: capturedGenre.description
+                };
             });
 
             this.genreChanged(false);
@@ -340,6 +345,17 @@ var MovieDatabase;
                             });
                     })(index);
             }
+
+            // Trefferanzahl für die einzelnen Aufzeichnungsarten einblenden
+            $.each(this.genreMap, function (property, genre) {
+                genre.label.text(genre.description);
+            });
+
+            $.each(results.genres, function (index, genre) {
+                var ui = _this.genreMap[genre.id];
+
+                ui.label.text(ui.description + ' (' + genre.count + ')');
+            });
 
             var tableBody = $('#recordingTable>tbody');
 

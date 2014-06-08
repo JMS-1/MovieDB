@@ -140,8 +140,9 @@ namespace WebApp.DTO
         /// </summary>
         /// <param name="database">Die zu verwendende Datenbank.</param>
         /// <param name="request">Die gewümschten Einschränkungen.</param>
+        /// <param name="response">Das Ergebnis der Suche.</param>
         /// <returns>Die vorbereitete Suche.</returns>
-        public static IQueryable<Models.Recording> Apply( this DAL.Database database, SearchRequest request, out int totalCount )
+        public static IQueryable<Models.Recording> Apply( this DAL.Database database, SearchRequest request, SearchInformation response )
         {
             var recordings = (IQueryable<Models.Recording>) database.Recordings;
 
@@ -174,7 +175,27 @@ namespace WebApp.DTO
                 recordings = recordings.Where( r => r.FullName.Contains( request.Text ) );
 
             // Check counter after filter is applied but bevore we start restricting
-            totalCount = recordings.Count();
+            response.TotalCount = recordings.Count();
+
+            // Do other pre-countings for user guidance
+            response.GenreStatistics =
+                recordings
+                    .SelectMany( r => r.Genres )
+                    .GroupBy( g => g.Name )
+                    .Select( g => new SearchInformation.Genre { Name = g.Key, Count = g.Count() } )
+                    .ToArray();
+            response.LanguageStatistics =
+                recordings
+                    .SelectMany( r => r.Languages )
+                    .GroupBy( l => l.TwoLetterIsoName )
+                    .Select( g => new SearchInformation.Language { Name = g.Key, Count = g.Count() } )
+                    .ToArray();
+            response.SeriesStatistics =
+                recordings
+                    .Select( r => r.Series )
+                    .GroupBy( s => s.Identifier )
+                    .Select( g => new SearchInformation.Series { Identifier = g.Key, Count = g.Count() } )
+                    .ToArray();
 
             // Apply order
             switch (request.OrderBy)

@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using WebApp.Models;
 
 
@@ -10,6 +11,63 @@ namespace WebApp.DTO
     [DataContract]
     public class SearchInformation
     {
+        /// <summary>
+        /// Beschreibt die Anzahl der Treffer pro Art der Aufzeichnung.
+        /// </summary>
+        [DataContract]
+        public class Genre
+        {
+            /// <summary>
+            /// Der Name der Art.
+            /// </summary>
+            [DataMember( Name = "id" )]
+            public string Name { get; set; }
+
+            /// <summary>
+            /// Die Anzahl der Treffer.
+            /// </summary>
+            [DataMember( Name = "count" )]
+            public int Count { get; set; }
+        }
+
+        /// <summary>
+        /// Beschreibt die Anzahl der Treffer pro Sprache.
+        /// </summary>
+        [DataContract]
+        public class Language
+        {
+            /// <summary>
+            /// Der Sprache.
+            /// </summary>
+            [DataMember( Name = "id" )]
+            public string Name { get; set; }
+
+            /// <summary>
+            /// Die Anzahl der Treffer.
+            /// </summary>
+            [DataMember( Name = "count" )]
+            public int Count { get; set; }
+        }
+
+        /// <summary>
+        /// Beschreibt die Anzahl der Treffer pro Serie.
+        /// </summary>
+        [DataContract]
+        public class Series
+        {
+            /// <summary>
+            /// Die Serie.
+            /// </summary>
+            [DataMember( Name = "id" )]
+            public Guid? Identifier { get; set; }
+
+            /// <summary>
+            /// Die Anzahl der Treffer.
+            /// </summary>
+            [DataMember( Name = "count" )]
+            public int Count { get; set; }
+        }
+
         /// <summary>
         /// Die 0-basierte laufende Nummer der Ergebnisseite.
         /// </summary>
@@ -33,5 +91,23 @@ namespace WebApp.DTO
         /// </summary>
         [DataMember( Name = "recordings" )]
         public RecordingForTable[] Recordings { get; set; }
+
+        /// <summary>
+        /// Statistische Daten zu den Arten von Aufzeichnungen.
+        /// </summary>
+        [DataMember( Name = "genres" )]
+        public Genre[] GenreStatistics { get; set; }
+
+        /// <summary>
+        /// Statistische Daten zu den Sprachen.
+        /// </summary>
+        [DataMember( Name = "languages" )]
+        public Language[] LanguageStatistics { get; set; }
+
+        /// <summary>
+        /// Statistische Daten zu den Serien.
+        /// </summary>
+        [DataMember( Name = "series" )]
+        public Series[] SeriesStatistics { get; set; }
     }
 }

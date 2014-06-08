@@ -51,23 +51,21 @@ namespace WebApp.Controllers
             // Prepare
             request.Validate();
 
+            // Create response
+            var response = new SearchInformation { PageIndex = request.PageIndex, PageSize = request.PageSize };
+
             // Root query
-            int totalCount;
             var recordings =
                 Database
-                    .Apply( request, out totalCount )
+                    .Apply( request, response )
                     .Include( r => r.Languages )
                     .Include( r => r.Genres );
 
             // Time to execute
-            return
-                new SearchInformation
-                {
-                    Recordings = recordings.Select( RecordingForTable.Create ).ToArray(),
-                    PageIndex = request.PageIndex,
-                    PageSize = request.PageSize,
-                    TotalCount = totalCount,
-                };
+            response.Recordings = recordings.Select( RecordingForTable.Create ).ToArray();
+
+            // Report
+            return response;
         }
 
         /// <summary>

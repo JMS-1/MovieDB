@@ -43,11 +43,23 @@ module MovieDatabase {
         description: string;
     }
 
+    interface ILanguageStatistics {
+        id: string;
+
+        count: string;
+    }
+
     // Die Information zu eiuner einzelnen Art von Aufnahme
     interface IGenre {
         id: string;
 
         description: string;
+    }
+
+    interface IGenreStatistics {
+        id: string;
+
+        count: string;
     }
 
     // Die Minimalinformation zu einer Serie
@@ -59,6 +71,12 @@ module MovieDatabase {
         name: string;
 
         hierarchicalName: string;
+    }
+
+    interface ISeriesStatistics {
+        id: string;
+
+        count: string;
     }
 
     // Die vom Client erweitere Minimalinformation zu einer Serie
@@ -170,6 +188,12 @@ module MovieDatabase {
         total: number;
 
         recordings: IRecordingInfo[];
+
+        genres: IGenreStatistics[];
+
+        languages: ILanguageStatistics[];
+
+        series: ISeriesStatistics[];
     }
 
     interface ISearchInformation extends ISearchInformationContract {
@@ -224,6 +248,8 @@ module MovieDatabase {
         private pageButtons: JQuery;
 
         private seriesMap: any;
+
+        private genreMap: any;
 
         private migrate(): void {
             var fileInput = <HTMLInputElement>(this.legacyFile[0]);
@@ -283,13 +309,18 @@ module MovieDatabase {
 
         private setGenres(): void {
             this.genreFilter.empty();
+            this.genreMap = {};
 
             $.each(this.currentApplicationInformation.genres, (index, genre) => {
                 var capturedGenre = genre;
                 var id = 'genreCheckbox' + capturedGenre.id;
 
                 $('<input />', { type: 'checkbox', id: id, name: capturedGenre.id }).appendTo(this.genreFilter).change(() => this.genreChanged(true));
-                $('<label />', { 'for': id, text: capturedGenre.description }).appendTo(this.genreFilter);
+
+                this.genreMap[capturedGenre.id] = {
+                    label: $('<label />', { 'for': id, text: capturedGenre.description }).appendTo(this.genreFilter),
+                    description: capturedGenre.description
+                };
             });
 
             this.genreChanged(false);
@@ -427,6 +458,17 @@ module MovieDatabase {
                             });
                     })(index);
             }
+
+            // Trefferanzahl für die einzelnen Aufzeichnungsarten einblenden
+            $.each(this.genreMap, (property, genre) => {
+                genre.label.text(genre.description);
+            });
+
+            $.each(results.genres, (index, genre) => {
+                var ui = this.genreMap[genre.id];
+
+                ui.label.text(ui.description + ' (' + genre.count + ')');
+            });
 
             var tableBody = $('#recordingTable>tbody');
 
