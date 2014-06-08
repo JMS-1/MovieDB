@@ -116,6 +116,8 @@ module MovieDatabase {
 
         private pageButtons: JQuery;
 
+        private rentChooser: JQuery;
+
         private allSeries: any = {}
 
         private genreMap: GenreSelectors;
@@ -414,9 +416,30 @@ module MovieDatabase {
                     this.query();
             });
 
+            this.rentChooser = $('#rentFilter');
+            this.rentChooser.buttonset().click(() => {
+                var choice: string = this.rentChooser.find(':checked').val();
+                var newRent: boolean = null;
+
+                if (choice.length > 0)
+                    newRent = (choice == '1');
+                if (SearchRequest.Current.rent == newRent)
+                    return;
+
+                SearchRequest.Current.rent = newRent;
+                SearchRequest.Current.page = 0;
+
+                this.query();
+            });
+
             this.pageButtons = $('#pageButtons');
 
             $('#resetQuery').button().click(() => {
+
+                this.rentChooser.find(':checked').prop('checked', false);
+                $('#anyRent').prop('checked', true);
+                this.rentChooser.buttonset('refresh');
+
                 this.languageMap.resetFilter();
                 this.seriesMap.resetFilter();
                 this.genreMap.resetFilter();

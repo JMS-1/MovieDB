@@ -40,6 +40,18 @@
                     Serie: <select id="seriesFilter"></select>
                 </div>
 
+                <div class="rentFilter">
+                    Verliehen:
+                    <span id="rentFilter">
+                        <input type="radio" id="anyRent" name="rentFilter" value="" checked />
+                        <label for="anyRent">Egal</label>
+                        <input type="radio" id="gotRent" name="rentFilter" value="1" />
+                        <label for="gotRent">Ja</label>
+                        <input type="radio" id="gotUnrent" name="rentFilter" value="0" />
+                        <label for="gotUnrent">Nein</label>
+                    </span>
+                </div>
+
                 <div class="textfilter">
                     Suchwort: <input type="text" id="textSearch" size="60" />
                 </div>

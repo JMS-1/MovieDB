@@ -21,6 +21,9 @@
 .seriesFilter {
   background-color: pink;
 }
+.rentFilter {
+  background-color: darkorange;
+}
 .pageSize {
   background-color: aqua;
 }

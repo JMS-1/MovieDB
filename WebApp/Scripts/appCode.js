@@ -397,9 +397,29 @@ var MovieDatabase;
                     _this.query();
             });
 
+            this.rentChooser = $('#rentFilter');
+            this.rentChooser.buttonset().click(function () {
+                var choice = _this.rentChooser.find(':checked').val();
+                var newRent = null;
+
+                if (choice.length > 0)
+                    newRent = (choice == '1');
+                if (SearchRequest.Current.rent == newRent)
+                    return;
+
+                SearchRequest.Current.rent = newRent;
+                SearchRequest.Current.page = 0;
+
+                _this.query();
+            });
+
             this.pageButtons = $('#pageButtons');
 
             $('#resetQuery').button().click(function () {
+                _this.rentChooser.find(':checked').prop('checked', false);
+                $('#anyRent').prop('checked', true);
+                _this.rentChooser.buttonset('refresh');
+
                 _this.languageMap.resetFilter();
                 _this.seriesMap.resetFilter();
                 _this.genreMap.resetFilter();
