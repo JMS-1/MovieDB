@@ -126,43 +126,24 @@
 		ON [Series]([Parent]);
 	GO
 
-	CREATE VIEW [SeriesHierarchicalName] AS		
-		WITH [SeriesHierarchy] ([Id], [HierarchicalName])
-		AS
-		(
-			SELECT [s].[Id], CAST([s].[Name] AS nvarchar(4000)) AS [HierarchicalName] 
-			FROM [Series] AS [s] 
-			WHERE [s].[Parent] IS NULL
-
-			UNION ALL
-
-			SELECT [s].[Id], CAST(CONCAT([HierarchicalName], ' > ', s.[Name]) AS nvarchar(4000)) 
-			FROM [Series] AS [s] 
-			JOIN [SeriesHierarchy] AS [h] ON [s].[Parent] = [h].[Id]
-		)
-
-		SELECT [Id], [HierarchicalName] 
-		FROM [SeriesHierarchy]
-	GO
-
 	-- Dieser VIEW liefert zu jeder Serie ALLE übergeordneten Serien und nicht nur den direkten Vorgänger
 	CREATE VIEW [SeriesHierarchy] AS		
-		WITH [SeriesHierarchy] ([Parent], [Child], [Depth])
+		WITH [SeriesHierarchy] ([Parent], [Child], [RelativeName], [Depth])
 		AS
 		(
-			SELECT [s].[Parent] AS [Parent], [s].[Id] AS [Child], 0 AS [Depth]
+			SELECT [s].[Parent] AS [Parent], [s].[Id] AS [Child], CAST([s].[Name] AS nvarchar(4000)) AS [RelativeName], 0 AS [Depth]
 			FROM [Series] AS [s] 
 
 			UNION ALL
 
-			SELECT [s].[Parent], [h].[Child], [h].[Depth] + 1
+			SELECT [s].[Parent], [h].[Child], CAST(CONCAT(s.[Name], ' > ', [RelativeName]) AS nvarchar(4000)), [h].[Depth] + 1
 			FROM [Series] AS [s] 
 			JOIN [SeriesHierarchy] AS [h] ON [s].[Id] = [h].[Parent]
 			WHERE [s].[Parent] IS NOT NULL
 		)
 
-		SELECT [Parent], [Child], [Depth]
-		FROM [SeriesHierarchy] AS [h]
+		SELECT [Parent], [Child], [RelativeName], [Depth]
+		FROM [SeriesHierarchy]
 	GO
 
 -- Recordings
@@ -224,13 +205,34 @@
 		AFTER INSERT, UPDATE
 		AS
 		BEGIN
-			SET NoCount ON
-			
+			SET NoCount ON			
+
 			UPDATE [Recordings]
-			SET	[Recordings].[HierarchicalName] = IIF([Recordings].[Series] IS NULL, [Recordings].[Name], CONCAT([SeriesHierarchicalName].[HierarchicalName], ' > ', [Recordings].[Name]))
-			FROM [Recordings]
-   		    LEFT OUTER JOIN [SeriesHierarchicalName] ON [Recordings].[Series] = [SeriesHierarchicalName].[Id]
-			WHERE [Recordings].[Id] IN (SELECT [Id] FROM INSERTED)
+			SET	
+				-- Hat die Aufzeichnung keine Serie, so wird einfach der eigene Name verwendet und ansonsten der Serienname davor gesetzt
+				[Recordings].[HierarchicalName] = 
+					IIF(
+						[Recordings].[Series] IS NULL, 
+						[Recordings].[Name], 
+						CONCAT([SeriesNames].[HierarchicalName], ' > ', [Recordings].[Name]))
+			FROM [Recordings]   		    
+			LEFT OUTER JOIN 
+			(
+				SELECT 
+					[sh].[Child] As [Id], 
+					-- Den Namen der Serie ermitteln wir aus der Serienhierarchie, wobei bei Serien mit übergeordneten Serien dieser Name erst einmal zusammen gesetzt werden muss
+					IIF(
+						[sh].[Parent] IS NULL, 
+						[sh].[RelativeName], 
+						CONCAT((SELECT [s].[Name] FROM [Series] [s] WHERE [s].[Id] = [sh].[Parent]), ' > ', [sh].[RelativeName])) AS [HierarchicalName]
+				FROM 
+					[SeriesHierarchy] [sh]
+				WHERE
+					-- Wichtig ist, dass wir den jeweils letzten Eintrag aus der Hierarchie nehmen, der direkt auf die Wurzelserie zeigt und einen geeignet aufgebauten relativen Namen bereitstellt 
+					[sh].[Depth] = (SELECT MAX([h].[Depth]) FROM [SeriesHierarchy] [h] WHERE ([h].[Child] = [sh].[Child]))
+			) AS [SeriesNames] ON [SeriesNames].[Id] = [Recordings].[Series]			
+			WHERE 
+				[Recordings].[Id] IN (SELECT [Id] FROM INSERTED)
 		END
 	GO
 
