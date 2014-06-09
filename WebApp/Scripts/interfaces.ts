@@ -45,13 +45,18 @@ interface IRecordingInfoContract {
 
     rent: string;
 
-    createdAsString: string;
-
     series: string;
 
     languages: string[];
 
     genres: string[];
+}
+
+interface IRecordingRow extends IRecordingInfoContract {
+    createdAsString: string;
+}
+
+interface IRecordingEdit extends IRecordingInfoContract {
 }
 
 // Die Eigenschaften, nach denen Aufzeichnungen sortiert werden können

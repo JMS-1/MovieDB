@@ -12,7 +12,7 @@ module MovieDatabase {
         children: ISeriesMapping[];
     }
 
-    interface IRecordingInfo extends IRecordingInfoContract {
+    interface IRecordingInfo extends IRecordingRow {
         created: Date;
 
         hierarchicalName: string;
@@ -352,8 +352,14 @@ module MovieDatabase {
             var hash: string = window.location.hash;
             if (hash.length < 2)
                 $('#queryMode').removeClass(Styles.invisble);
-            else
+            else {
                 $('#editRecordingMode').removeClass(Styles.invisble);
+
+                $.ajax('movie/db/' + hash.substring(1)).done(recording => this.copyToEditForm(recording));
+            }
+        }
+
+        private copyToEditForm(recording: IRecordingEdit): void {
         }
 
         private textChanged(): void {

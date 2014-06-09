@@ -317,13 +317,22 @@ var MovieDatabase;
         };
 
         Application.prototype.setMode = function () {
+            var _this = this;
             this.resetAllModes();
 
             var hash = window.location.hash;
             if (hash.length < 2)
                 $('#queryMode').removeClass(Styles.invisble);
-            else
+            else {
                 $('#editRecordingMode').removeClass(Styles.invisble);
+
+                $.ajax('movie/db/' + hash.substring(1)).done(function (recording) {
+                    return _this.copyToEditForm(recording);
+                });
+            }
+        };
+
+        Application.prototype.copyToEditForm = function (recording) {
         };
 
         Application.prototype.textChanged = function () {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using System.Runtime.Serialization;
 
 
@@ -10,38 +9,8 @@ namespace WebApp.DTO
     /// Beschreibt eine Aufzeichnung für die Ansicht in einer Tabelle.
     /// </summary>
     [DataContract]
-    public class RecordingForTable
+    public class RecordingForTable : Recording
     {
-        /// <summary>
-        /// Die eindeutige Kennung der Aufzeichnung.
-        /// </summary>
-        [DataMember( Name = "id" )]
-        public Guid RecordingIdentifier { get; set; }
-
-        /// <summary>
-        /// Der Name der Aufzeichnung.
-        /// </summary>
-        [DataMember( Name = "title" )]
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Der Ausleiher der Aufzeichnung.
-        /// </summary>
-        [DataMember( Name = "rent" )]
-        public string RentTo { get; set; }
-
-        /// <summary>
-        /// Die Sprachen aller Tonspuren.
-        /// </summary>
-        [DataMember( Name = "languages" )]
-        public string[] Languages { get; set; }
-
-        /// <summary>
-        /// Die Arten der Aufzeichnung.
-        /// </summary>
-        [DataMember( Name = "genres" )]
-        public string[] Genres { get; set; }
-
         /// <summary>
         /// Der Zeitpunkt in GMT / UTC Notation zu dem die Aufzeichnung angelegt wurde.
         /// </summary>
@@ -58,10 +27,13 @@ namespace WebApp.DTO
         }
 
         /// <summary>
-        /// Die eindeutige Kennung der Serie.
+        /// Erstellt eine neue Beschreibung.
         /// </summary>
-        [DataMember( Name = "series" )]
-        public Guid? Series { get; set; }
+        /// <param name="recording">Die Repräsentation aus der Datenbank.</param>
+        private RecordingForTable( Models.Recording recording )
+            : base( recording )
+        {
+        }
 
         /// <summary>
         /// Erstellt eine neue Ansicht.
@@ -70,15 +42,9 @@ namespace WebApp.DTO
         /// <returns>Die gewünschte Repräsentation.</returns>
         public static RecordingForTable Create( Models.Recording recording )
         {
-            return new RecordingForTable
+            return new RecordingForTable( recording )
             {
-                Languages = recording.Languages.Select( l => l.Description ).OrderBy( s => s ).ToArray(),
-                Genres = recording.Genres.Select( l => l.Description ).OrderBy( s => s ).ToArray(),
-                RecordingIdentifier = recording.Identifier,
                 CreationTime = recording.CreationTime,
-                Series = recording.SeriesIdentifier,
-                RentTo = recording.RentTo,
-                Name = recording.Title,
             };
         }
     }

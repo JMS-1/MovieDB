@@ -188,6 +188,8 @@
     <Compile Include="Controllers\ApplicationController.cs" />
     <Compile Include="Controllers\MovieController.cs" />
     <Compile Include="DAL\Database.cs" />
+    <Compile Include="DTO\RecordingForEdit.cs" />
+    <Compile Include="DTO\Recording.cs" />
     <Compile Include="DTO\SeriesDescription.cs" />
     <Compile Include="DTO\GenreDescription.cs" />
     <Compile Include="DTO\LanguageDescription.cs" />

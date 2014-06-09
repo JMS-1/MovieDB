@@ -69,6 +69,30 @@ namespace WebApp.Controllers
         }
 
         /// <summary>
+        /// Ermittelt eine einzelne Aufzeichnung.
+        /// </summary>
+        /// <param name="identifier">Die eindeutige Kennung der Aufzeichnung.</param>
+        /// <returns>Die gewünschte Aufzeichnung.</returns>
+        [Route( "{identifier}" )]
+        [HttpGet]
+        public RecordingForEdit Find( Guid identifier )
+        {
+            // Find with relations loaded
+            var recording =
+                Database
+                    .Recordings
+                    .Include( r => r.Languages )
+                    .Include( r => r.Genres )
+                    .SingleOrDefault( r => r.Identifier == identifier );
+
+            // Report
+            if (recording == null)
+                throw new HttpResponseException( HttpStatusCode.NotFound );
+            else
+                return RecordingForEdit.Create( recording );
+        }
+
+        /// <summary>
         /// Füllt eine leere Datenbank aus der alten Serialisierungsform.
         /// </summary>
         [Route( "initialize" )]
