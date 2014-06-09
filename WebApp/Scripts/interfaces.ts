@@ -1,12 +1,12 @@
 ﻿// Die Informationen zu einer Tonspur
-interface ILanguage {
+interface ILanguageContract {
     id: string;
 
     description: string;
 }
 
 // Die Information zu eiuner einzelnen Art von Aufnahme
-interface IGenre {
+interface IGenreContract {
     id: string;
 
     description: string;
@@ -25,16 +25,16 @@ interface ISeriesMappingContract {
 
 // Die statistichen Hilfsinformationen
 
-interface IStatistics {
+interface IStatisticsContract {
     id: string;
 
     count: string;
 }
 
-interface ILanguageStatistics extends IStatistics {
+interface ILanguageStatisticsContract extends IStatisticsContract {
 }
 
-interface IGenreStatistics extends IStatistics {
+interface IGenreStatisticsContract extends IStatisticsContract {
 }
 
 // Die Beschreibung einer Aufnahme in der Tabelle - eine Kurzfassung
@@ -52,11 +52,11 @@ interface IRecordingInfoContract {
     genres: string[];
 }
 
-interface IRecordingRow extends IRecordingInfoContract {
+interface IRecordingRowContract extends IRecordingInfoContract {
     createdAsString: string;
 }
 
-interface IRecordingEdit extends IRecordingInfoContract {
+interface IRecordingEditContract extends IRecordingInfoContract {
 }
 
 // Die Eigenschaften, nach denen Aufzeichnungen sortiert werden können
@@ -76,9 +76,9 @@ interface ISearchInformationContract {
 
     recordings: IRecordingInfoContract[];
 
-    genres: IGenreStatistics[];
+    genres: IGenreStatisticsContract[];
 
-    languages: ILanguageStatistics[];
+    languages: ILanguageStatisticsContract[];
 }
 
 // Einige Informationen zur Anwendungsumgebung
@@ -87,9 +87,9 @@ interface IApplicationInformationContract {
 
     total: number;
 
-    languages: ILanguage[];
+    languages: ILanguageContract[];
 
-    genres: IGenre[];
+    genres: IGenreContract[];
 
     series: ISeriesMappingContract[];
 

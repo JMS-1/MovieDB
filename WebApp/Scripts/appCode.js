@@ -323,16 +323,18 @@ var MovieDatabase;
             var hash = window.location.hash;
             if (hash.length < 2)
                 $('#queryMode').removeClass(Styles.invisble);
-            else {
-                $('#editRecordingMode').removeClass(Styles.invisble);
-
+            else
                 $.ajax('movie/db/' + hash.substring(1)).done(function (recording) {
-                    return _this.copyToEditForm(recording);
+                    return _this.fillEditForm(recording);
                 });
-            }
         };
 
-        Application.prototype.copyToEditForm = function (recording) {
+        Application.prototype.fillEditForm = function (recording) {
+            this.currentRecording = recording;
+
+            $('#recordingTitle').val(recording.title);
+
+            $('#editRecordingMode').removeClass(Styles.invisble);
         };
 
         Application.prototype.textChanged = function () {

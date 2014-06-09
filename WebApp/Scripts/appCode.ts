@@ -12,7 +12,7 @@ module MovieDatabase {
         children: ISeriesMapping[];
     }
 
-    interface IRecordingInfo extends IRecordingRow {
+    interface IRecordingInfo extends IRecordingRowContract {
         created: Date;
 
         hierarchicalName: string;
@@ -99,6 +99,8 @@ module MovieDatabase {
         static Current: Application = new Application();
 
         private currentApplicationInformation: IApplicationInformation;
+
+        private currentRecording: IRecordingEditContract;
 
         private busyIndicator: JQuery;
 
@@ -352,14 +354,16 @@ module MovieDatabase {
             var hash: string = window.location.hash;
             if (hash.length < 2)
                 $('#queryMode').removeClass(Styles.invisble);
-            else {
-                $('#editRecordingMode').removeClass(Styles.invisble);
-
-                $.ajax('movie/db/' + hash.substring(1)).done(recording => this.copyToEditForm(recording));
-            }
+            else
+                $.ajax('movie/db/' + hash.substring(1)).done(recording => this.fillEditForm(recording));
         }
 
-        private copyToEditForm(recording: IRecordingEdit): void {
+        private fillEditForm(recording: IRecordingEditContract): void {
+            this.currentRecording = recording;
+
+            $('#recordingTitle').val(recording.title);
+
+            $('#editRecordingMode').removeClass(Styles.invisble);
         }
 
         private textChanged(): void {

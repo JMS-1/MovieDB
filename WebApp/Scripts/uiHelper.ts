@@ -25,7 +25,7 @@ class Styles {
 }
 
 class GenreSelector {
-    constructor(genre: IGenre, container: JQuery, onChange: () => void) {
+    constructor(genre: IGenreContract, container: JQuery, onChange: () => void) {
         var id = 'genreCheckbox' + genre.id;
 
         this.checkbox = $('<input />', { type: 'checkbox', id: id, name: genre.id }).appendTo(container).change(onChange);
@@ -67,14 +67,14 @@ class GenreSelectors {
         this.container = $(containerSelector);
     }
 
-    initialize(genres: IGenre[], onChange: () => void): void {
+    initialize(genres: IGenreContract[], onChange: () => void): void {
         this.container.empty();
         this.genres = {};
 
         $.each(genres, (index, genre) => this.genres[genre.id] = new GenreSelector(genre, this.container, onChange));
     }
 
-    setCount(statistics: IGenreStatistics[]): void {
+    setCount(statistics: IGenreStatisticsContract[]): void {
         $.each(this.genres, (key, genre: GenreSelector) => genre.reset());
         $.each(statistics, (index, genre) => (<GenreSelector>this.genres[genre.id]).setCount(genre.count));
     }
@@ -131,14 +131,14 @@ class OptionSelectors {
         this.container.val(null);
     }
 
-    setCount(statistics: IStatistics[]): void {
+    setCount(statistics: IStatisticsContract[]): void {
         $.each(this.options, (key, item: OptionSelector) => item.reset());
         $.each(statistics, (index, item) => (<OptionSelector>this.options[item.id]).setCount(item.count));
     }
 }
 
 class LanguageSelectors extends OptionSelectors {
-    initialize(languages: ILanguage[]): void {
+    initialize(languages: ILanguageContract[]): void {
         this.preInitialize(languages, language => language.id, language => language.description);
     }
 }
