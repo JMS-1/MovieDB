@@ -305,7 +305,7 @@ var MovieDatabase;
                 $('<td />').appendTo(recordingRow).text(recording.rent);
             });
 
-            this.setQueryMode();
+            this.setMode();
         };
 
         Application.prototype.requestApplicationInformation = function () {
@@ -316,10 +316,14 @@ var MovieDatabase;
             $('.operationMode').addClass(Styles.invisble);
         };
 
-        Application.prototype.setQueryMode = function () {
+        Application.prototype.setMode = function () {
             this.resetAllModes();
 
-            $('#queryMode').removeClass(Styles.invisble);
+            var hash = window.location.hash;
+            if (hash.length < 2)
+                $('#queryMode').removeClass(Styles.invisble);
+            else
+                $('#editRecordingMode').removeClass(Styles.invisble);
         };
 
         Application.prototype.textChanged = function () {
@@ -473,11 +477,22 @@ var MovieDatabase;
                 _this.query();
             });
 
+            $('.navigationButton').button();
+
+            $('#gotoQuery').click(function () {
+                return window.location.hash = '';
+            });
+
             // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
             this.requestApplicationInformation().done(function (info) {
                 $('#headline').text('VCR.NET Mediendatenbank');
 
                 _this.fillApplicationInformation(info);
+
+                // Wir benutzen ein wenige deep linking für einige Aufgaben
+                $(window).on('hashchange', function () {
+                    return _this.setMode();
+                });
 
                 // Ab jetzt sind wir bereit
                 $('#main').removeClass(Styles.invisble);

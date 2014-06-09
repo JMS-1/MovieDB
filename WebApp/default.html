@@ -17,9 +17,7 @@
 <body>
 
     <h1 id="headline">(Bitte etwas Geduld)</h1>
-    <h4 id="countInfo"></h4>
-
-    <span id="busyIndicator" class="ui-icon ui-icon-power"></span>
+    <h4 id="countline"><span id="countInfo"></span><span id="busyIndicator" class="ui-icon ui-icon-power"></span></h4>
 
     <input id="theFile" type="file" class="invisible" />
 
@@ -86,6 +84,12 @@
             </div>
 
             <div id="pageButtons" class="pageButtons invisible">[]</div>
+        </div>
+
+        <div id="editRecordingMode" class="operationMode invisible">
+            <div class="editNavigation">
+                <a id="gotoQuery" href="javascript:void(0)" class="navigationButton">Zurück</a>
+            </div>
         </div>
     </div>
 </body>
