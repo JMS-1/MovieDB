@@ -2,16 +2,9 @@
 /// <reference path='typings/jqueryui/jqueryui.d.ts' />
 /// <reference path='interfaces.ts' />
 /// <reference path='uiHelper.ts' />
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
+/// <reference path='recFilter.ts' />
 var MovieDatabase;
 (function (MovieDatabase) {
-    
-
     ;
 
     var DateTimeTools = (function () {
@@ -30,66 +23,21 @@ var MovieDatabase;
         return DateTimeTools;
     })();
 
-    // Eine Suchanfrage
-    var SearchRequest = (function (_super) {
-        __extends(SearchRequest, _super);
-        function SearchRequest() {
-            _super.apply(this, arguments);
-            this.pending = 0;
-        }
-        SearchRequest.propertyFilter = function (propertyName, propertyValue) {
-            if (propertyName != 'pending')
-                return propertyValue;
-
-            return undefined;
-        };
-
-        SearchRequest.prototype.send = function () {
-            var _this = this;
-            // Jede Suche bekommt eine neue Nummer und es wird immer nur das letzte Ergebnis ausgewertet
-            var thisRequest = ++this.pending;
-
-            return $.ajax('movie/db', {
-                contentType: 'application/json; charset=utf-8',
-                data: JSON.stringify(this, SearchRequest.propertyFilter),
-                dataType: 'json',
-                type: 'POST'
-            }).done(function (searchResult) {
-                // Veraltete Ergebnisse überspringen wir einfach
-                searchResult.ignore = (_this.pending != thisRequest);
-                if (searchResult.ignore)
-                    return;
-
-                if (searchResult == null)
-                    return;
-
-                var recordings = searchResult.recordings;
-                if (recordings == null)
-                    return;
-
-                // Ein wenig Vorarbeit hübscht die Daten vom Web Service etwas auf: aus der Rohdarstellung des Datums machen wir ein Date Objekt
-                $.each(recordings, function (index, recording) {
-                    return recording.created = new Date(recording.createdAsString);
-                });
-            });
-        };
-
-        SearchRequest.Current = new SearchRequest();
-        return SearchRequest;
-    })(SearchRequestContract);
-
-    // Repräsentiert die Anwendung als Ganzes
     var Application = (function () {
         function Application() {
             var _this = this;
             this.allSeries = {};
+            this.recordingFilter = new RecordingFilter();
+
             $(function () {
                 return _this.startup();
             });
         }
         Application.prototype.migrate = function () {
             var _this = this;
-            var fileInput = (this.legacyFile[0]);
+            var legacyFile = $('#theFile');
+
+            var fileInput = (legacyFile[0]);
             if (fileInput.files.length != 1)
                 return;
 
@@ -117,25 +65,27 @@ var MovieDatabase;
 
         Application.prototype.query = function () {
             var _this = this;
-            this.busyIndicator.removeClass(Styles.idle);
-            this.busyIndicator.addClass(Styles.busy);
+            var busyIndicator = $('#busyIndicator');
 
-            SearchRequest.Current.send().done(function (results) {
+            busyIndicator.removeClass(Styles.idle);
+            busyIndicator.addClass(Styles.busy);
+
+            this.recordingFilter.send().done(function (results) {
                 if (!results.ignore)
                     _this.fillResultTable(results);
             });
         };
 
         Application.prototype.setLanguages = function () {
-            SearchRequest.Current.language = null;
-            SearchRequest.Current.page = 0;
+            this.recordingFilter.language = null;
+            this.recordingFilter.page = 0;
 
             this.languageMap.initialize(this.currentApplicationInformation.languages);
         };
 
         Application.prototype.setSeries = function () {
-            SearchRequest.Current.series = [];
-            SearchRequest.Current.page = 0;
+            this.recordingFilter.series = [];
+            this.recordingFilter.page = 0;
 
             this.seriesMap.initialize(this.currentApplicationInformation.series);
         };
@@ -149,17 +99,19 @@ var MovieDatabase;
         };
 
         Application.prototype.genreChanged = function (query) {
-            SearchRequest.Current.genres = [];
-            SearchRequest.Current.page = 0;
+            var _this = this;
+            this.recordingFilter.genres = [];
+            this.recordingFilter.page = 0;
 
             this.genreMap.foreachSelected(function (checkbox) {
-                return SearchRequest.Current.genres.push(checkbox.attr('name'));
+                return _this.recordingFilter.genres.push(checkbox.attr('name'));
             });
 
-            if (SearchRequest.Current.genres.length < 1)
-                this.genreFilterHeader.text('(egal)');
+            var genreFilterHeader = $('#genreFilterHeader');
+            if (this.recordingFilter.genres.length < 1)
+                genreFilterHeader.text('(egal)');
             else
-                this.genreFilterHeader.text(SearchRequest.Current.genres.join(' und '));
+                genreFilterHeader.text(this.recordingFilter.genres.join(' und '));
 
             if (query)
                 this.query();
@@ -186,15 +138,18 @@ var MovieDatabase;
         };
 
         Application.prototype.fillApplicationInformation = function (info) {
-            this.busyIndicator.removeClass(Styles.loading);
-            this.busyIndicator.addClass(Styles.idle);
+            var busyIndicator = $('#busyIndicator');
+
+            busyIndicator.removeClass(Styles.loading);
+            busyIndicator.addClass(Styles.idle);
 
             this.currentApplicationInformation = info;
 
+            var migrateButton = $('#migrate');
             if (info.empty)
-                this.migrateButton.removeClass(Styles.invisble);
+                migrateButton.removeClass(Styles.invisble);
             else
-                this.migrateButton.addClass(Styles.invisble);
+                migrateButton.addClass(Styles.invisble);
 
             $('#countInfo').text('(Es gibt ' + info.total + ' Aufzeichnung' + ((info.total == 1) ? '' : 'en') + ')');
 
@@ -212,18 +167,22 @@ var MovieDatabase;
         */
         Application.prototype.fillResultTable = function (results) {
             var _this = this;
-            this.busyIndicator.removeClass(Styles.busy);
-            this.busyIndicator.addClass(Styles.idle);
+            var busyIndicator = $('#busyIndicator');
 
+            busyIndicator.removeClass(Styles.busy);
+            busyIndicator.addClass(Styles.idle);
+
+            var pageSizeCount = $('#pageSizeCount');
+            var pageButtons = $('#pageButtons');
             if (results.total < results.size) {
-                this.pageSizeCount.text('');
+                pageSizeCount.text('');
 
-                this.pageButtons.addClass(Styles.invisble);
+                pageButtons.addClass(Styles.invisble);
             } else {
-                this.pageSizeCount.text(' von ' + results.total);
+                pageSizeCount.text(' von ' + results.total);
 
-                this.pageButtons.removeClass(Styles.invisble);
-                this.pageButtons.empty();
+                pageButtons.removeClass(Styles.invisble);
+                pageButtons.empty();
 
                 var pagesShown = 20;
                 var numberOfPages = Math.floor((results.total + results.size - 1) / results.size);
@@ -232,7 +191,7 @@ var MovieDatabase;
 
                 for (var index = firstIndex; index <= lastIndex; index++)
                     (function (capturedIndex) {
-                        var anchor = $('<a href="javascript:void(0)" class="' + Styles.pageButton + '" />').appendTo(_this.pageButtons).button();
+                        var anchor = $('<a href="javascript:void(0)" class="' + Styles.pageButton + '" />').appendTo(pageButtons).button();
 
                         if (capturedIndex == results.page)
                             anchor.addClass(Styles.activePageButton);
@@ -272,7 +231,7 @@ var MovieDatabase;
                             anchor.removeAttr('href');
                         else
                             anchor.click(function () {
-                                SearchRequest.Current.page = capturedIndex;
+                                _this.recordingFilter.page = capturedIndex;
 
                                 _this.query();
                             });
@@ -338,20 +297,21 @@ var MovieDatabase;
         };
 
         Application.prototype.textChanged = function () {
-            SearchRequest.Current.text = this.textSearch.val();
-            SearchRequest.Current.page = 0;
+            this.recordingFilter.text = $('#textSearch').val();
+            this.recordingFilter.page = 0;
         };
 
         Application.prototype.applySeriesToFilter = function (series) {
             if (series.length > 0)
-                Application.applySeriesToFilter(this.allSeries[series]);
+                this.applySeriesToFilterRecursive(this.allSeries[series]);
         };
 
-        Application.applySeriesToFilter = function (series) {
-            SearchRequest.Current.series.push(series.id);
+        Application.prototype.applySeriesToFilterRecursive = function (series) {
+            var _this = this;
+            this.recordingFilter.series.push(series.id);
 
             $.each(series.children, function (index, child) {
-                return Application.applySeriesToFilter(child);
+                return _this.applySeriesToFilterRecursive(child);
             });
         };
 
@@ -377,69 +337,64 @@ var MovieDatabase;
             this.seriesMap = new SeriesSelectors('#seriesFilter');
             this.languageMap = new LanguageSelectors('#languageFilter');
 
-            this.busyIndicator = $('#busyIndicator');
+            var legacyFile = $('#theFile');
+            var migrateButton = $('#migrate');
 
-            this.legacyFile = $('#theFile');
-            this.legacyFile.change(function () {
+            legacyFile.change(function () {
                 return _this.migrate();
             });
-
-            this.migrateButton = $('#migrate');
-            this.migrateButton.button().click(function () {
-                return _this.legacyFile.click();
+            migrateButton.button().click(function () {
+                return legacyFile.click();
             });
 
             this.languageMap.container.change(function () {
-                SearchRequest.Current.language = _this.languageMap.container.val();
-                SearchRequest.Current.page = 0;
+                _this.recordingFilter.language = _this.languageMap.container.val();
+                _this.recordingFilter.page = 0;
 
                 _this.query();
             });
 
             this.seriesMap.container.change(function () {
-                SearchRequest.Current.series = [];
-                SearchRequest.Current.page = 0;
+                _this.recordingFilter.series = [];
+                _this.recordingFilter.page = 0;
 
                 _this.applySeriesToFilter(_this.seriesMap.container.val());
 
                 _this.query();
             });
 
-            this.genreFilterHeader = $('#genreFilterHeader');
-
-            this.pageSize = $('#pageSize');
-            this.pageSizeCount = $('#pageSizeCount');
-            this.pageSize.change(function () {
-                SearchRequest.Current.size = parseInt(_this.pageSize.val());
-                SearchRequest.Current.page = 0;
+            var pageSize = $('#pageSize');
+            pageSize.change(function () {
+                _this.recordingFilter.size = parseInt(pageSize.val());
+                _this.recordingFilter.page = 0;
 
                 _this.query();
             });
 
-            this.textSearch = $('#textSearch');
-            this.textSearch.on('change', function () {
+            var textSearch = $('#textSearch');
+            textSearch.on('change', function () {
                 return _this.textChanged();
             });
-            this.textSearch.on('input', function () {
+            textSearch.on('input', function () {
                 return _this.textChanged();
             });
-            this.textSearch.on('keypress', function (e) {
+            textSearch.on('keypress', function (e) {
                 if (e.which == 13)
                     _this.query();
             });
 
-            this.rentChooser = $('#rentFilter');
-            this.rentChooser.buttonset().click(function () {
-                var choice = _this.rentChooser.find(':checked').val();
+            var rentChooser = $('#rentFilter');
+            rentChooser.buttonset().click(function () {
+                var choice = rentChooser.find(':checked').val();
                 var newRent = null;
 
                 if (choice.length > 0)
                     newRent = (choice == '1');
-                if (SearchRequest.Current.rent == newRent)
+                if (_this.recordingFilter.rent == newRent)
                     return;
 
-                SearchRequest.Current.rent = newRent;
-                SearchRequest.Current.page = 0;
+                _this.recordingFilter.rent = newRent;
+                _this.recordingFilter.page = 0;
 
                 _this.query();
             });
@@ -450,8 +405,8 @@ var MovieDatabase;
             sortName.click(function () {
                 _this.disableSort(sortDate);
 
-                SearchRequest.Current.ascending = _this.enableSort(sortName);
-                SearchRequest.Current.order = OrderSelector.title;
+                _this.recordingFilter.ascending = _this.enableSort(sortName);
+                _this.recordingFilter.order = OrderSelector.title;
 
                 _this.query();
             });
@@ -459,31 +414,29 @@ var MovieDatabase;
             sortDate.click(function () {
                 _this.disableSort(sortName);
 
-                SearchRequest.Current.ascending = _this.enableSort(sortDate);
-                SearchRequest.Current.order = OrderSelector.created;
+                _this.recordingFilter.ascending = _this.enableSort(sortDate);
+                _this.recordingFilter.order = OrderSelector.created;
 
                 _this.query();
             });
 
-            this.pageButtons = $('#pageButtons');
-
             $('#resetQuery').button().click(function () {
-                _this.rentChooser.find(':checked').prop('checked', false);
+                rentChooser.find(':checked').prop('checked', false);
                 $('#anyRent').prop('checked', true);
-                _this.rentChooser.buttonset('refresh');
+                rentChooser.buttonset('refresh');
 
                 _this.languageMap.resetFilter();
                 _this.seriesMap.resetFilter();
                 _this.genreMap.resetFilter();
-                _this.textSearch.val(null);
                 _this.genreChanged(false);
+                textSearch.val(null);
 
-                SearchRequest.Current.language = null;
-                SearchRequest.Current.series = [];
-                SearchRequest.Current.genres = [];
-                SearchRequest.Current.rent = null;
-                SearchRequest.Current.text = null;
-                SearchRequest.Current.page = 0;
+                _this.recordingFilter.language = null;
+                _this.recordingFilter.series = [];
+                _this.recordingFilter.genres = [];
+                _this.recordingFilter.rent = null;
+                _this.recordingFilter.text = null;
+                _this.recordingFilter.page = 0;
 
                 _this.query();
             });

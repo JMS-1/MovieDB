@@ -2,31 +2,17 @@
 /// <reference path='typings/jqueryui/jqueryui.d.ts' />
 /// <reference path='interfaces.ts' />
 /// <reference path='uiHelper.ts' />
-
+/// <reference path='recFilter.ts' />
 
 module MovieDatabase {
-
-    // Die angereichteren Schnittstellen
 
     interface ISeriesMapping extends ISeriesMappingContract {
         children: ISeriesMapping[];
     }
 
-    interface IRecordingInfo extends IRecordingRowContract {
-        created: Date;
-
-        hierarchicalName: string;
-    }
-
     interface IApplicationInformation extends IApplicationInformationContract {
         series: ISeriesMapping[];
     };
-
-    interface ISearchInformation extends ISearchInformationContract {
-        recordings: IRecordingInfo[];
-
-        ignore: boolean;
-    }
 
     class DateTimeTools {
         private static toNumber(val: number): string {
@@ -46,79 +32,20 @@ module MovieDatabase {
         }
     }
 
-    // Eine Suchanfrage
-    class SearchRequest extends SearchRequestContract {
-
-        private pending: number = 0;
-
-        private static propertyFilter(propertyName: string, propertyValue: any): any {
-            if (propertyName != 'pending')
-                return propertyValue;
-
-            return undefined;
-        }
-
-        send(): JQueryPromise<ISearchInformation> {
-
-            // Jede Suche bekommt eine neue Nummer und es wird immer nur das letzte Ergebnis ausgewertet
-            var thisRequest = ++this.pending;
-
-            return $.ajax('movie/db', {
-                contentType: 'application/json; charset=utf-8',
-                data: JSON.stringify(this, SearchRequest.propertyFilter),
-                dataType: 'json',
-                type: 'POST',
-            }).done((searchResult: ISearchInformation) => {
-
-                    // Veraltete Ergebnisse überspringen wir einfach
-                    searchResult.ignore = (this.pending != thisRequest);
-                    if (searchResult.ignore)
-                        return;
-
-                    if (searchResult == null)
-                        return;
-
-                    var recordings = searchResult.recordings;
-                    if (recordings == null)
-                        return;
-
-                    // Ein wenig Vorarbeit hübscht die Daten vom Web Service etwas auf: aus der Rohdarstellung des Datums machen wir ein Date Objekt
-                    $.each(recordings, (index, recording) => recording.created = new Date(recording.createdAsString));
-                });
-        }
-
-        static Current: SearchRequest = new SearchRequest();
-    }
-
-    // Repräsentiert die Anwendung als Ganzes
     class Application {
         constructor() {
+            this.recordingFilter = new RecordingFilter();
+
             $(() => this.startup());
         }
 
         static Current: Application = new Application();
 
+        private recordingFilter: RecordingFilter;
+
         private currentApplicationInformation: IApplicationInformation;
 
         private currentRecording: IRecordingEditContract;
-
-        private busyIndicator: JQuery;
-
-        private legacyFile: JQuery;
-
-        private migrateButton: JQuery;
-
-        private genreFilterHeader: JQuery;
-
-        private pageSize: JQuery;
-
-        private pageSizeCount: JQuery;
-
-        private textSearch: JQuery;
-
-        private pageButtons: JQuery;
-
-        private rentChooser: JQuery;
 
         private allSeries: any = {}
 
@@ -129,7 +56,9 @@ module MovieDatabase {
         private seriesMap: SeriesSelectors;
 
         private migrate(): void {
-            var fileInput = <HTMLInputElement>(this.legacyFile[0]);
+            var legacyFile = $('#theFile');
+
+            var fileInput = <HTMLInputElement>(legacyFile[0]);
             if (fileInput.files.length != 1)
                 return;
 
@@ -151,25 +80,27 @@ module MovieDatabase {
         }
 
         private query(): void {
-            this.busyIndicator.removeClass(Styles.idle);
-            this.busyIndicator.addClass(Styles.busy);
+            var busyIndicator = $('#busyIndicator');
 
-            SearchRequest.Current.send().done(results => {
+            busyIndicator.removeClass(Styles.idle);
+            busyIndicator.addClass(Styles.busy);
+
+            this.recordingFilter.send().done(results => {
                 if (!results.ignore)
                     this.fillResultTable(results);
             });
         }
 
         private setLanguages(): void {
-            SearchRequest.Current.language = null;
-            SearchRequest.Current.page = 0;
+            this.recordingFilter.language = null;
+            this.recordingFilter.page = 0;
 
             this.languageMap.initialize(this.currentApplicationInformation.languages);
         }
 
         private setSeries(): void {
-            SearchRequest.Current.series = [];
-            SearchRequest.Current.page = 0;
+            this.recordingFilter.series = [];
+            this.recordingFilter.page = 0;
 
             this.seriesMap.initialize(this.currentApplicationInformation.series);
         }
@@ -180,15 +111,16 @@ module MovieDatabase {
         }
 
         private genreChanged(query: boolean): void {
-            SearchRequest.Current.genres = [];
-            SearchRequest.Current.page = 0;
+            this.recordingFilter.genres = [];
+            this.recordingFilter.page = 0;
 
-            this.genreMap.foreachSelected(checkbox => SearchRequest.Current.genres.push(checkbox.attr('name')));
+            this.genreMap.foreachSelected(checkbox => this.recordingFilter.genres.push(checkbox.attr('name')));
 
-            if (SearchRequest.Current.genres.length < 1)
-                this.genreFilterHeader.text('(egal)');
+            var genreFilterHeader = $('#genreFilterHeader');
+            if (this.recordingFilter.genres.length < 1)
+                genreFilterHeader.text('(egal)');
             else
-                this.genreFilterHeader.text(SearchRequest.Current.genres.join(' und '));
+                genreFilterHeader.text(this.recordingFilter.genres.join(' und '));
 
             if (query)
                 this.query();
@@ -214,15 +146,18 @@ module MovieDatabase {
         }
 
         private fillApplicationInformation(info: IApplicationInformation): void {
-            this.busyIndicator.removeClass(Styles.loading);
-            this.busyIndicator.addClass(Styles.idle);
+            var busyIndicator = $('#busyIndicator');
+
+            busyIndicator.removeClass(Styles.loading);
+            busyIndicator.addClass(Styles.idle);
 
             this.currentApplicationInformation = info;
 
+            var migrateButton = $('#migrate');
             if (info.empty)
-                this.migrateButton.removeClass(Styles.invisble);
+                migrateButton.removeClass(Styles.invisble);
             else
-                this.migrateButton.addClass(Styles.invisble);
+                migrateButton.addClass(Styles.invisble);
 
             $('#countInfo').text('(Es gibt ' + info.total + ' Aufzeichnung' + ((info.total == 1) ? '' : 'en') + ')');
 
@@ -239,19 +174,23 @@ module MovieDatabase {
           und dann als Tabellenzeilen in die Oberfläche übernommen.
         */
         private fillResultTable(results: ISearchInformation): void {
-            this.busyIndicator.removeClass(Styles.busy);
-            this.busyIndicator.addClass(Styles.idle);
+            var busyIndicator = $('#busyIndicator');
 
+            busyIndicator.removeClass(Styles.busy);
+            busyIndicator.addClass(Styles.idle);
+
+            var pageSizeCount = $('#pageSizeCount');
+            var pageButtons = $('#pageButtons');
             if (results.total < results.size) {
-                this.pageSizeCount.text('');
+                pageSizeCount.text('');
 
-                this.pageButtons.addClass(Styles.invisble);
+                pageButtons.addClass(Styles.invisble);
             }
             else {
-                this.pageSizeCount.text(' von ' + results.total);
+                pageSizeCount.text(' von ' + results.total);
 
-                this.pageButtons.removeClass(Styles.invisble);
-                this.pageButtons.empty();
+                pageButtons.removeClass(Styles.invisble);
+                pageButtons.empty();
 
                 var pagesShown = 20;
                 var numberOfPages = Math.floor((results.total + results.size - 1) / results.size);
@@ -261,7 +200,7 @@ module MovieDatabase {
                 // Sieht ein bißchen komisch aus aber wir wollen zum Aufruf des Lambdas ein Closure auf die Schleifenkontrollvariable erzeugen
                 for (var index = firstIndex; index <= lastIndex; index++)
                     ((capturedIndex: number) => {
-                        var anchor = $('<a href="javascript:void(0)" class="' + Styles.pageButton + '" />').appendTo(this.pageButtons).button();
+                        var anchor = $('<a href="javascript:void(0)" class="' + Styles.pageButton + '" />').appendTo(pageButtons).button();
 
                         if (capturedIndex == results.page)
                             anchor.addClass(Styles.activePageButton);
@@ -304,7 +243,7 @@ module MovieDatabase {
                             anchor.removeAttr('href');
                         else
                             anchor.click(() => {
-                                SearchRequest.Current.page = capturedIndex;
+                                this.recordingFilter.page = capturedIndex;
 
                                 this.query();
                             });
@@ -367,19 +306,19 @@ module MovieDatabase {
         }
 
         private textChanged(): void {
-            SearchRequest.Current.text = this.textSearch.val();
-            SearchRequest.Current.page = 0;
+            this.recordingFilter.text = $('#textSearch').val();
+            this.recordingFilter.page = 0;
         }
 
         private applySeriesToFilter(series: string): void {
             if (series.length > 0)
-                Application.applySeriesToFilter(this.allSeries[series]);
+                this.applySeriesToFilterRecursive(this.allSeries[series]);
         }
 
-        private static applySeriesToFilter(series: ISeriesMapping): void {
-            SearchRequest.Current.series.push(series.id);
+        private applySeriesToFilterRecursive(series: ISeriesMapping): void {
+            this.recordingFilter.series.push(series.id);
 
-            $.each(series.children, (index, child) => Application.applySeriesToFilter(child));
+            $.each(series.children, (index, child) => this.applySeriesToFilterRecursive(child));
         }
 
         private disableSort(indicator: JQuery): void {
@@ -403,61 +342,56 @@ module MovieDatabase {
             this.seriesMap = new SeriesSelectors('#seriesFilter');
             this.languageMap = new LanguageSelectors('#languageFilter');
 
-            this.busyIndicator = $('#busyIndicator');
+            var legacyFile = $('#theFile');
+            var migrateButton = $('#migrate');
 
-            this.legacyFile = $('#theFile');
-            this.legacyFile.change(() => this.migrate());
-
-            this.migrateButton = $('#migrate');
-            this.migrateButton.button().click(() => this.legacyFile.click());
+            legacyFile.change(() => this.migrate());
+            migrateButton.button().click(() => legacyFile.click());
 
             this.languageMap.container.change(() => {
-                SearchRequest.Current.language = this.languageMap.container.val();
-                SearchRequest.Current.page = 0;
+                this.recordingFilter.language = this.languageMap.container.val();
+                this.recordingFilter.page = 0;
 
                 this.query();
             });
 
             this.seriesMap.container.change(() => {
-                SearchRequest.Current.series = [];
-                SearchRequest.Current.page = 0;
+                this.recordingFilter.series = [];
+                this.recordingFilter.page = 0;
 
                 this.applySeriesToFilter(this.seriesMap.container.val());
 
                 this.query();
             });
 
-            this.genreFilterHeader = $('#genreFilterHeader');
-
-            this.pageSize = $('#pageSize');
-            this.pageSizeCount = $('#pageSizeCount');
-            this.pageSize.change(() => {
-                SearchRequest.Current.size = parseInt(this.pageSize.val());
-                SearchRequest.Current.page = 0;
+            var pageSize = $('#pageSize');
+            pageSize.change(() => {
+                this.recordingFilter.size = parseInt(pageSize.val());
+                this.recordingFilter.page = 0;
 
                 this.query();
             });
 
-            this.textSearch = $('#textSearch');
-            this.textSearch.on('change', () => this.textChanged());
-            this.textSearch.on('input', () => this.textChanged());
-            this.textSearch.on('keypress', (e: JQueryEventObject) => {
+            var textSearch = $('#textSearch');
+            textSearch.on('change', () => this.textChanged());
+            textSearch.on('input', () => this.textChanged());
+            textSearch.on('keypress', (e: JQueryEventObject) => {
                 if (e.which == 13)
                     this.query();
             });
 
-            this.rentChooser = $('#rentFilter');
-            this.rentChooser.buttonset().click(() => {
-                var choice: string = this.rentChooser.find(':checked').val();
+            var rentChooser = $('#rentFilter');
+            rentChooser.buttonset().click(() => {
+                var choice: string = rentChooser.find(':checked').val();
                 var newRent: boolean = null;
 
                 if (choice.length > 0)
                     newRent = (choice == '1');
-                if (SearchRequest.Current.rent == newRent)
+                if (this.recordingFilter.rent == newRent)
                     return;
 
-                SearchRequest.Current.rent = newRent;
-                SearchRequest.Current.page = 0;
+                this.recordingFilter.rent = newRent;
+                this.recordingFilter.page = 0;
 
                 this.query();
             });
@@ -468,8 +402,8 @@ module MovieDatabase {
             sortName.click(() => {
                 this.disableSort(sortDate);
 
-                SearchRequest.Current.ascending = this.enableSort(sortName);
-                SearchRequest.Current.order = OrderSelector.title;
+                this.recordingFilter.ascending = this.enableSort(sortName);
+                this.recordingFilter.order = OrderSelector.title;
 
                 this.query();
             });
@@ -477,32 +411,30 @@ module MovieDatabase {
             sortDate.click(() => {
                 this.disableSort(sortName);
 
-                SearchRequest.Current.ascending = this.enableSort(sortDate);
-                SearchRequest.Current.order = OrderSelector.created;
+                this.recordingFilter.ascending = this.enableSort(sortDate);
+                this.recordingFilter.order = OrderSelector.created;
 
                 this.query();
             });
 
-            this.pageButtons = $('#pageButtons');
-
             $('#resetQuery').button().click(() => {
 
-                this.rentChooser.find(':checked').prop('checked', false);
+                rentChooser.find(':checked').prop('checked', false);
                 $('#anyRent').prop('checked', true);
-                this.rentChooser.buttonset('refresh');
+                rentChooser.buttonset('refresh');
 
                 this.languageMap.resetFilter();
                 this.seriesMap.resetFilter();
                 this.genreMap.resetFilter();
-                this.textSearch.val(null);
                 this.genreChanged(false);
+                textSearch.val(null);
 
-                SearchRequest.Current.language = null;
-                SearchRequest.Current.series = [];
-                SearchRequest.Current.genres = [];
-                SearchRequest.Current.rent = null;
-                SearchRequest.Current.text = null;
-                SearchRequest.Current.page = 0;
+                this.recordingFilter.language = null;
+                this.recordingFilter.series = [];
+                this.recordingFilter.genres = [];
+                this.recordingFilter.rent = null;
+                this.recordingFilter.text = null;
+                this.recordingFilter.page = 0;
 
                 this.query();
             });
