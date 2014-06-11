@@ -27,8 +27,6 @@ var MovieDatabase;
         function Application() {
             var _this = this;
             this.allSeries = {};
-            this.recordingFilter = new RecordingFilter();
-
             $(function () {
                 return _this.startup();
             });
@@ -60,19 +58,6 @@ var MovieDatabase;
             var _this = this;
             this.requestApplicationInformation().done(function (info) {
                 return _this.fillApplicationInformation(info);
-            });
-        };
-
-        Application.prototype.query = function () {
-            var _this = this;
-            var busyIndicator = $('#busyIndicator');
-
-            busyIndicator.removeClass(Styles.idle);
-            busyIndicator.addClass(Styles.busy);
-
-            this.recordingFilter.send().done(function (results) {
-                if (!results.ignore)
-                    _this.fillResultTable(results);
             });
         };
 
@@ -114,7 +99,7 @@ var MovieDatabase;
                 genreFilterHeader.text(this.recordingFilter.genres.join(' und '));
 
             if (query)
-                this.query();
+                this.recordingFilter.query();
         };
 
         Application.prototype.buildSeriesMapping = function () {
@@ -158,7 +143,7 @@ var MovieDatabase;
             this.setGenres();
             this.setSeries();
 
-            this.query();
+            this.recordingFilter.query();
         };
 
         /*
@@ -167,11 +152,6 @@ var MovieDatabase;
         */
         Application.prototype.fillResultTable = function (results) {
             var _this = this;
-            var busyIndicator = $('#busyIndicator');
-
-            busyIndicator.removeClass(Styles.busy);
-            busyIndicator.addClass(Styles.idle);
-
             var pageSizeCount = $('#pageSizeCount');
             var pageButtons = $('#pageButtons');
             if (results.total < results.size) {
@@ -233,7 +213,7 @@ var MovieDatabase;
                             anchor.click(function () {
                                 _this.recordingFilter.page = capturedIndex;
 
-                                _this.query();
+                                _this.recordingFilter.query();
                             });
                     })(index);
             }
@@ -296,11 +276,6 @@ var MovieDatabase;
             $('#editRecordingMode').removeClass(Styles.invisble);
         };
 
-        Application.prototype.textChanged = function () {
-            this.recordingFilter.text = $('#textSearch').val();
-            this.recordingFilter.page = 0;
-        };
-
         Application.prototype.applySeriesToFilter = function (series) {
             if (series.length > 0)
                 this.applySeriesToFilterRecursive(this.allSeries[series]);
@@ -333,9 +308,13 @@ var MovieDatabase;
 
         Application.prototype.startup = function () {
             var _this = this;
-            this.genreMap = new GenreSelectors('#genreFilter');
-            this.seriesMap = new SeriesSelectors('#seriesFilter');
+            this.recordingFilter = new RecordingFilter(function (result) {
+                return _this.fillResultTable(result);
+            });
+
             this.languageMap = new LanguageSelectors('#languageFilter');
+            this.seriesMap = new SeriesSelectors('#seriesFilter');
+            this.genreMap = new GenreSelectors('#genreFilter');
 
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');
@@ -351,7 +330,7 @@ var MovieDatabase;
                 _this.recordingFilter.language = _this.languageMap.container.val();
                 _this.recordingFilter.page = 0;
 
-                _this.query();
+                _this.recordingFilter.query();
             });
 
             this.seriesMap.container.change(function () {
@@ -360,7 +339,7 @@ var MovieDatabase;
 
                 _this.applySeriesToFilter(_this.seriesMap.container.val());
 
-                _this.query();
+                _this.recordingFilter.query();
             });
 
             var pageSize = $('#pageSize');
@@ -368,35 +347,7 @@ var MovieDatabase;
                 _this.recordingFilter.size = parseInt(pageSize.val());
                 _this.recordingFilter.page = 0;
 
-                _this.query();
-            });
-
-            var textSearch = $('#textSearch');
-            textSearch.on('change', function () {
-                return _this.textChanged();
-            });
-            textSearch.on('input', function () {
-                return _this.textChanged();
-            });
-            textSearch.on('keypress', function (e) {
-                if (e.which == 13)
-                    _this.query();
-            });
-
-            var rentChooser = $('#rentFilter');
-            rentChooser.buttonset().click(function () {
-                var choice = rentChooser.find(':checked').val();
-                var newRent = null;
-
-                if (choice.length > 0)
-                    newRent = (choice == '1');
-                if (_this.recordingFilter.rent == newRent)
-                    return;
-
-                _this.recordingFilter.rent = newRent;
-                _this.recordingFilter.page = 0;
-
-                _this.query();
+                _this.recordingFilter.query();
             });
 
             var sortName = $('#sortName');
@@ -408,7 +359,7 @@ var MovieDatabase;
                 _this.recordingFilter.ascending = _this.enableSort(sortName);
                 _this.recordingFilter.order = OrderSelector.title;
 
-                _this.query();
+                _this.recordingFilter.query();
             });
 
             sortDate.click(function () {
@@ -417,28 +368,16 @@ var MovieDatabase;
                 _this.recordingFilter.ascending = _this.enableSort(sortDate);
                 _this.recordingFilter.order = OrderSelector.created;
 
-                _this.query();
+                _this.recordingFilter.query();
             });
 
             $('#resetQuery').button().click(function () {
-                rentChooser.find(':checked').prop('checked', false);
-                $('#anyRent').prop('checked', true);
-                rentChooser.buttonset('refresh');
-
                 _this.languageMap.resetFilter();
                 _this.seriesMap.resetFilter();
                 _this.genreMap.resetFilter();
                 _this.genreChanged(false);
-                textSearch.val(null);
 
-                _this.recordingFilter.language = null;
-                _this.recordingFilter.series = [];
-                _this.recordingFilter.genres = [];
-                _this.recordingFilter.rent = null;
-                _this.recordingFilter.text = null;
-                _this.recordingFilter.page = 0;
-
-                _this.query();
+                _this.recordingFilter.reset();
             });
 
             $('.navigationButton').button();

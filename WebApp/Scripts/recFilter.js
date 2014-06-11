@@ -11,23 +11,55 @@ var __extends = this.__extends || function (d, b) {
 
 var RecordingFilter = (function (_super) {
     __extends(RecordingFilter, _super);
-    function RecordingFilter() {
-        _super.apply(this, arguments);
+    function RecordingFilter(resultProcessor) {
+        _super.call(this);
         this.pending = 0;
+
+        this.callback = resultProcessor;
+
+        this.prepareText();
+        this.prepareRent();
     }
     RecordingFilter.propertyFilter = function (propertyName, propertyValue) {
         if (propertyName != 'pending')
-            return propertyValue;
+            if (propertyName != 'callback')
+                return propertyValue;
 
         return undefined;
     };
 
-    RecordingFilter.prototype.send = function () {
+    RecordingFilter.prototype.reset = function () {
+        var rentChooser = $('#rentFilter');
+
+        // Oberfläche zurücksetzen
+        rentChooser.find(':checked').prop('checked', false);
+        $('#anyRent').prop('checked', true);
+        rentChooser.buttonset('refresh');
+        $('#textSearch').val(null);
+
+        // Protokolldaten zurücksetzen
+        this.language = null;
+        this.series = [];
+        this.genres = [];
+        this.rent = null;
+        this.text = null;
+        this.page = 0;
+
+        // Und aktualisieren
+        this.query();
+    };
+
+    RecordingFilter.prototype.query = function () {
         var _this = this;
+        // Anzeige auf der Oberfläche herrichten
+        var busyIndicator = $('#busyIndicator');
+        busyIndicator.removeClass(Styles.idle);
+        busyIndicator.addClass(Styles.busy);
+
         // Jede Suche bekommt eine neue Nummer und es wird immer nur das letzte Ergebnis ausgewertet
         var thisRequest = ++this.pending;
 
-        return $.ajax('movie/db', {
+        $.ajax('movie/db', {
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(this, RecordingFilter.propertyFilter),
             dataType: 'json',
@@ -38,9 +70,13 @@ var RecordingFilter = (function (_super) {
             if (searchResult.ignore)
                 return;
 
+            // Anzeige auf der Oberfläche herrichten
+            var busyIndicator = $('#busyIndicator');
+            busyIndicator.removeClass(Styles.busy);
+            busyIndicator.addClass(Styles.idle);
+
             if (searchResult == null)
                 return;
-
             var recordings = searchResult.recordings;
             if (recordings == null)
                 return;
@@ -49,6 +85,54 @@ var RecordingFilter = (function (_super) {
             $.each(recordings, function (index, recording) {
                 return recording.created = new Date(recording.createdAsString);
             });
+
+            // Und verarbeiten
+            if (_this.callback != null)
+                _this.callback(searchResult);
+        });
+    };
+
+    RecordingFilter.prototype.onTextChanged = function () {
+        this.text = $('#textSearch').val();
+        this.page = 0;
+    };
+
+    RecordingFilter.prototype.prepareText = function () {
+        var _this = this;
+        var textSearch = $('#textSearch');
+
+        textSearch.on('change', function () {
+            return _this.onTextChanged();
+        });
+        textSearch.on('input', function () {
+            return _this.onTextChanged();
+        });
+        textSearch.on('keypress', function (e) {
+            if (e.which == 13)
+                _this.query();
+        });
+    };
+
+    RecordingFilter.prototype.onRentChanged = function () {
+        var rentChooser = $('#rentFilter');
+        var choice = rentChooser.find(':checked').val();
+        var newRent = null;
+
+        if (choice.length > 0)
+            newRent = (choice == '1');
+        if (this.rent == newRent)
+            return;
+
+        this.rent = newRent;
+        this.page = 0;
+
+        this.query();
+    };
+
+    RecordingFilter.prototype.prepareRent = function () {
+        var _this = this;
+        $('#rentFilter').buttonset().click(function () {
+            return _this.onRentChanged();
         });
     };
     return RecordingFilter;

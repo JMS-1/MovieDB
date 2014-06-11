@@ -34,8 +34,6 @@ module MovieDatabase {
 
     class Application {
         constructor() {
-            this.recordingFilter = new RecordingFilter();
-
             $(() => this.startup());
         }
 
@@ -79,18 +77,6 @@ module MovieDatabase {
             this.requestApplicationInformation().done(info => this.fillApplicationInformation(info));
         }
 
-        private query(): void {
-            var busyIndicator = $('#busyIndicator');
-
-            busyIndicator.removeClass(Styles.idle);
-            busyIndicator.addClass(Styles.busy);
-
-            this.recordingFilter.send().done(results => {
-                if (!results.ignore)
-                    this.fillResultTable(results);
-            });
-        }
-
         private setLanguages(): void {
             this.recordingFilter.language = null;
             this.recordingFilter.page = 0;
@@ -123,7 +109,7 @@ module MovieDatabase {
                 genreFilterHeader.text(this.recordingFilter.genres.join(' und '));
 
             if (query)
-                this.query();
+                this.recordingFilter.query();
         }
 
         private buildSeriesMapping(): void {
@@ -166,7 +152,7 @@ module MovieDatabase {
             this.setGenres();
             this.setSeries();
 
-            this.query();
+            this.recordingFilter.query();
         }
 
         /*
@@ -174,11 +160,6 @@ module MovieDatabase {
           und dann als Tabellenzeilen in die Oberfläche übernommen.
         */
         private fillResultTable(results: ISearchInformation): void {
-            var busyIndicator = $('#busyIndicator');
-
-            busyIndicator.removeClass(Styles.busy);
-            busyIndicator.addClass(Styles.idle);
-
             var pageSizeCount = $('#pageSizeCount');
             var pageButtons = $('#pageButtons');
             if (results.total < results.size) {
@@ -245,7 +226,7 @@ module MovieDatabase {
                             anchor.click(() => {
                                 this.recordingFilter.page = capturedIndex;
 
-                                this.query();
+                                this.recordingFilter.query();
                             });
                     })(index);
             }
@@ -305,11 +286,6 @@ module MovieDatabase {
             $('#editRecordingMode').removeClass(Styles.invisble);
         }
 
-        private textChanged(): void {
-            this.recordingFilter.text = $('#textSearch').val();
-            this.recordingFilter.page = 0;
-        }
-
         private applySeriesToFilter(series: string): void {
             if (series.length > 0)
                 this.applySeriesToFilterRecursive(this.allSeries[series]);
@@ -338,9 +314,11 @@ module MovieDatabase {
         }
 
         private startup(): void {
-            this.genreMap = new GenreSelectors('#genreFilter');
-            this.seriesMap = new SeriesSelectors('#seriesFilter');
+            this.recordingFilter = new RecordingFilter(result => this.fillResultTable(result));
+
             this.languageMap = new LanguageSelectors('#languageFilter');
+            this.seriesMap = new SeriesSelectors('#seriesFilter');
+            this.genreMap = new GenreSelectors('#genreFilter');
 
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');
@@ -352,7 +330,7 @@ module MovieDatabase {
                 this.recordingFilter.language = this.languageMap.container.val();
                 this.recordingFilter.page = 0;
 
-                this.query();
+                this.recordingFilter.query();
             });
 
             this.seriesMap.container.change(() => {
@@ -361,7 +339,7 @@ module MovieDatabase {
 
                 this.applySeriesToFilter(this.seriesMap.container.val());
 
-                this.query();
+                this.recordingFilter.query();
             });
 
             var pageSize = $('#pageSize');
@@ -369,31 +347,7 @@ module MovieDatabase {
                 this.recordingFilter.size = parseInt(pageSize.val());
                 this.recordingFilter.page = 0;
 
-                this.query();
-            });
-
-            var textSearch = $('#textSearch');
-            textSearch.on('change', () => this.textChanged());
-            textSearch.on('input', () => this.textChanged());
-            textSearch.on('keypress', (e: JQueryEventObject) => {
-                if (e.which == 13)
-                    this.query();
-            });
-
-            var rentChooser = $('#rentFilter');
-            rentChooser.buttonset().click(() => {
-                var choice: string = rentChooser.find(':checked').val();
-                var newRent: boolean = null;
-
-                if (choice.length > 0)
-                    newRent = (choice == '1');
-                if (this.recordingFilter.rent == newRent)
-                    return;
-
-                this.recordingFilter.rent = newRent;
-                this.recordingFilter.page = 0;
-
-                this.query();
+                this.recordingFilter.query();
             });
 
             var sortName = $('#sortName')
@@ -405,7 +359,7 @@ module MovieDatabase {
                 this.recordingFilter.ascending = this.enableSort(sortName);
                 this.recordingFilter.order = OrderSelector.title;
 
-                this.query();
+                this.recordingFilter.query();
             });
 
             sortDate.click(() => {
@@ -414,29 +368,16 @@ module MovieDatabase {
                 this.recordingFilter.ascending = this.enableSort(sortDate);
                 this.recordingFilter.order = OrderSelector.created;
 
-                this.query();
+                this.recordingFilter.query();
             });
 
             $('#resetQuery').button().click(() => {
-
-                rentChooser.find(':checked').prop('checked', false);
-                $('#anyRent').prop('checked', true);
-                rentChooser.buttonset('refresh');
-
                 this.languageMap.resetFilter();
                 this.seriesMap.resetFilter();
                 this.genreMap.resetFilter();
                 this.genreChanged(false);
-                textSearch.val(null);
 
-                this.recordingFilter.language = null;
-                this.recordingFilter.series = [];
-                this.recordingFilter.genres = [];
-                this.recordingFilter.rent = null;
-                this.recordingFilter.text = null;
-                this.recordingFilter.page = 0;
-
-                this.query();
+                this.recordingFilter.reset();
             });
 
             $('.navigationButton').button();
