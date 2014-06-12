@@ -1,7 +1,6 @@
 ﻿/// <reference path='typings/jquery/jquery.d.ts' />
 /// <reference path='typings/jqueryui/jqueryui.d.ts' />
 /// <reference path='interfaces.ts' />
-/// <reference path='uiHelper.ts' />
 
 // Erweiterte Informationen zu einer Aufzeichnung in der Tabellenansicht
 interface IRecordingInfo extends IRecordingRowContract {

@@ -3,6 +3,7 @@
 /// <reference path='interfaces.ts' />
 /// <reference path='uiHelper.ts' />
 /// <reference path='recFilter.ts' />
+/// <reference path='recEdit.ts' />
 var MovieDatabase;
 (function (MovieDatabase) {
     ;
@@ -229,11 +230,7 @@ var MovieDatabase;
         };
 
         Application.prototype.fillEditForm = function (recording) {
-            this.currentRecording = recording;
-
-            $('#recordingTitle').val(recording.title);
-
-            $('#editRecordingMode').removeClass(Styles.invisble);
+            this.currentRecording = new RecordingEditor(recording);
         };
 
         Application.prototype.disableSort = function (indicator) {
@@ -303,10 +300,13 @@ var MovieDatabase;
                 return _this.recordingFilter.reset(true);
             });
 
-            $('.navigationButton').button();
+            $('.navigationButton, .editButton').button();
 
             $('#gotoQuery').click(function () {
                 return window.location.hash = '';
+            });
+            $('#updateRecording').click(function () {
+                return _this.currentRecording.save();
             });
 
             // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss

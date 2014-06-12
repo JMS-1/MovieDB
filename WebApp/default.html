@@ -7,6 +7,7 @@
     <script src="Scripts/interfaces.js"></script>
     <script src="Scripts/uiHelper.js"></script>
     <script src="Scripts/recFilter.js"></script>
+    <script src="Scripts/recEdit.js"></script>
     <script src="Scripts/appCode.js"></script>
 
     <link rel="stylesheet" href="Content/themes/base/jquery-ui.css" />
@@ -32,7 +33,7 @@
                 </div>
 
                 <div class="languageFilter">
-                    Sprache: <span id="languageFilter"></span>
+                    <span class="languageFilterLabel">Sprache: </span><span id="languageFilter"></span>
                 </div>
 
                 <div class="seriesFilter">
@@ -103,6 +104,7 @@
             </div>
 
             <div class="editNavigation">
+                <a id="updateRecording" href="javascript:void(0)" class="editButton">Speichern</a>
                 <a id="gotoQuery" href="javascript:void(0)" class="navigationButton">Zurück</a>
             </div>
         </div>

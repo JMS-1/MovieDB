@@ -3,6 +3,7 @@
 /// <reference path='interfaces.ts' />
 /// <reference path='uiHelper.ts' />
 /// <reference path='recFilter.ts' />
+/// <reference path='recEdit.ts' />
 
 module MovieDatabase {
 
@@ -39,7 +40,7 @@ module MovieDatabase {
 
         private currentApplicationInformation: IApplicationInformation;
 
-        private currentRecording: IRecordingEditContract;
+        private currentRecording: RecordingEditor;
 
         private allSeries: any = {}
 
@@ -235,11 +236,7 @@ module MovieDatabase {
         }
 
         private fillEditForm(recording: IRecordingEditContract): void {
-            this.currentRecording = recording;
-
-            $('#recordingTitle').val(recording.title);
-
-            $('#editRecordingMode').removeClass(Styles.invisble);
+            this.currentRecording = new RecordingEditor(recording);
         }
 
         private disableSort(indicator: JQuery): void {
@@ -298,9 +295,10 @@ module MovieDatabase {
 
             $('#resetQuery').button().click(() => this.recordingFilter.reset(true));
 
-            $('.navigationButton').button();
+            $('.navigationButton, .editButton').button();
 
             $('#gotoQuery').click(() => window.location.hash = '');
+            $('#updateRecording').click(() => this.currentRecording.save());
 
             // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
             this.requestApplicationInformation().done(info => {
