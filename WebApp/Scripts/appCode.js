@@ -61,13 +61,6 @@ var MovieDatabase;
             });
         };
 
-        Application.prototype.setLanguages = function () {
-            this.recordingFilter.language = null;
-            this.recordingFilter.page = 0;
-
-            this.languageMap.initialize(this.currentApplicationInformation.languages);
-        };
-
         Application.prototype.setSeries = function () {
             this.recordingFilter.series = [];
             this.recordingFilter.page = 0;
@@ -139,7 +132,8 @@ var MovieDatabase;
             $('#countInfo').text('(Es gibt ' + info.total + ' Aufzeichnung' + ((info.total == 1) ? '' : 'en') + ')');
 
             this.buildSeriesMapping();
-            this.setLanguages();
+
+            this.recordingFilter.setLanguages(info.languages);
             this.setGenres();
             this.setSeries();
 
@@ -219,8 +213,8 @@ var MovieDatabase;
             }
 
             // Trefferanzahl für die einzelnen Aufzeichnungsarten einblenden
+            this.recordingFilter.setLanguageCounts(results.languages);
             this.genreMap.setCount(results.genres);
-            this.languageMap.setCount(results.languages);
 
             var tableBody = $('#recordingTable>tbody');
 
@@ -312,7 +306,6 @@ var MovieDatabase;
                 return _this.fillResultTable(result);
             });
 
-            this.languageMap = new LanguageSelectors('#languageFilter');
             this.seriesMap = new SeriesSelectors('#seriesFilter');
             this.genreMap = new GenreSelectors('#genreFilter');
 
@@ -324,13 +317,6 @@ var MovieDatabase;
             });
             migrateButton.button().click(function () {
                 return legacyFile.click();
-            });
-
-            this.languageMap.container.change(function () {
-                _this.recordingFilter.language = _this.languageMap.container.val();
-                _this.recordingFilter.page = 0;
-
-                _this.recordingFilter.query();
             });
 
             this.seriesMap.container.change(function () {
@@ -372,7 +358,6 @@ var MovieDatabase;
             });
 
             $('#resetQuery').button().click(function () {
-                _this.languageMap.resetFilter();
                 _this.seriesMap.resetFilter();
                 _this.genreMap.resetFilter();
                 _this.genreChanged(false);

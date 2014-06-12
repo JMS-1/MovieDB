@@ -88,29 +88,44 @@ class GenreSelectors {
     }
 }
 
-class OptionSelector {
-    constructor(id: string, description: string, container: JQuery) {
-        this.option = $(new Option(description, id)).appendTo(container);
-        this.description = description;
+class LanguageSelector {
+    static optionGroupName = 'languageChoice';
+
+    constructor(language: ILanguageContract, container: JQuery) {
+        var id = 'languageOption' + language.id;
+
+        this.radio = $('<input />', { type: 'radio', id: id, name: LanguageSelector.optionGroupName, value: language.id }).appendTo(container);
+        this.label = $('<label />', { 'for': id, text: language.description }).appendTo(container);
+        this.description = language.description;
     }
 
-    private option: JQuery;
+    private radio: JQuery;
+
+    private label: JQuery;
 
     private description: string;
 
     reset(): void {
-        this.option.addClass(Styles.disabledOption);
-        this.option.text(this.description + ' (0)');
+        if (this.radio.prop('checked')) {
+            this.label.removeClass(Styles.invisble);
+            this.radio.removeClass(Styles.invisble);
+        }
+        else {
+            this.label.addClass(Styles.invisble);
+            this.radio.addClass(Styles.invisble);
+        }
     }
 
     setCount(count: number): void {
-        this.option.text(this.description + ' (' + count + ')');
-        this.option.removeClass(Styles.disabledOption);
+        this.label.text(this.description + ' (' + count + ')');
+
+        this.radio.removeClass(Styles.invisble);
+        this.label.removeClass(Styles.invisble);
     }
 }
 
-class OptionSelectors {
-    private options: any = {};
+class LanguageSelectors {
+    private languages: any = {};
 
     container: JQuery;
 
@@ -118,33 +133,41 @@ class OptionSelectors {
         this.container = $(containerSelector);
     }
 
-    preInitialize<U>(items: U[], idSelector: (item: U) => string, nameSelector: (item: U) => string): void {
+    initialize(languages: ILanguageContract[]): void {
         this.container.empty();
-        this.options = {};
+        this.languages = {};
 
-        this.container.append(new Option('(egal)', ''));
+        $('<input />', { type: 'radio', id: 'anyLanguageChoice', name: LanguageSelector.optionGroupName, value: '', checked: 'checked' }).appendTo(this.container);
+        $('<label />', { 'for': 'anyLanguageChoice', text: '(egal)' }).appendTo(this.container);
 
-        $.each(items, (index, item) => this.options[item.id] = new OptionSelector(idSelector(item), nameSelector(item), this.container));
+        $.each(languages, (index, language) => this.languages[language.id] = new LanguageSelector(language, this.container));
+    }
+
+    setCounts(statistics: ILanguageStatisticsContract[]): void {
+        $.each(this.languages, (key, language: LanguageSelector) => language.reset());
+        $.each(statistics, (index, language) => (<LanguageSelector>this.languages[language.id]).setCount(language.count));
+    }
+
+    resetFilter(): void {
+        this.container.children().first().prop('checked', true);
+    }
+}
+
+class SeriesSelectors {
+    container: JQuery;
+
+    constructor(containerSelector: string) {
+        this.container = $(containerSelector);
     }
 
     resetFilter(): void {
         this.container.val(null);
     }
 
-    setCount(statistics: IStatisticsContract[]): void {
-        $.each(this.options, (key, item: OptionSelector) => item.reset());
-        $.each(statistics, (index, item) => (<OptionSelector>this.options[item.id]).setCount(item.count));
-    }
-}
-
-class LanguageSelectors extends OptionSelectors {
-    initialize(languages: ILanguageContract[]): void {
-        this.preInitialize(languages, language => language.id, language => language.description);
-    }
-}
-
-class SeriesSelectors extends OptionSelectors {
     initialize(series: ISeriesMappingContract[]): void {
-        this.preInitialize(series, mapping => mapping.id, mapping => mapping.hierarchicalName);
+        this.container.empty();
+        this.container.append(new Option('(egal)', ''));
+
+        $.each(series, (index, mapping) => $(new Option(mapping.hierarchicalName, mapping.id)).appendTo(this.container));
     }
 }

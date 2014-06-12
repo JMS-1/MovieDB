@@ -49,8 +49,6 @@ module MovieDatabase {
 
         private genreMap: GenreSelectors;
 
-        private languageMap: LanguageSelectors;
-
         private seriesMap: SeriesSelectors;
 
         private migrate(): void {
@@ -75,13 +73,6 @@ module MovieDatabase {
 
         private refresh(): void {
             this.requestApplicationInformation().done(info => this.fillApplicationInformation(info));
-        }
-
-        private setLanguages(): void {
-            this.recordingFilter.language = null;
-            this.recordingFilter.page = 0;
-
-            this.languageMap.initialize(this.currentApplicationInformation.languages);
         }
 
         private setSeries(): void {
@@ -148,7 +139,8 @@ module MovieDatabase {
             $('#countInfo').text('(Es gibt ' + info.total + ' Aufzeichnung' + ((info.total == 1) ? '' : 'en') + ')');
 
             this.buildSeriesMapping();
-            this.setLanguages();
+
+            this.recordingFilter.setLanguages(info.languages);
             this.setGenres();
             this.setSeries();
 
@@ -232,8 +224,8 @@ module MovieDatabase {
             }
 
             // Trefferanzahl für die einzelnen Aufzeichnungsarten einblenden
+            this.recordingFilter.setLanguageCounts(results.languages);
             this.genreMap.setCount(results.genres);
-            this.languageMap.setCount(results.languages);
 
             var tableBody = $('#recordingTable>tbody');
 
@@ -316,7 +308,6 @@ module MovieDatabase {
         private startup(): void {
             this.recordingFilter = new RecordingFilter(result => this.fillResultTable(result));
 
-            this.languageMap = new LanguageSelectors('#languageFilter');
             this.seriesMap = new SeriesSelectors('#seriesFilter');
             this.genreMap = new GenreSelectors('#genreFilter');
 
@@ -325,13 +316,6 @@ module MovieDatabase {
 
             legacyFile.change(() => this.migrate());
             migrateButton.button().click(() => legacyFile.click());
-
-            this.languageMap.container.change(() => {
-                this.recordingFilter.language = this.languageMap.container.val();
-                this.recordingFilter.page = 0;
-
-                this.recordingFilter.query();
-            });
 
             this.seriesMap.container.change(() => {
                 this.recordingFilter.series = [];
@@ -372,7 +356,6 @@ module MovieDatabase {
             });
 
             $('#resetQuery').button().click(() => {
-                this.languageMap.resetFilter();
                 this.seriesMap.resetFilter();
                 this.genreMap.resetFilter();
                 this.genreChanged(false);

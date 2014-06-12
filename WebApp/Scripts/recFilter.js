@@ -19,6 +19,7 @@ var RecordingFilter = (function (_super) {
 
         this.prepareText();
         this.prepareRent();
+        this.prepareLanguage();
     }
     RecordingFilter.propertyFilter = function (propertyName, propertyValue) {
         if (propertyName != 'pending')
@@ -29,12 +30,13 @@ var RecordingFilter = (function (_super) {
     };
 
     RecordingFilter.prototype.reset = function () {
-        var rentChooser = $('#rentFilter');
+        this.languageMap.resetFilter();
 
-        // Oberfläche zurücksetzen
+        var rentChooser = $('#rentFilter');
         rentChooser.find(':checked').prop('checked', false);
         $('#anyRent').prop('checked', true);
         rentChooser.buttonset('refresh');
+
         $('#textSearch').val(null);
 
         // Protokolldaten zurücksetzen
@@ -133,6 +135,33 @@ var RecordingFilter = (function (_super) {
         var _this = this;
         $('#rentFilter').buttonset().click(function () {
             return _this.onRentChanged();
+        });
+    };
+
+    RecordingFilter.prototype.setLanguages = function (languages) {
+        this.language = null;
+        this.page = 0;
+
+        this.languageMap.initialize(languages);
+    };
+
+    RecordingFilter.prototype.setLanguageCounts = function (languages) {
+        this.languageMap.setCounts(languages);
+    };
+
+    RecordingFilter.prototype.onLanguageChanged = function () {
+        this.language = this.languageMap.container.find(':checked').val();
+        this.page = 0;
+
+        this.query();
+    };
+
+    RecordingFilter.prototype.prepareLanguage = function () {
+        var _this = this;
+        this.languageMap = new LanguageSelectors('#languageFilter');
+
+        this.languageMap.container.click(function () {
+            return _this.onLanguageChanged();
         });
     };
     return RecordingFilter;

@@ -23,11 +23,14 @@ class RecordingFilter extends SearchRequestContract {
 
         this.prepareText();
         this.prepareRent();
+        this.prepareLanguage();
     }
 
     private pending: number = 0;
 
     private callback: (result: ISearchInformation) => void;
+
+    private languageMap: LanguageSelectors;
 
     private static propertyFilter(propertyName: string, propertyValue: any): any {
         if (propertyName != 'pending')
@@ -38,12 +41,13 @@ class RecordingFilter extends SearchRequestContract {
     }
 
     reset(): void {
-        var rentChooser = $('#rentFilter');
+        this.languageMap.resetFilter();
 
-        // Oberfläche zurücksetzen
+        var rentChooser = $('#rentFilter');
         rentChooser.find(':checked').prop('checked', false);
         $('#anyRent').prop('checked', true);
         rentChooser.buttonset('refresh');
+
         $('#textSearch').val(null);
 
         // Protokolldaten zurücksetzen
@@ -132,5 +136,29 @@ class RecordingFilter extends SearchRequestContract {
 
     private prepareRent(): void {
         $('#rentFilter').buttonset().click(() => this.onRentChanged());
+    }
+
+    setLanguages(languages: ILanguageContract[]): void {
+        this.language = null;
+        this.page = 0;
+
+        this.languageMap.initialize(languages);
+    }
+
+    setLanguageCounts(languages: ILanguageStatisticsContract[]): void {
+        this.languageMap.setCounts(languages);
+    }
+
+    private onLanguageChanged(): void {
+        this.language = this.languageMap.container.find(':checked').val();
+        this.page = 0;
+
+        this.query();
+    }
+
+    private prepareLanguage(): void {
+        this.languageMap = new LanguageSelectors('#languageFilter');
+
+        this.languageMap.container.click(() => this.onLanguageChanged());
     }
 } 

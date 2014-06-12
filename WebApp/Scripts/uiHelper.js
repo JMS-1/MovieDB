@@ -1,12 +1,6 @@
 ﻿/// <reference path='typings/jquery/jquery.d.ts' />
 /// <reference path='typings/jqueryui/jqueryui.d.ts' />
 /// <reference path='interfaces.ts' />
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var Styles = (function () {
     function Styles() {
     }
@@ -98,83 +92,85 @@ var GenreSelectors = (function () {
     return GenreSelectors;
 })();
 
-var OptionSelector = (function () {
-    function OptionSelector(id, description, container) {
-        this.option = $(new Option(description, id)).appendTo(container);
-        this.description = description;
+var LanguageSelector = (function () {
+    function LanguageSelector(language, container) {
+        var id = 'languageOption' + language.id;
+
+        this.radio = $('<input />', { type: 'radio', id: id, name: LanguageSelector.optionGroupName, value: language.id }).appendTo(container);
+        this.label = $('<label />', { 'for': id, text: language.description }).appendTo(container);
+        this.description = language.description;
     }
-    OptionSelector.prototype.reset = function () {
-        this.option.addClass(Styles.disabledOption);
-        this.option.text(this.description + ' (0)');
+    LanguageSelector.prototype.reset = function () {
+        if (this.radio.prop('checked')) {
+            this.label.removeClass(Styles.invisble);
+            this.radio.removeClass(Styles.invisble);
+        } else {
+            this.label.addClass(Styles.invisble);
+            this.radio.addClass(Styles.invisble);
+        }
     };
 
-    OptionSelector.prototype.setCount = function (count) {
-        this.option.text(this.description + ' (' + count + ')');
-        this.option.removeClass(Styles.disabledOption);
+    LanguageSelector.prototype.setCount = function (count) {
+        this.label.text(this.description + ' (' + count + ')');
+
+        this.radio.removeClass(Styles.invisble);
+        this.label.removeClass(Styles.invisble);
     };
-    return OptionSelector;
+    LanguageSelector.optionGroupName = 'languageChoice';
+    return LanguageSelector;
 })();
 
-var OptionSelectors = (function () {
-    function OptionSelectors(containerSelector) {
-        this.options = {};
+var LanguageSelectors = (function () {
+    function LanguageSelectors(containerSelector) {
+        this.languages = {};
         this.container = $(containerSelector);
     }
-    OptionSelectors.prototype.preInitialize = function (items, idSelector, nameSelector) {
+    LanguageSelectors.prototype.initialize = function (languages) {
         var _this = this;
         this.container.empty();
-        this.options = {};
+        this.languages = {};
 
-        this.container.append(new Option('(egal)', ''));
+        $('<input />', { type: 'radio', id: 'anyLanguageChoice', name: LanguageSelector.optionGroupName, value: '', checked: 'checked' }).appendTo(this.container);
+        $('<label />', { 'for': 'anyLanguageChoice', text: '(egal)' }).appendTo(this.container);
 
-        $.each(items, function (index, item) {
-            return _this.options[item.id] = new OptionSelector(idSelector(item), nameSelector(item), _this.container);
+        $.each(languages, function (index, language) {
+            return _this.languages[language.id] = new LanguageSelector(language, _this.container);
         });
     };
 
-    OptionSelectors.prototype.resetFilter = function () {
+    LanguageSelectors.prototype.setCounts = function (statistics) {
+        var _this = this;
+        $.each(this.languages, function (key, language) {
+            return language.reset();
+        });
+        $.each(statistics, function (index, language) {
+            return _this.languages[language.id].setCount(language.count);
+        });
+    };
+
+    LanguageSelectors.prototype.resetFilter = function () {
+        this.container.children().first().prop('checked', true);
+    };
+    return LanguageSelectors;
+})();
+
+var SeriesSelectors = (function () {
+    function SeriesSelectors(containerSelector) {
+        this.container = $(containerSelector);
+    }
+    SeriesSelectors.prototype.resetFilter = function () {
         this.container.val(null);
     };
 
-    OptionSelectors.prototype.setCount = function (statistics) {
-        var _this = this;
-        $.each(this.options, function (key, item) {
-            return item.reset();
-        });
-        $.each(statistics, function (index, item) {
-            return _this.options[item.id].setCount(item.count);
-        });
-    };
-    return OptionSelectors;
-})();
-
-var LanguageSelectors = (function (_super) {
-    __extends(LanguageSelectors, _super);
-    function LanguageSelectors() {
-        _super.apply(this, arguments);
-    }
-    LanguageSelectors.prototype.initialize = function (languages) {
-        this.preInitialize(languages, function (language) {
-            return language.id;
-        }, function (language) {
-            return language.description;
-        });
-    };
-    return LanguageSelectors;
-})(OptionSelectors);
-
-var SeriesSelectors = (function (_super) {
-    __extends(SeriesSelectors, _super);
-    function SeriesSelectors() {
-        _super.apply(this, arguments);
-    }
     SeriesSelectors.prototype.initialize = function (series) {
-        this.preInitialize(series, function (mapping) {
-            return mapping.id;
-        }, function (mapping) {
-            return mapping.hierarchicalName;
+        var _this = this;
+        this.container.empty();
+        this.container.append(new Option('(egal)', ''));
+
+        $.each(series, function (index, mapping) {
+            return $(new Option(mapping.hierarchicalName, mapping.id)).appendTo(_this.container);
         });
     };
     return SeriesSelectors;
-})(OptionSelectors);
+})();
 //# sourceMappingURL=uiHelper.js.map
