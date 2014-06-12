@@ -300,7 +300,7 @@ var MovieDatabase;
             });
 
             $('#resetQuery').button().click(function () {
-                return _this.recordingFilter.reset();
+                return _this.recordingFilter.reset(true);
             });
 
             $('.navigationButton').button();

@@ -37,6 +37,8 @@ class RecordingFilter extends SearchRequestContract {
         this.prepareGenre();
         this.prepareSeries();
         this.prepareLanguage();
+
+        this.reset(false);
     }
 
     // Hiermit stellen wir sicher, dass ein nervös klickender Anwender immer nur das letzte Suchergebnis bekommt
@@ -47,6 +49,9 @@ class RecordingFilter extends SearchRequestContract {
 
     // Wird verwendet, um zur eindeutigen Kennung einer Serie die erweiterten Serieninformationen zu ermitteln
     private seriesLookup: (series: string) => ISeriesMapping;
+
+    // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
+    private timeout: number = null;
 
     private languageMap: LanguageSelectors;
 
@@ -62,13 +67,14 @@ class RecordingFilter extends SearchRequestContract {
                     if (propertyName != 'languageMap')
                         if (propertyName != 'genreMap')
                             if (propertyName != 'seriesMap')
-                                return propertyValue;
+                                if (propertyName != 'timeout')
+                                    return propertyValue;
 
         return undefined;
     }
 
     // Setzt die Suchbedingung und die zugehörigen Oberflächenelemente auf den Grundzustand zurück und fordert ein neues Suchergebnis an
-    reset(): void {
+    reset(query: boolean): void {
         this.language = null;
         this.languageMap.resetFilter();
 
@@ -87,11 +93,34 @@ class RecordingFilter extends SearchRequestContract {
         $('#textSearch').val(null);
 
         this.page = 0;
+
+        if (query)
+            this.query();
+    }
+
+    // Asynchrone automatische Suche deaktivieren
+    private stopAutoQuery(): void {
+        if (this.timeout != null)
+            window.clearTimeout(this.timeout);
+
+        this.timeout = null;
+    }
+
+    // Automatisch Suche nach der Änderung der Texteingabe
+    private onAutoQuery(): void {
+        var newText = $('#textSearch').val();
+        if (this.text == newText)
+            return;
+
+        this.text = newText;
+        this.page = 0;
         this.query();
     }
 
     // Führt eine Suche mit der aktuellen Einschränkung aus
     query(): void {
+        this.stopAutoQuery();
+
         // Anzeige auf der Oberfläche herrichten
         var busyIndicator = $('#busyIndicator');
         busyIndicator.removeClass(Styles.idle);
@@ -130,42 +159,43 @@ class RecordingFilter extends SearchRequestContract {
             });
     }
 
+    // Jeder Tastendruck führt verzögert zu einer neuen Suche
     private onTextChanged(): void {
-        this.text = $('#textSearch').val();
-        this.page = 0;
+        this.stopAutoQuery();
+        this.timeout = window.setTimeout(() => this.onAutoQuery(), 300);
     }
 
+    // Verbindet die Oberflächenelemente der Freitextsuche
     private prepareText(): void {
-        var textSearch = $('#textSearch');
-
-        textSearch.on('change', () => this.onTextChanged());
-        textSearch.on('input', () => this.onTextChanged());
-        textSearch.on('keypress', (e: JQueryEventObject): void => {
-            if (e.which == 13)
-                this.query();
-        });
+        $('#textSearch').on('change', () => this.onTextChanged());
+        $('#textSearch').on('input', () => this.onTextChanged());
+        $('#textSearch').on('keypress', () => this.onTextChanged());
     }
 
+    // Die Auswahl des Ausleihers wurde verändert
     private onRentChanged(): void {
-        var rentChooser = $('#rentFilter');
-        var choice: string = rentChooser.find(':checked').val();
-        var newRent: boolean = null;
+        // Es ist immer nur eine Auswahl aktiv
+        var choice: string = $('#rentFilter').find(':checked').val();
 
+        // Und uns interessieren nur Änderungen
+        var newRent: boolean = null;
         if (choice.length > 0)
             newRent = (choice == '1');
         if (this.rent == newRent)
             return;
 
+        // Suche aktualisieren
         this.rent = newRent;
         this.page = 0;
-
         this.query();
     }
 
+    // Bereitet die Auswahl des Ausleihers vor
     private prepareRent(): void {
-        $('#rentFilter').buttonset().click(() => this.onRentChanged());
+        $('#rentFilter').buttonset().change(() => this.onRentChanged());
     }
 
+    // Legt die bekannten Sprachen fest
     setLanguages(languages: ILanguageContract[]): void {
         this.language = null;
         this.page = 0;
@@ -173,38 +203,50 @@ class RecordingFilter extends SearchRequestContract {
         this.languageMap.initialize(languages);
     }
 
+    // Setzt die Anzahl von Aufzeichnungen pro Sprache gemäß der aktuelle Suchbedingung
     setLanguageCounts(languages: ILanguageStatisticsContract[]): void {
         this.languageMap.setCounts(languages);
     }
 
+    // Die Auswahl der Sprache wurde verändert
     private onLanguageChanged(): void {
-        this.language = this.languageMap.container.find(':checked').val();
-        this.page = 0;
+        // Wir reagieren nur auf Veränderungen
+        var newLanguage = this.languageMap.container.find(':checked').val();
+        if (this.language == newLanguage)
+            return;
 
+        // Suche aktualisieren
+        this.language = newLanguage;
+        this.page = 0;
         this.query();
     }
 
+    // Verbindet die Oberflächenelemente zur Auswahl der Sprache
     private prepareLanguage(): void {
         this.languageMap = new LanguageSelectors('#languageFilter');
-
-        this.languageMap.container.click(() => this.onLanguageChanged());
+        this.languageMap.container.change(() => this.onLanguageChanged());
     }
 
+    // Meldet alle bekannten Arten von Aufzeichnungen
     setGenres(genres: IGenreContract[]): void {
         this.genreMap.initialize(genres, () => this.onGenreChanged(true));
         this.onGenreChanged(false);
     }
 
+    // Meldet die Anzahl der Aufzeichnungen pro 
     setGenreCounts(genres: IGenreStatisticsContract[]): void {
         this.genreMap.setCounts(genres);
     }
 
+    // Die Auswahl der Art von Aufzeichnung wurde verändert
     private onGenreChanged(query: boolean): void {
         this.genres = [];
         this.page = 0;
 
+        // Erst einmal sammeln wir alle Arten, die angewählt sind
         this.genreMap.foreachSelected(checkbox => this.genres.push(checkbox.attr('name')));
 
+        // Dann machen wir daraus einen Gesamttext als schnelle Übersicht für den Anwender
         var genreFilterHeader = $('#genreFilterHeader');
         if (this.genres.length < 1)
             genreFilterHeader.text('(egal)');
@@ -215,6 +257,7 @@ class RecordingFilter extends SearchRequestContract {
             this.query();
     }
 
+    // Verbindet die Oberflächenelemente zur Auswahl der Art von Aufzeichnung
     private prepareGenre(): void {
         this.genreMap = new GenreSelectors('#genreFilter');
     }
@@ -242,7 +285,6 @@ class RecordingFilter extends SearchRequestContract {
     // Verbindet mit dem Oberflächenelement zur Auswahl der Serie
     private prepareSeries(): void {
         this.seriesMap = new SeriesSelectors('#seriesFilter');
-
         this.seriesMap.container.change(() => this.onSeriesChanged());
     }
 

@@ -296,7 +296,7 @@ module MovieDatabase {
                 this.recordingFilter.query();
             });
 
-            $('#resetQuery').button().click(() => this.recordingFilter.reset());
+            $('#resetQuery').button().click(() => this.recordingFilter.reset(true));
 
             $('.navigationButton').button();
 

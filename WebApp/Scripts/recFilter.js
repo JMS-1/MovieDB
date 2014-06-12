@@ -18,6 +18,8 @@ var RecordingFilter = (function (_super) {
         _super.call(this);
         // Hiermit stellen wir sicher, dass ein nervös klickender Anwender immer nur das letzte Suchergebnis bekommt
         this.pending = 0;
+        // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
+        this.timeout = null;
 
         this.callback = resultProcessor;
         this.seriesLookup = getSeries;
@@ -27,6 +29,8 @@ var RecordingFilter = (function (_super) {
         this.prepareGenre();
         this.prepareSeries();
         this.prepareLanguage();
+
+        this.reset(false);
     }
     // Stellt sicher, dass bei der Serialisierung keine internen Strukturen übertragen werden
     RecordingFilter.propertyFilter = function (propertyName, propertyValue) {
@@ -36,13 +40,14 @@ var RecordingFilter = (function (_super) {
                     if (propertyName != 'languageMap')
                         if (propertyName != 'genreMap')
                             if (propertyName != 'seriesMap')
-                                return propertyValue;
+                                if (propertyName != 'timeout')
+                                    return propertyValue;
 
         return undefined;
     };
 
     // Setzt die Suchbedingung und die zugehörigen Oberflächenelemente auf den Grundzustand zurück und fordert ein neues Suchergebnis an
-    RecordingFilter.prototype.reset = function () {
+    RecordingFilter.prototype.reset = function (query) {
         this.language = null;
         this.languageMap.resetFilter();
 
@@ -61,12 +66,35 @@ var RecordingFilter = (function (_super) {
         $('#textSearch').val(null);
 
         this.page = 0;
+
+        if (query)
+            this.query();
+    };
+
+    // Asynchrone automatische Suche deaktivieren
+    RecordingFilter.prototype.stopAutoQuery = function () {
+        if (this.timeout != null)
+            window.clearTimeout(this.timeout);
+
+        this.timeout = null;
+    };
+
+    // Automatisch Suche nach der Änderung der Texteingabe
+    RecordingFilter.prototype.onAutoQuery = function () {
+        var newText = $('#textSearch').val();
+        if (this.text == newText)
+            return;
+
+        this.text = newText;
+        this.page = 0;
         this.query();
     };
 
     // Führt eine Suche mit der aktuellen Einschränkung aus
     RecordingFilter.prototype.query = function () {
         var _this = this;
+        this.stopAutoQuery();
+
         // Anzeige auf der Oberfläche herrichten
         var busyIndicator = $('#busyIndicator');
         busyIndicator.removeClass(Styles.idle);
@@ -107,50 +135,56 @@ var RecordingFilter = (function (_super) {
         });
     };
 
+    // Jeder Tastendruck führt verzögert zu einer neuen Suche
     RecordingFilter.prototype.onTextChanged = function () {
-        this.text = $('#textSearch').val();
-        this.page = 0;
+        var _this = this;
+        this.stopAutoQuery();
+        this.timeout = window.setTimeout(function () {
+            return _this.onAutoQuery();
+        }, 300);
     };
 
+    // Verbindet die Oberflächenelemente der Freitextsuche
     RecordingFilter.prototype.prepareText = function () {
         var _this = this;
-        var textSearch = $('#textSearch');
-
-        textSearch.on('change', function () {
+        $('#textSearch').on('change', function () {
             return _this.onTextChanged();
         });
-        textSearch.on('input', function () {
+        $('#textSearch').on('input', function () {
             return _this.onTextChanged();
         });
-        textSearch.on('keypress', function (e) {
-            if (e.which == 13)
-                _this.query();
+        $('#textSearch').on('keypress', function () {
+            return _this.onTextChanged();
         });
     };
 
+    // Die Auswahl des Ausleihers wurde verändert
     RecordingFilter.prototype.onRentChanged = function () {
-        var rentChooser = $('#rentFilter');
-        var choice = rentChooser.find(':checked').val();
-        var newRent = null;
+        // Es ist immer nur eine Auswahl aktiv
+        var choice = $('#rentFilter').find(':checked').val();
 
+        // Und uns interessieren nur Änderungen
+        var newRent = null;
         if (choice.length > 0)
             newRent = (choice == '1');
         if (this.rent == newRent)
             return;
 
+        // Suche aktualisieren
         this.rent = newRent;
         this.page = 0;
-
         this.query();
     };
 
+    // Bereitet die Auswahl des Ausleihers vor
     RecordingFilter.prototype.prepareRent = function () {
         var _this = this;
-        $('#rentFilter').buttonset().click(function () {
+        $('#rentFilter').buttonset().change(function () {
             return _this.onRentChanged();
         });
     };
 
+    // Legt die bekannten Sprachen fest
     RecordingFilter.prototype.setLanguages = function (languages) {
         this.language = null;
         this.page = 0;
@@ -158,26 +192,34 @@ var RecordingFilter = (function (_super) {
         this.languageMap.initialize(languages);
     };
 
+    // Setzt die Anzahl von Aufzeichnungen pro Sprache gemäß der aktuelle Suchbedingung
     RecordingFilter.prototype.setLanguageCounts = function (languages) {
         this.languageMap.setCounts(languages);
     };
 
+    // Die Auswahl der Sprache wurde verändert
     RecordingFilter.prototype.onLanguageChanged = function () {
-        this.language = this.languageMap.container.find(':checked').val();
-        this.page = 0;
+        // Wir reagieren nur auf Veränderungen
+        var newLanguage = this.languageMap.container.find(':checked').val();
+        if (this.language == newLanguage)
+            return;
 
+        // Suche aktualisieren
+        this.language = newLanguage;
+        this.page = 0;
         this.query();
     };
 
+    // Verbindet die Oberflächenelemente zur Auswahl der Sprache
     RecordingFilter.prototype.prepareLanguage = function () {
         var _this = this;
         this.languageMap = new LanguageSelectors('#languageFilter');
-
-        this.languageMap.container.click(function () {
+        this.languageMap.container.change(function () {
             return _this.onLanguageChanged();
         });
     };
 
+    // Meldet alle bekannten Arten von Aufzeichnungen
     RecordingFilter.prototype.setGenres = function (genres) {
         var _this = this;
         this.genreMap.initialize(genres, function () {
@@ -186,19 +228,23 @@ var RecordingFilter = (function (_super) {
         this.onGenreChanged(false);
     };
 
+    // Meldet die Anzahl der Aufzeichnungen pro
     RecordingFilter.prototype.setGenreCounts = function (genres) {
         this.genreMap.setCounts(genres);
     };
 
+    // Die Auswahl der Art von Aufzeichnung wurde verändert
     RecordingFilter.prototype.onGenreChanged = function (query) {
         var _this = this;
         this.genres = [];
         this.page = 0;
 
+        // Erst einmal sammeln wir alle Arten, die angewählt sind
         this.genreMap.foreachSelected(function (checkbox) {
             return _this.genres.push(checkbox.attr('name'));
         });
 
+        // Dann machen wir daraus einen Gesamttext als schnelle Übersicht für den Anwender
         var genreFilterHeader = $('#genreFilterHeader');
         if (this.genres.length < 1)
             genreFilterHeader.text('(egal)');
@@ -209,6 +255,7 @@ var RecordingFilter = (function (_super) {
             this.query();
     };
 
+    // Verbindet die Oberflächenelemente zur Auswahl der Art von Aufzeichnung
     RecordingFilter.prototype.prepareGenre = function () {
         this.genreMap = new GenreSelectors('#genreFilter');
     };
@@ -240,7 +287,6 @@ var RecordingFilter = (function (_super) {
     RecordingFilter.prototype.prepareSeries = function () {
         var _this = this;
         this.seriesMap = new SeriesSelectors('#seriesFilter');
-
         this.seriesMap.container.change(function () {
             return _this.onSeriesChanged();
         });
