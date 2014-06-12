@@ -29,10 +29,10 @@ var Styles = (function () {
 var GenreSelector = (function () {
     function GenreSelector(genre, container, onChange) {
         var id = 'genreCheckbox' + genre.id;
-        var span = $('<span class="withLabel" />').appendTo(container);
+        var block = $('<div class="withLabel" />').appendTo(container);
 
-        this.checkbox = $('<input />', { type: 'checkbox', id: id, name: genre.id }).appendTo(span).change(onChange);
-        this.label = $('<label />', { 'for': id, text: genre.description }).appendTo(span);
+        this.checkbox = $('<input />', { type: 'checkbox', id: id, name: genre.id }).appendTo(block).change(onChange);
+        this.label = $('<label />', { 'for': id, text: genre.description }).appendTo(block);
         this.description = genre.description;
     }
     GenreSelector.prototype.reset = function () {
@@ -96,10 +96,10 @@ var GenreSelectors = (function () {
 var LanguageSelector = (function () {
     function LanguageSelector(language, container) {
         var id = 'languageOption' + language.id;
-        var span = $('<span class="withLabel" />').appendTo(container);
+        var block = $('<div class="withLabel" />').appendTo(container);
 
-        this.radio = $('<input />', { type: 'radio', id: id, name: LanguageSelector.optionGroupName, value: language.id }).appendTo(span);
-        this.label = $('<label />', { 'for': id, text: language.description }).appendTo(span);
+        this.radio = $('<input />', { type: 'radio', id: id, name: LanguageSelector.optionGroupName, value: language.id }).appendTo(block);
+        this.label = $('<label />', { 'for': id, text: language.description }).appendTo(block);
         this.description = language.description;
     }
     LanguageSelector.prototype.reset = function () {
@@ -132,9 +132,9 @@ var LanguageSelectors = (function () {
         this.container.empty();
         this.languages = {};
 
-        var span = $('<span class="withLabel" />').appendTo(this.container);
-        $('<input />', { type: 'radio', id: 'anyLanguageChoice', name: LanguageSelector.optionGroupName, value: '', checked: 'checked' }).appendTo(span);
-        $('<label />', { 'for': 'anyLanguageChoice', text: '(egal)' }).appendTo(span);
+        var block = $('<div class="withLabel" />').appendTo(this.container);
+        $('<input />', { type: 'radio', id: 'anyLanguageChoice', name: LanguageSelector.optionGroupName, value: '', checked: 'checked' }).appendTo(block);
+        $('<label />', { 'for': 'anyLanguageChoice', text: '(egal)' }).appendTo(block);
 
         $.each(languages, function (index, language) {
             return _this.languages[language.id] = new LanguageSelector(language, _this.container);

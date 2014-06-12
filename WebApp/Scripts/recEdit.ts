@@ -6,7 +6,7 @@ class RecordingEditor {
     constructor(recording: IRecordingEditContract) {
         this.original = recording;
 
-        $('#recordingTitle').val(recording.title);
+        $('#recordingEditTitle').val(recording.title);
 
         $('#editRecordingMode').removeClass(Styles.invisble);
     }
@@ -17,7 +17,7 @@ class RecordingEditor {
         var newData: IRecordingEditContract =
             {
                 languages: this.original.languages,
-                title: $('#recordingTitle').val(),
+                title: $('#recordingEditTitle').val(),
                 series: this.original.series,
                 genres: this.original.genres,
                 rent: this.original.rent,

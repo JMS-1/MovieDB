@@ -5,14 +5,14 @@ var RecordingEditor = (function () {
     function RecordingEditor(recording) {
         this.original = recording;
 
-        $('#recordingTitle').val(recording.title);
+        $('#recordingEditTitle').val(recording.title);
 
         $('#editRecordingMode').removeClass(Styles.invisble);
     }
     RecordingEditor.prototype.save = function () {
         var newData = {
             languages: this.original.languages,
-            title: $('#recordingTitle').val(),
+            title: $('#recordingEditTitle').val(),
             series: this.original.series,
             genres: this.original.genres,
             rent: this.original.rent,
