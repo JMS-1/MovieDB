@@ -68,7 +68,7 @@ var GenreSelectors = (function () {
         });
     };
 
-    GenreSelectors.prototype.setCount = function (statistics) {
+    GenreSelectors.prototype.setCounts = function (statistics) {
         var _this = this;
         $.each(this.genres, function (key, genre) {
             return genre.reset();

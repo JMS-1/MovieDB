@@ -74,7 +74,7 @@ class GenreSelectors {
         $.each(genres, (index, genre) => this.genres[genre.id] = new GenreSelector(genre, this.container, onChange));
     }
 
-    setCount(statistics: IGenreStatisticsContract[]): void {
+    setCounts(statistics: IGenreStatisticsContract[]): void {
         $.each(this.genres, (key, genre: GenreSelector) => genre.reset());
         $.each(statistics, (index, genre) => (<GenreSelector>this.genres[genre.id]).setCount(genre.count));
     }

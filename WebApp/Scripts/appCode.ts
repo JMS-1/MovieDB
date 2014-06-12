@@ -6,10 +6,6 @@
 
 module MovieDatabase {
 
-    interface ISeriesMapping extends ISeriesMappingContract {
-        children: ISeriesMapping[];
-    }
-
     interface IApplicationInformation extends IApplicationInformationContract {
         series: ISeriesMapping[];
     };
@@ -47,10 +43,6 @@ module MovieDatabase {
 
         private allSeries: any = {}
 
-        private genreMap: GenreSelectors;
-
-        private seriesMap: SeriesSelectors;
-
         private migrate(): void {
             var legacyFile = $('#theFile');
 
@@ -73,34 +65,6 @@ module MovieDatabase {
 
         private refresh(): void {
             this.requestApplicationInformation().done(info => this.fillApplicationInformation(info));
-        }
-
-        private setSeries(): void {
-            this.recordingFilter.series = [];
-            this.recordingFilter.page = 0;
-
-            this.seriesMap.initialize(this.currentApplicationInformation.series);
-        }
-
-        private setGenres(): void {
-            this.genreMap.initialize(this.currentApplicationInformation.genres, () => this.genreChanged(true));
-            this.genreChanged(false);
-        }
-
-        private genreChanged(query: boolean): void {
-            this.recordingFilter.genres = [];
-            this.recordingFilter.page = 0;
-
-            this.genreMap.foreachSelected(checkbox => this.recordingFilter.genres.push(checkbox.attr('name')));
-
-            var genreFilterHeader = $('#genreFilterHeader');
-            if (this.recordingFilter.genres.length < 1)
-                genreFilterHeader.text('(egal)');
-            else
-                genreFilterHeader.text(this.recordingFilter.genres.join(' und '));
-
-            if (query)
-                this.recordingFilter.query();
         }
 
         private buildSeriesMapping(): void {
@@ -141,8 +105,8 @@ module MovieDatabase {
             this.buildSeriesMapping();
 
             this.recordingFilter.setLanguages(info.languages);
-            this.setGenres();
-            this.setSeries();
+            this.recordingFilter.setGenres(info.genres);
+            this.recordingFilter.setSeries(info.series);
 
             this.recordingFilter.query();
         }
@@ -225,7 +189,7 @@ module MovieDatabase {
 
             // Trefferanzahl für die einzelnen Aufzeichnungsarten einblenden
             this.recordingFilter.setLanguageCounts(results.languages);
-            this.genreMap.setCount(results.genres);
+            this.recordingFilter.setGenreCounts(results.genres);
 
             var tableBody = $('#recordingTable>tbody');
 
@@ -278,17 +242,6 @@ module MovieDatabase {
             $('#editRecordingMode').removeClass(Styles.invisble);
         }
 
-        private applySeriesToFilter(series: string): void {
-            if (series.length > 0)
-                this.applySeriesToFilterRecursive(this.allSeries[series]);
-        }
-
-        private applySeriesToFilterRecursive(series: ISeriesMapping): void {
-            this.recordingFilter.series.push(series.id);
-
-            $.each(series.children, (index, child) => this.applySeriesToFilterRecursive(child));
-        }
-
         private disableSort(indicator: JQuery): void {
             indicator.removeClass(Styles.sortedDown);
             indicator.removeClass(Styles.sortedUp);
@@ -306,25 +259,13 @@ module MovieDatabase {
         }
 
         private startup(): void {
-            this.recordingFilter = new RecordingFilter(result => this.fillResultTable(result));
-
-            this.seriesMap = new SeriesSelectors('#seriesFilter');
-            this.genreMap = new GenreSelectors('#genreFilter');
+            this.recordingFilter = new RecordingFilter(result => this.fillResultTable(result), series => this.allSeries[series]);
 
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');
 
             legacyFile.change(() => this.migrate());
             migrateButton.button().click(() => legacyFile.click());
-
-            this.seriesMap.container.change(() => {
-                this.recordingFilter.series = [];
-                this.recordingFilter.page = 0;
-
-                this.applySeriesToFilter(this.seriesMap.container.val());
-
-                this.recordingFilter.query();
-            });
 
             var pageSize = $('#pageSize');
             pageSize.change(() => {
@@ -355,13 +296,7 @@ module MovieDatabase {
                 this.recordingFilter.query();
             });
 
-            $('#resetQuery').button().click(() => {
-                this.seriesMap.resetFilter();
-                this.genreMap.resetFilter();
-                this.genreChanged(false);
-
-                this.recordingFilter.reset();
-            });
+            $('#resetQuery').button().click(() => this.recordingFilter.reset());
 
             $('.navigationButton').button();
 

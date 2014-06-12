@@ -61,40 +61,6 @@ var MovieDatabase;
             });
         };
 
-        Application.prototype.setSeries = function () {
-            this.recordingFilter.series = [];
-            this.recordingFilter.page = 0;
-
-            this.seriesMap.initialize(this.currentApplicationInformation.series);
-        };
-
-        Application.prototype.setGenres = function () {
-            var _this = this;
-            this.genreMap.initialize(this.currentApplicationInformation.genres, function () {
-                return _this.genreChanged(true);
-            });
-            this.genreChanged(false);
-        };
-
-        Application.prototype.genreChanged = function (query) {
-            var _this = this;
-            this.recordingFilter.genres = [];
-            this.recordingFilter.page = 0;
-
-            this.genreMap.foreachSelected(function (checkbox) {
-                return _this.recordingFilter.genres.push(checkbox.attr('name'));
-            });
-
-            var genreFilterHeader = $('#genreFilterHeader');
-            if (this.recordingFilter.genres.length < 1)
-                genreFilterHeader.text('(egal)');
-            else
-                genreFilterHeader.text(this.recordingFilter.genres.join(' und '));
-
-            if (query)
-                this.recordingFilter.query();
-        };
-
         Application.prototype.buildSeriesMapping = function () {
             var _this = this;
             this.allSeries = {};
@@ -134,8 +100,8 @@ var MovieDatabase;
             this.buildSeriesMapping();
 
             this.recordingFilter.setLanguages(info.languages);
-            this.setGenres();
-            this.setSeries();
+            this.recordingFilter.setGenres(info.genres);
+            this.recordingFilter.setSeries(info.series);
 
             this.recordingFilter.query();
         };
@@ -214,7 +180,7 @@ var MovieDatabase;
 
             // Trefferanzahl für die einzelnen Aufzeichnungsarten einblenden
             this.recordingFilter.setLanguageCounts(results.languages);
-            this.genreMap.setCount(results.genres);
+            this.recordingFilter.setGenreCounts(results.genres);
 
             var tableBody = $('#recordingTable>tbody');
 
@@ -270,20 +236,6 @@ var MovieDatabase;
             $('#editRecordingMode').removeClass(Styles.invisble);
         };
 
-        Application.prototype.applySeriesToFilter = function (series) {
-            if (series.length > 0)
-                this.applySeriesToFilterRecursive(this.allSeries[series]);
-        };
-
-        Application.prototype.applySeriesToFilterRecursive = function (series) {
-            var _this = this;
-            this.recordingFilter.series.push(series.id);
-
-            $.each(series.children, function (index, child) {
-                return _this.applySeriesToFilterRecursive(child);
-            });
-        };
-
         Application.prototype.disableSort = function (indicator) {
             indicator.removeClass(Styles.sortedDown);
             indicator.removeClass(Styles.sortedUp);
@@ -304,10 +256,9 @@ var MovieDatabase;
             var _this = this;
             this.recordingFilter = new RecordingFilter(function (result) {
                 return _this.fillResultTable(result);
+            }, function (series) {
+                return _this.allSeries[series];
             });
-
-            this.seriesMap = new SeriesSelectors('#seriesFilter');
-            this.genreMap = new GenreSelectors('#genreFilter');
 
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');
@@ -317,15 +268,6 @@ var MovieDatabase;
             });
             migrateButton.button().click(function () {
                 return legacyFile.click();
-            });
-
-            this.seriesMap.container.change(function () {
-                _this.recordingFilter.series = [];
-                _this.recordingFilter.page = 0;
-
-                _this.applySeriesToFilter(_this.seriesMap.container.val());
-
-                _this.recordingFilter.query();
             });
 
             var pageSize = $('#pageSize');
@@ -358,11 +300,7 @@ var MovieDatabase;
             });
 
             $('#resetQuery').button().click(function () {
-                _this.seriesMap.resetFilter();
-                _this.genreMap.resetFilter();
-                _this.genreChanged(false);
-
-                _this.recordingFilter.reset();
+                return _this.recordingFilter.reset();
             });
 
             $('.navigationButton').button();
