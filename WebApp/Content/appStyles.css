@@ -68,4 +68,10 @@
 .editLabel {
   width: 10em;
 }
+#recordingEditLocation {
+  margin-left: 5px;
+}
+.validationError {
+  border: 2px solid red;
+}
 /*# sourceMappingURL=appStyles.css.map */

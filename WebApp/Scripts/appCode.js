@@ -305,9 +305,15 @@ var MovieDatabase;
             $('#gotoQuery').click(function () {
                 return window.location.hash = '';
             });
-            $('#updateRecording').click(function () {
+
+            var validate = function () {
+                return _this.currentRecording.validate();
+            };
+            RecordingEditor.saveButton().click(function () {
                 return _this.currentRecording.save();
             });
+            RecordingEditor.titleField().on('change', validate);
+            RecordingEditor.titleField().on('input', validate);
 
             // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
             this.requestApplicationInformation().done(function (info) {

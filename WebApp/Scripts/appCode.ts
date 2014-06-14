@@ -298,7 +298,11 @@ module MovieDatabase {
             $('.navigationButton, .editButton').button();
 
             $('#gotoQuery').click(() => window.location.hash = '');
-            $('#updateRecording').click(() => this.currentRecording.save());
+
+            var validate = () => this.currentRecording.validate();
+            RecordingEditor.saveButton().click(() => this.currentRecording.save());
+            RecordingEditor.titleField().on('change', validate);
+            RecordingEditor.titleField().on('input', validate);
 
             // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
             this.requestApplicationInformation().done(info => {

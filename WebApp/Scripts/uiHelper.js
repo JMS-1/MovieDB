@@ -23,7 +23,28 @@ var Styles = (function () {
     Styles.sortedUp = 'ui-icon-arrowthick-1-n';
 
     Styles.sortedDown = 'ui-icon-arrowthick-1-s';
+
+    Styles.inputError = 'validationError';
     return Styles;
+})();
+
+var Tools = (function () {
+    function Tools() {
+    }
+    Tools.setError = function (field, message) {
+        if (message == null) {
+            field.removeClass(Styles.inputError);
+            field.removeAttr('title');
+
+            return false;
+        } else {
+            field.addClass(Styles.inputError);
+            field.attr('title', message);
+
+            return true;
+        }
+    };
+    return Tools;
 })();
 
 var GenreSelector = (function () {

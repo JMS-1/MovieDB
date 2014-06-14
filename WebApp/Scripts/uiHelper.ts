@@ -22,6 +22,25 @@ class Styles {
     static sortedUp = 'ui-icon-arrowthick-1-n';
 
     static sortedDown = 'ui-icon-arrowthick-1-s';
+
+    static inputError = 'validationError';
+}
+
+class Tools {
+    static setError(field: JQuery, message: string): boolean {
+        if (message == null) {
+            field.removeClass(Styles.inputError);
+            field.removeAttr('title');
+
+            return false;
+        }
+        else {
+            field.addClass(Styles.inputError);
+            field.attr('title', message);
+
+            return true;
+        }
+    }
 }
 
 class GenreSelector {
