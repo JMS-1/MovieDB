@@ -348,6 +348,10 @@ var MovieDatabase;
                 // Ab jetzt sind wir bereit
                 $('#main').removeClass(Styles.invisble);
             });
+
+            $('#openGenreEditDialog').click(function () {
+                return $('#genreEditDialog').dialog({ modal: true, width: '80%' });
+            });
         };
         Application.Current = new Application();
         return Application;

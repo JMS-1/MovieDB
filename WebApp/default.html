@@ -18,6 +18,10 @@
 
 <body>
 
+    <div id="genreEditDialog" title="Pflege der Arten von Aufzeichnungen" class="invisible dialog">
+        Nanu!
+    </div>
+
     <h1 id="headline">(Bitte etwas Geduld)</h1>
     <h4 id="countline"><span id="countInfo"></span><span id="busyIndicator" class="ui-icon ui-icon-power"></span></h4>
 
@@ -112,7 +116,14 @@
                             </tr>
                             <tr>
                                 <td class="editLabel">Genres:</td>
-                                <td class="editField genreEdit"><div id="recordingEditGenre" /></td>
+                                <td class="editField genreEdit">
+                                    <table>
+                                        <tr>
+                                            <td><div id="recordingEditGenre"></div></td>
+                                            <td><a id="openGenreEditDialog" class="editButton" href="javascript:void(0)">...</a></td>
+                                        </tr>
+                                    </table>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="editLabel">Sprachen:</td>

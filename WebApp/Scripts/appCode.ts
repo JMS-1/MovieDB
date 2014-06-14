@@ -331,6 +331,8 @@ module MovieDatabase {
                 // Ab jetzt sind wir bereit
                 $('#main').removeClass(Styles.invisble);
             });
+
+            $('#openGenreEditDialog').click(() => $('#genreEditDialog').dialog({ modal: true, width: '80%' }));
         }
     }
 } 
