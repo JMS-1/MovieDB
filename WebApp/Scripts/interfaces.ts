@@ -97,6 +97,21 @@ interface IApplicationInformationContract {
     seriesSeparator: string;
 };
 
+// Die Eingangsinformationen zum Pflegen einer Art von Aufzeichnung
+interface IGenreEditInfo {
+    id: string;
+
+    name: string;
+
+    unused: boolean;
+}
+
+interface IGenreEdit {
+    id: string;
+
+    name: string;
+}
+
 class SearchRequestContract {
     size: number = 15;
 

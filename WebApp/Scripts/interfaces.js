@@ -16,6 +16,7 @@ var OrderSelector = (function () {
 
 ;
 
+
 var SearchRequestContract = (function () {
     function SearchRequestContract() {
         this.size = 15;

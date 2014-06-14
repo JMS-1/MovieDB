@@ -4,6 +4,7 @@
 /// <reference path='uiHelper.ts' />
 /// <reference path='recFilter.ts' />
 /// <reference path='recEdit.ts' />
+/// <reference path='genreEdit.ts' />
 var MovieDatabase;
 (function (MovieDatabase) {
     ;
@@ -100,16 +101,17 @@ var MovieDatabase;
 
             this.buildSeriesMapping();
 
-            this.genreEditor.reset(info.genres, function (g) {
-                return g.id;
-            }, function (g) {
-                return g.description;
-            });
             this.languageEditor.reset(info.languages, function (l) {
                 return l.id;
             }, function (l) {
                 return l.description;
             });
+            this.genreEditor.reset(info.genres, function (g) {
+                return g.id;
+            }, function (g) {
+                return g.description;
+            });
+            this.genreDialog.reset(info.genres);
 
             this.recordingFilter.setLanguages(info.languages);
             this.recordingFilter.setGenres(info.genres);
@@ -274,6 +276,7 @@ var MovieDatabase;
             });
             this.languageEditor = new MultiValueEditor('#recordingEditLanguage', validateRecordingEditForm);
             this.genreEditor = new MultiValueEditor('#recordingEditGenre', validateRecordingEditForm);
+            this.genreDialog = new GenreEditor('#openGenreEditDialog');
 
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');
@@ -347,10 +350,6 @@ var MovieDatabase;
 
                 // Ab jetzt sind wir bereit
                 $('#main').removeClass(Styles.invisble);
-            });
-
-            $('#openGenreEditDialog').click(function () {
-                return $('#genreEditDialog').dialog({ modal: true, width: '80%' });
             });
         };
         Application.Current = new Application();

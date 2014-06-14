@@ -4,6 +4,7 @@
 /// <reference path='uiHelper.ts' />
 /// <reference path='recFilter.ts' />
 /// <reference path='recEdit.ts' />
+/// <reference path='genreEdit.ts' />
 
 module MovieDatabase {
 
@@ -45,6 +46,8 @@ module MovieDatabase {
         private genreEditor: MultiValueEditor<IGenreContract>;
 
         private languageEditor: MultiValueEditor<ILanguageContract>;
+
+        private genreDialog: GenreEditor;
 
         private allSeries: any = {}
 
@@ -109,8 +112,9 @@ module MovieDatabase {
 
             this.buildSeriesMapping();
 
-            this.genreEditor.reset(info.genres, g => g.id, g => g.description);
             this.languageEditor.reset(info.languages, l => l.id, l => l.description);
+            this.genreEditor.reset(info.genres, g => g.id, g => g.description);
+            this.genreDialog.reset(info.genres);
 
             this.recordingFilter.setLanguages(info.languages);
             this.recordingFilter.setGenres(info.genres);
@@ -269,6 +273,7 @@ module MovieDatabase {
             this.recordingFilter = new RecordingFilter(result => this.fillResultTable(result), series => this.allSeries[series]);
             this.languageEditor = new MultiValueEditor<ILanguageContract>('#recordingEditLanguage', validateRecordingEditForm);
             this.genreEditor = new MultiValueEditor<IGenreContract>('#recordingEditGenre', validateRecordingEditForm);
+            this.genreDialog = new GenreEditor('#openGenreEditDialog');
 
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');
@@ -331,8 +336,6 @@ module MovieDatabase {
                 // Ab jetzt sind wir bereit
                 $('#main').removeClass(Styles.invisble);
             });
-
-            $('#openGenreEditDialog').click(() => $('#genreEditDialog').dialog({ modal: true, width: '80%' }));
         }
     }
 } 
