@@ -107,6 +107,8 @@ interface IGenreEditInfo {
 }
 
 interface IGenreEdit {
+    modify: boolean;
+
     id: string;
 
     name: string;

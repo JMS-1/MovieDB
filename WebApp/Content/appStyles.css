@@ -80,4 +80,7 @@
 .validationError {
   border: 2px solid red;
 }
+.dialog {
+  background-color: whitesmoke !important;
+}
 /*# sourceMappingURL=appStyles.css.map */

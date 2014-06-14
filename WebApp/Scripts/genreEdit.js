@@ -4,6 +4,7 @@
 var GenreEditor = (function () {
     function GenreEditor(openButtonSelector) {
         var _this = this;
+        this.createNewGenre = null;
         $(openButtonSelector).click(function () {
             return _this.open();
         });
@@ -43,26 +44,39 @@ var GenreEditor = (function () {
     GenreEditor.prototype.open = function () {
         this.choose();
 
-        GenreEditor.dialog().dialog({ modal: true, width: '80%' });
+        GenreEditor.dialog().dialog({
+            position: { of: '#dialogAnchor', at: 'center top+20', my: 'center top' },
+            modal: true,
+            width: '80%'
+        });
     };
 
     GenreEditor.prototype.validate = function () {
     };
 
     GenreEditor.prototype.choose = function () {
+        var _this = this;
+        var choosen = GenreEditor.genreChooser().val();
+
+        GenreEditor.nameField().prop('disabled', choosen.length > 0);
         GenreEditor.nameField().val('');
         GenreEditor.descriptionField().val('');
 
-        var choosen = GenreEditor.genreChooser().val();
+        if (choosen.length < 1) {
+            this.createNewGenre = true;
+        } else {
+            this.createNewGenre = null;
 
-        if (choosen.length > 0)
             $.ajax('movie/genre/' + choosen).done(function (info) {
                 if (info == null)
                     return;
 
                 GenreEditor.nameField().val(info.id);
                 GenreEditor.descriptionField().val(info.name);
+
+                _this.createNewGenre = false;
             });
+        }
     };
     return GenreEditor;
 })();

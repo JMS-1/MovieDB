@@ -26,6 +26,8 @@ class GenreEditor {
         GenreEditor.genreChooser().change(() => this.choose());
     }
 
+    private createNewGenre: boolean = null;
+
     reset(genres: IGenreContract[]): void {
         var chooser = GenreEditor.genreChooser();
 
@@ -39,25 +41,38 @@ class GenreEditor {
     private open(): void {
         this.choose();
 
-        GenreEditor.dialog().dialog({ modal: true, width: '80%' });
+        GenreEditor.dialog().dialog({
+            position: { of: '#dialogAnchor', at: 'center top+20', my: 'center top' },
+            modal: true,
+            width: '80%',
+        });
     }
 
     private validate(): void {
     }
 
     private choose(): void {
+        var choosen: string = GenreEditor.genreChooser().val();
+
+        GenreEditor.nameField().prop('disabled', choosen.length > 0);
         GenreEditor.nameField().val('');
         GenreEditor.descriptionField().val('');
 
-        var choosen: string = GenreEditor.genreChooser().val();
+        if (choosen.length < 1) {
+            this.createNewGenre = true;
+        }
+        else {
+            this.createNewGenre = null;
 
-        if (choosen.length > 0)
             $.ajax('movie/genre/' + choosen).done((info: IGenreEditInfo) => {
                 if (info == null)
                     return;
 
                 GenreEditor.nameField().val(info.id);
                 GenreEditor.descriptionField().val(info.name);
+
+                this.createNewGenre = false;
             });
+        }
     }
 }
