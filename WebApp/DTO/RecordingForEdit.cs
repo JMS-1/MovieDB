@@ -10,6 +10,12 @@ namespace WebApp.DTO
     public class RecordingForEdit : Recording
     {
         /// <summary>
+        /// Die Beschreibung der Aufzeichnung.
+        /// </summary>
+        [DataMember( Name = "description" )]
+        public string Description { get; set; }
+
+        /// <summary>
         /// Erstellt eine neue Beschreibung.
         /// </summary>
         /// <param name="recording">Die Repräsentation aus der Datenbank.</param>
@@ -34,6 +40,7 @@ namespace WebApp.DTO
         {
             return new RecordingForEdit( recording )
             {
+                Description = recording.Description,
             };
         }
     }

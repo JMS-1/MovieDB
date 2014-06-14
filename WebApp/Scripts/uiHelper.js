@@ -197,4 +197,63 @@ var SeriesSelectors = (function () {
     };
     return SeriesSelectors;
 })();
+
+var MultiValueEditor = (function () {
+    function MultiValueEditor(containerSelector, onChange) {
+        this.onChange = onChange;
+
+        this.container = $(containerSelector);
+        this.container.buttonset();
+    }
+    MultiValueEditor.prototype.value = function (newVal) {
+        if (newVal) {
+            var map = {};
+            $.each(newVal, function (index, id) {
+                return map[id] = true;
+            });
+
+            $.each(this.container.find('input[type=checkbox]'), function (index, checkbox) {
+                var selector = $(checkbox);
+
+                selector.prop('checked', map[selector.val()] == true);
+            });
+
+            this.container.buttonset('refresh');
+
+            return newVal;
+        } else {
+            var value = [];
+
+            $.each(this.container.find('input[type=checkbox]:checked'), function (index, checkbox) {
+                return value.push($(checkbox).val());
+            });
+
+            return value;
+        }
+    };
+
+    MultiValueEditor.prototype.reset = function (items, idSelector, nameSelector) {
+        var _this = this;
+        // Zuerst merken wir uns mal die aktuelle Einstellung
+        var previousValue = this.value();
+
+        // Dann wird die Oberfläche zurück gesetzt
+        this.container.empty();
+
+        // Und ganz neu aufgebaut
+        $.each(items, function (index, item) {
+            var id = "mve" + (++MultiValueEditor.idCounter);
+
+            var checkbox = $('<input />', { type: 'checkbox', id: id, value: idSelector(item) }).appendTo(_this.container).click(function () {
+                return _this.onChange();
+            });
+            var label = $('<label />', { 'for': id, text: nameSelector(item) }).appendTo(_this.container);
+        });
+
+        // Alle Werte, die wir ausgewählt haben, werden wieder aktiviert - sofern sie bekannt sind
+        this.value(previousValue);
+    };
+    MultiValueEditor.idCounter = 0;
+    return MultiValueEditor;
+})();
 //# sourceMappingURL=uiHelper.js.map

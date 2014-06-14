@@ -57,6 +57,7 @@ interface IRecordingRowContract extends IRecordingInfoContract {
 }
 
 interface IRecordingEditContract extends IRecordingInfoContract {
+    description: string;
 }
 
 // Die Eigenschaften, nach denen Aufzeichnungen sortiert werden können

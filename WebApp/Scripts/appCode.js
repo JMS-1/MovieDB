@@ -100,6 +100,17 @@ var MovieDatabase;
 
             this.buildSeriesMapping();
 
+            this.genreEditor.reset(info.genres, function (g) {
+                return g.id;
+            }, function (g) {
+                return g.description;
+            });
+            this.languageEditor.reset(info.languages, function (l) {
+                return l.id;
+            }, function (l) {
+                return l.description;
+            });
+
             this.recordingFilter.setLanguages(info.languages);
             this.recordingFilter.setGenres(info.genres);
             this.recordingFilter.setSeries(info.series);
@@ -230,7 +241,7 @@ var MovieDatabase;
         };
 
         Application.prototype.fillEditForm = function (recording) {
-            this.currentRecording = new RecordingEditor(recording);
+            this.currentRecording = new RecordingEditor(recording, this.genreEditor, this.languageEditor);
         };
 
         Application.prototype.disableSort = function (indicator) {
@@ -251,11 +262,18 @@ var MovieDatabase;
 
         Application.prototype.startup = function () {
             var _this = this;
+            // Man beachte, dass alle der folgenden Benachrichtigungen immer an den aktuellen Änderungsvorgang koppeln, so dass keine Abmeldung notwendig ist
+            var validateRecordingEditForm = function () {
+                return _this.currentRecording.validate();
+            };
+
             this.recordingFilter = new RecordingFilter(function (result) {
                 return _this.fillResultTable(result);
             }, function (series) {
                 return _this.allSeries[series];
             });
+            this.languageEditor = new MultiValueEditor('#recordingEditLanguage', validateRecordingEditForm);
+            this.genreEditor = new MultiValueEditor('#recordingEditGenre', validateRecordingEditForm);
 
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');
@@ -306,14 +324,15 @@ var MovieDatabase;
                 return window.location.hash = '';
             });
 
-            var validate = function () {
-                return _this.currentRecording.validate();
-            };
             RecordingEditor.saveButton().click(function () {
                 return _this.currentRecording.save();
             });
-            RecordingEditor.titleField().on('change', validate);
-            RecordingEditor.titleField().on('input', validate);
+            RecordingEditor.titleField().on('change', validateRecordingEditForm);
+            RecordingEditor.titleField().on('input', validateRecordingEditForm);
+            RecordingEditor.descriptionField().on('change', validateRecordingEditForm);
+            RecordingEditor.descriptionField().on('input', validateRecordingEditForm);
+            RecordingEditor.rentField().on('change', validateRecordingEditForm);
+            RecordingEditor.rentField().on('input', validateRecordingEditForm);
 
             // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
             this.requestApplicationInformation().done(function (info) {

@@ -42,6 +42,10 @@ module MovieDatabase {
 
         private currentRecording: RecordingEditor;
 
+        private genreEditor: MultiValueEditor<IGenreContract>;
+
+        private languageEditor: MultiValueEditor<ILanguageContract>;
+
         private allSeries: any = {}
 
         private migrate(): void {
@@ -104,6 +108,9 @@ module MovieDatabase {
             $('#countInfo').text('(Es gibt ' + info.total + ' Aufzeichnung' + ((info.total == 1) ? '' : 'en') + ')');
 
             this.buildSeriesMapping();
+
+            this.genreEditor.reset(info.genres, g => g.id, g => g.description);
+            this.languageEditor.reset(info.languages, l => l.id, l => l.description);
 
             this.recordingFilter.setLanguages(info.languages);
             this.recordingFilter.setGenres(info.genres);
@@ -236,7 +243,7 @@ module MovieDatabase {
         }
 
         private fillEditForm(recording: IRecordingEditContract): void {
-            this.currentRecording = new RecordingEditor(recording);
+            this.currentRecording = new RecordingEditor(recording, this.genreEditor, this.languageEditor);
         }
 
         private disableSort(indicator: JQuery): void {
@@ -256,7 +263,12 @@ module MovieDatabase {
         }
 
         private startup(): void {
+            // Man beachte, dass alle der folgenden Benachrichtigungen immer an den aktuellen Änderungsvorgang koppeln, so dass keine Abmeldung notwendig ist
+            var validateRecordingEditForm = () => this.currentRecording.validate();
+
             this.recordingFilter = new RecordingFilter(result => this.fillResultTable(result), series => this.allSeries[series]);
+            this.languageEditor = new MultiValueEditor<ILanguageContract>('#recordingEditLanguage', validateRecordingEditForm);
+            this.genreEditor = new MultiValueEditor<IGenreContract>('#recordingEditGenre', validateRecordingEditForm);
 
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');
@@ -299,10 +311,13 @@ module MovieDatabase {
 
             $('#gotoQuery').click(() => window.location.hash = '');
 
-            var validate = () => this.currentRecording.validate();
             RecordingEditor.saveButton().click(() => this.currentRecording.save());
-            RecordingEditor.titleField().on('change', validate);
-            RecordingEditor.titleField().on('input', validate);
+            RecordingEditor.titleField().on('change', validateRecordingEditForm);
+            RecordingEditor.titleField().on('input', validateRecordingEditForm);
+            RecordingEditor.descriptionField().on('change', validateRecordingEditForm);
+            RecordingEditor.descriptionField().on('input', validateRecordingEditForm);
+            RecordingEditor.rentField().on('change', validateRecordingEditForm);
+            RecordingEditor.rentField().on('input', validateRecordingEditForm);
 
             // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
             this.requestApplicationInformation().done(info => {

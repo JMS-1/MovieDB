@@ -193,3 +193,64 @@ class SeriesSelectors {
         $.each(series, (index, mapping) => $(new Option(mapping.hierarchicalName, mapping.id)).appendTo(this.container));
     }
 }
+
+class MultiValueEditor<T> {
+    constructor(containerSelector: string, onChange: () => void) {
+        this.onChange = onChange;
+
+        this.container = $(containerSelector);
+        this.container.buttonset();
+    }
+
+    private static idCounter = 0;
+
+    private onChange: () => void;
+
+    container: JQuery;
+
+    value(): string[];
+
+    value(newVal: string[]): void;
+
+    value(newVal?: string[]): string[] {
+        if (newVal) {
+            var map = {};
+            $.each(newVal, (index, id) => map[id] = true);
+
+            $.each(this.container.find('input[type=checkbox]'), (index, checkbox: HTMLInputElement) => {
+                var selector = $(checkbox);
+
+                selector.prop('checked', map[selector.val()] == true);
+            });
+
+            this.container.buttonset('refresh');
+
+            return newVal;
+        } else {
+            var value: string[] = [];
+
+            $.each(this.container.find('input[type=checkbox]:checked'), (index, checkbox: HTMLInputElement) => value.push($(checkbox).val()));
+
+            return value;
+        }
+    }
+
+    reset(items: T[], idSelector: (item: T) => string, nameSelector: (item: T) => string): void {
+        // Zuerst merken wir uns mal die aktuelle Einstellung
+        var previousValue = this.value();
+
+        // Dann wird die Oberfläche zurück gesetzt
+        this.container.empty();
+
+        // Und ganz neu aufgebaut
+        $.each(items, (index, item) => {
+            var id = "mve" + (++MultiValueEditor.idCounter);
+
+            var checkbox = $('<input />', { type: 'checkbox', id: id, value: idSelector(item) }).appendTo(this.container).click(() => this.onChange());
+            var label = $('<label />', { 'for': id, text: nameSelector(item) }).appendTo(this.container);
+        });
+
+        // Alle Werte, die wir ausgewählt haben, werden wieder aktiviert - sofern sie bekannt sind
+        this.value(previousValue);
+    }
+}
