@@ -12,9 +12,10 @@ class RecordingEditor {
         RecordingEditor.rentField().val(recording.rent);
         RecordingEditor.titleField().val(recording.title);
         RecordingEditor.descriptionField().val(recording.description);
+        RecordingEditor.seriesField().val(recording.series);
 
-        languageEditor.value(recording.languages);
-        genreEditor.value(recording.genres);
+        languageEditor.val(recording.languages);
+        genreEditor.val(recording.genres);
 
         this.validate();
 
@@ -67,6 +68,10 @@ class RecordingEditor {
         return $('#recordingEditRent');
     }
 
+    static setSeries(series: ISeriesMapping[]): void {
+        Tools.fillSeriesSelection(RecordingEditor.seriesField(), series, '(gehört zu keiner Serie)');
+    }
+
     save(): void {
         var newData = this.createContract();
 
@@ -80,9 +85,9 @@ class RecordingEditor {
                 description: (RecordingEditor.descriptionField().val() || '').trim(),
                 title: (RecordingEditor.titleField().val() || '').trim(),
                 rent: (RecordingEditor.rentField().val() || '').trim(),
-                languages: this.languageEditor.value(),
-                genres: this.genreEditor.value(),
-                series: this.original.series,
+                series: RecordingEditor.seriesField().val(),
+                languages: this.languageEditor.val(),
+                genres: this.genreEditor.val(),
                 id: this.original.id,
             };
 

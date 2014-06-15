@@ -44,6 +44,24 @@ var Tools = (function () {
             return true;
         }
     };
+
+    Tools.fillSeriesSelection = function (selector, series, nullSelection) {
+        Tools.fillSelection(selector, series, nullSelection, function (s) {
+            return s.id;
+        }, function (s) {
+            return s.hierarchicalName;
+        });
+    };
+
+    Tools.fillSelection = function (selector, items, nullSelection, getValue, getText) {
+        selector.empty();
+
+        $('<option />', { text: nullSelection, value: '' }).appendTo(selector);
+
+        $.each(items, function (index, item) {
+            return $('<option />', { text: getText(item), value: getValue(item) }).appendTo(selector);
+        });
+    };
     return Tools;
 })();
 
@@ -187,13 +205,7 @@ var SeriesSelectors = (function () {
     };
 
     SeriesSelectors.prototype.initialize = function (series) {
-        var _this = this;
-        this.container.empty();
-        this.container.append(new Option('(egal)', ''));
-
-        $.each(series, function (index, mapping) {
-            return $(new Option(mapping.hierarchicalName, mapping.id)).appendTo(_this.container);
-        });
+        Tools.fillSeriesSelection(this.container, series, '(egal)');
     };
     return SeriesSelectors;
 })();
@@ -205,7 +217,7 @@ var MultiValueEditor = (function () {
         this.container = $(containerSelector);
         this.container.buttonset();
     }
-    MultiValueEditor.prototype.value = function (newVal) {
+    MultiValueEditor.prototype.val = function (newVal) {
         if (newVal) {
             var map = {};
             $.each(newVal, function (index, id) {
@@ -235,7 +247,7 @@ var MultiValueEditor = (function () {
     MultiValueEditor.prototype.reset = function (items, idSelector, nameSelector) {
         var _this = this;
         // Zuerst merken wir uns mal die aktuelle Einstellung
-        var previousValue = this.value();
+        var previousValue = this.val();
 
         // Dann wird die Oberfläche zurück gesetzt
         this.container.empty();
@@ -251,7 +263,7 @@ var MultiValueEditor = (function () {
         });
 
         // Alle Werte, die wir ausgewählt haben, werden wieder aktiviert - sofern sie bekannt sind
-        this.value(previousValue);
+        this.val(previousValue);
     };
     MultiValueEditor.idCounter = 0;
     return MultiValueEditor;
@@ -328,14 +340,10 @@ var SuggestionListEditor = (function () {
     };
 
     SuggestionListEditor.prototype.reset = function (list) {
-        var chooser = this.chooser();
-
-        chooser.empty();
-
-        $(new Option(this.createNewOption(), '', true, true)).appendTo(chooser);
-
-        $.each(list, function (index, item) {
-            return $(new Option(item.description, item.id)).appendTo(chooser);
+        Tools.fillSelection(this.chooser(), list, this.createNewOption(), function (i) {
+            return i.id;
+        }, function (i) {
+            return i.description;
         });
     };
 

@@ -130,6 +130,8 @@ var MovieDatabase;
             this.seriesDialog.reset(info.series);
             this.genreDialog.reset(info.genres);
 
+            RecordingEditor.setSeries(info.series);
+
             this.recordingFilter.setLanguages(info.languages);
             this.recordingFilter.setGenres(info.genres);
             this.recordingFilter.setSeries(info.series);

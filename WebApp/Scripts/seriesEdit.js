@@ -71,21 +71,8 @@ var SeriesEditor = (function () {
     };
 
     SeriesEditor.prototype.reset = function (list) {
-        var chooser = this.chooser();
-        var parentChooser = this.parentChooser();
-
-        chooser.empty();
-        parentChooser.empty();
-
-        $(new Option('(Neue Serie anlegen)', '', true, true)).appendTo(chooser);
-        $(new Option('(Keine)', '')).appendTo(parentChooser);
-
-        $.each(list, function (index, item) {
-            return $(new Option(item.hierarchicalName, item.id)).appendTo(chooser);
-        });
-        $.each(list, function (index, item) {
-            return $(new Option(item.hierarchicalName, item.id)).appendTo(parentChooser);
-        });
+        Tools.fillSeriesSelection(this.chooser(), list, '(Neue Serie anlegen)');
+        Tools.fillSeriesSelection(this.parentChooser(), list, '(Keine)');
     };
 
     SeriesEditor.prototype.validate = function (newData) {

@@ -41,6 +41,19 @@ class Tools {
             return true;
         }
     }
+
+    static fillSeriesSelection(selector: JQuery, series: ISeriesMappingContract[], nullSelection: string): void {
+        Tools.fillSelection(selector, series, nullSelection, s => s.id, s=> s.hierarchicalName);
+    }
+
+    static fillSelection<T>(selector: JQuery, items: T[], nullSelection: string, getValue: (item: T) => string, getText: (item: T) => string): void {
+        selector.empty();
+
+        $('<option />', { text: nullSelection, value: '' }).appendTo(selector);
+
+        $.each(items, (index, item) => $('<option />', { text: getText(item), value: getValue(item) }).appendTo(selector));
+    }
+
 }
 
 class GenreSelector {
@@ -187,10 +200,7 @@ class SeriesSelectors {
     }
 
     initialize(series: ISeriesMappingContract[]): void {
-        this.container.empty();
-        this.container.append(new Option('(egal)', ''));
-
-        $.each(series, (index, mapping) => $(new Option(mapping.hierarchicalName, mapping.id)).appendTo(this.container));
+        Tools.fillSeriesSelection(this.container, series, '(egal)');
     }
 }
 
@@ -208,11 +218,11 @@ class MultiValueEditor<T> {
 
     container: JQuery;
 
-    value(): string[];
+    val(): string[];
 
-    value(newVal: string[]): void;
+    val(newVal: string[]): void;
 
-    value(newVal?: string[]): string[] {
+    val(newVal?: string[]): string[] {
         if (newVal) {
             var map = {};
             $.each(newVal, (index, id) => map[id] = true);
@@ -237,7 +247,7 @@ class MultiValueEditor<T> {
 
     reset(items: T[], idSelector: (item: T) => string, nameSelector: (item: T) => string): void {
         // Zuerst merken wir uns mal die aktuelle Einstellung
-        var previousValue = this.value();
+        var previousValue = this.val();
 
         // Dann wird die Oberfläche zurück gesetzt
         this.container.empty();
@@ -251,7 +261,7 @@ class MultiValueEditor<T> {
         });
 
         // Alle Werte, die wir ausgewählt haben, werden wieder aktiviert - sofern sie bekannt sind
-        this.value(previousValue);
+        this.val(previousValue);
     }
 }
 
@@ -312,13 +322,7 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
     }
 
     reset(list: TUpdateContext[]): void {
-        var chooser = this.chooser();
-
-        chooser.empty();
-
-        $(new Option(this.createNewOption(), '', true, true)).appendTo(chooser);
-
-        $.each(list, (index, item) => $(new Option(item.description, item.id)).appendTo(chooser));
+        Tools.fillSelection(this.chooser(), list, this.createNewOption(), i => i.id, i=> i.description);
     }
 
     private validate(newData: TUpdateContext = null): boolean {

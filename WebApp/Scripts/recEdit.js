@@ -11,9 +11,10 @@ var RecordingEditor = (function () {
         RecordingEditor.rentField().val(recording.rent);
         RecordingEditor.titleField().val(recording.title);
         RecordingEditor.descriptionField().val(recording.description);
+        RecordingEditor.seriesField().val(recording.series);
 
-        languageEditor.value(recording.languages);
-        genreEditor.value(recording.genres);
+        languageEditor.val(recording.languages);
+        genreEditor.val(recording.genres);
 
         this.validate();
 
@@ -59,6 +60,10 @@ var RecordingEditor = (function () {
         return $('#recordingEditRent');
     };
 
+    RecordingEditor.setSeries = function (series) {
+        Tools.fillSeriesSelection(RecordingEditor.seriesField(), series, '(gehört zu keiner Serie)');
+    };
+
     RecordingEditor.prototype.save = function () {
         var newData = this.createContract();
 
@@ -71,9 +76,9 @@ var RecordingEditor = (function () {
             description: (RecordingEditor.descriptionField().val() || '').trim(),
             title: (RecordingEditor.titleField().val() || '').trim(),
             rent: (RecordingEditor.rentField().val() || '').trim(),
-            languages: this.languageEditor.value(),
-            genres: this.genreEditor.value(),
-            series: this.original.series,
+            series: RecordingEditor.seriesField().val(),
+            languages: this.languageEditor.val(),
+            genres: this.genreEditor.val(),
             id: this.original.id
         };
 
