@@ -1,15 +1,15 @@
 ﻿// Die Informationen zu einer Tonspur
-interface ILanguageContract {
+interface IMappingContract {
     id: string;
 
     description: string;
 }
 
-// Die Information zu eiuner einzelnen Art von Aufnahme
-interface IGenreContract {
-    id: string;
+interface ILanguageContract extends IMappingContract {
+}
 
-    description: string;
+// Die Information zu eiuner einzelnen Art von Aufnahme
+interface IGenreContract extends IMappingContract {
 }
 
 // Die Minimalinformation zu einer Serie
@@ -98,12 +98,18 @@ interface IApplicationInformationContract {
 };
 
 // Die Eingangsinformationen zum Pflegen einer Art von Aufzeichnung
-interface IGenreEditInfo {
+interface IEditInfoContract {
     id: string;
 
     name: string;
 
     unused: boolean;
+}
+
+interface IGenreEditInfo extends IEditInfoContract {
+}
+
+interface ILanguageEditInfo extends IEditInfoContract {
 }
 
 class SearchRequestContract {

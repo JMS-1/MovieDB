@@ -4,6 +4,7 @@
 /// <reference path='uiHelper.ts' />
 /// <reference path='recFilter.ts' />
 /// <reference path='recEdit.ts' />
+/// <reference path='languageEdit.ts' />
 /// <reference path='genreEdit.ts' />
 
 module MovieDatabase {
@@ -48,6 +49,8 @@ module MovieDatabase {
         private languageEditor: MultiValueEditor<ILanguageContract>;
 
         private genreDialog: GenreEditor;
+
+        private languageDialog: LanguageEditor;
 
         private allSeries: any = {};
 
@@ -124,6 +127,7 @@ module MovieDatabase {
 
             this.languageEditor.reset(info.languages, l => l.id, l => l.description);
             this.genreEditor.reset(info.genres, g => g.id, g => g.description);
+            this.languageDialog.reset(info.languages);
             this.genreDialog.reset(info.genres);
 
             this.recordingFilter.setLanguages(info.languages);
@@ -282,6 +286,7 @@ module MovieDatabase {
 
             this.recordingFilter = new RecordingFilter(result => this.fillResultTable(result), series => this.allSeries[series]);
             this.languageEditor = new MultiValueEditor<ILanguageContract>('#recordingEditLanguage', validateRecordingEditForm);
+            this.languageDialog = new LanguageEditor('#openLanguageEditDialog', () => this.requestApplicationInformation());
             this.genreEditor = new MultiValueEditor<IGenreContract>('#recordingEditGenre', validateRecordingEditForm);
             this.genreDialog = new GenreEditor('#openGenreEditDialog', () => this.requestApplicationInformation());
 

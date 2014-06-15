@@ -8,7 +8,6 @@ using System.Web.Http;
 using System.Xml.Serialization;
 using WebApp.DAL;
 using WebApp.DTO;
-using WebApp.Models;
 
 
 namespace WebApp.Controllers

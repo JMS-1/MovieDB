@@ -74,6 +74,12 @@
 .languageEdit {
   background-color: aquamarine;
 }
+.multivalueList {
+  width: 100%;
+}
+.multivalueListEdit {
+  vertical-align: top;
+}
 #recordingEditLocation {
   margin-left: 5px;
 }

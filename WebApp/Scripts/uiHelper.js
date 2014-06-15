@@ -256,4 +256,235 @@ var MultiValueEditor = (function () {
     MultiValueEditor.idCounter = 0;
     return MultiValueEditor;
 })();
+
+// Diese Basisklasse unterstützt die Pflege der festen Auswahllisten für Sprachen und Arten von Aufzeichnungen
+var SuggestionListEditor = (function () {
+    function SuggestionListEditor(openButtonSelector, reloadApplicationData) {
+        var _this = this;
+        this.createNew = null;
+        this.reload = reloadApplicationData;
+
+        $(openButtonSelector).click(function () {
+            return _this.open();
+        });
+
+        this.saveButton().click(function () {
+            return _this.save();
+        });
+        this.cancelButton().click(function () {
+            return _this.close();
+        });
+        this.deleteButton().click(function () {
+            return _this.remove();
+        });
+
+        this.descriptionField().on('change', function () {
+            return _this.validate();
+        });
+        this.descriptionField().on('input', function () {
+            return _this.validate();
+        });
+        this.nameField().on('change', function () {
+            return _this.validate();
+        });
+        this.nameField().on('input', function () {
+            return _this.validate();
+        });
+        this.chooser().change(function () {
+            return _this.choose();
+        });
+    }
+    SuggestionListEditor.prototype.open = function () {
+        // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
+        this.choose();
+
+        this.dialog().dialog({
+            position: { of: '#dialogAnchor', at: 'center top+20', my: 'center top' },
+            closeOnEscape: false,
+            width: 'auto',
+            modal: true
+        });
+    };
+
+    SuggestionListEditor.prototype.close = function () {
+        this.dialog().dialog('close');
+    };
+
+    SuggestionListEditor.prototype.restart = function () {
+        this.close();
+
+        // Wichtig ist, dass wir die neuen Listen in die Oberfläche laden
+        this.reload();
+    };
+
+    SuggestionListEditor.prototype.createUpdate = function () {
+        var newData = {
+            description: this.descriptionField().val().trim(),
+            id: this.nameField().val().trim()
+        };
+
+        // Der Downcast ist etwas unsauber, aber wir wissen hier genau, was wir tun
+        return newData;
+    };
+
+    SuggestionListEditor.prototype.reset = function (list) {
+        var chooser = this.chooser();
+
+        chooser.empty();
+
+        $(new Option(this.createNewOption(), '', true, true)).appendTo(chooser);
+
+        $.each(list, function (index, item) {
+            return $(new Option(item.description, item.id)).appendTo(chooser);
+        });
+    };
+
+    SuggestionListEditor.prototype.validate = function (newData) {
+        if (typeof newData === "undefined") { newData = null; }
+        if (newData == null)
+            newData = this.createUpdate();
+
+        var isValid = true;
+
+        if (Tools.setError(this.nameField(), this.validateName(newData)))
+            isValid = false;
+        if (Tools.setError(this.descriptionField(), this.validateDescription(newData)))
+            isValid = false;
+
+        this.saveButton().button('option', 'disabled', !isValid);
+
+        return isValid;
+    };
+
+    SuggestionListEditor.prototype.choose = function () {
+        var _this = this;
+        // Die aktuelle Auswahl ermitteln
+        var choosen = this.chooser().val();
+
+        // Und dann ganz defensiv erst einmal alles zurück setzen
+        this.saveButton().button('option', 'disabled', choosen.length > 0);
+        this.deleteButton().button('option', 'disabled', true);
+
+        this.nameField().prop('disabled', choosen.length > 0);
+        this.nameField().val('');
+        this.descriptionField().val('');
+
+        if (choosen.length < 1) {
+            // Einfach ist es, wenn wir etwas neu Anlegen
+            this.createNew = true;
+
+            this.validate();
+        } else {
+            // Ansonsten fragen wir den Web Service immer nach dem neuesten Stand
+            this.createNew = null;
+
+            $.ajax('movie/' + this.controllerName() + '/' + choosen).done(function (info) {
+                if (info == null)
+                    return;
+
+                _this.createNew = false;
+
+                _this.nameField().val(info.id);
+                _this.descriptionField().val(info.name);
+
+                _this.deleteButton().button('option', 'disabled', !info.unused);
+
+                // Für den unwahrscheinlichen Fall, dass sich die Spielregeln verändert haben - und um die Schaltfläche zum Speichern zu aktivieren
+                _this.validate();
+            });
+        }
+    };
+
+    SuggestionListEditor.prototype.remove = function () {
+        var _this = this;
+        if (this.createNew == null)
+            return;
+        if (this.createNew)
+            return;
+
+        var newData = this.createUpdate();
+
+        $.ajax('movie/' + this.controllerName() + '/' + newData.id, {
+            type: 'DELETE'
+        }).done(function () {
+            return _this.restart();
+        }).fail(function () {
+            // Bei der Fehlerbehandlung ist noch Potential
+            alert('Da ist leider etwas schief gegangen');
+        });
+    };
+
+    SuggestionListEditor.prototype.save = function () {
+        var _this = this;
+        if (this.createNew == null)
+            return;
+
+        var newData = this.createUpdate();
+
+        // Vorsichtshalbe schauen wir noch einmal nach, ob das alles so in Ordnung geht
+        if (!this.validate(newData))
+            return;
+
+        var url = 'movie/' + this.controllerName();
+        if (!this.createNew)
+            url += '/' + newData.id;
+
+        $.ajax(url, {
+            type: this.createNew ? 'POST' : 'PUT',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(newData)
+        }).done(function () {
+            return _this.restart();
+        }).fail(function () {
+            // Bei der Fehlerbehandlung ist noch Potential
+            alert('Da ist leider etwas schief gegangen');
+        });
+    };
+
+    // Alles was jetzt kommt sind eigentlich die abstrakten Methoden der Basisklasse
+    SuggestionListEditor.prototype.controllerName = function () {
+        throw 'Bitte controllerName implementieren';
+    };
+
+    SuggestionListEditor.prototype.createNewOption = function () {
+        throw 'Bitte createNewOption implementieren';
+    };
+
+    SuggestionListEditor.prototype.dialog = function () {
+        throw 'Bitte dialog implementieren';
+    };
+
+    SuggestionListEditor.prototype.chooser = function () {
+        throw 'Bitte chooser implementieren';
+    };
+
+    SuggestionListEditor.prototype.saveButton = function () {
+        throw 'Bitte saveButton implementieren';
+    };
+
+    SuggestionListEditor.prototype.deleteButton = function () {
+        throw 'Bitte deleteButton implementieren';
+    };
+
+    SuggestionListEditor.prototype.cancelButton = function () {
+        throw 'Bitte cancelButton implementieren';
+    };
+
+    SuggestionListEditor.prototype.nameField = function () {
+        throw 'BittenameField  implementieren';
+    };
+
+    SuggestionListEditor.prototype.descriptionField = function () {
+        throw 'Bitte descriptionField implementieren';
+    };
+
+    SuggestionListEditor.prototype.validateName = function (newData) {
+        throw 'Bitte validateName implementieren';
+    };
+
+    SuggestionListEditor.prototype.validateDescription = function (newData) {
+        throw 'Bitte validateDescription implementieren';
+    };
+    return SuggestionListEditor;
+})();
 //# sourceMappingURL=uiHelper.js.map

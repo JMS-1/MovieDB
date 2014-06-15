@@ -3,61 +3,61 @@
 /// <reference path='interfaces.ts' />
 /// <reference path='uiHelper.ts' />
 
-class GenreEditor extends SuggestionListEditor<IGenreEditInfo, IGenreContract> {
+class LanguageEditor extends SuggestionListEditor<ILanguageEditInfo, ILanguageContract> {
 
     constructor(openButtonSelector: string, reloadApplicationData: () => void) {
         super(openButtonSelector, reloadApplicationData);
     }
 
-    private static namePattern = /^[0-9A-Za-zäöüÄÖÜß]{1,20}$/;
+    private static namePattern = /^[a-z]{2}$/;
 
     dialog(): JQuery {
-        return $('#genreEditDialog');
+        return $('#languageEditDialog');
     }
 
     chooser(): JQuery {
-        return $('#selectGenreToEdit');
+        return $('#selectlanguageToEdit');
     }
 
     saveButton(): JQuery {
-        return $('#genreDialogSave');
+        return $('#languageDialogSave');
     }
 
     deleteButton(): JQuery {
-        return $('#genreDialogDelete');
+        return $('#languageDialogDelete');
     }
 
     cancelButton(): JQuery {
-        return $('#genreDialogCancel');
+        return $('#languageDialogCancel');
     }
 
     nameField(): JQuery {
-        return $('#genreEditKey');
+        return $('#languageEditKey');
     }
 
     descriptionField(): JQuery {
-        return $('#genreEditName');
+        return $('#languageEditName');
     }
 
     controllerName(): string {
-        return 'genre';
+        return 'language';
     }
 
     createNewOption(): string {
-        return '(neue Art anlegen)';
+        return '(neue Sprache anlegen)';
     }
 
-    validateName(genre: IGenreContract): string {
-        var uniqueName = genre.id;
+    validateName(language: ILanguageContract): string {
+        var uniqueName = language.id;
 
-        if (!GenreEditor.namePattern.test(uniqueName))
-            return 'Der Name muss aus 1 bis 20 Buchstaben oder Ziffern bestehen';
+        if (!LanguageEditor.namePattern.test(uniqueName))
+            return 'Das Kürzel muss aus genau 2 Buchstaben bestehen';
         else
             return null;
     }
 
-    validateDescription(genre: IGenreContract): string {
-        var description = genre.description;
+    validateDescription(language: ILanguageContract): string {
+        var description = language.description;
 
         if (description.length < 1)
             return 'Es muss eine Beschreibung angegeben werden';

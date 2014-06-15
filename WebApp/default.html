@@ -9,6 +9,7 @@
     <script src="Scripts/recFilter.js"></script>
     <script src="Scripts/recEdit.js"></script>
     <script src="Scripts/genreEdit.js"></script>
+    <script src="Scripts/languageEdit.js"></script>
     <script src="Scripts/appCode.js"></script>
 
     <link rel="stylesheet" href="Content/themes/base/jquery-ui.css" />
@@ -41,6 +42,34 @@
                         <a id="genreDialogSave" href="javascript:void(0)" class="editButton">Übernehmen</a>
                         <a id="genreDialogDelete" href="javascript:void(0)" class="editButton">Löschen</a>
                         <a id="genreDialogCancel" href="javascript:void(0)" class="editButton">Abbrechen</a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="languageEditDialog" title="Pflege der Sprachen" class="invisible">
+        <table>
+            <tr>
+                <td>&nbsp;</td>
+                <td>
+                    <select class="editField" id="selectlanguageToEdit"></select>
+                </td>
+            </tr>
+            <tr>
+                <td class="editLabel">Sprachkürzel:</td>
+                <td class="editField"><input type="text" id="languageEditKey" size="26" /></td>
+            </tr>
+            <tr>
+                <td class="editLabel">Anzeigename:</td>
+                <td class="editField"><input type="text" id="languageEditName" size="100" /></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="dialogButtons">
+                        <a id="languageDialogSave" href="javascript:void(0)" class="editButton">Übernehmen</a>
+                        <a id="languageDialogDelete" href="javascript:void(0)" class="editButton">Löschen</a>
+                        <a id="languageDialogCancel" href="javascript:void(0)" class="editButton">Abbrechen</a>
                     </div>
                 </td>
             </tr>
@@ -144,15 +173,22 @@
                                 <td class="editField genreEdit">
                                     <table>
                                         <tr>
-                                            <td><div id="recordingEditGenre"></div></td>
-                                            <td><a id="openGenreEditDialog" class="editButton" href="javascript:void(0)">...</a></td>
+                                            <td class="multivalueList"><div id="recordingEditGenre"></div></td>
+                                            <td class="multivalueListEdit"><a id="openGenreEditDialog" class="editButton" href="javascript:void(0)">...</a></td>
                                         </tr>
                                     </table>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="editLabel">Sprachen:</td>
-                                <td class="editField languageEdit"><div id="recordingEditLanguage" /></td>
+                                <td class="editField languageEdit">
+                                    <table>
+                                        <tr>
+                                            <td class="multivalueList"><div id="recordingEditLanguage"></div></td>
+                                            <td class="multivalueListEdit"><a id="openLanguageEditDialog" class="editButton" href="javascript:void(0)">...</a></tdclass>
+                                        </tr>
+                                    </table>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="editLabel">Standort:</td>

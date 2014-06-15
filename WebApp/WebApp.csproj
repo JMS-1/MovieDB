@@ -172,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\ControllerWithDatabase.cs" />
+    <Compile Include="Controllers\LanguageController.cs" />
     <Compile Include="Controllers\GenreController.cs" />
     <Compile Include="DAL\Legacy\MovieDBContainer.cs" />
     <Compile Include="DAL\Legacy\MovieDBDatabase.cs" />
@@ -189,6 +190,7 @@
     <Compile Include="Controllers\ApplicationController.cs" />
     <Compile Include="Controllers\MovieController.cs" />
     <Compile Include="DAL\Database.cs" />
+    <Compile Include="DTO\LanguageEditInfo.cs" />
     <Compile Include="DTO\GenreEditInfo.cs" />
     <Compile Include="DTO\RecordingForEdit.cs" />
     <Compile Include="DTO\Recording.cs" />
@@ -225,6 +227,7 @@
     <TypeScriptCompile Include="Scripts\appCode.ts" />
     <TypeScriptCompile Include="Scripts\genreEdit.ts" />
     <TypeScriptCompile Include="Scripts\interfaces.ts" />
+    <TypeScriptCompile Include="Scripts\languageEdit.ts" />
     <TypeScriptCompile Include="Scripts\recEdit.ts" />
     <TypeScriptCompile Include="Scripts\recFilter.ts" />
     <TypeScriptCompile Include="Scripts\typings\jqueryui\jqueryui.d.ts" />

@@ -14,7 +14,7 @@ namespace WebApp.Models
         /// <summary>
         /// Der Kurzname der Sprache. 
         /// </summary>
-        [Required, Key, StringLength( 2, MinimumLength = 2 )]
+        [Required, Key, StringLength( 2, MinimumLength = 2 ), RegularExpression( @"[a-z]{2}", ErrorMessage = "Das Sprachkürzel muss aus zwei Buchstaben bestehen" )]
         [Column( "Short" )]
         public string TwoLetterIsoName { get; set; }
 

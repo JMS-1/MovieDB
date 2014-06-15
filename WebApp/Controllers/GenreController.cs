@@ -1,11 +1,8 @@
-﻿using System;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Xml.Serialization;
 using WebApp.DAL;
 using WebApp.DTO;
 using WebApp.Models;
@@ -14,7 +11,7 @@ using WebApp.Models;
 namespace WebApp.Controllers
 {
     /// <summary>
-    /// Die Schnittstelle auf die Liste der Arten von Aufzeichnungen
+    /// Die Schnittstelle auf die Liste der Arten von Aufzeichnungen.
     /// </summary>
     [RoutePrefix( "movie/genre" )]
     public class GenreController : ControllerWithDatabase
@@ -45,7 +42,7 @@ namespace WebApp.Controllers
         /// <summary>
         /// Legt eine neue Art an.
         /// </summary>
-        /// <param name="newGenre">Der Name der neuen Art.</param>
+        /// <param name="newGenre">Die Daten zur Art.</param>
         [Route( "" )]
         [HttpPost]
         public async Task<IHttpActionResult> Create( [FromBody] GenreDescription newGenre )
