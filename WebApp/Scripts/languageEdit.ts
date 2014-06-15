@@ -15,30 +15,6 @@ class LanguageEditor extends SuggestionListEditor<ILanguageEditInfo, ILanguageCo
         return $('#languageEditDialog');
     }
 
-    chooser(): JQuery {
-        return $('#selectlanguageToEdit');
-    }
-
-    saveButton(): JQuery {
-        return $('#languageDialogSave');
-    }
-
-    deleteButton(): JQuery {
-        return $('#languageDialogDelete');
-    }
-
-    cancelButton(): JQuery {
-        return $('#languageDialogCancel');
-    }
-
-    nameField(): JQuery {
-        return $('#languageEditKey');
-    }
-
-    descriptionField(): JQuery {
-        return $('#languageEditName');
-    }
-
     controllerName(): string {
         return 'language';
     }

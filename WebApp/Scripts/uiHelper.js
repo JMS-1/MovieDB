@@ -455,27 +455,27 @@ var SuggestionListEditor = (function () {
     };
 
     SuggestionListEditor.prototype.chooser = function () {
-        throw 'Bitte chooser implementieren';
+        return this.dialog().find('.selectKey');
     };
 
     SuggestionListEditor.prototype.saveButton = function () {
-        throw 'Bitte saveButton implementieren';
+        return this.dialog().find('.dialogSave');
     };
 
     SuggestionListEditor.prototype.deleteButton = function () {
-        throw 'Bitte deleteButton implementieren';
+        return this.dialog().find('.dialogDelete');
     };
 
     SuggestionListEditor.prototype.cancelButton = function () {
-        throw 'Bitte cancelButton implementieren';
+        return this.dialog().find('.dialogCancel');
     };
 
     SuggestionListEditor.prototype.nameField = function () {
-        throw 'BittenameField  implementieren';
+        return this.dialog().find('.editKey');
     };
 
     SuggestionListEditor.prototype.descriptionField = function () {
-        throw 'Bitte descriptionField implementieren';
+        return this.dialog().find('.editName');
     };
 
     SuggestionListEditor.prototype.validateName = function (newData) {

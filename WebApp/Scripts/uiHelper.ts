@@ -436,28 +436,28 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
         throw 'Bitte dialog implementieren';
     }
 
-    chooser(): JQuery {
-        throw 'Bitte chooser implementieren';
+    private chooser(): JQuery {
+        return this.dialog().find('.selectKey');
     }
 
-    saveButton(): JQuery {
-        throw 'Bitte saveButton implementieren';
+    private saveButton(): JQuery {
+        return this.dialog().find('.dialogSave');
     }
 
-    deleteButton(): JQuery {
-        throw 'Bitte deleteButton implementieren';
+    private deleteButton(): JQuery {
+        return this.dialog().find('.dialogDelete');
     }
 
-    cancelButton(): JQuery {
-        throw 'Bitte cancelButton implementieren';
+    private cancelButton(): JQuery {
+        return this.dialog().find('.dialogCancel');
     }
 
-    nameField(): JQuery {
-        throw 'BittenameField  implementieren';
+    private nameField(): JQuery {
+        return this.dialog().find('.editKey');
     }
 
-    descriptionField(): JQuery {
-        throw 'Bitte descriptionField implementieren';
+    private descriptionField(): JQuery {
+        return this.dialog().find('.editName');
     }
 
     validateName(newData: TUpdateContext): string {

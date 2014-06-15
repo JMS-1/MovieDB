@@ -17,30 +17,6 @@ var GenreEditor = (function (_super) {
         return $('#genreEditDialog');
     };
 
-    GenreEditor.prototype.chooser = function () {
-        return $('#selectGenreToEdit');
-    };
-
-    GenreEditor.prototype.saveButton = function () {
-        return $('#genreDialogSave');
-    };
-
-    GenreEditor.prototype.deleteButton = function () {
-        return $('#genreDialogDelete');
-    };
-
-    GenreEditor.prototype.cancelButton = function () {
-        return $('#genreDialogCancel');
-    };
-
-    GenreEditor.prototype.nameField = function () {
-        return $('#genreEditKey');
-    };
-
-    GenreEditor.prototype.descriptionField = function () {
-        return $('#genreEditName');
-    };
-
     GenreEditor.prototype.controllerName = function () {
         return 'genre';
     };

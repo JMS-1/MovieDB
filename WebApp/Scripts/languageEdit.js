@@ -17,30 +17,6 @@ var LanguageEditor = (function (_super) {
         return $('#languageEditDialog');
     };
 
-    LanguageEditor.prototype.chooser = function () {
-        return $('#selectlanguageToEdit');
-    };
-
-    LanguageEditor.prototype.saveButton = function () {
-        return $('#languageDialogSave');
-    };
-
-    LanguageEditor.prototype.deleteButton = function () {
-        return $('#languageDialogDelete');
-    };
-
-    LanguageEditor.prototype.cancelButton = function () {
-        return $('#languageDialogCancel');
-    };
-
-    LanguageEditor.prototype.nameField = function () {
-        return $('#languageEditKey');
-    };
-
-    LanguageEditor.prototype.descriptionField = function () {
-        return $('#languageEditName');
-    };
-
     LanguageEditor.prototype.controllerName = function () {
         return 'language';
     };

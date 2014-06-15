@@ -15,30 +15,6 @@ class GenreEditor extends SuggestionListEditor<IGenreEditInfo, IGenreContract> {
         return $('#genreEditDialog');
     }
 
-    chooser(): JQuery {
-        return $('#selectGenreToEdit');
-    }
-
-    saveButton(): JQuery {
-        return $('#genreDialogSave');
-    }
-
-    deleteButton(): JQuery {
-        return $('#genreDialogDelete');
-    }
-
-    cancelButton(): JQuery {
-        return $('#genreDialogCancel');
-    }
-
-    nameField(): JQuery {
-        return $('#genreEditKey');
-    }
-
-    descriptionField(): JQuery {
-        return $('#genreEditName');
-    }
-
     controllerName(): string {
         return 'genre';
     }
