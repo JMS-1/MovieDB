@@ -74,7 +74,7 @@ namespace WebApp.Controllers
         /// <returns>Die gewünschte Aufzeichnung.</returns>
         [Route( "{identifier}" )]
         [HttpGet]
-        public RecordingForEdit Find( Guid identifier )
+        public RecordingEditInfo Find( Guid identifier )
         {
             // Find with relations loaded
             var recording =
@@ -88,7 +88,7 @@ namespace WebApp.Controllers
             if (recording == null)
                 throw new HttpResponseException( HttpStatusCode.NotFound );
             else
-                return RecordingForEdit.Create( recording );
+                return RecordingEditInfo.Create( recording );
         }
 
         /// <summary>

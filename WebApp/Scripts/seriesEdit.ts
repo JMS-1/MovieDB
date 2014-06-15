@@ -46,8 +46,15 @@ class SeriesEditor {
         this.reload();
     }
 
-    private createUpdate(): ISeriesMappingContract {
-        return null;
+    private createUpdate(): ISeriesContract {
+        var newData: ISeriesContract =
+            {
+                name: this.nameField().val().trim(),
+                parentId: this.parentChooser().val(),
+                description: this.descriptionField().val().trim(),
+            };
+
+        return newData;
     }
 
     reset(list: ISeriesMappingContract[]): void {
@@ -64,7 +71,7 @@ class SeriesEditor {
         $.each(list, (index, item) => $(new Option(item.hierarchicalName, item.id)).appendTo(parentChooser));
     }
 
-    private validate(newData: ISeriesMappingContract = null): boolean {
+    private validate(newData: ISeriesContract = null): boolean {
         if (newData == null)
             newData = this.createUpdate();
 
@@ -123,13 +130,13 @@ class SeriesEditor {
     private remove(): void {
         if (this.seriesIdentifier == null)
             return;
-        if (this.seriesIdentifier)
+        if (this.seriesIdentifier.length < 1)
             return;
 
         var newData = this.createUpdate();
 
         $
-            .ajax('movie/series/' + newData.id, {
+            .ajax('movie/series/' + this.seriesIdentifier, {
                 type: 'DELETE',
             })
             .done(() => this.restart())
@@ -150,12 +157,13 @@ class SeriesEditor {
             return;
 
         var url = 'movie/series';
-        if (!this.seriesIdentifier)
-            url += '/' + newData.id;
+        var parent = this.seriesIdentifier;
+        if (parent.length > 0)
+            url += '/' + parent;
 
         $
             .ajax(url, {
-                type: this.seriesIdentifier ? 'POST' : 'PUT',
+                type: (parent.length < 1) ? 'POST' : 'PUT',
                 contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify(newData),
             })
@@ -200,11 +208,23 @@ class SeriesEditor {
         return this.dialog().find('.editName');
     }
 
-    private validateName(newData: ISeriesMappingContract): string {
-        return null;
+    private validateName(newData: ISeriesContract): string {
+        var name = newData.name;
+
+        if (name.length < 1)
+            return 'Es muss ein Name angegeben werden';
+        else if (name.length > 50)
+            return 'Der Name darf maximal 50 Zeichen haben';
+        else
+            return null;
     }
 
-    private validateDescription(newData: ISeriesMappingContract): string {
-        return null;
+    private validateDescription(newData: ISeriesContract): string {
+        var description = newData.description;
+
+        if (description.length > 2000)
+            return 'Die Beschreibung darf maximal 2000 Zeichen haben';
+        else
+            return null;
     }
 }

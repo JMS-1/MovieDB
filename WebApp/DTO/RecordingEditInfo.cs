@@ -7,7 +7,7 @@ namespace WebApp.DTO
     /// Beschreibt eine Aufzeichnung für die Pflege.
     /// </summary>
     [DataContract]
-    public class RecordingForEdit : Recording
+    public class RecordingEditInfo : Recording
     {
         /// <summary>
         /// Die Beschreibung der Aufzeichnung.
@@ -19,7 +19,7 @@ namespace WebApp.DTO
         /// Erstellt eine neue Beschreibung.
         /// </summary>
         /// <param name="recording">Die Repräsentation aus der Datenbank.</param>
-        private RecordingForEdit( Models.Recording recording )
+        private RecordingEditInfo( Models.Recording recording )
             : base( recording )
         {
         }
@@ -27,7 +27,7 @@ namespace WebApp.DTO
         /// <summary>
         /// Erstellt eine neue Beschreibung.
         /// </summary>
-        public RecordingForEdit()
+        public RecordingEditInfo()
         {
         }
 
@@ -36,9 +36,9 @@ namespace WebApp.DTO
         /// </summary>
         /// <param name="recording">Die Entität aus der Datenbank.</param>
         /// <returns>Die gewünschte Repräsentation.</returns>
-        public static RecordingForEdit Create( Models.Recording recording )
+        public static RecordingEditInfo Create( Models.Recording recording )
         {
-            return new RecordingForEdit( recording )
+            return new RecordingEditInfo( recording )
             {
                 Description = recording.Description,
             };

@@ -61,7 +61,13 @@ var SeriesEditor = (function () {
     };
 
     SeriesEditor.prototype.createUpdate = function () {
-        return null;
+        var newData = {
+            name: this.nameField().val().trim(),
+            parentId: this.parentChooser().val(),
+            description: this.descriptionField().val().trim()
+        };
+
+        return newData;
     };
 
     SeriesEditor.prototype.reset = function (list) {
@@ -143,12 +149,12 @@ var SeriesEditor = (function () {
         var _this = this;
         if (this.seriesIdentifier == null)
             return;
-        if (this.seriesIdentifier)
+        if (this.seriesIdentifier.length < 1)
             return;
 
         var newData = this.createUpdate();
 
-        $.ajax('movie/series/' + newData.id, {
+        $.ajax('movie/series/' + this.seriesIdentifier, {
             type: 'DELETE'
         }).done(function () {
             return _this.restart();
@@ -170,11 +176,12 @@ var SeriesEditor = (function () {
             return;
 
         var url = 'movie/series';
-        if (!this.seriesIdentifier)
-            url += '/' + newData.id;
+        var parent = this.seriesIdentifier;
+        if (parent.length > 0)
+            url += '/' + parent;
 
         $.ajax(url, {
-            type: this.seriesIdentifier ? 'POST' : 'PUT',
+            type: (parent.length < 1) ? 'POST' : 'PUT',
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(newData)
         }).done(function () {
@@ -219,11 +226,23 @@ var SeriesEditor = (function () {
     };
 
     SeriesEditor.prototype.validateName = function (newData) {
-        return null;
+        var name = newData.name;
+
+        if (name.length < 1)
+            return 'Es muss ein Name angegeben werden';
+        else if (name.length > 50)
+            return 'Der Name darf maximal 50 Zeichen haben';
+        else
+            return null;
     };
 
     SeriesEditor.prototype.validateDescription = function (newData) {
-        return null;
+        var description = newData.description;
+
+        if (description.length > 2000)
+            return 'Die Beschreibung darf maximal 2000 Zeichen haben';
+        else
+            return null;
     };
     return SeriesEditor;
 })();

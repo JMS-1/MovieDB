@@ -193,8 +193,9 @@
     <Compile Include="DAL\Database.cs" />
     <Compile Include="DTO\LanguageEditInfo.cs" />
     <Compile Include="DTO\GenreEditInfo.cs" />
-    <Compile Include="DTO\RecordingForEdit.cs" />
+    <Compile Include="DTO\RecordingEditInfo.cs" />
     <Compile Include="DTO\Recording.cs" />
+    <Compile Include="DTO\SeriesEdit.cs" />
     <Compile Include="DTO\SeriesEditInfo.cs" />
     <Compile Include="DTO\SeriesDescription.cs" />
     <Compile Include="DTO\GenreDescription.cs" />

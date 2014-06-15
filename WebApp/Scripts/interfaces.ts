@@ -8,7 +8,7 @@ interface IMappingContract {
 interface ILanguageContract extends IMappingContract {
 }
 
-// Die Information zu eiuner einzelnen Art von Aufnahme
+// Die Information zu einer einzelnen Art von Aufnahme
 interface IGenreContract extends IMappingContract {
 }
 
@@ -21,6 +21,14 @@ interface ISeriesMappingContract {
     name: string;
 
     hierarchicalName: string;
+}
+
+interface ISeriesContract {
+    parentId: string;
+
+    name: string;
+
+    description: string;
 }
 
 // Die statistichen Hilfsinformationen
