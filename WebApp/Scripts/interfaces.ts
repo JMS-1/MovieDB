@@ -112,6 +112,18 @@ interface IGenreEditInfo extends IEditInfoContract {
 interface ILanguageEditInfo extends IEditInfoContract {
 }
 
+interface ISeriesEditInfo {
+    id: string;
+
+    parentId: string;
+
+    name: string;
+
+    description: string;
+
+    unused: boolean;
+}
+
 class SearchRequestContract {
     size: number = 15;
 

@@ -5,6 +5,7 @@
 /// <reference path='recFilter.ts' />
 /// <reference path='recEdit.ts' />
 /// <reference path='languageEdit.ts' />
+/// <reference path='seriesEdit.ts' />
 /// <reference path='genreEdit.ts' />
 
 module MovieDatabase {
@@ -51,6 +52,8 @@ module MovieDatabase {
         private genreDialog: GenreEditor;
 
         private languageDialog: LanguageEditor;
+
+        private seriesDialog: SeriesEditor;
 
         private allSeries: any = {};
 
@@ -128,6 +131,7 @@ module MovieDatabase {
             this.languageEditor.reset(info.languages, l => l.id, l => l.description);
             this.genreEditor.reset(info.genres, g => g.id, g => g.description);
             this.languageDialog.reset(info.languages);
+            this.seriesDialog.reset(info.series);
             this.genreDialog.reset(info.genres);
 
             this.recordingFilter.setLanguages(info.languages);
@@ -288,6 +292,7 @@ module MovieDatabase {
             this.languageEditor = new MultiValueEditor<ILanguageContract>('#recordingEditLanguage', validateRecordingEditForm);
             this.languageDialog = new LanguageEditor('#openLanguageEditDialog', () => this.requestApplicationInformation());
             this.genreEditor = new MultiValueEditor<IGenreContract>('#recordingEditGenre', validateRecordingEditForm);
+            this.seriesDialog = new SeriesEditor('#openSeriesEditDialog', () => this.requestApplicationInformation());
             this.genreDialog = new GenreEditor('#openGenreEditDialog', () => this.requestApplicationInformation());
 
             var legacyFile = $('#theFile');

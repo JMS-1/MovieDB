@@ -10,6 +10,7 @@
     <script src="Scripts/recEdit.js"></script>
     <script src="Scripts/genreEdit.js"></script>
     <script src="Scripts/languageEdit.js"></script>
+    <script src="Scripts/seriesEdit.js"></script>
     <script src="Scripts/appCode.js"></script>
 
     <link rel="stylesheet" href="Content/themes/base/jquery-ui.css" />
@@ -62,6 +63,38 @@
             </tr>
             <tr>
                 <td class="editLabel">Anzeigename:</td>
+                <td class="editField"><input type="text" class="editName" size="100" /></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="dialogButtons">
+                        <a href="javascript:void(0)" class="editButton dialogSave">Übernehmen</a>
+                        <a href="javascript:void(0)" class="editButton dialogDelete">Löschen</a>
+                        <a href="javascript:void(0)" class="editButton dialogCancel">Abbrechen</a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="seriesEditDialog" title="Pflege der Serien" class="invisible">
+        <table>
+            <tr>
+                <td>&nbsp;</td>
+                <td>
+                    <select class="editField selectKey"></select>
+                </td>
+            </tr>
+            <tr>
+                <td class="editLabel">Übergeordnete Serie:</td>
+                <td class="editField"><select class="editParent" /></td>
+            </tr>
+            <tr>
+                <td class="editLabel">Name:</td>
+                <td class="editField"><input type="text" class="editKey" size="26" /></td>
+            </tr>
+            <tr>
+                <td class="editLabel">Beschreibung:</td>
                 <td class="editField"><input type="text" class="editName" size="100" /></td>
             </tr>
             <tr>
@@ -162,7 +195,14 @@
                             </tr>
                             <tr>
                                 <td class="editLabel">Serie:</td>
-                                <td class="editField"><select id="recordingEditSeries" /></td>
+                                <td class="editField seriesEdit">
+                                    <table>
+                                        <tr>
+                                            <td class="multivalueList"><select id="recordingEditSeries" /></td>
+                                            <td class="multivalueListEdit"><a id="openSeriesEditDialog" class="editButton" href="javascript:void(0)">...</a></td>
+                                        </tr>
+                                    </table>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="editLabel">Medium:</td>

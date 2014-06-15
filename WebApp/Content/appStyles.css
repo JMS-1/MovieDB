@@ -66,13 +66,16 @@
   background-color: darkseagreen;
 }
 .editLabel {
-  width: 10em;
+  min-width: 10em;
 }
 .genreEdit {
   background-color: gold;
 }
 .languageEdit {
   background-color: aquamarine;
+}
+.seriesEdit {
+  background-color: lemonchiffon;
 }
 .multivalueList {
   width: 100%;

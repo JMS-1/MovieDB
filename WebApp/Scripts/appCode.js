@@ -5,6 +5,7 @@
 /// <reference path='recFilter.ts' />
 /// <reference path='recEdit.ts' />
 /// <reference path='languageEdit.ts' />
+/// <reference path='seriesEdit.ts' />
 /// <reference path='genreEdit.ts' />
 var MovieDatabase;
 (function (MovieDatabase) {
@@ -126,6 +127,7 @@ var MovieDatabase;
                 return g.description;
             });
             this.languageDialog.reset(info.languages);
+            this.seriesDialog.reset(info.series);
             this.genreDialog.reset(info.genres);
 
             this.recordingFilter.setLanguages(info.languages);
@@ -301,6 +303,9 @@ var MovieDatabase;
                 return _this.requestApplicationInformation();
             });
             this.genreEditor = new MultiValueEditor('#recordingEditGenre', validateRecordingEditForm);
+            this.seriesDialog = new SeriesEditor('#openSeriesEditDialog', function () {
+                return _this.requestApplicationInformation();
+            });
             this.genreDialog = new GenreEditor('#openGenreEditDialog', function () {
                 return _this.requestApplicationInformation();
             });
