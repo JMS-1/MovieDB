@@ -239,7 +239,7 @@
 	CREATE TABLE [RecordingGenres] (
 		[Genre]     NVARCHAR (20)    NOT NULL,
 		[Recording] UNIQUEIDENTIFIER NOT NULL,
-		CONSTRAINT [FK_RecordingGenres_Genre] FOREIGN KEY ([Genre]) REFERENCES [Genres] ([Short]) ON DELETE CASCADE,
+		CONSTRAINT [FK_RecordingGenres_Genre] FOREIGN KEY ([Genre]) REFERENCES [Genres] ([Short]),
 		CONSTRAINT [FK_RecordingGenres_Recording] FOREIGN KEY ([Recording]) REFERENCES [Recordings] ([Id]) ON DELETE CASCADE
 	);
 	GO
@@ -255,7 +255,7 @@
 	CREATE TABLE [RecordingLanguages] (
 		[Language]  NCHAR (2)        NOT NULL,
 		[Recording] UNIQUEIDENTIFIER NOT NULL,
-		CONSTRAINT [FK_RecordingLanguages_Language] FOREIGN KEY ([Language]) REFERENCES [Languages] ([Short]) ON DELETE CASCADE,
+		CONSTRAINT [FK_RecordingLanguages_Language] FOREIGN KEY ([Language]) REFERENCES [Languages] ([Short]),
 		CONSTRAINT [FK_RecordingLanguages_Recording] FOREIGN KEY ([Recording]) REFERENCES [Recordings] ([Id]) ON DELETE CASCADE
 	);
 	GO

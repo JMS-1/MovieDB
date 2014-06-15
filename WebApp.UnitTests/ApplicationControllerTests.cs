@@ -19,13 +19,13 @@ namespace WebApp.UnitTests
             var info = Controller.GetInformation();
 
             Assert.IsFalse( info.DatabaseIsEmpty, "empty" );
-            Assert.AreEqual( 7725, info.NumberOfRecordings, "#recordings" );
+            Assert.AreEqual( 7749, info.NumberOfRecordings, "#recordings" );
             Assert.AreEqual( 13, info.Languages.Length, "#languages" );
-            Assert.AreEqual( 526, info.Series.Length, "#series" );
+            Assert.AreEqual( 528, info.Series.Length, "#series" );
             Assert.AreEqual( 23, info.Genres.Length, "#genres" );
 
             Assert.AreEqual( "nl", info.Languages[7].UniqueName, "language" );
-            Assert.AreEqual( "SciFi", info.Genres[19].UniqueName, "genre" );
+            Assert.AreEqual( "Sport", info.Genres[19].UniqueName, "genre" );
             Assert.AreEqual( "Dexter > Season 8", info.Series[129].FullName, "series" );
         }
     }

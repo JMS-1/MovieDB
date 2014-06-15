@@ -14,7 +14,7 @@ namespace WebApp.Models
         /// <summary>
         /// Der Name der Art.
         /// </summary>
-        [Required, Key, StringLength( 20 ), RegularExpression( "[A-Za-z0-9]+", ErrorMessage = "Der eindeutige Name einer Art darf nur aus Zeichen und Ziffern bestehen" )]
+        [Required, Key, StringLength( 20 ), RegularExpression( @"[0-9A-Za-zäöüÄÖÜß]{1,20}", ErrorMessage = "Der eindeutige Name einer Art darf nur aus Zeichen und Ziffern bestehen" )]
         [Column( "Short" )]
         public string Name { get; set; }
 

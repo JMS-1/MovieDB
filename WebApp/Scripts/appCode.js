@@ -29,6 +29,8 @@ var MovieDatabase;
         function Application() {
             var _this = this;
             this.allSeries = {};
+            this.allGenres = {};
+            this.allLanguages = {};
             $(function () {
                 return _this.startup();
             });
@@ -84,10 +86,21 @@ var MovieDatabase;
         };
 
         Application.prototype.fillApplicationInformation = function (info) {
+            var _this = this;
             var busyIndicator = $('#busyIndicator');
 
             busyIndicator.removeClass(Styles.loading);
             busyIndicator.addClass(Styles.idle);
+
+            this.allGenres = {};
+            this.allLanguages = {};
+
+            $.each(info.genres, function (index, genre) {
+                return _this.allGenres[genre.id] = genre.description;
+            });
+            $.each(info.languages, function (index, language) {
+                return _this.allLanguages[language.id] = language.description;
+            });
 
             this.currentApplicationInformation = info;
 
@@ -212,8 +225,12 @@ var MovieDatabase;
                 var recordingRow = $('<tr></tr>').appendTo(tableBody);
 
                 $('<a />', { text: recording.hierarchicalName, href: '#' + recording.id }).appendTo($('<td />').appendTo(recordingRow));
-                $('<td />').appendTo(recordingRow).text(recording.languages.join('; '));
-                $('<td />').appendTo(recordingRow).text(recording.genres.join('; '));
+                $('<td />').appendTo(recordingRow).text($.map(recording.languages, function (language) {
+                    return _this.allLanguages[language] || language;
+                }).join('; '));
+                $('<td />').appendTo(recordingRow).text($.map(recording.genres, function (genre) {
+                    return _this.allGenres[genre] || genre;
+                }).join('; '));
                 $('<td />').appendTo(recordingRow).text(DateTimeTools.toStandard(recording.created));
                 $('<td />').appendTo(recordingRow).text(recording.rent);
             });
@@ -222,7 +239,10 @@ var MovieDatabase;
         };
 
         Application.prototype.requestApplicationInformation = function () {
-            return $.ajax('movie/info');
+            var _this = this;
+            return $.ajax('movie/info').done(function (info) {
+                return _this.fillApplicationInformation(info);
+            });
         };
 
         Application.prototype.resetAllModes = function () {
@@ -276,7 +296,9 @@ var MovieDatabase;
             });
             this.languageEditor = new MultiValueEditor('#recordingEditLanguage', validateRecordingEditForm);
             this.genreEditor = new MultiValueEditor('#recordingEditGenre', validateRecordingEditForm);
-            this.genreDialog = new GenreEditor('#openGenreEditDialog');
+            this.genreDialog = new GenreEditor('#openGenreEditDialog', function () {
+                return _this.requestApplicationInformation();
+            });
 
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');
@@ -340,8 +362,6 @@ var MovieDatabase;
             // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
             this.requestApplicationInformation().done(function (info) {
                 $('#headline').text('VCR.NET Mediendatenbank');
-
-                _this.fillApplicationInformation(info);
 
                 // Wir benutzen ein wenige deep linking für einige Aufgaben
                 $(window).on('hashchange', function () {

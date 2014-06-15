@@ -83,4 +83,13 @@
 .dialog {
   background-color: whitesmoke !important;
 }
+.dialogButtons {
+  margin-top: 40px;
+}
+.dialogButtons a:last-of-type {
+  float: right;
+}
+.ui-dialog-titlebar-close {
+  visibility: hidden;
+}
 /*# sourceMappingURL=appStyles.css.map */

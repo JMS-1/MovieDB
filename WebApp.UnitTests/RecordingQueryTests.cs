@@ -24,7 +24,7 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( 0, recordings.PageIndex, "index" );
             Assert.AreEqual( 15, recordings.PageSize, "size" );
-            Assert.AreEqual( 7725, recordings.TotalCount, "total" );
+            Assert.AreEqual( 7749, recordings.TotalCount, "total" );
             Assert.AreEqual( 15, recordings.Recordings.Length, "#recordings" );
 
             var first = recordings.Recordings[0];
@@ -36,7 +36,7 @@ namespace WebApp.UnitTests
             Assert.IsNull( first.Series, "series" );
 
             Assert.AreEqual( 23, recordings.GenreStatistics.Length, "#genres" );
-            Assert.AreEqual( 1479, recordings.GenreStatistics.Single( g => g.Name == "Action" ).Count, "genre count" );
+            Assert.AreEqual( 1502, recordings.GenreStatistics.Single( g => g.Name == "Action" ).Count, "genre count" );
             Assert.AreEqual( 13, recordings.LanguageStatistics.Length, "#languages" );
             Assert.AreEqual( 215, recordings.LanguageStatistics.Single( g => g.Name == "fr" ).Count, "language count" );
         }
@@ -51,15 +51,15 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( 200, recordings.PageIndex, "index" );
             Assert.AreEqual( 15, recordings.PageSize, "size" );
-            Assert.AreEqual( 7725, recordings.TotalCount, "total" );
+            Assert.AreEqual( 7749, recordings.TotalCount, "total" );
             Assert.AreEqual( 15, recordings.Recordings.Length, "#recordings" );
 
             var first = recordings.Recordings[0];
 
-            Assert.AreEqual( new DateTime( 2006, 12, 17, 13, 59, 9, 517, DateTimeKind.Utc ), first.CreationTime, "time" );
-            Assert.AreEqual( "Indiana Jones (1)", first.Name, "name" );
+            Assert.AreEqual( new DateTime( 2006, 9, 18, 5, 23, 41, 187, DateTimeKind.Utc ), first.CreationTime, "time" );
+            Assert.AreEqual( "Independance Day", first.Name, "name" );
             CollectionAssert.IsEmpty( first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { "Action" }, first.Genres, "genre" );
+            CollectionAssert.AreEquivalent( new[] { "Action", "SciFi" }, first.Genres, "genre" );
             Assert.IsNull( first.Series, "series" );
         }
 
@@ -73,16 +73,16 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( 154, recordings.PageIndex, "index" );
             Assert.AreEqual( 50, recordings.PageSize, "size" );
-            Assert.AreEqual( 7725, recordings.TotalCount, "total" );
-            Assert.AreEqual( 25, recordings.Recordings.Length, "#recordings" );
+            Assert.AreEqual( 7749, recordings.TotalCount, "total" );
+            Assert.AreEqual( 49, recordings.Recordings.Length, "#recordings" );
 
             var first = recordings.Recordings[0];
 
-            Assert.AreEqual( new DateTime( 2009, 6, 11, 8, 37, 33, 227, DateTimeKind.Utc ), first.CreationTime, "time" );
-            Assert.AreEqual( "08 Marty als Baseballstar", first.Name, "name" );
-            CollectionAssert.AreEquivalent( new[] { "de" }, first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { "Animation", "Kids" }, first.Genres, "genre" );
-            Assert.IsNotNull( first.Series, "series" );
+            Assert.AreEqual( new DateTime( 2011, 10, 21, 19, 48, 5, 100, DateTimeKind.Utc ), first.CreationTime, "time" );
+            Assert.AreEqual( "X-Men (0)", first.Name, "name" );
+            CollectionAssert.AreEquivalent( new[] { "de", "en", "fr" }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { "Action", "Comic" }, first.Genres, "genre" );
+            Assert.IsNull( first.Series, "series" );
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( 13, recordings.PageIndex, "index" );
             Assert.AreEqual( 75, recordings.PageSize, "size" );
-            Assert.AreEqual( 7725, recordings.TotalCount, "total" );
+            Assert.AreEqual( 7749, recordings.TotalCount, "total" );
             Assert.AreEqual( 75, recordings.Recordings.Length, "#recordings" );
 
             var first = recordings.Recordings[0];
@@ -117,7 +117,7 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( 38, recordings.PageIndex, "index" );
             Assert.AreEqual( 30, recordings.PageSize, "size" );
-            Assert.AreEqual( 7725, recordings.TotalCount, "total" );
+            Assert.AreEqual( 7749, recordings.TotalCount, "total" );
             Assert.AreEqual( 30, recordings.Recordings.Length, "#recordings" );
 
             var first = recordings.Recordings[0];
@@ -139,16 +139,16 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( 0, recordings.PageIndex, "index" );
             Assert.AreEqual( 15, recordings.PageSize, "size" );
-            Assert.AreEqual( 7725, recordings.TotalCount, "total" );
+            Assert.AreEqual( 7749, recordings.TotalCount, "total" );
             Assert.AreEqual( 15, recordings.Recordings.Length, "#recordings" );
 
             var first = recordings.Recordings[0];
 
-            Assert.AreEqual( new DateTime( 2014, 6, 1, 15, 4, 15, 803, DateTimeKind.Utc ), first.CreationTime, "time" );
-            Assert.AreEqual( "Continuum", first.Name, "name" );
-            CollectionAssert.AreEquivalent( new[] { "de", "en", "es" }, first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { "SciFi" }, first.Genres, "genre" );
-            Assert.IsNotNull( first.Series, "series" );
+            Assert.AreEqual( new DateTime( 2014, 6, 14, 9, 37, 12, 743, DateTimeKind.Utc ), first.CreationTime, "time" );
+            Assert.AreEqual( "Safe", first.Name, "name" );
+            CollectionAssert.AreEquivalent( new[] { "de" }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { "Action" }, first.Genres, "genre" );
+            Assert.IsNull( first.Series, "series" );
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace WebApp.UnitTests
         /// <summary>
         /// Sortiert nach dem Verleihmodus.
         /// </summary>
-        [TestCase( false, 7671 )]
+        [TestCase( false, 7695 )]
         [TestCase( true, 54 )]
         public void CheckRentOption( bool isRent, int expected )
         {

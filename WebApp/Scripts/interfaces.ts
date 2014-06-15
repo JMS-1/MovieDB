@@ -106,14 +106,6 @@ interface IGenreEditInfo {
     unused: boolean;
 }
 
-interface IGenreEdit {
-    modify: boolean;
-
-    id: string;
-
-    name: string;
-}
-
 class SearchRequestContract {
     size: number = 15;
 

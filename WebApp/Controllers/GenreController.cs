@@ -41,5 +41,65 @@ namespace WebApp.Controllers
             // Create
             return GenreEditInfo.Create( genre, users );
         }
+
+        /// <summary>
+        /// Legt eine neue Art an.
+        /// </summary>
+        /// <param name="newGenre">Der Name der neuen Art.</param>
+        [Route( "" )]
+        [HttpPost]
+        public async Task<IHttpActionResult> Create( [FromBody] GenreDescription newGenre )
+        {
+            // Add to collection
+            Database.Genres.Add( new Genre { Name = newGenre.UniqueName, Description = newGenre.Description } );
+
+            // Process update
+            await Database.SaveChangesAsync();
+
+            // Done
+            return Ok();
+        }
+
+        /// <summary>
+        /// Verändert eine bestehende Art.
+        /// </summary>
+        /// <param name="identifier">Der eindeutige Name der Art.</param>
+        /// <param name="newData">Die neuen Daten für die Art.</param>
+        [Route( "{identifier}" )]
+        [HttpPut]
+        public async Task<IHttpActionResult> Update( string identifier, [FromBody] GenreDescription newData )
+        {
+            // Locate
+            var genre = Database.Genres.Find( identifier );
+
+            // Update
+            genre.Name = newData.UniqueName;
+            genre.Description = newData.Description;
+
+            // Process update
+            await Database.SaveChangesAsync();
+
+            // Done
+            return Ok();
+        }
+
+        /// <summary>
+        /// Entfernt eine bestehende Art.
+        /// </summary>
+        /// <param name="identifier">Der eindeutige Name der Art.</param>
+        [Route( "{identifier}" )]
+        [HttpDelete]
+        public async Task<IHttpActionResult> Delete( string identifier )
+        {
+            // Mark as deleted
+            Database.Entry<Genre>( new Genre { Name = identifier } ).State = EntityState.Deleted;
+
+            // Process update
+            await Database.SaveChangesAsync();
+
+            // Done
+            return Ok();
+
+        }
     }
 }

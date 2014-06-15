@@ -19,7 +19,7 @@
 
 <body>
 
-    <div id="genreEditDialog" title="Pflege der Arten von Aufzeichnungen" class="invisible dialog">
+    <div id="genreEditDialog" title="Pflege der Arten von Aufzeichnungen" class="invisible">
         <table>
             <tr>
                 <td>&nbsp;</td>
@@ -34,6 +34,15 @@
             <tr>
                 <td class="editLabel">Anzeigename:</td>
                 <td class="editField"><input type="text" id="genreEditName" size="100" /></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="dialogButtons">
+                        <a id="genreDialogSave" href="javascript:void(0)" class="editButton">Übernehmen</a>
+                        <a id="genreDialogDelete" href="javascript:void(0)" class="editButton">Löschen</a>
+                        <a id="genreDialogCancel" href="javascript:void(0)" class="editButton">Abbrechen</a>
+                    </div>
+                </td>
             </tr>
         </table>
     </div>

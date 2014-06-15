@@ -49,7 +49,11 @@ module MovieDatabase {
 
         private genreDialog: GenreEditor;
 
-        private allSeries: any = {}
+        private allSeries: any = {};
+
+        private allGenres: any = {};
+
+        private allLanguages: any = {};
 
         private migrate(): void {
             var legacyFile = $('#theFile');
@@ -99,6 +103,12 @@ module MovieDatabase {
 
             busyIndicator.removeClass(Styles.loading);
             busyIndicator.addClass(Styles.idle);
+
+            this.allGenres = {};
+            this.allLanguages = {};
+
+            $.each(info.genres, (index, genre) => this.allGenres[genre.id] = genre.description);
+            $.each(info.languages, (index, language) => this.allLanguages[language.id] = language.description);
 
             this.currentApplicationInformation = info;
 
@@ -219,8 +229,8 @@ module MovieDatabase {
                 var recordingRow = $('<tr></tr>').appendTo(tableBody);
 
                 $('<a />', { text: recording.hierarchicalName, href: '#' + recording.id }).appendTo($('<td />').appendTo(recordingRow));
-                $('<td />').appendTo(recordingRow).text(recording.languages.join('; '));
-                $('<td />').appendTo(recordingRow).text(recording.genres.join('; '));
+                $('<td />').appendTo(recordingRow).text($.map(recording.languages, language => this.allLanguages[language] || language).join('; '));
+                $('<td />').appendTo(recordingRow).text($.map(recording.genres, genre=> this.allGenres[genre] || genre).join('; '));
                 $('<td />').appendTo(recordingRow).text(DateTimeTools.toStandard(recording.created));
                 $('<td />').appendTo(recordingRow).text(recording.rent);
             });
@@ -229,7 +239,7 @@ module MovieDatabase {
         }
 
         private requestApplicationInformation(): JQueryPromise<IApplicationInformation> {
-            return $.ajax('movie/info');
+            return $.ajax('movie/info').done((info: IApplicationInformation) => this.fillApplicationInformation(info));
         }
 
         private resetAllModes(): void {
@@ -273,7 +283,7 @@ module MovieDatabase {
             this.recordingFilter = new RecordingFilter(result => this.fillResultTable(result), series => this.allSeries[series]);
             this.languageEditor = new MultiValueEditor<ILanguageContract>('#recordingEditLanguage', validateRecordingEditForm);
             this.genreEditor = new MultiValueEditor<IGenreContract>('#recordingEditGenre', validateRecordingEditForm);
-            this.genreDialog = new GenreEditor('#openGenreEditDialog');
+            this.genreDialog = new GenreEditor('#openGenreEditDialog', () => this.requestApplicationInformation());
 
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');
@@ -327,8 +337,6 @@ module MovieDatabase {
             // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
             this.requestApplicationInformation().done(info => {
                 $('#headline').text('VCR.NET Mediendatenbank');
-
-                this.fillApplicationInformation(info);
 
                 // Wir benutzen ein wenige deep linking für einige Aufgaben
                 $(window).on('hashchange', () => this.setMode());
