@@ -134,7 +134,8 @@ module MovieDatabase {
             this.seriesDialog.reset(info.series);
             this.genreDialog.reset(info.genres);
 
-            RecordingEditor.setSeries(info.series);
+            Tools.fillSeriesSelection(RecordingEditor.seriesField(), info.series, '(gehört zu keiner Serie)');
+            Tools.fillSelection(RecordingEditor.containerField(), info.containers, '(Aufbewahrung nicht bekannt)', c => c, c => c);
 
             this.recordingFilter.setLanguages(info.languages);
             this.recordingFilter.setGenres(info.genres);
@@ -345,6 +346,8 @@ module MovieDatabase {
             RecordingEditor.descriptionField().on('input', validateRecordingEditForm);
             RecordingEditor.rentField().on('change', validateRecordingEditForm);
             RecordingEditor.rentField().on('input', validateRecordingEditForm);
+            RecordingEditor.locationField().on('change', validateRecordingEditForm);
+            RecordingEditor.locationField().on('input', validateRecordingEditForm);
 
             // Allgemeine Informationen zur Anwendung abrufen - eventuell dauert das etwas, da die Datenbank gestartet werden muss
             this.requestApplicationInformation().done(info => {

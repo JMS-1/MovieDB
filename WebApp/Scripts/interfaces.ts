@@ -66,6 +66,12 @@ interface IRecordingRowContract extends IRecordingInfoContract {
 
 interface IRecordingEditContract extends IRecordingInfoContract {
     description: string;
+
+    mediaType: number;
+
+    container: string;
+
+    location: string;
 }
 
 // Die Eigenschaften, nach denen Aufzeichnungen sortiert werden können
@@ -101,6 +107,8 @@ interface IApplicationInformationContract {
     genres: IGenreContract[];
 
     series: ISeriesMappingContract[];
+
+    containers: string[];
 
     seriesSeparator: string;
 };

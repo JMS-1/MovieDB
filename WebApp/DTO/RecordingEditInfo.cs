@@ -16,6 +16,24 @@ namespace WebApp.DTO
         public string Description { get; set; }
 
         /// <summary>
+        /// Die Art des Mediums.
+        /// </summary>
+        [DataMember( Name = "mediaType" )]
+        public Models.StoreType StoreType { get; set; }
+
+        /// <summary>
+        /// Der Name der Ablage.
+        /// </summary>
+        [DataMember( Name = "container" )]
+        public string ContainerName { get; set; }
+
+        /// <summary>
+        /// Die Position in der Ablage.
+        /// </summary>
+        [DataMember( Name = "location" )]
+        public string Location { get; set; }
+
+        /// <summary>
         /// Erstellt eine neue Beschreibung.
         /// </summary>
         /// <param name="recording">Die Repräsentation aus der Datenbank.</param>
@@ -40,7 +58,10 @@ namespace WebApp.DTO
         {
             return new RecordingEditInfo( recording )
             {
+                ContainerName = recording.Store.ContainerName,
+                Location = recording.Store.Location,
                 Description = recording.Description,
+                StoreType = recording.Store.Type,
             };
         }
     }

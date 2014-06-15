@@ -331,8 +331,8 @@ var SuggestionListEditor = (function () {
 
     SuggestionListEditor.prototype.createUpdate = function () {
         var newData = {
-            description: this.descriptionField().val().trim(),
-            id: this.nameField().val().trim()
+            description: (this.descriptionField().val() || '').trim(),
+            id: (this.nameField().val() || '').trim()
         };
 
         // Der Downcast ist etwas unsauber, aber wir wissen hier genau, was wir tun

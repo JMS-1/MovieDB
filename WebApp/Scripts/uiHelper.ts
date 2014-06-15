@@ -313,8 +313,8 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
     private createUpdate(): TUpdateContext {
         var newData: IMappingContract =
             {
-                description: this.descriptionField().val().trim(),
-                id: this.nameField().val().trim(),
+                description: (this.descriptionField().val() || '').trim(),
+                id: (this.nameField().val() || '').trim(),
             };
 
         // Der Downcast ist etwas unsauber, aber wir wissen hier genau, was wir tun

@@ -9,10 +9,14 @@ class RecordingEditor {
         this.genreEditor = genreEditor;
         this.languageEditor = languageEditor;
 
-        RecordingEditor.rentField().val(recording.rent);
-        RecordingEditor.titleField().val(recording.title);
+        RecordingEditor.mediaField().val(recording.mediaType.toString());
         RecordingEditor.descriptionField().val(recording.description);
+        RecordingEditor.containerField().val(recording.container);
+        RecordingEditor.locationField().val(recording.location);
         RecordingEditor.seriesField().val(recording.series);
+        RecordingEditor.titleField().val(recording.title);
+        RecordingEditor.titleField().val(recording.title);
+        RecordingEditor.rentField().val(recording.rent);
 
         languageEditor.val(recording.languages);
         genreEditor.val(recording.genres);
@@ -44,7 +48,7 @@ class RecordingEditor {
         return $('#recordingEditSeries');
     }
 
-    static meditField(): JQuery {
+    static mediaField(): JQuery {
         return $('#recordingEditMedia');
     }
 
@@ -68,10 +72,6 @@ class RecordingEditor {
         return $('#recordingEditRent');
     }
 
-    static setSeries(series: ISeriesMapping[]): void {
-        Tools.fillSeriesSelection(RecordingEditor.seriesField(), series, '(gehört zu keiner Serie)');
-    }
-
     save(): void {
         var newData = this.createContract();
 
@@ -83,8 +83,11 @@ class RecordingEditor {
         var newData: IRecordingEditContract =
             {
                 description: (RecordingEditor.descriptionField().val() || '').trim(),
+                location: (RecordingEditor.locationField().val() || '').trim(),
                 title: (RecordingEditor.titleField().val() || '').trim(),
+                mediaType: parseInt(RecordingEditor.mediaField().val()),
                 rent: (RecordingEditor.rentField().val() || '').trim(),
+                container: RecordingEditor.containerField().val(),
                 series: RecordingEditor.seriesField().val(),
                 languages: this.languageEditor.val(),
                 genres: this.genreEditor.val(),
@@ -123,6 +126,15 @@ class RecordingEditor {
             return null;
     }
 
+    private validateLocation(recording: IRecordingEditContract): string {
+        var location = recording.location;
+
+        if (location.length > 100)
+            return 'Die Position im Container darf maximal 100 Zeichen haben';
+        else
+            return null;
+    }
+
     validate(recording: IRecordingEditContract = null): boolean {
         var isValid = true;
 
@@ -134,6 +146,8 @@ class RecordingEditor {
         if (Tools.setError(RecordingEditor.descriptionField(), this.validateDescription(recording)))
             isValid = false;
         if (Tools.setError(RecordingEditor.rentField(), this.validateRentTo(recording)))
+            isValid = false;
+        if (Tools.setError(RecordingEditor.locationField(), this.validateLocation(recording)))
             isValid = false;
 
         RecordingEditor.saveButton().button('option', 'disabled', !isValid);

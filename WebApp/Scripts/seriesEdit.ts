@@ -49,9 +49,9 @@ class SeriesEditor {
     private createUpdate(): ISeriesContract {
         var newData: ISeriesContract =
             {
-                name: this.nameField().val().trim(),
                 parentId: this.parentChooser().val(),
-                description: this.descriptionField().val().trim(),
+                name: (this.nameField().val() || '').trim(),
+                description: (this.descriptionField().val() || '').trim(),
             };
 
         return newData;

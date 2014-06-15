@@ -8,10 +8,14 @@ var RecordingEditor = (function () {
         this.genreEditor = genreEditor;
         this.languageEditor = languageEditor;
 
-        RecordingEditor.rentField().val(recording.rent);
-        RecordingEditor.titleField().val(recording.title);
+        RecordingEditor.mediaField().val(recording.mediaType.toString());
         RecordingEditor.descriptionField().val(recording.description);
+        RecordingEditor.containerField().val(recording.container);
+        RecordingEditor.locationField().val(recording.location);
         RecordingEditor.seriesField().val(recording.series);
+        RecordingEditor.titleField().val(recording.title);
+        RecordingEditor.titleField().val(recording.title);
+        RecordingEditor.rentField().val(recording.rent);
 
         languageEditor.val(recording.languages);
         genreEditor.val(recording.genres);
@@ -36,7 +40,7 @@ var RecordingEditor = (function () {
         return $('#recordingEditSeries');
     };
 
-    RecordingEditor.meditField = function () {
+    RecordingEditor.mediaField = function () {
         return $('#recordingEditMedia');
     };
 
@@ -60,10 +64,6 @@ var RecordingEditor = (function () {
         return $('#recordingEditRent');
     };
 
-    RecordingEditor.setSeries = function (series) {
-        Tools.fillSeriesSelection(RecordingEditor.seriesField(), series, '(gehört zu keiner Serie)');
-    };
-
     RecordingEditor.prototype.save = function () {
         var newData = this.createContract();
 
@@ -74,8 +74,11 @@ var RecordingEditor = (function () {
     RecordingEditor.prototype.createContract = function () {
         var newData = {
             description: (RecordingEditor.descriptionField().val() || '').trim(),
+            location: (RecordingEditor.locationField().val() || '').trim(),
             title: (RecordingEditor.titleField().val() || '').trim(),
+            mediaType: parseInt(RecordingEditor.mediaField().val()),
             rent: (RecordingEditor.rentField().val() || '').trim(),
+            container: RecordingEditor.containerField().val(),
             series: RecordingEditor.seriesField().val(),
             languages: this.languageEditor.val(),
             genres: this.genreEditor.val(),
@@ -114,6 +117,15 @@ var RecordingEditor = (function () {
             return null;
     };
 
+    RecordingEditor.prototype.validateLocation = function (recording) {
+        var location = recording.location;
+
+        if (location.length > 100)
+            return 'Die Position im Container darf maximal 100 Zeichen haben';
+        else
+            return null;
+    };
+
     RecordingEditor.prototype.validate = function (recording) {
         if (typeof recording === "undefined") { recording = null; }
         var isValid = true;
@@ -126,6 +138,8 @@ var RecordingEditor = (function () {
         if (Tools.setError(RecordingEditor.descriptionField(), this.validateDescription(recording)))
             isValid = false;
         if (Tools.setError(RecordingEditor.rentField(), this.validateRentTo(recording)))
+            isValid = false;
+        if (Tools.setError(RecordingEditor.locationField(), this.validateLocation(recording)))
             isValid = false;
 
         RecordingEditor.saveButton().button('option', 'disabled', !isValid);

@@ -62,9 +62,9 @@ var SeriesEditor = (function () {
 
     SeriesEditor.prototype.createUpdate = function () {
         var newData = {
-            name: this.nameField().val().trim(),
             parentId: this.parentChooser().val(),
-            description: this.descriptionField().val().trim()
+            name: (this.nameField().val() || '').trim(),
+            description: (this.descriptionField().val() || '').trim()
         };
 
         return newData;

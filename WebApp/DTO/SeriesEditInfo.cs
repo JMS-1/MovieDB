@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 
@@ -46,6 +48,7 @@ namespace WebApp.DTO
         /// <param name="series">Die Entität aus der Datenbank.</param>
         /// <param name="numberOfRecordings">Die Anzahl der Aufzeichnungen zu dieser Serie.</param>
         /// <param name="numberOfChildren">Die Anzahl der direkten Kindserien.</param>
+        /// <param name="children">Alle untergeordneten Serien.</param>
         /// <returns>Die gewünschte Beschreibung.</returns>
         public static SeriesEditInfo Create( Models.Series series, int numberOfRecordings, int numberOfChildren )
         {
