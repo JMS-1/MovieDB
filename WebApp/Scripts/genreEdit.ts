@@ -3,7 +3,7 @@
 /// <reference path='interfaces.ts' />
 /// <reference path='uiHelper.ts' />
 
-class GenreEditor extends SuggestionListEditor<IGenreEditInfo, IGenreContract> {
+class GenreEditor extends SuggestionListEditor<IGenreEditInfoContract, IGenreContract> {
 
     constructor(openButtonSelector: string, reloadApplicationData: () => void) {
         super(openButtonSelector, reloadApplicationData);

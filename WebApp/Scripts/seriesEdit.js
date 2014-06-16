@@ -162,12 +162,12 @@ var SeriesEditor = (function () {
             return;
 
         var url = 'movie/series';
-        var parent = this.seriesIdentifier;
-        if (parent.length > 0)
-            url += '/' + parent;
+        var series = this.seriesIdentifier;
+        if (series.length > 0)
+            url += '/' + series;
 
         $.ajax(url, {
-            type: (parent.length < 1) ? 'POST' : 'PUT',
+            type: (series.length < 1) ? 'POST' : 'PUT',
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(newData)
         }).done(function () {

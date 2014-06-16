@@ -99,7 +99,7 @@ class SeriesEditor {
             // Ansonsten fragen wir den Web Service immer nach dem neuesten Stand
             this.seriesIdentifier = null;
 
-            $.ajax('movie/series/' + choosen).done((info: ISeriesEditInfo) => {
+            $.ajax('movie/series/' + choosen).done((info: ISeriesEditInfoContract) => {
                 if (info == null)
                     return;
 
@@ -147,13 +147,13 @@ class SeriesEditor {
             return;
 
         var url = 'movie/series';
-        var parent = this.seriesIdentifier;
-        if (parent.length > 0)
-            url += '/' + parent;
+        var series = this.seriesIdentifier;
+        if (series.length > 0)
+            url += '/' + series;
 
         $
             .ajax(url, {
-                type: (parent.length < 1) ? 'POST' : 'PUT',
+                type: (series.length < 1) ? 'POST' : 'PUT',
                 contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify(newData),
             })

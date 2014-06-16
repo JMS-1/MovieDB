@@ -122,13 +122,13 @@ interface IEditInfoContract {
     unused: boolean;
 }
 
-interface IGenreEditInfo extends IEditInfoContract {
+interface IGenreEditInfoContract extends IEditInfoContract {
 }
 
-interface ILanguageEditInfo extends IEditInfoContract {
+interface ILanguageEditInfoContract extends IEditInfoContract {
 }
 
-interface ISeriesEditInfo {
+interface ISeriesEditInfoContract {
     id: string;
 
     parentId: string;
@@ -138,6 +138,28 @@ interface ISeriesEditInfo {
     description: string;
 
     unused: boolean;
+}
+
+interface IContainerRecordingContract {
+    name: string;
+
+    position: string;
+}
+
+interface IContainerEditInfoContract {
+    name: string;
+
+    description: string;
+
+    type: number;
+
+    parent: string;
+
+    location: string;
+
+    children: string[];
+
+    recordings: IContainerRecordingContract[];
 }
 
 class SearchRequestContract {

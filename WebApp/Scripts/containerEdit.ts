@@ -24,7 +24,7 @@ class ContainerEditor {
 
     private getChildren: (series: string) => ISeriesMappingContract[];
 
-    private seriesIdentifier: string = null;
+    private containerName: string = null;
 
     private open(): void {
         // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
@@ -87,28 +87,32 @@ class ContainerEditor {
         this.parentChooser().val('');
         this.nameField().val('');
         this.descriptionField().val('');
+        this.locationField().val('');
+        this.typeField().val('0');
 
         if (choosen.length < 1) {
             // Einfach ist es, wenn wir etwas neu Anlegen
-            this.seriesIdentifier = '';
+            this.containerName = '';
 
             this.validate();
         }
         else {
             // Ansonsten fragen wir den Web Service immer nach dem neuesten Stand
-            this.seriesIdentifier = null;
+            this.containerName = null;
 
-            $.ajax('movie/container/?name=' + choosen).done((info: ISeriesEditInfo) => {
+            $.ajax('movie/container/?name=' + encodeURIComponent(choosen)).done((info: IContainerEditInfoContract) => {
                 if (info == null)
                     return;
 
-                this.seriesIdentifier = info.id;
+                this.containerName = info.name;
 
                 this.nameField().val(info.name);
                 this.descriptionField().val(info.description);
-                this.parentChooser().val(info.parentId);
+                this.parentChooser().val(info.parent);
+                this.typeField().val(info.type.toString());
+                this.locationField().val(info.location);
 
-                this.deleteButton().button('option', 'disabled', !info.unused);
+                this.deleteButton().button('option', 'disabled', false);
 
                 // Für den unwahrscheinlichen Fall, dass sich die Spielregeln verändert haben - und um die Schaltfläche zum Speichern zu aktivieren
                 this.validate();
@@ -117,15 +121,15 @@ class ContainerEditor {
     }
 
     private remove(): void {
-        if (this.seriesIdentifier == null)
+        if (this.containerName == null)
             return;
-        if (this.seriesIdentifier.length < 1)
+        if (this.containerName.length < 1)
             return;
 
         var newData = this.createUpdate();
 
         $
-            .ajax('movie/container/' + this.seriesIdentifier, {
+            .ajax('movie/container/' + encodeURIComponent(this.containerName), {
                 type: 'DELETE',
             })
             .done(() => this.restart())
@@ -136,7 +140,7 @@ class ContainerEditor {
     }
 
     private save(): void {
-        if (this.seriesIdentifier == null)
+        if (this.containerName == null)
             return;
 
         var newData = this.createUpdate();
@@ -146,13 +150,13 @@ class ContainerEditor {
             return;
 
         var url = 'movie/container';
-        var parent = this.seriesIdentifier;
-        if (parent.length > 0)
-            url += '/' + parent;
+        var container = this.containerName;
+        if (container.length > 0)
+            url += '/?name=' + encodeURIComponent(container);
 
         $
             .ajax(url, {
-                type: (parent.length < 1) ? 'POST' : 'PUT',
+                type: (container.length < 1) ? 'POST' : 'PUT',
                 contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify(newData),
             })
@@ -170,7 +174,7 @@ class ContainerEditor {
     }
 
     private chooser(): JQuery {
-        return this.dialog().find('.selectKey');
+        return this.dialog().find('.selectName');
     }
 
     private parentChooser(): JQuery {
@@ -190,11 +194,19 @@ class ContainerEditor {
     }
 
     private nameField(): JQuery {
-        return this.dialog().find('.editKey');
+        return this.dialog().find('.editName');
     }
 
     private descriptionField(): JQuery {
-        return this.dialog().find('.editName');
+        return this.dialog().find('.editDescription');
+    }
+
+    private typeField(): JQuery {
+        return this.dialog().find('.chooseType');
+    }
+
+    private locationField(): JQuery {
+        return this.dialog().find('.editLocation');
     }
 
     private validateName(newData: ISeriesContract): string {

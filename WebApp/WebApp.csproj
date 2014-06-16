@@ -197,6 +197,7 @@
     <Compile Include="DTO\RecordingEditInfo.cs" />
     <Compile Include="DTO\Recording.cs" />
     <Compile Include="DTO\SeriesEdit.cs" />
+    <Compile Include="DTO\ContainerEditInfo.cs" />
     <Compile Include="DTO\SeriesEditInfo.cs" />
     <Compile Include="DTO\SeriesDescription.cs" />
     <Compile Include="DTO\GenreDescription.cs" />
@@ -229,16 +230,43 @@
   <ItemGroup />
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\appCode.ts" />
+    <Content Include="Scripts\appCode.js">
+      <DependentUpon>appCode.ts</DependentUpon>
+    </Content>
     <TypeScriptCompile Include="Scripts\containerEdit.ts" />
+    <Content Include="Scripts\containerEdit.js">
+      <DependentUpon>containerEdit.ts</DependentUpon>
+    </Content>
     <TypeScriptCompile Include="Scripts\genreEdit.ts" />
+    <Content Include="Scripts\genreEdit.js">
+      <DependentUpon>genreEdit.ts</DependentUpon>
+    </Content>
     <TypeScriptCompile Include="Scripts\interfaces.ts" />
+    <Content Include="Scripts\interfaces.js">
+      <DependentUpon>interfaces.ts</DependentUpon>
+    </Content>
     <TypeScriptCompile Include="Scripts\languageEdit.ts" />
+    <Content Include="Scripts\languageEdit.js">
+      <DependentUpon>languageEdit.ts</DependentUpon>
+    </Content>
     <TypeScriptCompile Include="Scripts\recEdit.ts" />
+    <Content Include="Scripts\recEdit.js">
+      <DependentUpon>recEdit.ts</DependentUpon>
+    </Content>
     <TypeScriptCompile Include="Scripts\recFilter.ts" />
+    <Content Include="Scripts\recFilter.js">
+      <DependentUpon>recFilter.ts</DependentUpon>
+    </Content>
     <TypeScriptCompile Include="Scripts\seriesEdit.ts" />
+    <Content Include="Scripts\seriesEdit.js">
+      <DependentUpon>seriesEdit.ts</DependentUpon>
+    </Content>
     <TypeScriptCompile Include="Scripts\typings\jqueryui\jqueryui.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="Scripts\uiHelper.ts" />
+    <Content Include="Scripts\uiHelper.js">
+      <DependentUpon>uiHelper.ts</DependentUpon>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_GlobalResources\MovieDBStrings.resx">

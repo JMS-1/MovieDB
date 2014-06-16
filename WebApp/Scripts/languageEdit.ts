@@ -3,7 +3,7 @@
 /// <reference path='interfaces.ts' />
 /// <reference path='uiHelper.ts' />
 
-class LanguageEditor extends SuggestionListEditor<ILanguageEditInfo, ILanguageContract> {
+class LanguageEditor extends SuggestionListEditor<ILanguageEditInfoContract, ILanguageContract> {
 
     constructor(openButtonSelector: string, reloadApplicationData: () => void) {
         super(openButtonSelector, reloadApplicationData);

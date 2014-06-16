@@ -88,6 +88,9 @@
 .editSelectorEdit {
   vertical-align: top;
 }
+.containerParentEdit input[type=text] {
+  margin-left: 10px;
+}
 #recordingEditLocation {
   margin-left: 5px;
 }

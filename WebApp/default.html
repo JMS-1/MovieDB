@@ -110,26 +110,36 @@
         </table>
     </div>
 
-
     <div id="containerEditDialog" title="Pflege der Aufbewahrungen" class="invisible">
         <table>
             <tr>
                 <td>&nbsp;</td>
                 <td>
-                    <select class="editField selectKey"></select>
+                    <select class="editField selectName"></select>
                 </td>
             </tr>
             <tr>
                 <td class="editLabel">Name:</td>
-                <td class="editField"><input type="text" class="editKey" size="26" /></td>
+                <td class="editField"><input type="text" class="editName" size="40" /></td>
+            </tr>
+            <tr>
+                <td class="editLabel">Art:</td>
+                <td class="editField">
+                    <select class="chooseType">
+                        <option value="0">(unbekannt)</option>
+                        <option value="1">Kleine DVD Box</option>
+                        <option value="2">Große DVD Box</option>
+                        <option value="3">Regal(fach)</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="editLabel">Beschreibung:</td>
+                <td class="editField"><textarea class="editDescription" rows="5" cols="100"></textarea></td>
             </tr>
             <tr>
                 <td class="editLabel">Standort:</td>
-                <td class="editField"><input type="text" class="editName" size="100" /></td>
-            </tr>
-            <tr>
-                <td class="editLabel">Übergeordnete Aufbewahrung:</td>
-                <td class="editField"><select class="editParent"></select></td>
+                <td class="editField"><div class="containerParentEdit"><select class="editParent"></select><input type="text" class="editLocation" size="40" /></div></td>
             </tr>
             <tr>
                 <td colspan="2">
