@@ -206,17 +206,15 @@ namespace MovieDB
             var genreMap = new Dictionary<string, WebApp.Models.Genre>();
             var infoMap = Series.ToDictionary( series => series.Name );
 
-            // Add all containers
-            var dbContainers = database.Containers;
+            // Create all containers - DO NOT ADD TO DATABASE NOW since we build the hierarchy using the navigation property ParentContainer and not the column ParentName
             foreach (var container in Containers)
                 containerMap.Add( container.Name,
-                    dbContainers.Add(
-                        new WebApp.Models.Container
-                        {
-                            Type = (WebApp.Models.ContainerType) container.Type,
-                            Description = container.Location,
-                            Name = container.Name,
-                        } ) );
+                    new WebApp.Models.Container
+                    {
+                        Type = (WebApp.Models.ContainerType) container.Type,
+                        Description = container.Location,
+                        Name = container.Name,
+                    } );
 
             // Build container hierarchy
             foreach (var container in Containers.Where( c => c.Parent != null ))
@@ -227,6 +225,9 @@ namespace MovieDB
                 dbContainer.ParentContainer = containerMap[parent.Name];
                 dbContainer.Location = parent.UnitIdentifier;
             }
+
+            // And add to database
+            database.Containers.AddRange( containerMap.Values );
 
             // Find all media
             var dbStores = database.Stores;

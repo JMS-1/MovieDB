@@ -5,8 +5,9 @@
 /// <reference path='recFilter.ts' />
 /// <reference path='recEdit.ts' />
 /// <reference path='languageEdit.ts' />
-/// <reference path='seriesEdit.ts' />
 /// <reference path='genreEdit.ts' />
+/// <reference path='seriesEdit.ts' />
+/// <reference path='containerEdit.ts' />
 var MovieDatabase;
 (function (MovieDatabase) {
     ;
@@ -126,16 +127,13 @@ var MovieDatabase;
             }, function (g) {
                 return g.description;
             });
+            this.containerDialog.reset(info.containers);
             this.languageDialog.reset(info.languages);
             this.seriesDialog.reset(info.series);
             this.genreDialog.reset(info.genres);
 
             Tools.fillSeriesSelection(RecordingEditor.seriesField(), info.series, '(gehört zu keiner Serie)');
-            Tools.fillSelection(RecordingEditor.containerField(), info.containers, '(Aufbewahrung nicht bekannt)', function (c) {
-                return c;
-            }, function (c) {
-                return c;
-            });
+            Tools.fillStringSelection(RecordingEditor.containerField(), info.containers, '(Aufbewahrung nicht bekannt)');
 
             this.recordingFilter.setLanguages(info.languages);
             this.recordingFilter.setGenres(info.genres);
@@ -293,6 +291,12 @@ var MovieDatabase;
             return !sortDown;
         };
 
+        Application.prototype.getChildren = function (series) {
+            var parent = this.allSeries[series];
+
+            return parent.children;
+        };
+
         Application.prototype.startup = function () {
             var _this = this;
             // Man beachte, dass alle der folgenden Benachrichtigungen immer an den aktuellen Änderungsvorgang koppeln, so dass keine Abmeldung notwendig ist
@@ -300,20 +304,25 @@ var MovieDatabase;
                 return _this.currentRecording.validate();
             };
 
+            this.seriesDialog = new SeriesEditor('.openSeriesEditDialog', function () {
+                return _this.requestApplicationInformation();
+            }, function (series) {
+                return _this.getChildren(series);
+            });
+            this.containerDialog = new ContainerEditor('.openContainerEditDialog', function () {
+                return _this.requestApplicationInformation();
+            });
             this.recordingFilter = new RecordingFilter(function (result) {
                 return _this.fillResultTable(result);
             }, function (series) {
                 return _this.allSeries[series];
             });
             this.languageEditor = new MultiValueEditor('#recordingEditLanguage', validateRecordingEditForm);
-            this.languageDialog = new LanguageEditor('#openLanguageEditDialog', function () {
+            this.languageDialog = new LanguageEditor('.openLanguageEditDialog', function () {
                 return _this.requestApplicationInformation();
             });
             this.genreEditor = new MultiValueEditor('#recordingEditGenre', validateRecordingEditForm);
-            this.seriesDialog = new SeriesEditor('#openSeriesEditDialog', function () {
-                return _this.requestApplicationInformation();
-            });
-            this.genreDialog = new GenreEditor('#openGenreEditDialog', function () {
+            this.genreDialog = new GenreEditor('.openGenreEditDialog', function () {
                 return _this.requestApplicationInformation();
             });
 

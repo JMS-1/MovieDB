@@ -45,6 +45,14 @@ var Tools = (function () {
         }
     };
 
+    Tools.fillStringSelection = function (selector, items, nullSelection) {
+        Tools.fillSelection(selector, items, nullSelection, function (s) {
+            return s;
+        }, function (s) {
+            return s;
+        });
+    };
+
     Tools.fillSeriesSelection = function (selector, series, nullSelection) {
         Tools.fillSelection(selector, series, nullSelection, function (s) {
             return s.id;
@@ -60,6 +68,15 @@ var Tools = (function () {
 
         $.each(items, function (index, item) {
             return $('<option />', { text: getText(item), value: getValue(item) }).appendTo(selector);
+        });
+    };
+
+    Tools.openDialog = function (dialog) {
+        dialog.dialog({
+            position: { of: '#main', at: 'center top+100', my: 'center top' },
+            closeOnEscape: false,
+            width: 'auto',
+            modal: true
         });
     };
     return Tools;
@@ -310,12 +327,7 @@ var SuggestionListEditor = (function () {
         // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
         this.choose();
 
-        this.dialog().dialog({
-            position: { of: '#dialogAnchor', at: 'center top+20', my: 'center top' },
-            closeOnEscape: false,
-            width: 'auto',
-            modal: true
-        });
+        Tools.openDialog(this.dialog());
     };
 
     SuggestionListEditor.prototype.close = function () {

@@ -8,7 +8,7 @@ interface IMappingContract {
 interface ILanguageContract extends IMappingContract {
 }
 
-// Die Information zu einer einzelnen Art von Aufnahme
+// Die Information zu einer einzelnen Kategorie
 interface IGenreContract extends IMappingContract {
 }
 
@@ -113,7 +113,7 @@ interface IApplicationInformationContract {
     seriesSeparator: string;
 };
 
-// Die Eingangsinformationen zum Pflegen einer Art von Aufzeichnung
+// Die Eingangsinformationen zum Pflegen einer Kategorie
 interface IEditInfoContract {
     id: string;
 

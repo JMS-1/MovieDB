@@ -11,6 +11,7 @@
     <script src="Scripts/genreEdit.js"></script>
     <script src="Scripts/languageEdit.js"></script>
     <script src="Scripts/seriesEdit.js"></script>
+    <script src="Scripts/containerEdit.js"></script>
     <script src="Scripts/appCode.js"></script>
 
     <link rel="stylesheet" href="Content/themes/base/jquery-ui.css" />
@@ -21,7 +22,7 @@
 
 <body>
 
-    <div id="genreEditDialog" title="Pflege der Arten von Aufzeichnungen" class="invisible">
+    <div id="genreEditDialog" title="Pflege der Kategorien" class="invisible">
         <table>
             <tr>
                 <td>&nbsp;</td>
@@ -109,6 +110,39 @@
         </table>
     </div>
 
+
+    <div id="containerEditDialog" title="Pflege der Aufbewahrungen" class="invisible">
+        <table>
+            <tr>
+                <td>&nbsp;</td>
+                <td>
+                    <select class="editField selectKey"></select>
+                </td>
+            </tr>
+            <tr>
+                <td class="editLabel">Name:</td>
+                <td class="editField"><input type="text" class="editKey" size="26" /></td>
+            </tr>
+            <tr>
+                <td class="editLabel">Standort:</td>
+                <td class="editField"><input type="text" class="editName" size="100" /></td>
+            </tr>
+            <tr>
+                <td class="editLabel">Übergeordnete Aufbewahrung:</td>
+                <td class="editField"><select class="editParent"></select></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="dialogButtons">
+                        <a href="javascript:void(0)" class="editButton dialogSave">Übernehmen</a>
+                        <a href="javascript:void(0)" class="editButton dialogDelete">Löschen</a>
+                        <a href="javascript:void(0)" class="editButton dialogCancel">Abbrechen</a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
     <h1 id="headline">(Bitte etwas Geduld)</h1>
     <h4 id="countline"><span id="countInfo"></span><span id="busyIndicator" class="ui-icon ui-icon-power"></span></h4>
 
@@ -177,10 +211,17 @@
             </div>
 
             <div id="pageButtons" class="pageButtons invisible">[]</div>
+
+            <div>
+                <a class="editButton openSeriesEditDialog" href="javascript:void(0)">Serien</a>
+                <a class="editButton openLanguageEditDialog" href="javascript:void(0)">Sprachen</a>
+                <a class="editButton openGenreEditDialog" href="javascript:void(0)">Kategorien</a>
+                <a class="editButton openContainerEditDialog" href="javascript:void(0)">Aufbewahrungen</a>
+            </div>
         </div>
 
         <div id="editRecordingMode" class="operationMode invisible">
-            <div id="dialogAnchor" class="editForm">
+            <div class="editForm">
                 <fieldset>
                     <legend>Aufzeichnung:</legend>
                     <table>
@@ -198,8 +239,8 @@
                                 <td class="editField seriesEdit">
                                     <table>
                                         <tr>
-                                            <td class="multivalueList"><select id="recordingEditSeries"></select></td>
-                                            <td class="multivalueListEdit"><a id="openSeriesEditDialog" class="editButton" href="javascript:void(0)">...</a></td>
+                                            <td class="editSelector"><select id="recordingEditSeries"></select></td>
+                                            <td class="editSelectorEdit"><a class="editButton openSeriesEditDialog" href="javascript:void(0)">...</a></td>
                                         </tr>
                                     </table>
                                 </td>
@@ -222,8 +263,8 @@
                                 <td class="editField genreEdit">
                                     <table>
                                         <tr>
-                                            <td class="multivalueList"><div id="recordingEditGenre"></div></td>
-                                            <td class="multivalueListEdit"><a id="openGenreEditDialog" class="editButton" href="javascript:void(0)">...</a></td>
+                                            <td class="editSelector"><div id="recordingEditGenre"></div></td>
+                                            <td class="editSelectorEdit"><a class="editButton openGenreEditDialog" href="javascript:void(0)">...</a></td>
                                         </tr>
                                     </table>
                                 </td>
@@ -233,17 +274,24 @@
                                 <td class="editField languageEdit">
                                     <table>
                                         <tr>
-                                            <td class="multivalueList"><div id="recordingEditLanguage"></div></td>
-                                            <td class="multivalueListEdit"><a id="openLanguageEditDialog" class="editButton" href="javascript:void(0)">...</a></td>
+                                            <td class="editSelector"><div id="recordingEditLanguage"></div></td>
+                                            <td class="editSelectorEdit"><a class="editButton openLanguageEditDialog" href="javascript:void(0)">...</a></td>
                                         </tr>
                                     </table>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="editLabel">Standort:</td>
-                                <td class="editField">
-                                    <select id="recordingEditContainer"></select>
-                                    <input type="text" id="recordingEditLocation" size="60" />
+                                <td class="editField containerEdit">
+                                    <table>
+                                        <tr>
+                                            <td class="editSelector">
+                                                <select id="recordingEditContainer"></select>
+                                                <input type="text" id="recordingEditLocation" size="60" />
+                                            </td>
+                                            <td class="editSelectorEdit"><a class="editButton openContainerEditDialog" href="javascript:void(0)">...</a></td>
+                                        </tr>
+                                    </table>
                                 </td>
                             </tr>
                             <tr>

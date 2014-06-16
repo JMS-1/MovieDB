@@ -172,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\ControllerWithDatabase.cs" />
+    <Compile Include="Controllers\ContainerController.cs" />
     <Compile Include="Controllers\SeriesController.cs" />
     <Compile Include="Controllers\LanguageController.cs" />
     <Compile Include="Controllers\GenreController.cs" />
@@ -228,6 +229,7 @@
   <ItemGroup />
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\appCode.ts" />
+    <TypeScriptCompile Include="Scripts\containerEdit.ts" />
     <TypeScriptCompile Include="Scripts\genreEdit.ts" />
     <TypeScriptCompile Include="Scripts\interfaces.ts" />
     <TypeScriptCompile Include="Scripts\languageEdit.ts" />

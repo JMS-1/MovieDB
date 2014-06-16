@@ -1,12 +1,11 @@
 ﻿/// <reference path='typings/jquery/jquery.d.ts' />
 /// <reference path='typings/jqueryui/jqueryui.d.ts' />
 /// <reference path='interfaces.ts' />
-var SeriesEditor = (function () {
-    function SeriesEditor(openButtonSelector, reloadApplicationData, getChildren) {
+var ContainerEditor = (function () {
+    function ContainerEditor(openButtonSelector, reloadApplicationData) {
         var _this = this;
         this.seriesIdentifier = null;
         this.reload = reloadApplicationData;
-        this.getChildren = getChildren;
 
         $(openButtonSelector).click(function () {
             return _this.open();
@@ -41,25 +40,25 @@ var SeriesEditor = (function () {
             return _this.choose();
         });
     }
-    SeriesEditor.prototype.open = function () {
+    ContainerEditor.prototype.open = function () {
         // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
         this.choose();
 
         Tools.openDialog(this.dialog());
     };
 
-    SeriesEditor.prototype.close = function () {
+    ContainerEditor.prototype.close = function () {
         this.dialog().dialog('close');
     };
 
-    SeriesEditor.prototype.restart = function () {
+    ContainerEditor.prototype.restart = function () {
         this.close();
 
         // Wichtig ist, dass wir die neuen Listen in die Oberfläche laden
         this.reload();
     };
 
-    SeriesEditor.prototype.createUpdate = function () {
+    ContainerEditor.prototype.createUpdate = function () {
         var newData = {
             parentId: this.parentChooser().val(),
             name: (this.nameField().val() || '').trim(),
@@ -69,12 +68,12 @@ var SeriesEditor = (function () {
         return newData;
     };
 
-    SeriesEditor.prototype.reset = function (list) {
-        Tools.fillSeriesSelection(this.chooser(), list, '(Neue Serie anlegen)');
-        Tools.fillSeriesSelection(this.parentChooser(), list, '(Keine)');
+    ContainerEditor.prototype.reset = function (list) {
+        Tools.fillStringSelection(this.chooser(), list, '(Neue Aufbewahrung anlegen)');
+        Tools.fillStringSelection(this.parentChooser(), list, '(Keine)');
     };
 
-    SeriesEditor.prototype.validate = function (newData) {
+    ContainerEditor.prototype.validate = function (newData) {
         if (typeof newData === "undefined") { newData = null; }
         if (newData == null)
             newData = this.createUpdate();
@@ -91,7 +90,7 @@ var SeriesEditor = (function () {
         return isValid;
     };
 
-    SeriesEditor.prototype.choose = function () {
+    ContainerEditor.prototype.choose = function () {
         var _this = this;
         // Die aktuelle Auswahl ermitteln
         var choosen = this.chooser().val();
@@ -113,7 +112,7 @@ var SeriesEditor = (function () {
             // Ansonsten fragen wir den Web Service immer nach dem neuesten Stand
             this.seriesIdentifier = null;
 
-            $.ajax('movie/series/' + choosen).done(function (info) {
+            $.ajax('movie/container/?name=' + choosen).done(function (info) {
                 if (info == null)
                     return;
 
@@ -131,7 +130,7 @@ var SeriesEditor = (function () {
         }
     };
 
-    SeriesEditor.prototype.remove = function () {
+    ContainerEditor.prototype.remove = function () {
         var _this = this;
         if (this.seriesIdentifier == null)
             return;
@@ -140,7 +139,7 @@ var SeriesEditor = (function () {
 
         var newData = this.createUpdate();
 
-        $.ajax('movie/series/' + this.seriesIdentifier, {
+        $.ajax('movie/container/' + this.seriesIdentifier, {
             type: 'DELETE'
         }).done(function () {
             return _this.restart();
@@ -150,7 +149,7 @@ var SeriesEditor = (function () {
         });
     };
 
-    SeriesEditor.prototype.save = function () {
+    ContainerEditor.prototype.save = function () {
         var _this = this;
         if (this.seriesIdentifier == null)
             return;
@@ -161,7 +160,7 @@ var SeriesEditor = (function () {
         if (!this.validate(newData))
             return;
 
-        var url = 'movie/series';
+        var url = 'movie/container';
         var parent = this.seriesIdentifier;
         if (parent.length > 0)
             url += '/' + parent;
@@ -179,68 +178,57 @@ var SeriesEditor = (function () {
     };
 
     // Alles was jetzt kommt sind eigentlich die abstrakten Methoden der Basisklasse
-    SeriesEditor.prototype.dialog = function () {
-        return $('#seriesEditDialog');
+    ContainerEditor.prototype.dialog = function () {
+        return $('#containerEditDialog');
     };
 
-    SeriesEditor.prototype.chooser = function () {
+    ContainerEditor.prototype.chooser = function () {
         return this.dialog().find('.selectKey');
     };
 
-    SeriesEditor.prototype.parentChooser = function () {
+    ContainerEditor.prototype.parentChooser = function () {
         return this.dialog().find('.editParent');
     };
 
-    SeriesEditor.prototype.saveButton = function () {
+    ContainerEditor.prototype.saveButton = function () {
         return this.dialog().find('.dialogSave');
     };
 
-    SeriesEditor.prototype.deleteButton = function () {
+    ContainerEditor.prototype.deleteButton = function () {
         return this.dialog().find('.dialogDelete');
     };
 
-    SeriesEditor.prototype.cancelButton = function () {
+    ContainerEditor.prototype.cancelButton = function () {
         return this.dialog().find('.dialogCancel');
     };
 
-    SeriesEditor.prototype.nameField = function () {
+    ContainerEditor.prototype.nameField = function () {
         return this.dialog().find('.editKey');
     };
 
-    SeriesEditor.prototype.descriptionField = function () {
+    ContainerEditor.prototype.descriptionField = function () {
         return this.dialog().find('.editName');
     };
 
-    SeriesEditor.prototype.validateName = function (newData) {
+    ContainerEditor.prototype.validateName = function (newData) {
         var name = newData.name;
 
         if (name.length < 1)
             return 'Es muss ein Name angegeben werden';
         else if (name.length > 50)
             return 'Der Name darf maximal 50 Zeichen haben';
-        else {
-            var parent = this.parentChooser().val();
-            if (parent == '')
-                return null;
-
-            var existingChildren = this.getChildren(parent);
-
-            for (var i = 0; i < existingChildren.length; i++)
-                if (existingChildren[i].name == name)
-                    return 'Dieser Name wird bereits verwendet';
-
-            return null;
-        }
-    };
-
-    SeriesEditor.prototype.validateDescription = function (newData) {
-        var description = newData.description;
-
-        if (description.length > 2000)
-            return 'Die Beschreibung darf maximal 2000 Zeichen haben';
         else
             return null;
     };
-    return SeriesEditor;
+
+    ContainerEditor.prototype.validateDescription = function (newData) {
+        var description = newData.description;
+
+        if (description.length > 2000)
+            return 'Der Standort darf maximal 2000 Zeichen haben';
+        else
+            return null;
+    };
+    return ContainerEditor;
 })();
-//# sourceMappingURL=seriesEdit.js.map
+//# sourceMappingURL=containerEdit.js.map

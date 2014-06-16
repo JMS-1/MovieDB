@@ -70,7 +70,8 @@ namespace WebApp.Models
                 .Entity<Container>()
                 .HasOptional( c => c.ParentContainer )
                 .WithMany()
-                .HasForeignKey( c => c.ParentName );
+                .HasForeignKey( c => c.ParentName )
+                .WillCascadeOnDelete( false );
         }
     }
 }

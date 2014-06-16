@@ -22,7 +22,7 @@ var GenreEditor = (function (_super) {
     };
 
     GenreEditor.prototype.createNewOption = function () {
-        return '(neue Art anlegen)';
+        return '(neue Kategorie anlegen)';
     };
 
     GenreEditor.prototype.validateName = function (genre) {

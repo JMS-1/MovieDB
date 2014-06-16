@@ -78,10 +78,14 @@
 .seriesEdit {
   background-color: lemonchiffon;
 }
-.multivalueList {
+.containerEdit {
+  background-color: sandybrown;
+}
+.editSelector {
+  vertical-align: top;
   width: 100%;
 }
-.multivalueListEdit {
+.editSelectorEdit {
   vertical-align: top;
 }
 #recordingEditLocation {

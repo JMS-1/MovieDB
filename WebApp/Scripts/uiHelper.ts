@@ -41,6 +41,10 @@ class Tools {
             return true;
         }
     }
+    
+    static fillStringSelection(selector: JQuery, items: string[], nullSelection: string): void {
+        Tools.fillSelection(selector, items, nullSelection, s => s, s=> s);
+    }
 
     static fillSeriesSelection(selector: JQuery, series: ISeriesMappingContract[], nullSelection: string): void {
         Tools.fillSelection(selector, series, nullSelection, s => s.id, s=> s.hierarchicalName);
@@ -54,6 +58,14 @@ class Tools {
         $.each(items, (index, item) => $('<option />', { text: getText(item), value: getValue(item) }).appendTo(selector));
     }
 
+    static openDialog(dialog: JQuery): void {
+        dialog.dialog({
+            position: { of: '#main', at: 'center top+100', my: 'center top' },
+            closeOnEscape: false,
+            width: 'auto',
+            modal: true,
+        });
+    }
 }
 
 class GenreSelector {
@@ -291,12 +303,7 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
         // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
         this.choose();
 
-        this.dialog().dialog({
-            position: { of: '#dialogAnchor', at: 'center top+20', my: 'center top' },
-            closeOnEscape: false,
-            width: 'auto',
-            modal: true,
-        });
+        Tools.openDialog(this.dialog());
     }
 
     private close() {

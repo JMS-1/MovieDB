@@ -2,10 +2,9 @@
 /// <reference path='typings/jqueryui/jqueryui.d.ts' />
 /// <reference path='interfaces.ts' />
 
-class SeriesEditor {
-    constructor(openButtonSelector: string, reloadApplicationData: () => void, getChildren: (series: string) => ISeriesMappingContract[]) {
+class ContainerEditor {
+    constructor(openButtonSelector: string, reloadApplicationData: () => void) {
         this.reload = reloadApplicationData;
-        this.getChildren = getChildren;
 
         $(openButtonSelector).click(() => this.open());
 
@@ -56,9 +55,9 @@ class SeriesEditor {
         return newData;
     }
 
-    reset(list: ISeriesMappingContract[]): void {
-        Tools.fillSeriesSelection(this.chooser(), list, '(Neue Serie anlegen)');
-        Tools.fillSeriesSelection(this.parentChooser(), list, '(Keine)');
+    reset(list: string[]): void {
+        Tools.fillStringSelection(this.chooser(), list, '(Neue Aufbewahrung anlegen)');
+        Tools.fillStringSelection(this.parentChooser(), list, '(Keine)');
     }
 
     private validate(newData: ISeriesContract = null): boolean {
@@ -99,7 +98,7 @@ class SeriesEditor {
             // Ansonsten fragen wir den Web Service immer nach dem neuesten Stand
             this.seriesIdentifier = null;
 
-            $.ajax('movie/series/' + choosen).done((info: ISeriesEditInfo) => {
+            $.ajax('movie/container/?name=' + choosen).done((info: ISeriesEditInfo) => {
                 if (info == null)
                     return;
 
@@ -126,7 +125,7 @@ class SeriesEditor {
         var newData = this.createUpdate();
 
         $
-            .ajax('movie/series/' + this.seriesIdentifier, {
+            .ajax('movie/container/' + this.seriesIdentifier, {
                 type: 'DELETE',
             })
             .done(() => this.restart())
@@ -146,7 +145,7 @@ class SeriesEditor {
         if (!this.validate(newData))
             return;
 
-        var url = 'movie/series';
+        var url = 'movie/container';
         var parent = this.seriesIdentifier;
         if (parent.length > 0)
             url += '/' + parent;
@@ -167,7 +166,7 @@ class SeriesEditor {
     // Alles was jetzt kommt sind eigentlich die abstrakten Methoden der Basisklasse
 
     private dialog(): JQuery {
-        return $('#seriesEditDialog');
+        return $('#containerEditDialog');
     }
 
     private chooser(): JQuery {
@@ -205,26 +204,15 @@ class SeriesEditor {
             return 'Es muss ein Name angegeben werden';
         else if (name.length > 50)
             return 'Der Name darf maximal 50 Zeichen haben';
-        else {
-            var parent = this.parentChooser().val();
-            if (parent == '')
-                return null;
-
-            var existingChildren = this.getChildren(parent);
-
-            for (var i = 0; i < existingChildren.length; i++)
-                if (existingChildren[i].name == name)
-                    return 'Dieser Name wird bereits verwendet';
-
+        else
             return null;
-        }
     }
 
     private validateDescription(newData: ISeriesContract): string {
         var description = newData.description;
 
         if (description.length > 2000)
-            return 'Die Beschreibung darf maximal 2000 Zeichen haben';
+            return 'Der Standort darf maximal 2000 Zeichen haben';
         else
             return null;
     }

@@ -20,7 +20,7 @@ class GenreEditor extends SuggestionListEditor<IGenreEditInfo, IGenreContract> {
     }
 
     createNewOption(): string {
-        return '(neue Art anlegen)';
+        return '(neue Kategorie anlegen)';
     }
 
     validateName(genre: IGenreContract): string {

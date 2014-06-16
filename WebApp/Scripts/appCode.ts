@@ -5,8 +5,9 @@
 /// <reference path='recFilter.ts' />
 /// <reference path='recEdit.ts' />
 /// <reference path='languageEdit.ts' />
-/// <reference path='seriesEdit.ts' />
 /// <reference path='genreEdit.ts' />
+/// <reference path='seriesEdit.ts' />
+/// <reference path='containerEdit.ts' />
 
 module MovieDatabase {
 
@@ -54,6 +55,8 @@ module MovieDatabase {
         private languageDialog: LanguageEditor;
 
         private seriesDialog: SeriesEditor;
+
+        private containerDialog: ContainerEditor;
 
         private allSeries: any = {};
 
@@ -130,12 +133,13 @@ module MovieDatabase {
 
             this.languageEditor.reset(info.languages, l => l.id, l => l.description);
             this.genreEditor.reset(info.genres, g => g.id, g => g.description);
+            this.containerDialog.reset(info.containers);
             this.languageDialog.reset(info.languages);
             this.seriesDialog.reset(info.series);
             this.genreDialog.reset(info.genres);
 
             Tools.fillSeriesSelection(RecordingEditor.seriesField(), info.series, '(gehört zu keiner Serie)');
-            Tools.fillSelection(RecordingEditor.containerField(), info.containers, '(Aufbewahrung nicht bekannt)', c => c, c => c);
+            Tools.fillStringSelection(RecordingEditor.containerField(), info.containers, '(Aufbewahrung nicht bekannt)');
 
             this.recordingFilter.setLanguages(info.languages);
             this.recordingFilter.setGenres(info.genres);
@@ -287,16 +291,23 @@ module MovieDatabase {
             return !sortDown;
         }
 
+        private getChildren(series: string): ISeriesMappingContract[] {
+            var parent = <ISeriesMapping>this.allSeries[series];
+
+            return parent.children;
+        }
+
         private startup(): void {
             // Man beachte, dass alle der folgenden Benachrichtigungen immer an den aktuellen Änderungsvorgang koppeln, so dass keine Abmeldung notwendig ist
             var validateRecordingEditForm = () => this.currentRecording.validate();
 
+            this.seriesDialog = new SeriesEditor('.openSeriesEditDialog', () => this.requestApplicationInformation(), series => this.getChildren(series));
+            this.containerDialog = new ContainerEditor('.openContainerEditDialog', () => this.requestApplicationInformation());
             this.recordingFilter = new RecordingFilter(result => this.fillResultTable(result), series => this.allSeries[series]);
             this.languageEditor = new MultiValueEditor<ILanguageContract>('#recordingEditLanguage', validateRecordingEditForm);
-            this.languageDialog = new LanguageEditor('#openLanguageEditDialog', () => this.requestApplicationInformation());
+            this.languageDialog = new LanguageEditor('.openLanguageEditDialog', () => this.requestApplicationInformation());
             this.genreEditor = new MultiValueEditor<IGenreContract>('#recordingEditGenre', validateRecordingEditForm);
-            this.seriesDialog = new SeriesEditor('#openSeriesEditDialog', () => this.requestApplicationInformation());
-            this.genreDialog = new GenreEditor('#openGenreEditDialog', () => this.requestApplicationInformation());
+            this.genreDialog = new GenreEditor('.openGenreEditDialog', () => this.requestApplicationInformation());
 
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');
