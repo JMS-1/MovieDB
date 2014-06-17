@@ -8,6 +8,10 @@ var SeriesEditor = (function () {
         this.reload = reloadApplicationData;
         this.getChildren = getChildren;
 
+        this.confirmedDelete = new DeleteButton(this.dialog().find('.dialogDelete'), function () {
+            return _this.remove();
+        });
+
         $(openButtonSelector).click(function () {
             return _this.open();
         });
@@ -17,9 +21,6 @@ var SeriesEditor = (function () {
         });
         this.cancelButton().click(function () {
             return _this.close();
-        });
-        this.deleteButton().click(function () {
-            return _this.remove();
         });
 
         this.descriptionField().on('change', function () {
@@ -98,7 +99,7 @@ var SeriesEditor = (function () {
 
         // Und dann ganz defensiv erst einmal alles zurück setzen
         this.saveButton().button('option', 'disabled', choosen.length > 0);
-        this.deleteButton().button('option', 'disabled', true);
+        this.confirmedDelete.disable();
 
         this.parentChooser().val('');
         this.nameField().val('');
@@ -123,7 +124,8 @@ var SeriesEditor = (function () {
                 _this.descriptionField().val(info.description);
                 _this.parentChooser().val(info.parentId);
 
-                _this.deleteButton().button('option', 'disabled', !info.unused);
+                if (info.unused)
+                    _this.confirmedDelete.enable();
 
                 // Für den unwahrscheinlichen Fall, dass sich die Spielregeln verändert haben - und um die Schaltfläche zum Speichern zu aktivieren
                 _this.validate();
@@ -193,10 +195,6 @@ var SeriesEditor = (function () {
 
     SeriesEditor.prototype.saveButton = function () {
         return this.dialog().find('.dialogSave');
-    };
-
-    SeriesEditor.prototype.deleteButton = function () {
-        return this.dialog().find('.dialogDelete');
     };
 
     SeriesEditor.prototype.cancelButton = function () {

@@ -24,6 +24,8 @@ class Styles {
     static sortedDown = 'ui-icon-arrowthick-1-s';
 
     static inputError = 'validationError';
+
+    static deleteConfirmation = 'deleteConfirm';
 }
 
 class Tools {
@@ -41,7 +43,7 @@ class Tools {
             return true;
         }
     }
-    
+
     static fillStringSelection(selector: JQuery, items: string[], nullSelection: string): void {
         Tools.fillSelection(selector, items, nullSelection, s => s, s=> s);
     }
@@ -477,5 +479,32 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
 
     validateDescription(newData: TUpdateContext): string {
         throw 'Bitte validateDescription implementieren';
+    }
+}
+
+class DeleteButton {
+    public constructor(button: JQuery, process: () => void) {
+        this.button = button.click(() => this.remove());
+        this.process = process;
+    }
+
+    private button: JQuery;
+
+    private process: () => void;
+
+    disable(): void {
+        this.button.removeClass(Styles.deleteConfirmation);
+        this.button.button('option', 'disabled', true);
+    }
+
+    enable(): void {
+        this.button.button('option', 'disabled', false);
+    }
+
+    private remove(): void {
+        if (this.button.hasClass(Styles.deleteConfirmation))
+            this.process();
+        else
+            this.button.addClass(Styles.deleteConfirmation);
     }
 }

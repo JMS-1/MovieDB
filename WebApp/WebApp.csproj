@@ -192,6 +192,7 @@
     <Compile Include="Controllers\ApplicationController.cs" />
     <Compile Include="Controllers\MovieController.cs" />
     <Compile Include="DAL\Database.cs" />
+    <Compile Include="DTO\ContainerEdit.cs" />
     <Compile Include="DTO\LanguageEditInfo.cs" />
     <Compile Include="DTO\GenreEditInfo.cs" />
     <Compile Include="DTO\RecordingEditInfo.cs" />

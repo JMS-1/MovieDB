@@ -25,6 +25,8 @@ var Styles = (function () {
     Styles.sortedDown = 'ui-icon-arrowthick-1-s';
 
     Styles.inputError = 'validationError';
+
+    Styles.deleteConfirmation = 'deleteConfirm';
     return Styles;
 })();
 
@@ -506,5 +508,31 @@ var SuggestionListEditor = (function () {
         throw 'Bitte validateDescription implementieren';
     };
     return SuggestionListEditor;
+})();
+
+var DeleteButton = (function () {
+    function DeleteButton(button, process) {
+        var _this = this;
+        this.button = button.click(function () {
+            return _this.remove();
+        });
+        this.process = process;
+    }
+    DeleteButton.prototype.disable = function () {
+        this.button.removeClass(Styles.deleteConfirmation);
+        this.button.button('option', 'disabled', true);
+    };
+
+    DeleteButton.prototype.enable = function () {
+        this.button.button('option', 'disabled', false);
+    };
+
+    DeleteButton.prototype.remove = function () {
+        if (this.button.hasClass(Styles.deleteConfirmation))
+            this.process();
+        else
+            this.button.addClass(Styles.deleteConfirmation);
+    };
+    return DeleteButton;
 })();
 //# sourceMappingURL=uiHelper.js.map

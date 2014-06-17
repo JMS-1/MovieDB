@@ -7,11 +7,12 @@ class SeriesEditor {
         this.reload = reloadApplicationData;
         this.getChildren = getChildren;
 
+        this.confirmedDelete = new DeleteButton(this.dialog().find('.dialogDelete'), () => this.remove());
+
         $(openButtonSelector).click(() => this.open());
 
         this.saveButton().click(() => this.save());
         this.cancelButton().click(() => this.close());
-        this.deleteButton().click(() => this.remove());
 
         this.descriptionField().on('change', () => this.validate());
         this.descriptionField().on('input', () => this.validate());
@@ -26,6 +27,8 @@ class SeriesEditor {
     private getChildren: (series: string) => ISeriesMappingContract[];
 
     private seriesIdentifier: string = null;
+
+    private confirmedDelete: DeleteButton;
 
     private open(): void {
         // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
@@ -83,7 +86,7 @@ class SeriesEditor {
 
         // Und dann ganz defensiv erst einmal alles zurück setzen
         this.saveButton().button('option', 'disabled', choosen.length > 0);
-        this.deleteButton().button('option', 'disabled', true);
+        this.confirmedDelete.disable();
 
         this.parentChooser().val('');
         this.nameField().val('');
@@ -109,7 +112,8 @@ class SeriesEditor {
                 this.descriptionField().val(info.description);
                 this.parentChooser().val(info.parentId);
 
-                this.deleteButton().button('option', 'disabled', !info.unused);
+                if (info.unused)
+                    this.confirmedDelete.enable();
 
                 // Für den unwahrscheinlichen Fall, dass sich die Spielregeln verändert haben - und um die Schaltfläche zum Speichern zu aktivieren
                 this.validate();
@@ -180,10 +184,6 @@ class SeriesEditor {
 
     private saveButton(): JQuery {
         return this.dialog().find('.dialogSave');
-    }
-
-    private deleteButton(): JQuery {
-        return this.dialog().find('.dialogDelete');
     }
 
     private cancelButton(): JQuery {
