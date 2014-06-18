@@ -295,6 +295,10 @@ var SuggestionListEditor = (function () {
         this.createNew = null;
         this.reload = reloadApplicationData;
 
+        this.confirmedDelete = new DeleteButton(this.dialog().find('.dialogDelete'), function () {
+            return _this.remove();
+        });
+
         $(openButtonSelector).click(function () {
             return _this.open();
         });
@@ -304,9 +308,6 @@ var SuggestionListEditor = (function () {
         });
         this.cancelButton().click(function () {
             return _this.close();
-        });
-        this.deleteButton().click(function () {
-            return _this.remove();
         });
 
         this.descriptionField().on('change', function () {
@@ -385,7 +386,8 @@ var SuggestionListEditor = (function () {
 
         // Und dann ganz defensiv erst einmal alles zurück setzen
         this.saveButton().button('option', 'disabled', choosen.length > 0);
-        this.deleteButton().button('option', 'disabled', true);
+
+        this.confirmedDelete.disable();
 
         this.nameField().prop('disabled', choosen.length > 0);
         this.nameField().val('');
@@ -409,7 +411,8 @@ var SuggestionListEditor = (function () {
                 _this.nameField().val(info.id);
                 _this.descriptionField().val(info.name);
 
-                _this.deleteButton().button('option', 'disabled', !info.unused);
+                if (info.unused)
+                    _this.confirmedDelete.enable();
 
                 // Für den unwahrscheinlichen Fall, dass sich die Spielregeln verändert haben - und um die Schaltfläche zum Speichern zu aktivieren
                 _this.validate();
@@ -482,10 +485,6 @@ var SuggestionListEditor = (function () {
 
     SuggestionListEditor.prototype.saveButton = function () {
         return this.dialog().find('.dialogSave');
-    };
-
-    SuggestionListEditor.prototype.deleteButton = function () {
-        return this.dialog().find('.dialogDelete');
     };
 
     SuggestionListEditor.prototype.cancelButton = function () {

@@ -7,6 +7,10 @@ var ContainerEditor = (function () {
         this.containerName = null;
         this.reload = reloadApplicationData;
 
+        this.confirmedDelete = new DeleteButton(this.dialog().find('.dialogDelete'), function () {
+            return _this.remove();
+        });
+
         $(openButtonSelector).click(function () {
             return _this.open();
         });
@@ -16,9 +20,6 @@ var ContainerEditor = (function () {
         });
         this.cancelButton().click(function () {
             return _this.close();
-        });
-        this.deleteButton().click(function () {
-            return _this.remove();
         });
 
         this.descriptionField().on('change', function () {
@@ -60,9 +61,11 @@ var ContainerEditor = (function () {
 
     ContainerEditor.prototype.createUpdate = function () {
         var newData = {
-            parentId: this.parentChooser().val(),
+            description: (this.descriptionField().val() || '').trim(),
+            location: (this.locationField().val() || '').trim(),
             name: (this.nameField().val() || '').trim(),
-            description: (this.descriptionField().val() || '').trim()
+            parent: this.parentChooser().val(),
+            type: this.typeField().val()
         };
 
         return newData;
@@ -84,6 +87,8 @@ var ContainerEditor = (function () {
             isValid = false;
         if (Tools.setError(this.descriptionField(), this.validateDescription(newData)))
             isValid = false;
+        if (Tools.setError(this.locationField(), this.validateLocation(newData)))
+            isValid = false;
 
         this.saveButton().button('option', 'disabled', !isValid);
 
@@ -97,7 +102,7 @@ var ContainerEditor = (function () {
 
         // Und dann ganz defensiv erst einmal alles zurück setzen
         this.saveButton().button('option', 'disabled', choosen.length > 0);
-        this.deleteButton().button('option', 'disabled', true);
+        this.confirmedDelete.disable();
 
         this.parentChooser().val('');
         this.nameField().val('');
@@ -120,13 +125,13 @@ var ContainerEditor = (function () {
 
                 _this.containerName = info.name;
 
-                _this.nameField().val(info.name);
                 _this.descriptionField().val(info.description);
-                _this.parentChooser().val(info.parent);
                 _this.typeField().val(info.type.toString());
                 _this.locationField().val(info.location);
+                _this.parentChooser().val(info.parent);
+                _this.nameField().val(info.name);
 
-                _this.deleteButton().button('option', 'disabled', false);
+                _this.confirmedDelete.enable();
 
                 // Für den unwahrscheinlichen Fall, dass sich die Spielregeln verändert haben - und um die Schaltfläche zum Speichern zu aktivieren
                 _this.validate();
@@ -143,7 +148,7 @@ var ContainerEditor = (function () {
 
         var newData = this.createUpdate();
 
-        $.ajax('movie/container/' + encodeURIComponent(this.containerName), {
+        $.ajax('movie/container?name=' + encodeURIComponent(this.containerName), {
             type: 'DELETE'
         }).done(function () {
             return _this.restart();
@@ -198,10 +203,6 @@ var ContainerEditor = (function () {
         return this.dialog().find('.dialogSave');
     };
 
-    ContainerEditor.prototype.deleteButton = function () {
-        return this.dialog().find('.dialogDelete');
-    };
-
     ContainerEditor.prototype.cancelButton = function () {
         return this.dialog().find('.dialogCancel');
     };
@@ -238,6 +239,15 @@ var ContainerEditor = (function () {
 
         if (description.length > 2000)
             return 'Der Standort darf maximal 2000 Zeichen haben';
+        else
+            return null;
+    };
+
+    ContainerEditor.prototype.validateLocation = function (newData) {
+        var location = newData.location;
+
+        if (location.length > 100)
+            return 'Der Position in der übergeordnete Aufzeichnung darf maximal 100 Zeichen haben';
         else
             return null;
     };

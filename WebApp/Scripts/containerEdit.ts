@@ -6,11 +6,12 @@ class ContainerEditor {
     constructor(openButtonSelector: string, reloadApplicationData: () => void) {
         this.reload = reloadApplicationData;
 
+        this.confirmedDelete = new DeleteButton(this.dialog().find('.dialogDelete'), () => this.remove());
+
         $(openButtonSelector).click(() => this.open());
 
         this.saveButton().click(() => this.save());
         this.cancelButton().click(() => this.close());
-        this.deleteButton().click(() => this.remove());
 
         this.descriptionField().on('change', () => this.validate());
         this.descriptionField().on('input', () => this.validate());
@@ -25,6 +26,8 @@ class ContainerEditor {
     private getChildren: (series: string) => ISeriesMappingContract[];
 
     private containerName: string = null;
+
+    private confirmedDelete: DeleteButton;
 
     private open(): void {
         // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
@@ -44,12 +47,14 @@ class ContainerEditor {
         this.reload();
     }
 
-    private createUpdate(): ISeriesContract {
-        var newData: ISeriesContract =
+    private createUpdate(): IContainerContract {
+        var newData: IContainerContract =
             {
-                parentId: this.parentChooser().val(),
-                name: (this.nameField().val() || '').trim(),
                 description: (this.descriptionField().val() || '').trim(),
+                location: (this.locationField().val() || '').trim(),
+                name: (this.nameField().val() || '').trim(),
+                parent: this.parentChooser().val(),
+                type: this.typeField().val(),
             };
 
         return newData;
@@ -60,7 +65,7 @@ class ContainerEditor {
         Tools.fillStringSelection(this.parentChooser(), list, '(Keine)');
     }
 
-    private validate(newData: ISeriesContract = null): boolean {
+    private validate(newData: IContainerContract = null): boolean {
         if (newData == null)
             newData = this.createUpdate();
 
@@ -69,6 +74,8 @@ class ContainerEditor {
         if (Tools.setError(this.nameField(), this.validateName(newData)))
             isValid = false;
         if (Tools.setError(this.descriptionField(), this.validateDescription(newData)))
+            isValid = false;
+        if (Tools.setError(this.locationField(), this.validateLocation(newData)))
             isValid = false;
 
         this.saveButton().button('option', 'disabled', !isValid);
@@ -82,7 +89,7 @@ class ContainerEditor {
 
         // Und dann ganz defensiv erst einmal alles zurück setzen
         this.saveButton().button('option', 'disabled', choosen.length > 0);
-        this.deleteButton().button('option', 'disabled', true);
+        this.confirmedDelete.disable();
 
         this.parentChooser().val('');
         this.nameField().val('');
@@ -106,13 +113,13 @@ class ContainerEditor {
 
                 this.containerName = info.name;
 
-                this.nameField().val(info.name);
                 this.descriptionField().val(info.description);
-                this.parentChooser().val(info.parent);
                 this.typeField().val(info.type.toString());
                 this.locationField().val(info.location);
+                this.parentChooser().val(info.parent);
+                this.nameField().val(info.name);
 
-                this.deleteButton().button('option', 'disabled', false);
+                this.confirmedDelete.enable();
 
                 // Für den unwahrscheinlichen Fall, dass sich die Spielregeln verändert haben - und um die Schaltfläche zum Speichern zu aktivieren
                 this.validate();
@@ -129,7 +136,7 @@ class ContainerEditor {
         var newData = this.createUpdate();
 
         $
-            .ajax('movie/container/' + encodeURIComponent(this.containerName), {
+            .ajax('movie/container?name=' + encodeURIComponent(this.containerName), {
                 type: 'DELETE',
             })
             .done(() => this.restart())
@@ -185,10 +192,6 @@ class ContainerEditor {
         return this.dialog().find('.dialogSave');
     }
 
-    private deleteButton(): JQuery {
-        return this.dialog().find('.dialogDelete');
-    }
-
     private cancelButton(): JQuery {
         return this.dialog().find('.dialogCancel');
     }
@@ -209,7 +212,7 @@ class ContainerEditor {
         return this.dialog().find('.editLocation');
     }
 
-    private validateName(newData: ISeriesContract): string {
+    private validateName(newData: IContainerContract): string {
         var name = newData.name;
 
         if (name.length < 1)
@@ -220,11 +223,20 @@ class ContainerEditor {
             return null;
     }
 
-    private validateDescription(newData: ISeriesContract): string {
+    private validateDescription(newData: IContainerContract): string {
         var description = newData.description;
 
         if (description.length > 2000)
             return 'Der Standort darf maximal 2000 Zeichen haben';
+        else
+            return null;
+    }
+
+    private validateLocation(newData: IContainerContract): string {
+        var location = newData.location;
+
+        if (location.length > 100)
+            return 'Der Position in der übergeordnete Aufzeichnung darf maximal 100 Zeichen haben';
         else
             return null;
     }

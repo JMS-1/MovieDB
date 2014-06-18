@@ -225,7 +225,8 @@ var SeriesEditor = (function () {
 
             for (var i = 0; i < existingChildren.length; i++)
                 if (existingChildren[i].name == name)
-                    return 'Dieser Name wird bereits verwendet';
+                    if (existingChildren[i].id != this.seriesIdentifier)
+                        return 'Dieser Name wird bereits verwendet';
 
             return null;
         }

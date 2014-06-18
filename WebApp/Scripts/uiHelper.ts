@@ -284,11 +284,12 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
     constructor(openButtonSelector: string, reloadApplicationData: () => void) {
         this.reload = reloadApplicationData;
 
+        this.confirmedDelete = new DeleteButton(this.dialog().find('.dialogDelete'), () => this.remove());
+
         $(openButtonSelector).click(() => this.open());
 
         this.saveButton().click(() => this.save());
         this.cancelButton().click(() => this.close());
-        this.deleteButton().click(() => this.remove());
 
         this.descriptionField().on('change', () => this.validate());
         this.descriptionField().on('input', () => this.validate());
@@ -300,6 +301,8 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
     private reload: () => void;
 
     private createNew: boolean = null;
+
+    private confirmedDelete: DeleteButton;
 
     private open(): void {
         // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
@@ -356,7 +359,8 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
 
         // Und dann ganz defensiv erst einmal alles zurück setzen
         this.saveButton().button('option', 'disabled', choosen.length > 0);
-        this.deleteButton().button('option', 'disabled', true);
+
+        this.confirmedDelete.disable();
 
         this.nameField().prop('disabled', choosen.length > 0);
         this.nameField().val('');
@@ -381,7 +385,8 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
                 this.nameField().val(info.id);
                 this.descriptionField().val(info.name);
 
-                this.deleteButton().button('option', 'disabled', !info.unused);
+                if (info.unused)
+                    this.confirmedDelete.enable();
 
                 // Für den unwahrscheinlichen Fall, dass sich die Spielregeln verändert haben - und um die Schaltfläche zum Speichern zu aktivieren
                 this.validate();
@@ -455,10 +460,6 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
 
     private saveButton(): JQuery {
         return this.dialog().find('.dialogSave');
-    }
-
-    private deleteButton(): JQuery {
-        return this.dialog().find('.dialogDelete');
     }
 
     private cancelButton(): JQuery {

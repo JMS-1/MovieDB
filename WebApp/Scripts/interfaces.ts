@@ -31,6 +31,18 @@ interface ISeriesContract {
     description: string;
 }
 
+interface IContainerContract {
+    name: string;
+
+    description: string;
+
+    type: number;
+
+    parent: string;
+
+    location: string;
+}
+
 // Die statistichen Hilfsinformationen
 
 interface IStatisticsContract {
