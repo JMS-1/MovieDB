@@ -4,7 +4,7 @@
 var ContainerEditor = (function () {
     function ContainerEditor(openButtonSelector, reloadApplicationData) {
         var _this = this;
-        this.containerName = null;
+        this.identifier = null;
         this.reload = reloadApplicationData;
 
         this.confirmedDelete = new DeleteButton(this.dialog().find('.dialogDelete'), function () {
@@ -112,18 +112,18 @@ var ContainerEditor = (function () {
 
         if (choosen.length < 1) {
             // Einfach ist es, wenn wir etwas neu Anlegen
-            this.containerName = '';
+            this.identifier = '';
 
             this.validate();
         } else {
             // Ansonsten fragen wir den Web Service immer nach dem neuesten Stand
-            this.containerName = null;
+            this.identifier = null;
 
-            $.ajax('movie/container/?name=' + encodeURIComponent(choosen)).done(function (info) {
+            $.ajax('movie/container' + choosen).done(function (info) {
                 if (info == null)
                     return;
 
-                _this.containerName = info.name;
+                _this.identifier = info.name;
 
                 _this.descriptionField().val(info.description);
                 _this.typeField().val(info.type.toString());
@@ -141,14 +141,12 @@ var ContainerEditor = (function () {
 
     ContainerEditor.prototype.remove = function () {
         var _this = this;
-        if (this.containerName == null)
+        if (this.identifier == null)
             return;
-        if (this.containerName.length < 1)
+        if (this.identifier.length < 1)
             return;
 
-        var newData = this.createUpdate();
-
-        $.ajax('movie/container?name=' + encodeURIComponent(this.containerName), {
+        $.ajax('movie/container/' + this.identifier, {
             type: 'DELETE'
         }).done(function () {
             return _this.restart();
@@ -160,7 +158,7 @@ var ContainerEditor = (function () {
 
     ContainerEditor.prototype.save = function () {
         var _this = this;
-        if (this.containerName == null)
+        if (this.identifier == null)
             return;
 
         var newData = this.createUpdate();
@@ -170,12 +168,11 @@ var ContainerEditor = (function () {
             return;
 
         var url = 'movie/container';
-        var container = this.containerName;
-        if (container.length > 0)
-            url += '/?name=' + encodeURIComponent(container);
+        if (this.identifier.length > 0)
+            url += '/' + this.identifier;
 
         $.ajax(url, {
-            type: (container.length < 1) ? 'POST' : 'PUT',
+            type: (this.identifier.length < 1) ? 'POST' : 'PUT',
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(newData)
         }).done(function () {

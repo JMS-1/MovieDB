@@ -32,6 +32,12 @@ namespace WebApp.DTO
         }
 
         /// <summary>
+        /// Die eindeutige Kennung der Aufbewahrung.
+        /// </summary>
+        [DataMember( Name = "id" )]
+        public Guid Identifier { get; set; }
+
+        /// <summary>
         /// Der eindeutige Name der Aufbewahrung.
         /// </summary>
         [DataMember( Name = "name" )]
@@ -88,6 +94,7 @@ namespace WebApp.DTO
                     Recordings = recordings.Select( r => new Recording { FullName = r.FullName, Position = r.Store.Location } ).ToArray(),
                     ChildContainerNames = children.Select( c => c.Name ).ToArray(),
                     ParentContainer = container.ParentIdentifier,
+                    Identifier = container.UniqueIdentifier,
                     ParentLocation = container.Location,
                     Description = container.Description,
                     ContainerType = container.Type,

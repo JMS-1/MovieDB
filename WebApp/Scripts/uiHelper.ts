@@ -324,7 +324,7 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
         var newData: IMappingContract =
             {
                 name: (this.nameField().val() || '').trim(),
-                id: this.identifier,
+                id: null,
             };
 
         // Der Downcast ist etwas unsauber, aber wir wissen hier genau, was wir tun
@@ -393,10 +393,8 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
         if (this.identifier.length < 1)
             return;
 
-        var newData = this.createUpdate();
-
         $
-            .ajax('movie/' + this.controllerName() + '/' + newData.id, {
+            .ajax('movie/' + this.controllerName() + '/' + this.identifier, {
                 type: 'DELETE',
             })
             .done(() => this.restart())
@@ -418,7 +416,7 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
 
         var url = 'movie/' + this.controllerName();
         if (this.identifier.length > 0)
-            url += '/' + newData.id;
+            url += '/' + this.identifier;
 
         $
             .ajax(url, {

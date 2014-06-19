@@ -341,7 +341,7 @@ var SuggestionListEditor = (function () {
     SuggestionListEditor.prototype.createUpdate = function () {
         var newData = {
             name: (this.nameField().val() || '').trim(),
-            id: this.identifier
+            id: null
         };
 
         // Der Downcast ist etwas unsauber, aber wir wissen hier genau, was wir tun
@@ -416,9 +416,7 @@ var SuggestionListEditor = (function () {
         if (this.identifier.length < 1)
             return;
 
-        var newData = this.createUpdate();
-
-        $.ajax('movie/' + this.controllerName() + '/' + newData.id, {
+        $.ajax('movie/' + this.controllerName() + '/' + this.identifier, {
             type: 'DELETE'
         }).done(function () {
             return _this.restart();
@@ -441,7 +439,7 @@ var SuggestionListEditor = (function () {
 
         var url = 'movie/' + this.controllerName();
         if (this.identifier.length > 0)
-            url += '/' + newData.id;
+            url += '/' + this.identifier;
 
         $.ajax(url, {
             type: (this.identifier.length < 1) ? 'POST' : 'PUT',

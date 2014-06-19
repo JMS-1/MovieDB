@@ -8,12 +8,24 @@ var SeriesEditor = (function () {
         this.reload = reloadApplicationData;
         this.getChildren = getChildren;
 
-        this.confirmedDelete = new DeleteButton(this.dialog().find('.dialogDelete'), function () {
-            return _this.remove();
-        });
-
         $(openButtonSelector).click(function () {
             return _this.open();
+        });
+
+        this.dialogContent = this.dialog().html();
+        this.dialog().empty();
+    }
+    SeriesEditor.prototype.open = function () {
+        var _this = this;
+        this.dialog().html(this.dialogContent);
+
+        $('.navigationButton, .editButton').button();
+
+        Tools.fillSeriesSelection(this.chooser(), this.series, '(Neue Serie anlegen)');
+        Tools.fillSeriesSelection(this.parentChooser(), this.series, '(Keine)');
+
+        this.confirmedDelete = new DeleteButton(this.dialog().find('.dialogDelete'), function () {
+            return _this.remove();
         });
 
         this.saveButton().click(function () {
@@ -41,9 +53,7 @@ var SeriesEditor = (function () {
         this.chooser().change(function () {
             return _this.choose();
         });
-    }
-    SeriesEditor.prototype.open = function () {
-        // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
+
         this.choose();
 
         Tools.openDialog(this.dialog());
@@ -51,6 +61,7 @@ var SeriesEditor = (function () {
 
     SeriesEditor.prototype.close = function () {
         this.dialog().dialog('close');
+        this.dialog().empty();
     };
 
     SeriesEditor.prototype.restart = function () {
@@ -71,8 +82,7 @@ var SeriesEditor = (function () {
     };
 
     SeriesEditor.prototype.reset = function (list) {
-        Tools.fillSeriesSelection(this.chooser(), list, '(Neue Serie anlegen)');
-        Tools.fillSeriesSelection(this.parentChooser(), list, '(Keine)');
+        this.series = list;
     };
 
     SeriesEditor.prototype.validate = function (newData) {
@@ -139,8 +149,6 @@ var SeriesEditor = (function () {
             return;
         if (this.seriesIdentifier.length < 1)
             return;
-
-        var newData = this.createUpdate();
 
         $.ajax('movie/series/' + this.seriesIdentifier, {
             type: 'DELETE'

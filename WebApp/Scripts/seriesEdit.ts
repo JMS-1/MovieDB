@@ -7,19 +7,10 @@ class SeriesEditor {
         this.reload = reloadApplicationData;
         this.getChildren = getChildren;
 
-        this.confirmedDelete = new DeleteButton(this.dialog().find('.dialogDelete'), () => this.remove());
-
         $(openButtonSelector).click(() => this.open());
 
-        this.saveButton().click(() => this.save());
-        this.cancelButton().click(() => this.close());
-
-        this.descriptionField().on('change', () => this.validate());
-        this.descriptionField().on('input', () => this.validate());
-        this.nameField().on('change', () => this.validate());
-        this.nameField().on('input', () => this.validate());
-        this.parentChooser().change(() => this.validate());
-        this.chooser().change(() => this.choose());
+        this.dialogContent = this.dialog().html();
+        this.dialog().empty();
     }
 
     private reload: () => void;
@@ -30,8 +21,30 @@ class SeriesEditor {
 
     private confirmedDelete: DeleteButton;
 
+    private dialogContent: string;
+
+    private series: ISeriesMappingContract[];
+
     private open(): void {
-        // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
+        this.dialog().html(this.dialogContent);
+
+        $('.navigationButton, .editButton').button();
+
+        Tools.fillSeriesSelection(this.chooser(), this.series, '(Neue Serie anlegen)');
+        Tools.fillSeriesSelection(this.parentChooser(), this.series, '(Keine)');
+
+        this.confirmedDelete = new DeleteButton(this.dialog().find('.dialogDelete'), () => this.remove());
+
+        this.saveButton().click(() => this.save());
+        this.cancelButton().click(() => this.close());
+
+        this.descriptionField().on('change', () => this.validate());
+        this.descriptionField().on('input', () => this.validate());
+        this.nameField().on('change', () => this.validate());
+        this.nameField().on('input', () => this.validate());
+        this.parentChooser().change(() => this.validate());
+        this.chooser().change(() => this.choose());
+
         this.choose();
 
         Tools.openDialog(this.dialog());
@@ -39,6 +52,7 @@ class SeriesEditor {
 
     private close() {
         this.dialog().dialog('close');
+        this.dialog().empty();
     }
 
     private restart(): void {
@@ -60,8 +74,7 @@ class SeriesEditor {
     }
 
     reset(list: ISeriesMappingContract[]): void {
-        Tools.fillSeriesSelection(this.chooser(), list, '(Neue Serie anlegen)');
-        Tools.fillSeriesSelection(this.parentChooser(), list, '(Keine)');
+        this.series = list;
     }
 
     private validate(newData: ISeriesContract = null): boolean {
@@ -126,8 +139,6 @@ class SeriesEditor {
             return;
         if (this.seriesIdentifier.length < 1)
             return;
-
-        var newData = this.createUpdate();
 
         $
             .ajax('movie/series/' + this.seriesIdentifier, {

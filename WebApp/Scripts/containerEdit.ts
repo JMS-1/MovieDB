@@ -25,7 +25,7 @@ class ContainerEditor {
 
     private getChildren: (series: string) => ISeriesMappingContract[];
 
-    private containerName: string = null;
+    private identifier: string = null;
 
     private confirmedDelete: DeleteButton;
 
@@ -99,19 +99,19 @@ class ContainerEditor {
 
         if (choosen.length < 1) {
             // Einfach ist es, wenn wir etwas neu Anlegen
-            this.containerName = '';
+            this.identifier = '';
 
             this.validate();
         }
         else {
             // Ansonsten fragen wir den Web Service immer nach dem neuesten Stand
-            this.containerName = null;
+            this.identifier = null;
 
-            $.ajax('movie/container/?name=' + encodeURIComponent(choosen)).done((info: IContainerEditInfoContract) => {
+            $.ajax('movie/container' + choosen).done((info: IContainerEditInfoContract) => {
                 if (info == null)
                     return;
 
-                this.containerName = info.name;
+                this.identifier = info.name;
 
                 this.descriptionField().val(info.description);
                 this.typeField().val(info.type.toString());
@@ -128,15 +128,13 @@ class ContainerEditor {
     }
 
     private remove(): void {
-        if (this.containerName == null)
+        if (this.identifier == null)
             return;
-        if (this.containerName.length < 1)
+        if (this.identifier.length < 1)
             return;
-
-        var newData = this.createUpdate();
 
         $
-            .ajax('movie/container?name=' + encodeURIComponent(this.containerName), {
+            .ajax('movie/container/' + this.identifier, {
                 type: 'DELETE',
             })
             .done(() => this.restart())
@@ -147,7 +145,7 @@ class ContainerEditor {
     }
 
     private save(): void {
-        if (this.containerName == null)
+        if (this.identifier == null)
             return;
 
         var newData = this.createUpdate();
@@ -157,13 +155,12 @@ class ContainerEditor {
             return;
 
         var url = 'movie/container';
-        var container = this.containerName;
-        if (container.length > 0)
-            url += '/?name=' + encodeURIComponent(container);
+        if (this.identifier.length > 0)
+            url += '/' + this.identifier;
 
         $
             .ajax(url, {
-                type: (container.length < 1) ? 'POST' : 'PUT',
+                type: (this.identifier.length < 1) ? 'POST' : 'PUT',
                 contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify(newData),
             })
