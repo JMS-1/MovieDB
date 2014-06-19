@@ -26,16 +26,6 @@
     background-color: lightcyan;
 }
 
-.languageFilter {
-    clear: both;
-    float: left;
-    background-color: antiquewhite;
-}
-
-.languageFilterLabel {
-    float: left;
-}
-
 .seriesFilter {
     clear: both;
     background-color: pink;
@@ -73,10 +63,6 @@
 #busyIndicator {
     float: right;
     margin-left: -0.1em;
-}
-
-.withLabel {
-    float: left;
 }
 
 .editNavigation {
@@ -165,24 +151,25 @@
 @filterAccordionContentMargin: 10px;
 @filterAccordionContentWidth: 17.5em;
 @filterAccordionContentFont: small;
-@filterAccordionContentMargin: 10px;
+@filterAccordionLabelPadding: 2px;
 
 // Die Auswahl der Kategorien für die Suche
 
-.genreFilterHeader {
+.genreFilterHeader, .languageFilterHeader {
     font-weight: @filterAccordionWeight;
     font-size: @filterAccordionFont;
 }
 
-#genreFilter {
+#genreFilter, #languageFilter {
     margin-left: @filterAccordionContentMargin;
     padding: @filterAccordionContentPadding !important;
 }
 
-.genreFilter {
+.genreFilter, .languageFilter {
     label {
         font-size: @filterAccordionContentFont !important;
         margin-right: @filterAccordionContentMargin !important;
         width: @filterAccordionContentWidth;
+        padding: @filterAccordionLabelPadding;
     }
 }

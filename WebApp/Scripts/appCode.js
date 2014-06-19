@@ -318,15 +318,17 @@ var MovieDatabase;
                 return _this.currentRecording.validate();
             };
 
-            this.seriesDialog = new SeriesEditor('.openSeriesEditDialog', function () {
-                return _this.requestApplicationInformation();
-            }, function (series) {
-                return _this.getChildren(series);
-            });
             this.recordingFilter = new RecordingFilter(function (result) {
                 return _this.fillResultTable(result);
             }, function (series) {
                 return _this.allSeries[series];
+            }, function (language) {
+                return _this.allLanguages[language] || '(egal)';
+            });
+            this.seriesDialog = new SeriesEditor('.openSeriesEditDialog', function () {
+                return _this.requestApplicationInformation();
+            }, function (series) {
+                return _this.getChildren(series);
             });
             this.containerDialog = new ContainerEditor('.openContainerEditDialog', function () {
                 return _this.requestApplicationInformation();
@@ -340,11 +342,14 @@ var MovieDatabase;
                 return _this.requestApplicationInformation();
             });
 
-            $('#genreFilterCollapsable').accordion({
+            var filterAccordionSettings = {
                 active: false,
                 collapsible: true,
                 heightStyle: 'content'
-            });
+            };
+
+            $('.filterCollapsable').accordion(filterAccordionSettings);
+            $('.filterCollapsable').accordion(filterAccordionSettings);
 
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');

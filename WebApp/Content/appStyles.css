@@ -15,14 +15,6 @@
 .filterArea {
   background-color: lightcyan;
 }
-.languageFilter {
-  clear: both;
-  float: left;
-  background-color: antiquewhite;
-}
-.languageFilterLabel {
-  float: left;
-}
 .seriesFilter {
   clear: both;
   background-color: pink;
@@ -52,9 +44,6 @@
 #busyIndicator {
   float: right;
   margin-left: -0.1em;
-}
-.withLabel {
-  float: left;
 }
 .editNavigation {
   background-color: cyan;
@@ -113,17 +102,21 @@
   border: 2px solid red;
   color: red !important;
 }
-.genreFilterHeader {
+.genreFilterHeader,
+.languageFilterHeader {
   font-weight: bold;
   font-size: small;
 }
-#genreFilter {
+#genreFilter,
+#languageFilter {
   margin-left: 10px;
   padding: 2px 5px 5px 5px !important;
 }
-.genreFilter label {
+.genreFilter label,
+.languageFilter label {
   font-size: small !important;
   margin-right: 10px !important;
   width: 17.5em;
+  padding: 2px;
 }
 /*# sourceMappingURL=appStyles.css.map */

@@ -13,13 +13,14 @@ var __extends = this.__extends || function (d, b) {
 // Die Verwaltung der Suche nach Aufzeichnungen
 var RecordingFilter = (function (_super) {
     __extends(RecordingFilter, _super);
-    function RecordingFilter(resultProcessor, getSeries) {
+    function RecordingFilter(resultProcessor, getSeries, getLanguageName) {
         _super.call(this);
         // Hiermit stellen wir sicher, dass ein nervös klickender Anwender immer nur das letzte Suchergebnis bekommt
         this.pending = 0;
         // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
         this.timeout = null;
 
+        this.languageLookup = getLanguageName;
         this.callback = resultProcessor;
         this.seriesLookup = getSeries;
 
@@ -36,11 +37,12 @@ var RecordingFilter = (function (_super) {
         if (propertyName != 'pending')
             if (propertyName != 'callback')
                 if (propertyName != 'seriesLookup')
-                    if (propertyName != 'languageMap')
-                        if (propertyName != 'genreMap')
-                            if (propertyName != 'seriesMap')
-                                if (propertyName != 'timeout')
-                                    return propertyValue;
+                    if (propertyName != 'languageLookup')
+                        if (propertyName != 'languageMap')
+                            if (propertyName != 'genreMap')
+                                if (propertyName != 'seriesMap')
+                                    if (propertyName != 'timeout')
+                                        return propertyValue;
 
         return undefined;
     };
@@ -49,6 +51,7 @@ var RecordingFilter = (function (_super) {
     RecordingFilter.prototype.reset = function (query) {
         this.language = null;
         this.languageMap.resetFilter();
+        $('#languageFilterHeader').text(this.languageLookup(''));
 
         this.series = [];
         this.seriesMap.resetFilter();
@@ -202,6 +205,8 @@ var RecordingFilter = (function (_super) {
         var newLanguage = this.languageMap.container.find(':checked').val();
         if (this.language == newLanguage)
             return;
+
+        $('#languageFilterHeader').text(this.languageLookup(newLanguage));
 
         // Suche aktualisieren
         this.language = newLanguage;

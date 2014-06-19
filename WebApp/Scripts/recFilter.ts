@@ -25,9 +25,10 @@ interface ISeriesMapping extends ISeriesMappingContract {
 
 // Die Verwaltung der Suche nach Aufzeichnungen
 class RecordingFilter extends SearchRequestContract {
-    constructor(resultProcessor: (result: ISearchInformation) => void, getSeries: (series: string) => ISeriesMapping) {
+    constructor(resultProcessor: (result: ISearchInformation) => void, getSeries: (series: string) => ISeriesMapping, getLanguageName: (identifier: string) => string) {
         super();
 
+        this.languageLookup = getLanguageName;
         this.callback = resultProcessor;
         this.seriesLookup = getSeries;
 
@@ -49,6 +50,9 @@ class RecordingFilter extends SearchRequestContract {
     // Wird verwendet, um zur eindeutigen Kennung einer Serie die erweiterten Serieninformationen zu ermitteln
     private seriesLookup: (series: string) => ISeriesMapping;
 
+    // Ermittelt zur eindeutigen Kennung einer Sprache den Anzeigenamen
+    private languageLookup: (identifier: string) => string
+
     // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
     private timeout: number = null;
 
@@ -63,11 +67,12 @@ class RecordingFilter extends SearchRequestContract {
         if (propertyName != 'pending')
             if (propertyName != 'callback')
                 if (propertyName != 'seriesLookup')
-                    if (propertyName != 'languageMap')
-                        if (propertyName != 'genreMap')
-                            if (propertyName != 'seriesMap')
-                                if (propertyName != 'timeout')
-                                    return propertyValue;
+                    if (propertyName != 'languageLookup')
+                        if (propertyName != 'languageMap')
+                            if (propertyName != 'genreMap')
+                                if (propertyName != 'seriesMap')
+                                    if (propertyName != 'timeout')
+                                        return propertyValue;
 
         return undefined;
     }
@@ -76,6 +81,7 @@ class RecordingFilter extends SearchRequestContract {
     reset(query: boolean): void {
         this.language = null;
         this.languageMap.resetFilter();
+        $('#languageFilterHeader').text(this.languageLookup(''));
 
         this.series = [];
         this.seriesMap.resetFilter();
@@ -213,6 +219,8 @@ class RecordingFilter extends SearchRequestContract {
         var newLanguage = this.languageMap.container.find(':checked').val();
         if (this.language == newLanguage)
             return;
+
+        $('#languageFilterHeader').text(this.languageLookup(newLanguage));
 
         // Suche aktualisieren
         this.language = newLanguage;

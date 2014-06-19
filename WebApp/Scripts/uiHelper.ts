@@ -162,10 +162,9 @@ class LanguageSelector {
 
     constructor(language: ILanguageContract, container: JQuery) {
         var id = 'languageOption' + language.id;
-        var block = $('<div class="withLabel" />').appendTo(container);
 
-        this.radio = $('<input />', { type: 'radio', id: id, name: LanguageSelector.optionGroupName, value: language.id }).appendTo(block);
-        this.label = $('<label />', { 'for': id, text: language.name }).appendTo(block);
+        this.radio = $('<input />', { type: 'radio', id: id, name: LanguageSelector.optionGroupName, value: language.id }).appendTo(container);
+        this.label = $('<label />', { 'for': id, text: language.name }).appendTo(container);
         this.description = language.name;
     }
 
@@ -207,11 +206,15 @@ class LanguageSelectors {
         this.container.empty();
         this.languages = {};
 
-        var block = $('<div class="withLabel" />').appendTo(this.container);
-        $('<input />', { type: 'radio', id: 'anyLanguageChoice', name: LanguageSelector.optionGroupName, value: '', checked: 'checked' }).appendTo(block);
-        $('<label />', { 'for': 'anyLanguageChoice', text: '(egal)' }).appendTo(block);
+        $('<input />', { type: 'radio', id: 'anyLanguageChoice', name: LanguageSelector.optionGroupName, value: '' }).appendTo(this.container);
+        $('<label />', { 'for': 'anyLanguageChoice' }).appendTo(this.container);
 
         $.each(languages, (index, language) => this.languages[language.id] = new LanguageSelector(language, this.container));
+
+        this.container.find('input').button();
+        this.container.find('label').first().text('(egal)');
+
+        this.resetFilter();
     }
 
     setCounts(statistics: ILanguageStatisticsContract[]): void {
@@ -221,6 +224,7 @@ class LanguageSelectors {
 
     resetFilter(): void {
         this.container.find('input').first().prop('checked', true);
+        this.container.find('input').button('refresh');
     }
 }
 
