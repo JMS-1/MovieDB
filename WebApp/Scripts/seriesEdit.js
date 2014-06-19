@@ -54,6 +54,7 @@ var SeriesEditor = (function () {
             return _this.choose();
         });
 
+        this.chooser().val('');
         this.choose();
 
         Tools.openDialog(this.dialog());

@@ -28,8 +28,6 @@ namespace WebApp.Controllers
         {
             // Find the one
             var series = Database.Series.Find( identifier );
-
-            // Report
             if (series == null)
                 throw new HttpResponseException( HttpStatusCode.NotFound );
 
@@ -70,6 +68,8 @@ namespace WebApp.Controllers
         {
             // Locate
             var series = Database.Series.Find( identifier );
+            if (series == null)
+                throw new HttpResponseException( HttpStatusCode.NotFound );
 
             // Update
             series.Name = newData.Name;

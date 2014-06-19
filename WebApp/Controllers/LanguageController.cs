@@ -28,8 +28,6 @@ namespace WebApp.Controllers
         {
             // Find the one
             var language = Database.Languages.Find( identifier );
-
-            // Report
             if (language == null)
                 throw new HttpResponseException( HttpStatusCode.NotFound );
 
@@ -69,6 +67,8 @@ namespace WebApp.Controllers
         {
             // Locate
             var language = Database.Languages.Find( identifier );
+            if (language == null)
+                throw new HttpResponseException( HttpStatusCode.NotFound );
 
             // Update
             language.Name = newData.Name;

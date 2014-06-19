@@ -45,6 +45,7 @@ class SeriesEditor {
         this.parentChooser().change(() => this.validate());
         this.chooser().change(() => this.choose());
 
+        this.chooser().val('');
         this.choose();
 
         Tools.openDialog(this.dialog());

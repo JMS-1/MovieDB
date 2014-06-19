@@ -60,6 +60,17 @@ class Tools {
         $.each(items, (index, item) => $('<option />', { text: getText(item), value: getValue(item) }).appendTo(selector));
     }
 
+    static checkCollision(selector: JQuery, name: string, identifier: string): boolean {
+        var existing = selector.find('option');
+
+        for (var i = 1; i < existing.length; i++)
+            if (existing[i].innerHTML == name)
+                if (existing[i].getAttribute('value') != identifier)
+                    return true;
+
+        return false;
+    }
+
     static openDialog(dialog: JQuery): void {
         dialog.dialog({
             position: { of: '#main', at: 'center top+100', my: 'center top' },
@@ -304,6 +315,7 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
 
     private open(): void {
         // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
+        this.chooser().val('');
         this.choose();
 
         Tools.openDialog(this.dialog());
@@ -341,15 +353,10 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
 
         var isValid = true;
 
-        var nameError = this.validateName(newData);
-        if (nameError == null) {
-            var existing = this.chooser().find('option');
-
-            for (var i = 1; i < existing.length; i++)
-                if (existing[i].innerHTML == newData.name)
-                    if (existing[i].getAttribute('value') != this.identifier)
-                        nameError = "Der Name wird bereits verwendet";
-        }
+        var nameError = this.validateName(newData)
+        if (nameError == null)
+            if (Tools.checkCollision(this.chooser(), newData.name, this.identifier))
+                nameError = "Der Name wird bereits verwendet";
 
         if (Tools.setError(this.nameField(), nameError))
             isValid = false;

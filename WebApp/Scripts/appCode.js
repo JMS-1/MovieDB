@@ -298,6 +298,12 @@ var MovieDatabase;
             }
         };
 
+        Application.prototype.backToQuery = function () {
+            window.location.hash = '';
+
+            this.recordingFilter.query();
+        };
+
         Application.prototype.startup = function () {
             var _this = this;
             // Man beachte, dass alle der folgenden Benachrichtigungen immer an den aktuellen Änderungsvorgang koppeln, so dass keine Abmeldung notwendig ist
@@ -377,7 +383,9 @@ var MovieDatabase;
             });
 
             RecordingEditor.saveButton().click(function () {
-                return _this.currentRecording.save();
+                return _this.currentRecording.save(function () {
+                    return _this.backToQuery();
+                });
             });
             RecordingEditor.titleField().on('change', validateRecordingEditForm);
             RecordingEditor.titleField().on('input', validateRecordingEditForm);

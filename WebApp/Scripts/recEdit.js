@@ -4,7 +4,7 @@
 /// <reference path='uiHelper.ts' />
 var RecordingEditor = (function () {
     function RecordingEditor(recording, genreEditor, languageEditor) {
-        this.original = recording;
+        this.identifier = recording.id;
         this.genreEditor = genreEditor;
         this.languageEditor = languageEditor;
 
@@ -64,11 +64,24 @@ var RecordingEditor = (function () {
         return $('#recordingEditRent');
     };
 
-    RecordingEditor.prototype.save = function () {
+    RecordingEditor.prototype.save = function (success) {
         var newData = this.createContract();
 
         if (!this.validate(newData))
             return;
+
+        var url = 'movie/db';
+        if (this.identifier.length > 0)
+            url += '/' + this.identifier;
+
+        $.ajax(url, {
+            type: (this.identifier.length < 1) ? 'POST' : 'PUT',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(newData)
+        }).done(success).fail(function () {
+            // Bei der Fehlerbehandlung ist noch Potential
+            alert('Da ist leider etwas schief gegangen');
+        });
     };
 
     RecordingEditor.prototype.createContract = function () {
@@ -82,7 +95,7 @@ var RecordingEditor = (function () {
             series: RecordingEditor.seriesField().val(),
             languages: this.languageEditor.val(),
             genres: this.genreEditor.val(),
-            id: this.original.id
+            id: null
         };
 
         return newData;

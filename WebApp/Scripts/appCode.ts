@@ -304,6 +304,12 @@ module MovieDatabase {
             }
         }
 
+        private backToQuery(): void {
+            window.location.hash = '';
+
+            this.recordingFilter.query();
+        }
+
         private startup(): void {
             // Man beachte, dass alle der folgenden Benachrichtigungen immer an den aktuellen Änderungsvorgang koppeln, so dass keine Abmeldung notwendig ist
             var validateRecordingEditForm = () => this.currentRecording.validate();
@@ -357,7 +363,7 @@ module MovieDatabase {
 
             $('#gotoQuery').click(() => window.location.hash = '');
 
-            RecordingEditor.saveButton().click(() => this.currentRecording.save());
+            RecordingEditor.saveButton().click(() => this.currentRecording.save(() => this.backToQuery()));
             RecordingEditor.titleField().on('change', validateRecordingEditForm);
             RecordingEditor.titleField().on('input', validateRecordingEditForm);
             RecordingEditor.descriptionField().on('change', validateRecordingEditForm);

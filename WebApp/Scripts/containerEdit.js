@@ -42,6 +42,7 @@ var ContainerEditor = (function () {
         });
     }
     ContainerEditor.prototype.open = function () {
+        this.chooser().val('');
         this.choose();
 
         Tools.openDialog(this.dialog());
@@ -263,15 +264,10 @@ var ContainerEditor = (function () {
             return 'Es muss ein Name angegeben werden';
         else if (name.length > 50)
             return 'Der Name darf maximal 50 Zeichen haben';
-
-        var existing = this.chooser().find('option');
-
-        for (var i = 0; i < existing.length; i++)
-            if (existing[i].innerText == newData.name)
-                if (existing[i].getAttribute('value') != this.identifier)
-                    return "Der Name wird bereits verwendet";
-
-        return null;
+        else if (Tools.checkCollision(this.chooser(), newData.name, this.identifier))
+            return "Der Name wird bereits verwendet";
+        else
+            return null;
     };
 
     ContainerEditor.prototype.validateDescription = function (newData) {

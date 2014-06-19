@@ -5,7 +5,7 @@
 
 class RecordingEditor {
     constructor(recording: IRecordingEditContract, genreEditor: MultiValueEditor<IGenreContract>, languageEditor: MultiValueEditor<ILanguageContract>) {
-        this.original = recording;
+        this.identifier = recording.id;
         this.genreEditor = genreEditor;
         this.languageEditor = languageEditor;
 
@@ -30,7 +30,7 @@ class RecordingEditor {
 
     private languageEditor: MultiValueEditor<ILanguageContract>;
 
-    private original: IRecordingEditContract;
+    private identifier: string;
 
     static saveButton(): JQuery {
         return $('#updateRecording');
@@ -72,11 +72,27 @@ class RecordingEditor {
         return $('#recordingEditRent');
     }
 
-    save(): void {
+    save(success: () => void): void {
         var newData = this.createContract();
 
         if (!this.validate(newData))
             return;
+
+        var url = 'movie/db';
+        if (this.identifier.length > 0)
+            url += '/' + this.identifier;
+
+        $
+            .ajax(url, {
+                type: (this.identifier.length < 1) ? 'POST' : 'PUT',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(newData),
+            })
+            .done(success)
+            .fail(() => {
+                // Bei der Fehlerbehandlung ist noch Potential
+                alert('Da ist leider etwas schief gegangen');
+            });
     }
 
     private createContract(): IRecordingEditContract {
@@ -91,7 +107,7 @@ class RecordingEditor {
                 series: RecordingEditor.seriesField().val(),
                 languages: this.languageEditor.val(),
                 genres: this.genreEditor.val(),
-                id: this.original.id,
+                id: null,
             };
 
         return newData;

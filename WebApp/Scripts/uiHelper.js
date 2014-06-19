@@ -73,6 +73,17 @@ var Tools = (function () {
         });
     };
 
+    Tools.checkCollision = function (selector, name, identifier) {
+        var existing = selector.find('option');
+
+        for (var i = 1; i < existing.length; i++)
+            if (existing[i].innerHTML == name)
+                if (existing[i].getAttribute('value') != identifier)
+                    return true;
+
+        return false;
+    };
+
     Tools.openDialog = function (dialog) {
         dialog.dialog({
             position: { of: '#main', at: 'center top+100', my: 'center top' },
@@ -322,6 +333,7 @@ var SuggestionListEditor = (function () {
     }
     SuggestionListEditor.prototype.open = function () {
         // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
+        this.chooser().val('');
         this.choose();
 
         Tools.openDialog(this.dialog());
@@ -364,14 +376,9 @@ var SuggestionListEditor = (function () {
         var isValid = true;
 
         var nameError = this.validateName(newData);
-        if (nameError == null) {
-            var existing = this.chooser().find('option');
-
-            for (var i = 1; i < existing.length; i++)
-                if (existing[i].innerHTML == newData.name)
-                    if (existing[i].getAttribute('value') != this.identifier)
-                        nameError = "Der Name wird bereits verwendet";
-        }
+        if (nameError == null)
+            if (Tools.checkCollision(this.chooser(), newData.name, this.identifier))
+                nameError = "Der Name wird bereits verwendet";
 
         if (Tools.setError(this.nameField(), nameError))
             isValid = false;

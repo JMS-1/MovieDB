@@ -28,8 +28,6 @@ namespace WebApp.Controllers
         {
             // Find the one
             var container = Database.Containers.Find( identifier );
-
-            // Report
             if (container == null)
                 throw new HttpResponseException( HttpStatusCode.NotFound );
 
@@ -86,6 +84,8 @@ namespace WebApp.Controllers
         {
             // Locate
             var container = Database.Containers.Find( identifier );
+            if (container == null)
+                throw new HttpResponseException( HttpStatusCode.NotFound );
 
             // Update
             container.ParentIdentifier = newData.ParentContainer;

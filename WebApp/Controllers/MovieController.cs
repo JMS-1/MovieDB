@@ -93,6 +93,56 @@ namespace WebApp.Controllers
         }
 
         /// <summary>
+        /// Reduziert eine Zeichenkette auf den eigentlichen Inhalt.
+        /// </summary>
+        /// <param name="data">Eine Zeichenkette.</param>
+        /// <returns>Die reduzierte Zeichenkette.</returns>
+        private static string GetEmptyAsNull( string data )
+        {
+            return string.IsNullOrWhiteSpace( data ) ? null : data.Trim();
+        }
+
+        /// <summary>
+        /// Ändert die Daten einer Aufzeichnung.
+        /// </summary>
+        /// <param name="identifier">Die gewünschte Aufzeichnung.</param>
+        /// <param name="newData">Die neue Daten.</param>
+        [Route( "{identifier}" )]
+        [HttpPut]
+        public async Task<IHttpActionResult> Update( Guid identifier, [FromBody] RecordingEditInfo newData )
+        {
+            // Locate
+            var recording = Database.Recordings.Include( r => r.Languages ).Include( r => r.Genres ).SingleOrDefault( r => r.UniqueIdentifier == identifier );
+            if (recording == null)
+                throw new HttpResponseException( HttpStatusCode.NotFound );
+
+            var location = GetEmptyAsNull( newData.Location );
+
+            // Reset languages
+            recording.Languages.Clear();
+            foreach (var language in Database.Languages.Where( l => newData.Languages.Contains( l.UniqueIdentifier ) ))
+                recording.Languages.Add( language );
+
+            // Reset genres
+            recording.Genres.Clear();
+            foreach (var genre in Database.Genres.Where( g => newData.Genres.Contains( g.UniqueIdentifier ) ))
+                recording.Genres.Add( genre );
+
+            // Copy all
+            recording.Store = Database.Stores.FirstOrDefault( s => s.ContainerIdentifier == newData.Container && s.Location == location ) ?? new Models.Store { ContainerIdentifier = newData.Container, Location = location };
+            recording.Description = GetEmptyAsNull( newData.Description );
+            recording.RentTo = GetEmptyAsNull( newData.RentTo );
+            recording.Name = GetEmptyAsNull( newData.Name );
+            recording.SeriesIdentifier = newData.Series;
+
+            // Process update
+            await Database.SaveChangesAsync();
+
+            // Done
+            return Ok();
+        }
+
+        /// <summary>
         /// Füllt eine leere Datenbank aus der alten Serialisierungsform.
         /// </summary>
         [Route( "initialize" )]

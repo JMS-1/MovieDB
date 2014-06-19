@@ -28,8 +28,6 @@ namespace WebApp.Controllers
         {
             // Find the one
             var genre = Database.Genres.Find( identifier );
-
-            // Report
             if (genre == null)
                 throw new HttpResponseException( HttpStatusCode.NotFound );
 
@@ -69,6 +67,8 @@ namespace WebApp.Controllers
         {
             // Locate
             var genre = Database.Genres.Find( identifier );
+            if (genre == null)
+                throw new HttpResponseException( HttpStatusCode.NotFound );
 
             // Update
             genre.Name = newData.Name;
