@@ -257,7 +257,7 @@ namespace MovieDB
             // Add all genres
             var dbGenres = database.Genres;
             foreach (var genre in new HashSet<string>( Genres ))
-                genreMap.Add( genre, dbGenres.Add( new WebApp.Models.Genre { Name = genre.Replace( " ", "" ), Description = genre } ) );
+                genreMap.Add( genre, dbGenres.Add( new WebApp.Models.Genre { Description = genre } ) );
 
             // Add all recordings
             var dbRecordings = database.Recordings;

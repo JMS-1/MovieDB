@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 
 namespace WebApp.DTO
@@ -13,7 +14,7 @@ namespace WebApp.DTO
         /// Der eindeutige Kurzname der Art.
         /// </summary>
         [DataMember( Name = "id" )]
-        public string UniqueName { get; set; }
+        public Guid Identifier { get; set; }
 
         /// <summary>
         /// Die eindeutige Beschreibung der Art.
@@ -31,8 +32,8 @@ namespace WebApp.DTO
             return
                 new GenreDescription
                 {
+                    Identifier = genre.UniqueIdentifier,
                     Description = genre.Description,
-                    UniqueName = genre.Name,
                 };
         }
     }

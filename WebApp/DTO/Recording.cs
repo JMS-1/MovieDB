@@ -33,13 +33,13 @@ namespace WebApp.DTO
         /// Die Sprachen aller Tonspuren.
         /// </summary>
         [DataMember( Name = "languages" )]
-        public string[] Languages { get; set; }
+        public Guid[] Languages { get; set; }
 
         /// <summary>
         /// Die Arten der Aufzeichnung.
         /// </summary>
         [DataMember( Name = "genres" )]
-        public string[] Genres { get; set; }
+        public Guid[] Genres { get; set; }
         /// <summary>
         /// Die eindeutige Kennung der Serie.
         /// </summary>
@@ -52,8 +52,8 @@ namespace WebApp.DTO
         /// <param name="recording">Die Daten aus der Datenbank.</param>
         protected Recording( Models.Recording recording )
         {
-            Languages = recording.Languages.Select( l => l.Description ).OrderBy( s => s ).ToArray();
-            Genres = recording.Genres.Select( l => l.Name ).OrderBy( s => s ).ToArray();
+            Languages = recording.Languages.Select( l => l.UniqueIdentifier ).OrderBy( s => s ).ToArray();
+            Genres = recording.Genres.Select( l => l.UniqueIdentifier ).OrderBy( s => s ).ToArray();
             RecordingIdentifier = recording.Identifier;
             Series = recording.SeriesIdentifier;
             RentTo = recording.RentTo;

@@ -30,35 +30,21 @@ namespace WebApp.UnitTests
         {
             var genres = TestContext.Genres;
 
-            genres.Add( new Genre { Name = "scifi", Description = "Science Fiction" } );
-            genres.Add( new Genre { Name = "horror", Description = "Horror" } );
-            genres.Add( new Genre { Name = "comedy", Description = "Komödie" } );
+            var scifi = genres.Add( new Genre { Description = "Science Fiction" } ).UniqueIdentifier;
+            var horror = genres.Add( new Genre { Description = "Horror" } ).UniqueIdentifier;
+            var comedy = genres.Add( new Genre { Description = "Komödie" } ).UniqueIdentifier;
 
             TestContext.SaveChanges();
 
             Recreate();
 
-            Assert.AreEqual( "Horror", TestContext.Genres.Find( "horror" ).Description, "horror" );
+            Assert.AreEqual( "Horror", TestContext.Genres.Find( horror ).Description, "horror" );
 
-            var map = TestContext.Genres.ToDictionary( l => l.Name, l => l.Description );
+            var map = TestContext.Genres.ToDictionary( l => l.UniqueIdentifier, l => l.Description );
 
-            Assert.AreEqual( "Science Fiction", map["scifi"], "scifi" );
-            Assert.AreEqual( "Horror", map["horror"], "horror" );
-            Assert.AreEqual( "Komödie", map["comedy"], "comedy" );
-        }
-
-        /// <summary>
-        /// Der Kurzname der Art muss gesetzt werden und muss zwischen 1 und 20 Zeichen haben.
-        /// </summary>
-        /// <param name="shortName">Der Name für den Test.</param>
-        [TestCase( null )]
-        [TestCase( "" )]
-        [TestCase( "xxxxxxxxxxxxxxxxxxxx1" )]
-        [ExpectedException( typeof( DbEntityValidationException ) )]
-        public void ShortNameMustHaveBetween1And100Charaters( string shortName )
-        {
-            TestContext.Genres.Add( new Genre { Name = shortName, Description = "Test" } );
-            TestContext.SaveChanges();
+            Assert.AreEqual( "Science Fiction", map[scifi], "scifi" );
+            Assert.AreEqual( "Horror", map[horror], "horror" );
+            Assert.AreEqual( "Komödie", map[comedy], "comedy" );
         }
 
         /// <summary>
@@ -71,19 +57,7 @@ namespace WebApp.UnitTests
         [ExpectedException( typeof( DbEntityValidationException ) )]
         public void LongNameMustHaveBetween1And100Charaters( string longName )
         {
-            TestContext.Genres.Add( new Genre { Name = "xx", Description = longName } );
-            TestContext.SaveChanges();
-        }
-
-        /// <summary>
-        /// Der Kurzname muss eindeutig sein.
-        /// </summary>
-        [Test]
-        [ExpectedException( typeof( DbUpdateException ) )]
-        public void ShortNameMustBeUnique()
-        {
-            TestContext.Genres.Add( new Genre { Name = "xx", Description = "one" } );
-            TestContext.Genres.Add( new Genre { Name = "xx", Description = "two" } );
+            TestContext.Genres.Add( new Genre { Description = longName } );
             TestContext.SaveChanges();
         }
 
@@ -94,8 +68,8 @@ namespace WebApp.UnitTests
         [ExpectedException( typeof( DbUpdateException ) )]
         public void LongNameMustBeUnique()
         {
-            TestContext.Genres.Add( new Genre { Name = "x1", Description = "long" } );
-            TestContext.Genres.Add( new Genre { Name = "x2", Description = "long" } );
+            TestContext.Genres.Add( new Genre { Description = "long" } );
+            TestContext.Genres.Add( new Genre { Description = "long" } );
             TestContext.SaveChanges();
         }
     }

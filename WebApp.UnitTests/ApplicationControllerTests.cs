@@ -25,7 +25,7 @@ namespace WebApp.UnitTests
             Assert.AreEqual( 23, info.Genres.Length, "#genres" );
 
             Assert.AreEqual( "nl", info.Languages[7].Description, "language" );
-            Assert.AreEqual( "Sport", info.Genres[19].UniqueName, "genre" );
+            Assert.AreEqual( "Sport", info.Genres[19].Description, "genre" );
             Assert.AreEqual( "Dexter > Season 8", info.Series[129].FullName, "series" );
         }
     }

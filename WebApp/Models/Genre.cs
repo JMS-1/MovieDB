@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 
@@ -6,20 +7,20 @@ using System.Data.Entity;
 namespace WebApp.Models
 {
     /// <summary>
-    /// Eine Art von Aufnahme.
+    /// Eine Kategorie von Aufnahme.
     /// </summary>
     [Table( "Genres" )]
     public class Genre
     {
         /// <summary>
-        /// Der Name der Art.
+        /// Die eindeutige Kennung der Kategorie.
         /// </summary>
-        [Required, Key, StringLength( 20 ), RegularExpression( @"[0-9A-Za-zäöüÄÖÜß]{1,20}", ErrorMessage = "Der eindeutige Name einer Art darf nur aus Zeichen und Ziffern bestehen" )]
-        [Column( "Short" )]
-        public string Name { get; set; }
+        [Required, Key]
+        [Column( "Id" )]
+        public Guid UniqueIdentifier { get; set; }
 
         /// <summary>
-        /// Der Beschreibung der Art.
+        /// Der Beschreibung der Kategorie.
         /// </summary>
         [Required, StringLength( 100 )]
         [Column( "Long" )]
@@ -31,6 +32,14 @@ namespace WebApp.Models
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
         internal static void BuildModel( DbModelBuilder modelBuilder )
         {
+        }
+
+        /// <summary>
+        /// Erstellt eine neue Kategorie.
+        /// </summary>
+        public Genre()
+        {
+            UniqueIdentifier = Guid.NewGuid();
         }
     }
 }

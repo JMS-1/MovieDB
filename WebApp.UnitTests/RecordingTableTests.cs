@@ -279,8 +279,8 @@ namespace WebApp.UnitTests
         [Test]
         public void CanAddRecordingWithGenres()
         {
-            var genre1 = TestContext.Genres.Add( new Genre { Name = "g1", Description = "genre 1" } );
-            var genre2 = TestContext.Genres.Add( new Genre { Name = "g2", Description = "genre 2" } );
+            var genre1 = TestContext.Genres.Add( new Genre { Description = "genre 1" } );
+            var genre2 = TestContext.Genres.Add( new Genre { Description = "genre 2" } );
 
             var rec = TestContext.Recordings.Add( new Recording
             {
@@ -305,11 +305,11 @@ namespace WebApp.UnitTests
             Assert.IsNotNull( retest, "id" );
             Assert.AreNotSame( rec, retest, "cache" );
 
-            var gen = new HashSet<string>( retest.Genres.Select( l => l.Name ) );
+            var gen = new HashSet<string>( retest.Genres.Select( l => l.Description ) );
 
             Assert.AreEqual( 2, gen.Count, "#genres" );
-            Assert.IsTrue( gen.Contains( "g1" ), "1" );
-            Assert.IsTrue( gen.Contains( "g2" ), "2" );
+            Assert.IsTrue( gen.Contains( "genre 1" ), "1" );
+            Assert.IsTrue( gen.Contains( "genre 2" ), "2" );
         }
 
         /// <summary>

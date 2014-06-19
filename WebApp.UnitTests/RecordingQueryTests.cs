@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using WebApp.Controllers;
@@ -15,15 +16,45 @@ namespace WebApp.UnitTests
     public class RecordingQueryTests : ControllerTestBase<MovieController>
     {
         /// <summary>
+        /// Alle Sprachen.
+        /// </summary>
+        private Dictionary<string, Guid> m_languages;
+
+        /// <summary>
+        /// Alle Kategorien.
+        /// </summary>
+        private Dictionary<string, Guid> m_genres;
+
+        /// <summary>
+        /// Alle Serien.
+        /// </summary>
+        private Dictionary<string, Guid> m_series;
+
+        /// <summary>
+        /// Wird einmalig vor dem ersten Test aufgerufen.
+        /// </summary>
+        public override void BeforeFirstTest()
+        {
+            base.BeforeFirstTest();
+
+            // Nachschlagekarten füllen
+            using (var app = new ApplicationController())
+            {
+                var info = app.GetInformation();
+
+                // Nachschlagekarten aufbauen
+                m_languages = info.Languages.ToDictionary( l => l.Description, l => l.Identifier, StringComparer.InvariantCultureIgnoreCase );
+                m_genres = info.Genres.ToDictionary( g => g.Description, g => g.Identifier, StringComparer.InvariantCultureIgnoreCase );
+                m_series = info.Series.ToDictionary( s => s.FullName, s => s.UniqueIdentifier, StringComparer.InvariantCultureIgnoreCase );
+            }
+        }
+
+        /// <summary>
         /// Meldet das Ergebnis der Suche ohne Angabe von Parametern.
         /// </summary>
         [Test]
         public void InitialQuery()
         {
-            Guid fr;
-            using (var app = new ApplicationController())
-                fr = app.GetInformation().Languages.Single( l => l.Description == "fr" ).Identifier;
-
             var recordings = Controller.Query();
 
             Assert.AreEqual( 0, recordings.PageIndex, "index" );
@@ -35,14 +66,14 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( new DateTime( 2011, 1, 1, 10, 1, 54, 847, DateTimeKind.Utc ), first.CreationTime, "time" );
             Assert.AreEqual( "# 9", first.Name, "name" );
-            CollectionAssert.AreEquivalent( new[] { "de", "en", "es" }, first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { "SciFi", "Kids", "Fantasy", "Animation" }, first.Genres, "genre" );
+            CollectionAssert.AreEquivalent( new[] { m_languages["de"], m_languages["en"], m_languages["es"] }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { m_genres["SciFi"], m_genres["Kids"], m_genres["Fantasy"], m_genres["Animation"] }, first.Genres, "genre" );
             Assert.IsNull( first.Series, "series" );
 
             Assert.AreEqual( 23, recordings.GenreStatistics.Length, "#genres" );
-            Assert.AreEqual( 1502, recordings.GenreStatistics.Single( g => g.Name == "Action" ).Count, "genre count" );
+            Assert.AreEqual( 1502, recordings.GenreStatistics.Single( g => g.Identifier == m_genres["Action"] ).Count, "genre count" );
             Assert.AreEqual( 13, recordings.LanguageStatistics.Length, "#languages" );
-            Assert.AreEqual( 215, recordings.LanguageStatistics.Single( g => g.Identifier == fr ).Count, "language count" );
+            Assert.AreEqual( 215, recordings.LanguageStatistics.Single( g => g.Identifier == m_languages["fr"] ).Count, "language count" );
         }
 
         /// <summary>
@@ -63,7 +94,7 @@ namespace WebApp.UnitTests
             Assert.AreEqual( new DateTime( 2006, 9, 18, 5, 23, 41, 187, DateTimeKind.Utc ), first.CreationTime, "time" );
             Assert.AreEqual( "Independance Day", first.Name, "name" );
             CollectionAssert.IsEmpty( first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { "Action", "SciFi" }, first.Genres, "genre" );
+            CollectionAssert.AreEquivalent( new[] { m_genres["Action"], m_genres["SciFi"] }, first.Genres, "genre" );
             Assert.IsNull( first.Series, "series" );
         }
 
@@ -84,8 +115,8 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( new DateTime( 2011, 10, 21, 19, 48, 5, 100, DateTimeKind.Utc ), first.CreationTime, "time" );
             Assert.AreEqual( "X-Men (0)", first.Name, "name" );
-            CollectionAssert.AreEquivalent( new[] { "de", "en", "fr" }, first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { "Action", "Comic" }, first.Genres, "genre" );
+            CollectionAssert.AreEquivalent( new[] { m_languages["de"], m_languages["en"], m_languages["fr"] }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { m_genres["Action"], m_genres["Comic"] }, first.Genres, "genre" );
             Assert.IsNull( first.Series, "series" );
         }
 
@@ -106,8 +137,8 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( new DateTime( 2005, 1, 5, 22, 4, 19, 757, DateTimeKind.Utc ), first.CreationTime, "time" );
             Assert.AreEqual( "14 Die fünfte Spezies", first.Name, "name" );
-            CollectionAssert.AreEquivalent( new[] { "de" }, first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { "SciFi" }, first.Genres, "genre" );
+            CollectionAssert.AreEquivalent( new[] { m_languages["de"] }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { m_genres["SciFi"] }, first.Genres, "genre" );
             Assert.IsNotNull( first.Series, "series" );
         }
 
@@ -128,8 +159,8 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( new DateTime( 2007, 10, 6, 17, 45, 16, 390, DateTimeKind.Utc ), first.CreationTime, "time" );
             Assert.AreEqual( "05 Earthbound ", first.Name, "name" );
-            CollectionAssert.AreEquivalent( new[] { "en" }, first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { "SciFi" }, first.Genres, "genre" );
+            CollectionAssert.AreEquivalent( new[] { m_languages["en"] }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { m_genres["SciFi"] }, first.Genres, "genre" );
             Assert.IsNotNull( first.Series, "series" );
         }
 
@@ -150,8 +181,8 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( new DateTime( 2014, 6, 14, 9, 37, 12, 743, DateTimeKind.Utc ), first.CreationTime, "time" );
             Assert.AreEqual( "Safe", first.Name, "name" );
-            CollectionAssert.AreEquivalent( new[] { "de" }, first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { "Action" }, first.Genres, "genre" );
+            CollectionAssert.AreEquivalent( new[] { m_languages["de"] }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { m_genres["Action"] }, first.Genres, "genre" );
             Assert.IsNull( first.Series, "series" );
         }
 
@@ -161,7 +192,7 @@ namespace WebApp.UnitTests
         [Test]
         public void RestrictByGenreList()
         {
-            var recordings = Controller.Query( new SearchRequest { RequiredGenres = { "scifi", "Kids" }, PageIndex = 7 } );
+            var recordings = Controller.Query( new SearchRequest { RequiredGenres = { m_genres["scifi"], m_genres["Kids"] }, PageIndex = 7 } );
 
             Assert.AreEqual( 7, recordings.PageIndex, "index" );
             Assert.AreEqual( 15, recordings.PageSize, "size" );
@@ -172,8 +203,8 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( new DateTime( 2011, 4, 16, 9, 31, 56, 687, DateTimeKind.Utc ), first.CreationTime, "time" );
             Assert.AreEqual( "13 Monster", first.Name, "name" );
-            CollectionAssert.AreEquivalent( new[] { "de" }, first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { "SciFi", "Kids", "Animation" }, first.Genres, "genre" );
+            CollectionAssert.AreEquivalent( new[] { m_languages["de"] }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { m_genres["SciFi"], m_genres["Kids"], m_genres["Animation"] }, first.Genres, "genre" );
             Assert.IsNotNull( first.Series, "series" );
         }
 
@@ -183,11 +214,7 @@ namespace WebApp.UnitTests
         [Test]
         public void RestrictByLanguage()
         {
-            Guid language;
-            using (var app = new ApplicationController())
-                language = app.GetInformation().Languages.Single( l => l.Description == "pt" ).Identifier;
-
-            var recordings = Controller.Query( new SearchRequest { RequiredLanguage = language } );
+            var recordings = Controller.Query( new SearchRequest { RequiredLanguage = m_languages["pt"] } );
 
             Assert.AreEqual( 0, recordings.PageIndex, "index" );
             Assert.AreEqual( 15, recordings.PageSize, "size" );
@@ -198,8 +225,8 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( new DateTime( 2009, 6, 20, 18, 13, 29, 717, DateTimeKind.Utc ), first.CreationTime, "time" );
             Assert.AreEqual( "Movie", first.Name, "name" );
-            CollectionAssert.AreEquivalent( new[] { "de", "en", "nl", "pt", "tr" }, first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { "SciFi", "Kids", "Action", "Animation" }, first.Genres, "genre" );
+            CollectionAssert.AreEquivalent( new[] { m_languages["de"], m_languages["en"], m_languages["nl"], m_languages["pt"], m_languages["tr"] }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { m_genres["SciFi"], m_genres["Kids"], m_genres["Action"], m_genres["Animation"] }, first.Genres, "genre" );
             Assert.IsNotNull( first.Series, "series" );
         }
 
@@ -226,10 +253,7 @@ namespace WebApp.UnitTests
         [Test]
         public void RestrictBySeries()
         {
-            Guid series;
-            using (var appController = new ApplicationController())
-                series = appController.GetInformation().Series.Single( s => s.FullName == "CSI > Las Vegas > Season 13" ).UniqueIdentifier;
-
+            var series = m_series["CSI > Las Vegas > Season 13"];
             var recordings = Controller.Query( new SearchRequest { RequiredSeries = { series } } );
 
             Assert.AreEqual( 0, recordings.PageIndex, "index" );
@@ -241,8 +265,8 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( new DateTime( 2013, 9, 24, 19, 50, 50, 427, DateTimeKind.Utc ), first.CreationTime, "time" );
             Assert.AreEqual( "01 Kampf mit dem Karma", first.Name, "name" );
-            CollectionAssert.AreEquivalent( new[] { "de" }, first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { "Crime", "Thriller" }, first.Genres, "genre" );
+            CollectionAssert.AreEquivalent( new[] { m_languages["de"] }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { m_genres["Crime"], m_genres["Thriller"] }, first.Genres, "genre" );
             Assert.AreEqual( series, first.Series, "series" );
         }
 
@@ -252,10 +276,6 @@ namespace WebApp.UnitTests
         [Test]
         public void RestrictByText()
         {
-            Guid de;
-            using (var app = new ApplicationController())
-                de = app.GetInformation().Languages.Single( l => l.Description == "de" ).Identifier;
-
             var recordings = Controller.Query( new SearchRequest { Text = "doctor", PageIndex = 15 } );
 
             Assert.AreEqual( 15, recordings.PageIndex, "index" );
@@ -267,14 +287,14 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( new DateTime( 2008, 7, 5, 16, 52, 41, 627, DateTimeKind.Utc ), last.CreationTime, "time" );
             Assert.AreEqual( "Verity Lambert - Drama Queen (Doctor Who)", last.Name, "name" );
-            CollectionAssert.AreEquivalent( new[] { "en" }, last.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { "Docu" }, last.Genres, "genre" );
+            CollectionAssert.AreEquivalent( new[] { m_languages["en"] }, last.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { m_genres["Docu"] }, last.Genres, "genre" );
             Assert.IsNull( last.Series, "series" );
 
             Assert.AreEqual( 9, recordings.GenreStatistics.Length, "#genres" );
-            Assert.AreEqual( 121, recordings.GenreStatistics.Single( g => g.Name == "Action" ).Count, "genre count" );
+            Assert.AreEqual( 121, recordings.GenreStatistics.Single( g => g.Identifier == m_genres["Action"] ).Count, "genre count" );
             Assert.AreEqual( 5, recordings.LanguageStatistics.Length, "#languages" );
-            Assert.AreEqual( 28, recordings.LanguageStatistics.Single( g => g.Identifier == de ).Count, "language count" );
+            Assert.AreEqual( 28, recordings.LanguageStatistics.Single( g => g.Identifier == m_languages["de"] ).Count, "language count" );
         }
     }
 }

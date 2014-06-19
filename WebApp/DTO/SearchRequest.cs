@@ -72,7 +72,7 @@ namespace WebApp.DTO
         /// Eine Liste von Arten, die alle berücksichtigt werden sollen.
         /// </summary>
         [DataMember( Name = "genres" )]
-        public readonly List<string> RequiredGenres = new List<string>();
+        public readonly List<Guid> RequiredGenres = new List<Guid>();
 
         /// <summary>
         /// Die Sprache, die eine Aufzeichnung haben muss.
@@ -151,8 +151,8 @@ namespace WebApp.DTO
             {
                 var capturedGenre = genre;
 
-                // Require all genres to be available
-                recordings = recordings.Where( r => r.Genres.Any( g => g.Name == capturedGenre ) );
+                // Require ALL genres to be available simultanously
+                recordings = recordings.Where( r => r.Genres.Any( g => g.UniqueIdentifier == capturedGenre ) );
             }
 
             // Apply series
@@ -189,8 +189,8 @@ namespace WebApp.DTO
             response.GenreStatistics =
                 recordings
                     .SelectMany( r => r.Genres )
-                    .GroupBy( g => g.Name )
-                    .Select( g => new SearchInformation.Genre { Name = g.Key, Count = g.Count() } )
+                    .GroupBy( g => g.UniqueIdentifier )
+                    .Select( g => new SearchInformation.Genre { Identifier = g.Key, Count = g.Count() } )
                     .ToArray();
 
             // Apply order

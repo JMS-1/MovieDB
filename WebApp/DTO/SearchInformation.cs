@@ -21,7 +21,7 @@ namespace WebApp.DTO
             /// Der Name der Art.
             /// </summary>
             [DataMember( Name = "id" )]
-            public string Name { get; set; }
+            public Guid Identifier { get; set; }
 
             /// <summary>
             /// Die Anzahl der Treffer.
