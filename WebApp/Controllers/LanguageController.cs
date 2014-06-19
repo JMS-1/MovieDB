@@ -49,7 +49,7 @@ namespace WebApp.Controllers
         public async Task<IHttpActionResult> Create( [FromBody] LanguageDescription newLanguage )
         {
             // Add to collection
-            Database.Languages.Add( new Language { Name = newLanguage.Description } );
+            Database.Languages.Add( new Language { Name = newLanguage.Name } );
 
             // Process update
             await Database.SaveChangesAsync();
@@ -71,7 +71,7 @@ namespace WebApp.Controllers
             var language = Database.Languages.Find( identifier );
 
             // Update
-            language.Name = newData.Description;
+            language.Name = newData.Name;
 
             // Process update
             await Database.SaveChangesAsync();

@@ -43,8 +43,8 @@ namespace WebApp.UnitTests
                 var info = app.GetInformation();
 
                 // Nachschlagekarten aufbauen
-                m_languages = info.Languages.ToDictionary( l => l.Description, l => l.Identifier, StringComparer.InvariantCultureIgnoreCase );
-                m_genres = info.Genres.ToDictionary( g => g.Description, g => g.Identifier, StringComparer.InvariantCultureIgnoreCase );
+                m_languages = info.Languages.ToDictionary( l => l.Name, l => l.Identifier, StringComparer.InvariantCultureIgnoreCase );
+                m_genres = info.Genres.ToDictionary( g => g.Name, g => g.Identifier, StringComparer.InvariantCultureIgnoreCase );
                 m_series = info.Series.ToDictionary( s => s.FullName, s => s.UniqueIdentifier, StringComparer.InvariantCultureIgnoreCase );
             }
         }

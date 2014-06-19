@@ -49,7 +49,7 @@ namespace WebApp.Controllers
         public async Task<IHttpActionResult> Create( [FromBody] GenreDescription newGenre )
         {
             // Add to collection
-            Database.Genres.Add( new Genre { Name = newGenre.Description } );
+            Database.Genres.Add( new Genre { Name = newGenre.Name } );
 
             // Process update
             await Database.SaveChangesAsync();
@@ -71,7 +71,7 @@ namespace WebApp.Controllers
             var genre = Database.Genres.Find( identifier );
 
             // Update
-            genre.Name = newData.Description;
+            genre.Name = newData.Name;
 
             // Process update
             await Database.SaveChangesAsync();

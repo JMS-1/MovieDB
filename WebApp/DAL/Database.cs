@@ -75,7 +75,7 @@ namespace WebApp.DAL
         /// <summary>
         /// Zum Zugriff über den SQL Server.
         /// </summary>
-        private const string _LocalDb = @"Data Source=(LocalDB)\v11.0;Integrated Security=True";
+        private const string _LocalDb = @"Data Source=(LocalDB)\MSSQLLocalDB;Integrated Security=True";
 
         /// <summary>
         /// Aktiviert im Testmodus die Ausgaber aller SQL Befehle.

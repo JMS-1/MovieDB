@@ -19,8 +19,8 @@ namespace WebApp.DTO
         /// <summary>
         /// Die eindeutige Beschreibung der Art.
         /// </summary>
-        [DataMember( Name = "description" )]
-        public string Description { get; set; }
+        [DataMember( Name = "name" )]
+        public string Name { get; set; }
 
         /// <summary>
         /// Erstellt eine neue Beschreibung.
@@ -33,7 +33,7 @@ namespace WebApp.DTO
                 new GenreDescription
                 {
                     Identifier = genre.UniqueIdentifier,
-                    Description = genre.Name,
+                    Name = genre.Name,
                 };
         }
     }
