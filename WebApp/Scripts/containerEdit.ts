@@ -30,7 +30,6 @@ class ContainerEditor {
     private confirmedDelete: DeleteButton;
 
     private open(): void {
-        // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
         this.choose();
 
         Tools.openDialog(this.dialog());
@@ -91,13 +90,18 @@ class ContainerEditor {
         this.saveButton().button('option', 'disabled', choosen.length > 0);
         this.confirmedDelete.disable();
 
-        this.parentChooser().val('');
-        this.nameField().val('');
+        this.dialog().find('.collapsableCount').text(null);
+
         this.descriptionField().val('');
+        this.parentChooser().val('');
         this.locationField().val('');
+        this.nameField().val('');
         this.typeField().val('0');
 
         if (choosen.length < 1) {
+            this.childTable().addClass(Styles.invisble);
+            this.recordingTable().addClass(Styles.invisble);
+
             // Einfach ist es, wenn wir etwas neu Anlegen
             this.identifier = '';
 
@@ -118,6 +122,33 @@ class ContainerEditor {
                 this.locationField().val(info.location);
                 this.parentChooser().val(info.parent);
                 this.nameField().val(info.name);
+
+                var childTable = this.childTable();
+                var childCount = info.children.length;
+                if (info.children.length > 0) {
+                    if (childCount == 1)
+                        childTable.find('.collabsableCount').text("Eine Aufbewahrung");
+                    else
+                        childTable.find('.collabsableCount').text(childCount + " Aufbewahrungen");
+
+                    childTable.removeClass(Styles.invisble);
+                }
+                else
+                    childTable.addClass(Styles.invisble);
+
+                var recordingTable = this.recordingTable();
+                var recordingCount = info.recordings.length;
+                if (recordingCount > 0) {
+
+                    if (recordingCount == 1)
+                        recordingTable.find('.collabsableCount').text("Eine Aufzeichnung");
+                    else
+                        recordingTable.find('.collabsableCount').text(recordingCount + " Aufzeichnungen");
+
+                    recordingTable.removeClass(Styles.invisble);
+                }
+                else
+                    recordingTable.addClass(Styles.invisble);
 
                 this.confirmedDelete.enable();
 
@@ -207,6 +238,14 @@ class ContainerEditor {
 
     private locationField(): JQuery {
         return this.dialog().find('.editLocation');
+    }
+
+    private childTable() {
+        return this.dialog().find('.containerChildren');
+    }
+
+    private recordingTable() {
+        return this.dialog().find('.containerRecordings');
     }
 
     private validateName(newData: IContainerEditContract): string {
