@@ -217,11 +217,7 @@ class SeriesEditor {
         else if (name.length > 50)
             return 'Der Name darf maximal 50 Zeichen haben';
         else {
-            var parent = this.parentChooser().val();
-            if (parent == '')
-                return null;
-
-            var existingChildren = this.getChildren(parent);
+            var existingChildren = this.getChildren(newData.parentId);
 
             for (var i = 0; i < existingChildren.length; i++)
                 if (existingChildren[i].name == name)

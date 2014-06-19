@@ -287,9 +287,15 @@ var MovieDatabase;
         };
 
         Application.prototype.getChildren = function (series) {
-            var parent = this.allSeries[series];
+            if ((series == null) || (series.length < 1)) {
+                return this.currentApplicationInformation.series.filter(function (s) {
+                    return s.parentId == null;
+                });
+            } else {
+                var parent = this.allSeries[series];
 
-            return parent.children;
+                return parent.children;
+            }
         };
 
         Application.prototype.startup = function () {
@@ -304,13 +310,13 @@ var MovieDatabase;
             }, function (series) {
                 return _this.getChildren(series);
             });
-            this.containerDialog = new ContainerEditor('.openContainerEditDialog', function () {
-                return _this.requestApplicationInformation();
-            });
             this.recordingFilter = new RecordingFilter(function (result) {
                 return _this.fillResultTable(result);
             }, function (series) {
                 return _this.allSeries[series];
+            });
+            this.containerDialog = new ContainerEditor('.openContainerEditDialog', function () {
+                return _this.requestApplicationInformation();
             });
             this.languageEditor = new MultiValueEditor('#recordingEditLanguage', validateRecordingEditForm);
             this.languageDialog = new LanguageEditor('.openLanguageEditDialog', function () {

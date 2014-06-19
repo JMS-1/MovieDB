@@ -295,9 +295,13 @@ module MovieDatabase {
         }
 
         private getChildren(series: string): ISeriesMappingContract[] {
-            var parent = <ISeriesMapping>this.allSeries[series];
+            if ((series == null) || (series.length < 1)) {
+                return this.currentApplicationInformation.series.filter(s => s.parentId == null);
+            } else {
+                var parent = <ISeriesMapping>this.allSeries[series];
 
-            return parent.children;
+                return parent.children;
+            }
         }
 
         private startup(): void {
@@ -305,8 +309,8 @@ module MovieDatabase {
             var validateRecordingEditForm = () => this.currentRecording.validate();
 
             this.seriesDialog = new SeriesEditor('.openSeriesEditDialog', () => this.requestApplicationInformation(), series => this.getChildren(series));
-            this.containerDialog = new ContainerEditor('.openContainerEditDialog', () => this.requestApplicationInformation());
             this.recordingFilter = new RecordingFilter(result => this.fillResultTable(result), series => this.allSeries[series]);
+            this.containerDialog = new ContainerEditor('.openContainerEditDialog', () => this.requestApplicationInformation());
             this.languageEditor = new MultiValueEditor<ILanguageContract>('#recordingEditLanguage', validateRecordingEditForm);
             this.languageDialog = new LanguageEditor('.openLanguageEditDialog', () => this.requestApplicationInformation());
             this.genreEditor = new MultiValueEditor<IGenreContract>('#recordingEditGenre', validateRecordingEditForm);
