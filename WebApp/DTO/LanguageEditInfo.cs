@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 
 namespace WebApp.DTO
@@ -13,7 +14,7 @@ namespace WebApp.DTO
         /// Das eindeutige Kürzel der Sprache.
         /// </summary>
         [DataMember( Name = "id" )]
-        public string IsoName { get; set; }
+        public Guid Identifier { get; set; }
 
         /// <summary>
         /// Der Anzeigename der Sprache.
@@ -38,8 +39,8 @@ namespace WebApp.DTO
             return
                 new LanguageEditInfo
                 {
+                    Identifier = language.UniqueIdentifier,
                     CanBeDeleted = numberOfRecordings < 1,
-                    IsoName = language.TwoLetterIsoName,
                     DisplayName = language.Description,
                 };
         }

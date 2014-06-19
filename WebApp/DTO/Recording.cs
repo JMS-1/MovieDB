@@ -52,7 +52,7 @@ namespace WebApp.DTO
         /// <param name="recording">Die Daten aus der Datenbank.</param>
         protected Recording( Models.Recording recording )
         {
-            Languages = recording.Languages.Select( l => l.TwoLetterIsoName ).OrderBy( s => s ).ToArray();
+            Languages = recording.Languages.Select( l => l.Description ).OrderBy( s => s ).ToArray();
             Genres = recording.Genres.Select( l => l.Name ).OrderBy( s => s ).ToArray();
             RecordingIdentifier = recording.Identifier;
             Series = recording.SeriesIdentifier;

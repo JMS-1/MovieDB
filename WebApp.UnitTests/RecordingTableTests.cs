@@ -245,8 +245,8 @@ namespace WebApp.UnitTests
         [Test]
         public void CanAddRecordingWithLanguages()
         {
-            var lang1 = TestContext.Languages.Add( new Language { TwoLetterIsoName = "l1", Description = "language 1" } );
-            var lang2 = TestContext.Languages.Add( new Language { TwoLetterIsoName = "l2", Description = "language 2" } );
+            var lang1 = TestContext.Languages.Add( new Language { Description = "language 1" } );
+            var lang2 = TestContext.Languages.Add( new Language { Description = "language 2" } );
 
             var rec = TestContext.Recordings.Add( new Recording { Title = "A7", CreationTime = DateTime.UtcNow, Store = new Store() } );
 
@@ -266,11 +266,11 @@ namespace WebApp.UnitTests
             Assert.IsNotNull( retest, "id" );
             Assert.AreNotSame( rec, retest, "cache" );
 
-            var lang = new HashSet<string>( retest.Languages.Select( l => l.TwoLetterIsoName ) );
+            var lang = new HashSet<string>( retest.Languages.Select( l => l.Description ) );
 
             Assert.AreEqual( 2, lang.Count, "#lang" );
-            Assert.IsTrue( lang.Contains( "l1" ), "1" );
-            Assert.IsTrue( lang.Contains( "l2" ), "2" );
+            Assert.IsTrue( lang.Contains( "language 1" ), "1" );
+            Assert.IsTrue( lang.Contains( "language 2" ), "2" );
         }
 
         /// <summary>

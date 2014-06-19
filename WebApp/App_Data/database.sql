@@ -35,9 +35,9 @@
 -- Language
 
 	CREATE TABLE [Languages] (
-		[Short] NCHAR (2)      NOT NULL,
-		[Long]  NVARCHAR (100) NOT NULL,
-		PRIMARY KEY CLUSTERED ([Short]),
+		[Id]	UNIQUEIDENTIFIER	NOT NULL,
+		[Long]  NVARCHAR (100)		NOT NULL,
+		PRIMARY KEY CLUSTERED ([Id]),
 		CONSTRAINT [U_Languages_Long] UNIQUE ([Long]) 
 	);
 	GO
@@ -253,9 +253,9 @@
 	GO
 
 	CREATE TABLE [RecordingLanguages] (
-		[Language]  NCHAR (2)        NOT NULL,
-		[Recording] UNIQUEIDENTIFIER NOT NULL,
-		CONSTRAINT [FK_RecordingLanguages_Language] FOREIGN KEY ([Language]) REFERENCES [Languages] ([Short]),
+		[Language]	UNIQUEIDENTIFIER	NOT NULL,
+		[Recording] UNIQUEIDENTIFIER	NOT NULL,
+		CONSTRAINT [FK_RecordingLanguages_Language] FOREIGN KEY ([Language]) REFERENCES [Languages] ([Id]),
 		CONSTRAINT [FK_RecordingLanguages_Recording] FOREIGN KEY ([Recording]) REFERENCES [Recordings] ([Id]) ON DELETE CASCADE
 	);
 	GO

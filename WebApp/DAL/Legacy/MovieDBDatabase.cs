@@ -252,7 +252,7 @@ namespace MovieDB
             // Add all languages
             var dbLanguages = database.Languages;
             foreach (var language in new HashSet<string>( Languages.Select( l => l.ToLower() ) ))
-                languageMap.Add( language, dbLanguages.Add( new WebApp.Models.Language { TwoLetterIsoName = language, Description = language } ) );
+                languageMap.Add( language, dbLanguages.Add( new WebApp.Models.Language { Description = language } ) );
 
             // Add all genres
             var dbGenres = database.Genres;

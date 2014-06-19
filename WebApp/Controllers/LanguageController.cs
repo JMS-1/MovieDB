@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace WebApp.Controllers
         /// <returns>Die gewünschte Sprache.</returns>
         [Route( "{identifier}" )]
         [HttpGet]
-        public LanguageEditInfo Find( string identifier )
+        public LanguageEditInfo Find( Guid identifier )
         {
             // Find the one
             var language = Database.Languages.Find( identifier );
@@ -33,7 +34,7 @@ namespace WebApp.Controllers
                 throw new HttpResponseException( HttpStatusCode.NotFound );
 
             // See how many recordings are using it
-            var users = Database.Recordings.Where( r => r.Languages.Any( l => l.TwoLetterIsoName == language.TwoLetterIsoName ) ).Count();
+            var users = Database.Recordings.Where( r => r.Languages.Any( l => l.UniqueIdentifier == language.UniqueIdentifier ) ).Count();
 
             // Create
             return LanguageEditInfo.Create( language, users );
@@ -48,7 +49,7 @@ namespace WebApp.Controllers
         public async Task<IHttpActionResult> Create( [FromBody] LanguageDescription newLanguage )
         {
             // Add to collection
-            Database.Languages.Add( new Language { TwoLetterIsoName = newLanguage.UniqueName, Description = newLanguage.Description } );
+            Database.Languages.Add( new Language { Description = newLanguage.Description } );
 
             // Process update
             await Database.SaveChangesAsync();
@@ -64,13 +65,12 @@ namespace WebApp.Controllers
         /// <param name="newData">Die neuen Daten für die Sprache.</param>
         [Route( "{identifier}" )]
         [HttpPut]
-        public async Task<IHttpActionResult> Update( string identifier, [FromBody] LanguageDescription newData )
+        public async Task<IHttpActionResult> Update( Guid identifier, [FromBody] LanguageDescription newData )
         {
             // Locate
             var language = Database.Languages.Find( identifier );
 
             // Update
-            language.TwoLetterIsoName = newData.UniqueName;
             language.Description = newData.Description;
 
             // Process update
@@ -86,10 +86,10 @@ namespace WebApp.Controllers
         /// <param name="identifier">Das eindeutige Kürzel der Sprache.</param>
         [Route( "{identifier}" )]
         [HttpDelete]
-        public async Task<IHttpActionResult> Delete( string identifier )
+        public async Task<IHttpActionResult> Delete( Guid identifier )
         {
             // Mark as deleted
-            Database.Entry<Language>( new Language { TwoLetterIsoName = identifier } ).State = EntityState.Deleted;
+            Database.Entry<Language>( new Language { UniqueIdentifier = identifier } ).State = EntityState.Deleted;
 
             // Process update
             await Database.SaveChangesAsync();

@@ -20,6 +20,10 @@ namespace WebApp.UnitTests
         [Test]
         public void InitialQuery()
         {
+            Guid fr;
+            using (var app = new ApplicationController())
+                fr = app.GetInformation().Languages.Single( l => l.Description == "fr" ).Identifier;
+
             var recordings = Controller.Query();
 
             Assert.AreEqual( 0, recordings.PageIndex, "index" );
@@ -38,7 +42,7 @@ namespace WebApp.UnitTests
             Assert.AreEqual( 23, recordings.GenreStatistics.Length, "#genres" );
             Assert.AreEqual( 1502, recordings.GenreStatistics.Single( g => g.Name == "Action" ).Count, "genre count" );
             Assert.AreEqual( 13, recordings.LanguageStatistics.Length, "#languages" );
-            Assert.AreEqual( 215, recordings.LanguageStatistics.Single( g => g.Name == "fr" ).Count, "language count" );
+            Assert.AreEqual( 215, recordings.LanguageStatistics.Single( g => g.Identifier == fr ).Count, "language count" );
         }
 
         /// <summary>
@@ -179,7 +183,11 @@ namespace WebApp.UnitTests
         [Test]
         public void RestrictByLanguage()
         {
-            var recordings = Controller.Query( new SearchRequest { RequiredLanguage = "pt" } );
+            Guid language;
+            using (var app = new ApplicationController())
+                language = app.GetInformation().Languages.Single( l => l.Description == "pt" ).Identifier;
+
+            var recordings = Controller.Query( new SearchRequest { RequiredLanguage = language } );
 
             Assert.AreEqual( 0, recordings.PageIndex, "index" );
             Assert.AreEqual( 15, recordings.PageSize, "size" );
@@ -244,6 +252,10 @@ namespace WebApp.UnitTests
         [Test]
         public void RestrictByText()
         {
+            Guid de;
+            using (var app = new ApplicationController())
+                de = app.GetInformation().Languages.Single( l => l.Description == "de" ).Identifier;
+
             var recordings = Controller.Query( new SearchRequest { Text = "doctor", PageIndex = 15 } );
 
             Assert.AreEqual( 15, recordings.PageIndex, "index" );
@@ -262,7 +274,7 @@ namespace WebApp.UnitTests
             Assert.AreEqual( 9, recordings.GenreStatistics.Length, "#genres" );
             Assert.AreEqual( 121, recordings.GenreStatistics.Single( g => g.Name == "Action" ).Count, "genre count" );
             Assert.AreEqual( 5, recordings.LanguageStatistics.Length, "#languages" );
-            Assert.AreEqual( 28, recordings.LanguageStatistics.Single( g => g.Name == "de" ).Count, "language count" );
+            Assert.AreEqual( 28, recordings.LanguageStatistics.Single( g => g.Identifier == de ).Count, "language count" );
         }
     }
 }

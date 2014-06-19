@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 
@@ -12,11 +13,11 @@ namespace WebApp.Models
     public class Language
     {
         /// <summary>
-        /// Der Kurzname der Sprache. 
+        /// Die eindeutige Kennung der Sprache
         /// </summary>
-        [Required, Key, StringLength( 2, MinimumLength = 2 ), RegularExpression( @"[a-z]{2}", ErrorMessage = "Das Sprachkürzel muss aus zwei Buchstaben bestehen" )]
-        [Column( "Short" )]
-        public string TwoLetterIsoName { get; set; }
+        [Required, Key]
+        [Column( "Id" )]
+        public Guid UniqueIdentifier { get; set; }
 
         /// <summary>
         /// Der Langname der Sprache.
@@ -31,10 +32,14 @@ namespace WebApp.Models
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
         internal static void BuildModel( DbModelBuilder modelBuilder )
         {
-            modelBuilder
-                .Entity<Language>()
-                .Property( e => e.TwoLetterIsoName )
-                .IsFixedLength();
+        }
+
+        /// <summary>
+        /// Erstellt eine neue Sprache.
+        /// </summary>
+        public Language()
+        {
+            UniqueIdentifier = Guid.NewGuid();
         }
     }
 }

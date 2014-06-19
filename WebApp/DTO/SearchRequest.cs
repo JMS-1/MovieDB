@@ -78,7 +78,7 @@ namespace WebApp.DTO
         /// Die Sprache, die eine Aufzeichnung haben muss.
         /// </summary>
         [DataMember( Name = "language" )]
-        public string RequiredLanguage { get; set; }
+        public Guid? RequiredLanguage { get; set; }
 
         /// <summary>
         /// Die zu betrachtende Serie.
@@ -174,13 +174,13 @@ namespace WebApp.DTO
             response.LanguageStatistics =
                 recordings
                     .SelectMany( r => r.Languages )
-                    .GroupBy( l => l.TwoLetterIsoName )
-                    .Select( g => new SearchInformation.Language { Name = g.Key, Count = g.Count() } )
+                    .GroupBy( l => l.UniqueIdentifier )
+                    .Select( g => new SearchInformation.Language { Identifier = g.Key, Count = g.Count() } )
                     .ToArray();
 
             // Apply language filter
-            if (!string.IsNullOrEmpty( request.RequiredLanguage ))
-                recordings = recordings.Where( r => r.Languages.Any( l => l.TwoLetterIsoName == request.RequiredLanguage ) );
+            if ( request.RequiredLanguage .HasValue)
+                recordings = recordings.Where( r => r.Languages.Any( l => l.UniqueIdentifier == request.RequiredLanguage.Value ) );
 
             // Check counter after filter is applied but bevore we start restricting
             response.TotalCount = recordings.Count();
