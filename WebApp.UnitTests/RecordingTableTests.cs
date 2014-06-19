@@ -38,10 +38,10 @@ namespace WebApp.UnitTests
         [Test]
         public void CanCalculateFullName()
         {
-            var series1 = TestContext.Series.Add( new Series { Name = "A" } ).Identifier;
-            var series2 = TestContext.Series.Add( new Series { Name = "B", ParentIdentifier = series1 } ).Identifier;
-            var series3 = TestContext.Series.Add( new Series { Name = "C", ParentIdentifier = series2 } ).Identifier;
-            var recording = TestContext.Recordings.Add( new Recording { Title = "X", CreationTime = DateTime.UtcNow, SeriesIdentifier = series3, Store = new Store { Location = "nowhere" } } ).Identifier;
+            var series1 = TestContext.Series.Add( new Series { Name = "A" } ).UniqueIdentifier;
+            var series2 = TestContext.Series.Add( new Series { Name = "B", ParentIdentifier = series1 } ).UniqueIdentifier;
+            var series3 = TestContext.Series.Add( new Series { Name = "C", ParentIdentifier = series2 } ).UniqueIdentifier;
+            var recording = TestContext.Recordings.Add( new Recording { Name = "X", CreationTime = DateTime.UtcNow, SeriesIdentifier = series3, Store = new Store { Location = "nowhere" } } ).UniqueIdentifier;
 
             // Normale Kette
             TestContext.SaveChanges();
@@ -51,7 +51,7 @@ namespace WebApp.UnitTests
             var recover = TestContext.Recordings.Find( recording );
             Assert.AreEqual( "A > B > C > X", recover.FullName, "initial" );
 
-            recover.Title = "Y";
+            recover.Name = "Y";
 
             // Die Aufzeichnung wurde umbenannt
             TestContext.SaveChanges();
@@ -91,7 +91,7 @@ namespace WebApp.UnitTests
             recover = TestContext.Recordings.Find( recording );
             Assert.AreEqual( "O > M > N > Y", recover.FullName, "outer" );
 
-            TestContext.Entry( new Series { Identifier = series2 } ).State = EntityState.Deleted;
+            TestContext.Entry( new Series { UniqueIdentifier = series2 } ).State = EntityState.Deleted;
 
             // Die mittlere Serie wurde gelöscht
             TestContext.SaveChanges();
@@ -101,7 +101,7 @@ namespace WebApp.UnitTests
             recover = TestContext.Recordings.Find( recording );
             Assert.AreEqual( "N > Y", recover.FullName, "remove middle" );
 
-            TestContext.Entry( new Series { Identifier = series3 } ).State = EntityState.Deleted;
+            TestContext.Entry( new Series { UniqueIdentifier = series3 } ).State = EntityState.Deleted;
 
             // Die direkte Serie wurde gelöcht
             TestContext.SaveChanges();
@@ -111,7 +111,7 @@ namespace WebApp.UnitTests
             recover = TestContext.Recordings.Find( recording );
             Assert.AreEqual( "Y", recover.FullName, "remove direct" );
 
-            recover.Title = "Z";
+            recover.Name = "Z";
             recover.SeriesIdentifier = series1;
 
             // Die Aufzeichnung wurde umbenannt und an eine Serie gehängt
@@ -144,12 +144,12 @@ namespace WebApp.UnitTests
             var created = recordings.Add(
                 new Recording
                 {
-                    Title = "super",
+                    Name = "super",
                     Store = new Store(),
                     Description = "what",
                     CreationTime = refTime,
                 } );
-            var id = created.Identifier;
+            var id = created.UniqueIdentifier;
 
             TestContext.SaveChanges();
 
@@ -159,11 +159,11 @@ namespace WebApp.UnitTests
 
             Assert.IsNotNull( recording, "id" );
             Assert.AreNotSame( created, recording, "cache" );
-            Assert.AreEqual( "super", recording.Title, "Title" );
+            Assert.AreEqual( "super", recording.Name, "Title" );
             Assert.AreEqual( "super", recording.FullName, "FullName" );
             Assert.AreEqual( "what", recording.Description, "Description" );
             Assert.AreEqual( refTime, recording.CreationTime, "CreationTime" );
-            Assert.AreEqual( id, recording.Identifier, "Id" );
+            Assert.AreEqual( id, recording.UniqueIdentifier, "Id" );
         }
 
         /// <summary>
@@ -174,8 +174,8 @@ namespace WebApp.UnitTests
         {
             var id = Guid.NewGuid();
 
-            TestContext.Recordings.Add( new Recording { Identifier = id, Title = "A4", Description = "A4", CreationTime = DateTime.UtcNow, Store = new Store() } );
-            TestContext.Recordings.Add( new Recording { Identifier = id, Title = "B4", Description = "B4", CreationTime = DateTime.UtcNow, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { UniqueIdentifier = id, Name = "A4", Description = "A4", CreationTime = DateTime.UtcNow, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { UniqueIdentifier = id, Name = "B4", Description = "B4", CreationTime = DateTime.UtcNow, Store = new Store() } );
             TestContext.SaveChanges();
         }
 
@@ -185,8 +185,8 @@ namespace WebApp.UnitTests
         [Test]
         public void TitleCanBeUsedMultipleTimes()
         {
-            TestContext.Recordings.Add( new Recording { Title = "A3", Description = "A3", CreationTime = DateTime.UtcNow, Store = new Store() } );
-            TestContext.Recordings.Add( new Recording { Title = "A3", Description = "B3", CreationTime = DateTime.UtcNow, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Name = "A3", Description = "A3", CreationTime = DateTime.UtcNow, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Name = "A3", Description = "B3", CreationTime = DateTime.UtcNow, Store = new Store() } );
             TestContext.SaveChanges();
         }
 
@@ -196,8 +196,8 @@ namespace WebApp.UnitTests
         [Test]
         public void DescriptionCanBeUsedMultipleTimes()
         {
-            TestContext.Recordings.Add( new Recording { Title = "A2", Description = "A2", CreationTime = DateTime.UtcNow, Store = new Store() } );
-            TestContext.Recordings.Add( new Recording { Title = "B2", Description = "A2", CreationTime = DateTime.UtcNow, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Name = "A2", Description = "A2", CreationTime = DateTime.UtcNow, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Name = "B2", Description = "A2", CreationTime = DateTime.UtcNow, Store = new Store() } );
             TestContext.SaveChanges();
         }
 
@@ -213,7 +213,7 @@ namespace WebApp.UnitTests
         {
             var title = (titleLength < 0) ? null : new string( 'x', titleLength );
 
-            TestContext.Recordings.Add( new Recording { Title = title, Description = "A5", CreationTime = DateTime.UtcNow } );
+            TestContext.Recordings.Add( new Recording { Name = title, Description = "A5", CreationTime = DateTime.UtcNow } );
             TestContext.SaveChanges();
         }
 
@@ -223,9 +223,9 @@ namespace WebApp.UnitTests
         [Test]
         public void DescriptionIsOptionalAndLimitedTo2000Characters()
         {
-            TestContext.Recordings.Add( new Recording { Title = "A1", Description = null, CreationTime = DateTime.UtcNow, Store = new Store() } );
-            TestContext.Recordings.Add( new Recording { Title = "B1", Description = string.Empty, CreationTime = DateTime.UtcNow, Store = new Store() } );
-            TestContext.Recordings.Add( new Recording { Title = "C1", Description = new string( 'A', 2000 ), CreationTime = DateTime.UtcNow, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Name = "A1", Description = null, CreationTime = DateTime.UtcNow, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Name = "B1", Description = string.Empty, CreationTime = DateTime.UtcNow, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Name = "C1", Description = new string( 'A', 2000 ), CreationTime = DateTime.UtcNow, Store = new Store() } );
             TestContext.SaveChanges();
         }
 
@@ -235,7 +235,7 @@ namespace WebApp.UnitTests
         [Test, ExpectedException( typeof( DbEntityValidationException ) )]
         public void DescriptionIsLimitedTo2000Characters()
         {
-            TestContext.Recordings.Add( new Recording { Title = "A6", Description = new string( 'A', 2001 ), CreationTime = DateTime.UtcNow } );
+            TestContext.Recordings.Add( new Recording { Name = "A6", Description = new string( 'A', 2001 ), CreationTime = DateTime.UtcNow } );
             TestContext.SaveChanges();
         }
 
@@ -245,10 +245,10 @@ namespace WebApp.UnitTests
         [Test]
         public void CanAddRecordingWithLanguages()
         {
-            var lang1 = TestContext.Languages.Add( new Language { Description = "language 1" } );
-            var lang2 = TestContext.Languages.Add( new Language { Description = "language 2" } );
+            var lang1 = TestContext.Languages.Add( new Language { Name = "language 1" } );
+            var lang2 = TestContext.Languages.Add( new Language { Name = "language 2" } );
 
-            var rec = TestContext.Recordings.Add( new Recording { Title = "A7", CreationTime = DateTime.UtcNow, Store = new Store() } );
+            var rec = TestContext.Recordings.Add( new Recording { Name = "A7", CreationTime = DateTime.UtcNow, Store = new Store() } );
 
             rec.Languages.Add( lang1 );
             rec.Languages.Add( lang2 );
@@ -261,12 +261,12 @@ namespace WebApp.UnitTests
                 TestContext
                     .Recordings
                     .Include( recording => recording.Languages )
-                    .FirstOrDefault( recording => recording.Identifier == rec.Identifier );
+                    .FirstOrDefault( recording => recording.UniqueIdentifier == rec.UniqueIdentifier );
 
             Assert.IsNotNull( retest, "id" );
             Assert.AreNotSame( rec, retest, "cache" );
 
-            var lang = new HashSet<string>( retest.Languages.Select( l => l.Description ) );
+            var lang = new HashSet<string>( retest.Languages.Select( l => l.Name ) );
 
             Assert.AreEqual( 2, lang.Count, "#lang" );
             Assert.IsTrue( lang.Contains( "language 1" ), "1" );
@@ -279,14 +279,14 @@ namespace WebApp.UnitTests
         [Test]
         public void CanAddRecordingWithGenres()
         {
-            var genre1 = TestContext.Genres.Add( new Genre { Description = "genre 1" } );
-            var genre2 = TestContext.Genres.Add( new Genre { Description = "genre 2" } );
+            var genre1 = TestContext.Genres.Add( new Genre { Name = "genre 1" } );
+            var genre2 = TestContext.Genres.Add( new Genre { Name = "genre 2" } );
 
             var rec = TestContext.Recordings.Add( new Recording
             {
                 CreationTime = DateTime.UtcNow,
                 Store = new Store(),
-                Title = "A8",
+                Name = "A8",
             } );
 
             rec.Genres.Add( genre1 );
@@ -300,12 +300,12 @@ namespace WebApp.UnitTests
                 TestContext
                     .Recordings
                     .Include( recording => recording.Genres )
-                    .FirstOrDefault( recording => recording.Identifier == rec.Identifier );
+                    .FirstOrDefault( recording => recording.UniqueIdentifier == rec.UniqueIdentifier );
 
             Assert.IsNotNull( retest, "id" );
             Assert.AreNotSame( rec, retest, "cache" );
 
-            var gen = new HashSet<string>( retest.Genres.Select( l => l.Description ) );
+            var gen = new HashSet<string>( retest.Genres.Select( l => l.Name ) );
 
             Assert.AreEqual( 2, gen.Count, "#genres" );
             Assert.IsTrue( gen.Contains( "genre 1" ), "1" );
@@ -320,13 +320,13 @@ namespace WebApp.UnitTests
         {
             var container = TestContext.Containers.Add( new Container { Name = "A9", Type = ContainerType.FeatureSet } );
             var media = TestContext.Stores.Add( new Store { Type = StoreType.RecordedDVD, Container = container, Location = "1R" } );
-            var recording = TestContext.Recordings.Add( new Recording { Title = "B9", CreationTime = DateTime.UtcNow, Store = media } );
+            var recording = TestContext.Recordings.Add( new Recording { Name = "B9", CreationTime = DateTime.UtcNow, Store = media } );
 
             TestContext.SaveChanges();
 
             Recreate();
 
-            var retest = TestContext.Recordings.Include( r => r.Store.Container ).Single( r => r.Title == "B9" );
+            var retest = TestContext.Recordings.Include( r => r.Store.Container ).Single( r => r.Name == "B9" );
 
             Assert.AreEqual( "A9", retest.Store.Container.Name, "container" );
         }
@@ -339,14 +339,14 @@ namespace WebApp.UnitTests
         {
             var container = TestContext.Containers.Add( new Container { Name = "A10", Type = ContainerType.FeatureSet } );
             var media = TestContext.Stores.Add( new Store { Type = StoreType.RecordedDVD, Container = container, Location = "2R" } );
-            var recording = TestContext.Recordings.Add( new Recording { Title = "B10", CreationTime = DateTime.UtcNow, Store = media } );
-            var mediaId = media.Identifier;
+            var recording = TestContext.Recordings.Add( new Recording { Name = "B10", CreationTime = DateTime.UtcNow, Store = media } );
+            var mediaId = media.UniqueIdentifier;
 
             TestContext.SaveChanges();
 
             Recreate();
 
-            TestContext.Entry( new Store { Identifier = mediaId } ).State = EntityState.Deleted;
+            TestContext.Entry( new Store { UniqueIdentifier = mediaId } ).State = EntityState.Deleted;
             TestContext.SaveChanges();
         }
 
@@ -358,22 +358,22 @@ namespace WebApp.UnitTests
         {
             var container = TestContext.Containers.Add( new Container { Name = "A11", Type = ContainerType.FeatureSet } );
             var media = TestContext.Stores.Add( new Store { Type = StoreType.RecordedDVD, Container = container, Location = "3L" } );
-            var recording1 = TestContext.Recordings.Add( new Recording { Title = "B11", CreationTime = DateTime.UtcNow, Store = media } ).Identifier;
-            var recording2 = TestContext.Recordings.Add( new Recording { Title = "C11", CreationTime = DateTime.UtcNow, Store = media } ).Identifier;
-            var mediaId = media.Identifier;
+            var recording1 = TestContext.Recordings.Add( new Recording { Name = "B11", CreationTime = DateTime.UtcNow, Store = media } ).UniqueIdentifier;
+            var recording2 = TestContext.Recordings.Add( new Recording { Name = "C11", CreationTime = DateTime.UtcNow, Store = media } ).UniqueIdentifier;
+            var mediaId = media.UniqueIdentifier;
 
             TestContext.SaveChanges();
 
             Recreate();
 
-            TestContext.Entry( new Recording { Identifier = recording1 } ).State = EntityState.Deleted;
+            TestContext.Entry( new Recording { UniqueIdentifier = recording1 } ).State = EntityState.Deleted;
             TestContext.SaveChanges();
 
             Recreate();
 
             Assert.IsNotNull( TestContext.Stores.Find( mediaId ), "first delete" );
 
-            TestContext.Entry( new Recording { Identifier = recording2 } ).State = EntityState.Deleted;
+            TestContext.Entry( new Recording { UniqueIdentifier = recording2 } ).State = EntityState.Deleted;
             TestContext.SaveChanges();
 
             Recreate();
@@ -387,9 +387,9 @@ namespace WebApp.UnitTests
         [Test]
         public void RentIsOptionalAndLimitedTo200Characters()
         {
-            TestContext.Recordings.Add( new Recording { Title = "A12", CreationTime = DateTime.UtcNow, RentTo = null, Store = new Store() } );
-            TestContext.Recordings.Add( new Recording { Title = "B12", CreationTime = DateTime.UtcNow, RentTo = string.Empty, Store = new Store() } );
-            TestContext.Recordings.Add( new Recording { Title = "C12", CreationTime = DateTime.UtcNow, RentTo = new string( 'A', 200 ), Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Name = "A12", CreationTime = DateTime.UtcNow, RentTo = null, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Name = "B12", CreationTime = DateTime.UtcNow, RentTo = string.Empty, Store = new Store() } );
+            TestContext.Recordings.Add( new Recording { Name = "C12", CreationTime = DateTime.UtcNow, RentTo = new string( 'A', 200 ), Store = new Store() } );
             TestContext.SaveChanges();
         }
 
@@ -399,7 +399,7 @@ namespace WebApp.UnitTests
         [Test, ExpectedException( typeof( DbEntityValidationException ) )]
         public void RentIsLimitedTo200Characters()
         {
-            TestContext.Recordings.Add( new Recording { Title = "A13", CreationTime = DateTime.UtcNow, RentTo = new string( 'A', 201 ) } );
+            TestContext.Recordings.Add( new Recording { Name = "A13", CreationTime = DateTime.UtcNow, RentTo = new string( 'A', 201 ) } );
             TestContext.SaveChanges();
         }
     }

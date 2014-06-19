@@ -33,7 +33,7 @@ namespace WebApp.DTO
                 new LanguageDescription
                 {
                     Identifier = language.UniqueIdentifier,
-                    Description = language.Description,
+                    Description = language.Name,
                 };
         }
     }

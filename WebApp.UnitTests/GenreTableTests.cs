@@ -30,17 +30,17 @@ namespace WebApp.UnitTests
         {
             var genres = TestContext.Genres;
 
-            var scifi = genres.Add( new Genre { Description = "Science Fiction" } ).UniqueIdentifier;
-            var horror = genres.Add( new Genre { Description = "Horror" } ).UniqueIdentifier;
-            var comedy = genres.Add( new Genre { Description = "Komödie" } ).UniqueIdentifier;
+            var scifi = genres.Add( new Genre { Name = "Science Fiction" } ).UniqueIdentifier;
+            var horror = genres.Add( new Genre { Name = "Horror" } ).UniqueIdentifier;
+            var comedy = genres.Add( new Genre { Name = "Komödie" } ).UniqueIdentifier;
 
             TestContext.SaveChanges();
 
             Recreate();
 
-            Assert.AreEqual( "Horror", TestContext.Genres.Find( horror ).Description, "horror" );
+            Assert.AreEqual( "Horror", TestContext.Genres.Find( horror ).Name, "horror" );
 
-            var map = TestContext.Genres.ToDictionary( l => l.UniqueIdentifier, l => l.Description );
+            var map = TestContext.Genres.ToDictionary( l => l.UniqueIdentifier, l => l.Name );
 
             Assert.AreEqual( "Science Fiction", map[scifi], "scifi" );
             Assert.AreEqual( "Horror", map[horror], "horror" );
@@ -57,7 +57,7 @@ namespace WebApp.UnitTests
         [ExpectedException( typeof( DbEntityValidationException ) )]
         public void LongNameMustHaveBetween1And100Charaters( string longName )
         {
-            TestContext.Genres.Add( new Genre { Description = longName } );
+            TestContext.Genres.Add( new Genre { Name = longName } );
             TestContext.SaveChanges();
         }
 
@@ -68,8 +68,8 @@ namespace WebApp.UnitTests
         [ExpectedException( typeof( DbUpdateException ) )]
         public void LongNameMustBeUnique()
         {
-            TestContext.Genres.Add( new Genre { Description = "long" } );
-            TestContext.Genres.Add( new Genre { Description = "long" } );
+            TestContext.Genres.Add( new Genre { Name = "long" } );
+            TestContext.Genres.Add( new Genre { Name = "long" } );
             TestContext.SaveChanges();
         }
     }

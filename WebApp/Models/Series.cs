@@ -28,7 +28,7 @@ namespace WebApp.Models
         /// </summary>
         [Required, Key]
         [Column( "Id" )]
-        public Guid Identifier { get; set; }
+        public Guid UniqueIdentifier { get; set; }
 
         /// <summary>
         /// Der relative Name der Serie.
@@ -80,7 +80,7 @@ namespace WebApp.Models
         /// </summary>
         public Series()
         {
-            Identifier = Guid.NewGuid();
+            UniqueIdentifier = Guid.NewGuid();
             Links = new List<Link>();
         }
 
@@ -101,7 +101,7 @@ namespace WebApp.Models
                 .Entity<Series>()
                 .HasMany( s => s.Links )
                 .WithRequired()
-                .HasForeignKey( l => l.Identifier );
+                .HasForeignKey( l => l.UniqueIdentifier );
         }
     }
 }

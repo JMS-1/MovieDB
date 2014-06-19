@@ -34,8 +34,8 @@ namespace WebApp.Controllers
                 throw new HttpResponseException( HttpStatusCode.NotFound );
 
             // See how many recordings are using it
-            var users = Database.Recordings.Where( r => r.SeriesIdentifier == series.Identifier ).Count();
-            var children = Database.Series.Where( s => s.ParentIdentifier == series.Identifier ).Count();
+            var users = Database.Recordings.Where( r => r.SeriesIdentifier == series.UniqueIdentifier ).Count();
+            var children = Database.Series.Where( s => s.ParentIdentifier == series.UniqueIdentifier ).Count();
 
             // Create
             return SeriesEditInfo.Create( series, users, children );
@@ -92,7 +92,7 @@ namespace WebApp.Controllers
         public async Task<IHttpActionResult> Delete( Guid identifier )
         {
             // Mark as deleted
-            Database.Entry<Series>( new Series { Identifier = identifier } ).State = EntityState.Deleted;
+            Database.Entry( new Series { UniqueIdentifier = identifier } ).State = EntityState.Deleted;
 
             // Process update
             await Database.SaveChangesAsync();

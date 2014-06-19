@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 
 namespace WebApp.DTO
@@ -25,7 +26,7 @@ namespace WebApp.DTO
         /// Der Name der Ablage.
         /// </summary>
         [DataMember( Name = "container" )]
-        public string ContainerName { get; set; }
+        public Guid? Container { get; set; }
 
         /// <summary>
         /// Die Position in der Ablage.
@@ -58,7 +59,7 @@ namespace WebApp.DTO
         {
             return new RecordingEditInfo( recording )
             {
-                ContainerName = recording.Store.ContainerName,
+                Container = recording.Store.ContainerIdentifier,
                 Location = recording.Store.Location,
                 Description = recording.Description,
                 StoreType = recording.Store.Type,

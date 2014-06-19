@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -52,7 +53,7 @@ namespace WebApp.DTO
         /// Die übergeordnete Aufbewahrung.
         /// </summary>
         [DataMember( Name = "parent" )]
-        public string ParentContainerName { get; set; }
+        public Guid? ParentContainer { get; set; }
 
         /// <summary>
         /// Die relative Position innerhalb der übergeordneten Aufbewahrung.
@@ -86,7 +87,7 @@ namespace WebApp.DTO
                 {
                     Recordings = recordings.Select( r => new Recording { FullName = r.FullName, Position = r.Store.Location } ).ToArray(),
                     ChildContainerNames = children.Select( c => c.Name ).ToArray(),
-                    ParentContainerName = container.ParentName,
+                    ParentContainer = container.ParentIdentifier,
                     ParentLocation = container.Location,
                     Description = container.Description,
                     ContainerType = container.Type,

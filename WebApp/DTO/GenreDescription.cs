@@ -33,7 +33,7 @@ namespace WebApp.DTO
                 new GenreDescription
                 {
                     Identifier = genre.UniqueIdentifier,
-                    Description = genre.Description,
+                    Description = genre.Name,
                 };
         }
     }

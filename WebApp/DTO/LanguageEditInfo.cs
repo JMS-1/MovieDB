@@ -41,7 +41,7 @@ namespace WebApp.DTO
                 {
                     Identifier = language.UniqueIdentifier,
                     CanBeDeleted = numberOfRecordings < 1,
-                    DisplayName = language.Description,
+                    DisplayName = language.Name,
                 };
         }
     }

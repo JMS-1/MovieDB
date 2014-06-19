@@ -44,7 +44,7 @@ namespace WebApp.UnitTests
                 {
                     Name = "theSeries",
                     Description = "description",
-                } ).Identifier;
+                } ).UniqueIdentifier;
 
             TestContext.SaveChanges();
 
@@ -65,8 +65,8 @@ namespace WebApp.UnitTests
         {
             var id = Guid.NewGuid();
 
-            TestContext.Series.Add( new Series { Identifier = id, Name = "A1", Description = "A1" } );
-            TestContext.Series.Add( new Series { Identifier = id, Name = "A1", Description = "A2" } );
+            TestContext.Series.Add( new Series { UniqueIdentifier = id, Name = "A1", Description = "A1" } );
+            TestContext.Series.Add( new Series { UniqueIdentifier = id, Name = "A1", Description = "A2" } );
             TestContext.SaveChanges();
         }
 
@@ -188,7 +188,7 @@ namespace WebApp.UnitTests
 
             var inner = series.Add( new Series { Name = "inner", ParentSeries = null } );
             var outer = series.Add( new Series { Name = "outer", ParentSeries = inner } );
-            var innerId = inner.Identifier;
+            var innerId = inner.UniqueIdentifier;
 
             TestContext.SaveChanges();
 
@@ -199,7 +199,7 @@ namespace WebApp.UnitTests
             Assert.IsNotNull( retest.ParentSeries, "before" );
             Assert.AreEqual( innerId, retest.ParentIdentifier, "before ParentName" );
 
-            var delete = new Series { Identifier = innerId };
+            var delete = new Series { UniqueIdentifier = innerId };
 
             TestContext.Entry( delete ).State = EntityState.Deleted;
 

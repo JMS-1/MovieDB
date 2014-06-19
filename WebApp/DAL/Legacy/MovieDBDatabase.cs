@@ -252,12 +252,12 @@ namespace MovieDB
             // Add all languages
             var dbLanguages = database.Languages;
             foreach (var language in new HashSet<string>( Languages.Select( l => l.ToLower() ) ))
-                languageMap.Add( language, dbLanguages.Add( new WebApp.Models.Language { Description = language } ) );
+                languageMap.Add( language, dbLanguages.Add( new WebApp.Models.Language { Name = language } ) );
 
             // Add all genres
             var dbGenres = database.Genres;
             foreach (var genre in new HashSet<string>( Genres ))
-                genreMap.Add( genre, dbGenres.Add( new WebApp.Models.Genre { Description = genre } ) );
+                genreMap.Add( genre, dbGenres.Add( new WebApp.Models.Genre { Name = genre } ) );
 
             // Add all recordings
             var dbRecordings = database.Recordings;
@@ -296,9 +296,9 @@ namespace MovieDB
                         Genres = recording.Genres.Where( genre => !string.IsNullOrEmpty( genre ) ).Select( genre => genreMap[genre] ).ToList(),
                         Languages = recording.Languages.Select( language => languageMap[language.ToLower()] ).ToList(),
                         RentTo = string.IsNullOrEmpty( recording.Rent ) ? null : recording.Rent,
-                        Identifier = recording.UniqueId,
+                        UniqueIdentifier = recording.UniqueId,
                         CreationTime = recording.Added,
-                        Title = recording.Title,
+                        Name = recording.Title,
                         Series = series,
                         Store = store,
                     } );

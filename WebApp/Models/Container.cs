@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 
@@ -12,9 +13,16 @@ namespace WebApp.Models
     public class Container
     {
         /// <summary>
+        /// Die eindeutige Kennung der Aufbewahrung.
+        /// </summary>
+        [Required, Key]
+        [Column( "Id" )]
+        public Guid UniqueIdentifier { get; set; }
+
+        /// <summary>
         /// Der eindeutige Name der Aufbewahrung.
         /// </summary>
-        [Required, Key, StringLength( 50, MinimumLength = 1 )]
+        [Required, StringLength( 50, MinimumLength = 1 )]
         [Column( "Name" )]
         public string Name { get; set; }
 
@@ -35,9 +43,8 @@ namespace WebApp.Models
         /// <summary>
         /// Der eindeutige Name der übergeordneten Aufbewahrung.
         /// </summary>
-        [StringLength( 50 )]
         [Column( "Parent" )]
-        public string ParentName { get; set; }
+        public Guid? ParentIdentifier { get; set; }
 
         /// <summary>
         /// Der Standord relativ zur übergeordneten Aufbewahrung.
@@ -56,7 +63,7 @@ namespace WebApp.Models
         /// </summary>
         public Container()
         {
-            // Set up
+            UniqueIdentifier = Guid.NewGuid();
             Type = ContainerType.Undefined;
         }
 
@@ -70,7 +77,7 @@ namespace WebApp.Models
                 .Entity<Container>()
                 .HasOptional( c => c.ParentContainer )
                 .WithMany()
-                .HasForeignKey( c => c.ParentName )
+                .HasForeignKey( c => c.ParentIdentifier )
                 .WillCascadeOnDelete( false );
         }
     }

@@ -49,7 +49,7 @@ namespace WebApp.Controllers
         public async Task<IHttpActionResult> Create( [FromBody] GenreDescription newGenre )
         {
             // Add to collection
-            Database.Genres.Add( new Genre { Description = newGenre.Description } );
+            Database.Genres.Add( new Genre { Name = newGenre.Description } );
 
             // Process update
             await Database.SaveChangesAsync();
@@ -71,7 +71,7 @@ namespace WebApp.Controllers
             var genre = Database.Genres.Find( identifier );
 
             // Update
-            genre.Description = newData.Description;
+            genre.Name = newData.Description;
 
             // Process update
             await Database.SaveChangesAsync();
@@ -89,7 +89,7 @@ namespace WebApp.Controllers
         public async Task<IHttpActionResult> Delete( Guid identifier )
         {
             // Mark as deleted
-            Database.Entry<Genre>( new Genre { UniqueIdentifier = identifier } ).State = EntityState.Deleted;
+            Database.Entry( new Genre { UniqueIdentifier = identifier } ).State = EntityState.Deleted;
 
             // Process update
             await Database.SaveChangesAsync();

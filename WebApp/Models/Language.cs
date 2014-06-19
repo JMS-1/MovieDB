@@ -24,7 +24,7 @@ namespace WebApp.Models
         /// </summary>
         [Required, StringLength( 100 )]
         [Column( "Long" )]
-        public string Description { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Wird beim Anlegen des Datenbankmodells aufgerufen.

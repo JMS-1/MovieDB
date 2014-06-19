@@ -85,7 +85,7 @@ namespace WebApp.UnitTests
         public void CanCreateSeriesWithLinks()
         {
             var series = TestContext.Series.Add( new Series { Name = "A2" } );
-            var seriesId = series.Identifier;
+            var seriesId = series.UniqueIdentifier;
             series.Links.Add( new Link { Name = "A2", Url = "http://www.psimarron.net" } );
             series.Links.Add( new Link { Name = "B2", Url = "http://www.jochen-manns.de" } );
 
@@ -93,7 +93,7 @@ namespace WebApp.UnitTests
 
             Recreate();
 
-            var links = TestContext.Series.Include( s => s.Links ).Single( s => s.Identifier == seriesId ).Links.ToDictionary( l => l.Name );
+            var links = TestContext.Series.Include( s => s.Links ).Single( s => s.UniqueIdentifier == seriesId ).Links.ToDictionary( l => l.Name );
 
             Assert.AreEqual( 2, links.Count, "#links" );
             Assert.AreEqual( "http://www.psimarron.net", links["A2"].Url, "first" );
@@ -106,8 +106,8 @@ namespace WebApp.UnitTests
         [Test]
         public void CanCreateRecordingWithLinks()
         {
-            var recordings = TestContext.Recordings.Add( new Recording { CreationTime = DateTime.UtcNow, Title = "A9", Store = new Store() } );
-            var recordingId = recordings.Identifier;
+            var recordings = TestContext.Recordings.Add( new Recording { CreationTime = DateTime.UtcNow, Name = "A9", Store = new Store() } );
+            var recordingId = recordings.UniqueIdentifier;
             recordings.Links.Add( new Link { Name = "A9", Url = "http://www.psimarron.net" } );
             recordings.Links.Add( new Link { Name = "B9", Url = "http://www.jochen-manns.de" } );
 
@@ -115,7 +115,7 @@ namespace WebApp.UnitTests
 
             Recreate();
 
-            var links = TestContext.Recordings.Include( r => r.Links ).Single( r => r.Identifier == recordingId ).Links.ToDictionary( l => l.Name );
+            var links = TestContext.Recordings.Include( r => r.Links ).Single( r => r.UniqueIdentifier == recordingId ).Links.ToDictionary( l => l.Name );
 
             Assert.AreEqual( 2, links.Count, "#links" );
             Assert.AreEqual( "http://www.psimarron.net", links["A9"].Url, "first" );
@@ -182,7 +182,7 @@ namespace WebApp.UnitTests
             var linkCount = TestContext.Links.Count();
 
             var series = TestContext.Series.Add( new Series { Name = "A10" } );
-            var seriesId = series.Identifier;
+            var seriesId = series.UniqueIdentifier;
             series.Links.Add( new Link { Name = "A10", Url = "http://www.psimarron.net" } );
             series.Links.Add( new Link { Name = "B10", Url = "http://www.jochen-manns.de" } );
 
@@ -192,7 +192,7 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( linkCount + 2, TestContext.Links.Count(), "before" );
 
-            TestContext.Entry( new Series { Identifier = seriesId } ).State = EntityState.Deleted;
+            TestContext.Entry( new Series { UniqueIdentifier = seriesId } ).State = EntityState.Deleted;
             TestContext.SaveChanges();
 
             Recreate();
@@ -208,8 +208,8 @@ namespace WebApp.UnitTests
         {
             var linkCount = TestContext.Links.Count();
 
-            var recording = TestContext.Recordings.Add( new Recording { CreationTime = DateTime.UtcNow, Title = "A11", Store = new Store() } );
-            var recordingId = recording.Identifier;
+            var recording = TestContext.Recordings.Add( new Recording { CreationTime = DateTime.UtcNow, Name = "A11", Store = new Store() } );
+            var recordingId = recording.UniqueIdentifier;
             recording.Links.Add( new Link { Name = "A11", Url = "http://www.psimarron.net" } );
             recording.Links.Add( new Link { Name = "B11", Url = "http://www.jochen-manns.de" } );
 
@@ -219,7 +219,7 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( linkCount + 2, TestContext.Links.Count(), "before" );
 
-            TestContext.Entry( new Recording { Identifier = recordingId } ).State = EntityState.Deleted;
+            TestContext.Entry( new Recording { UniqueIdentifier = recordingId } ).State = EntityState.Deleted;
             TestContext.SaveChanges();
 
             Recreate();

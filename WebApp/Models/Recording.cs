@@ -19,14 +19,14 @@ namespace WebApp.Models
         /// </summary>
         [Required, Key]
         [Column( "Id" )]
-        public Guid Identifier { get; set; }
+        public Guid UniqueIdentifier { get; set; }
 
         /// <summary>
         /// Der Name der aufgezeichneten Sendung.
         /// </summary>
         [Required, StringLength( 200 )]
         [Column( "Name" )]
-        public string Title { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Der volle Name der aufgezeichneten Sendung.
@@ -156,7 +156,7 @@ namespace WebApp.Models
                 .Entity<Recording>()
                 .HasMany( r => r.Links )
                 .WithRequired()
-                .HasForeignKey( l => l.Identifier );
+                .HasForeignKey( l => l.UniqueIdentifier );
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace WebApp.Models
         public Recording()
         {
             Languages = new List<Language>();
-            Identifier = Guid.NewGuid();
+            UniqueIdentifier = Guid.NewGuid();
             Genres = new List<Genre>();
             Links = new List<Link>();
         }

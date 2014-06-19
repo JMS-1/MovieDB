@@ -54,10 +54,10 @@ namespace WebApp.DTO
         {
             Languages = recording.Languages.Select( l => l.UniqueIdentifier ).OrderBy( s => s ).ToArray();
             Genres = recording.Genres.Select( l => l.UniqueIdentifier ).OrderBy( s => s ).ToArray();
-            RecordingIdentifier = recording.Identifier;
+            RecordingIdentifier = recording.UniqueIdentifier;
             Series = recording.SeriesIdentifier;
             RentTo = recording.RentTo;
-            Name = recording.Title;
+            Name = recording.Name;
         }
 
         /// <summary>

@@ -38,19 +38,19 @@ namespace WebApp.UnitTests
         [Test]
         public void CanAddContainer()
         {
-            TestContext.Containers.Add(
+            var test = TestContext.Containers.Add(
                 new Container
                 {
                     Description = "test description",
                     Type = ContainerType.Box,
                     Name = "test",
-                } );
+                } ).UniqueIdentifier;
 
             TestContext.SaveChanges();
 
             Recreate();
 
-            var container = TestContext.Containers.Find( "test" );
+            var container = TestContext.Containers.Find( test );
 
             Assert.IsNotNull( container, "id" );
             Assert.AreEqual( "test", container.Name, "Name" );
@@ -166,12 +166,10 @@ namespace WebApp.UnitTests
             var retest = TestContext.Containers.AsNoTracking().Include( c => c.ParentContainer ).Single( c => c.Name == "outer" );
 
             Assert.IsNotNull( retest.ParentContainer, "before" );
-            Assert.AreEqual( "inner", retest.ParentName, "before ParentName" );
+            Assert.AreEqual( "inner", retest.ParentContainer.Name, "before ParentName" );
             Assert.AreEqual( "somewhere", retest.Location, "before Location" );
 
-            var delete = new Container { Name = "inner" };
-
-            TestContext.Entry( delete ).State = EntityState.Deleted;
+            TestContext.Entry( new Container {UniqueIdentifier = inner.UniqueIdentifier } ).State = EntityState.Deleted;
 
             TestContext.SaveChanges();
 
@@ -180,7 +178,7 @@ namespace WebApp.UnitTests
             retest = TestContext.Containers.Include( c => c.ParentContainer ).Single( c => c.Name == "outer" );
 
             Assert.IsNull( retest.ParentContainer, "after" );
-            Assert.IsNull( retest.ParentName, "after ParentName" );
+            Assert.IsNull( retest.ParentIdentifier, "after ParentName" );
             Assert.IsNull( retest.Location, "after Location" );
         }
     }

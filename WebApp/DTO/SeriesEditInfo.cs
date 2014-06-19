@@ -56,7 +56,7 @@ namespace WebApp.DTO
                 {
                     CanBeDeleted = (numberOfRecordings < 1) && (numberOfChildren < 1),
                     ParentIdentifier = series.ParentIdentifier,
-                    UniqueIdentifier = series.Identifier,
+                    UniqueIdentifier = series.UniqueIdentifier,
                     Description = series.Description,
                     Name = series.Name,
                 };

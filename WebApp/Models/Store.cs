@@ -17,7 +17,7 @@ namespace WebApp.Models
         /// </summary>
         [Required, Key]
         [Column( "Id" )]
-        public Guid Identifier { get; set; }
+        public Guid UniqueIdentifier { get; set; }
 
         /// <summary>
         /// Die Art des Mediums
@@ -29,9 +29,8 @@ namespace WebApp.Models
         /// <summary>
         /// Der eindeutige Name der zugehörigen Aufbewahrung.
         /// </summary>
-        [StringLength( 50 )]
         [Column( "Container" )]
-        public string ContainerName { get; set; }
+        public Guid? ContainerIdentifier { get; set; }
 
         /// <summary>
         /// Der Standord relativ zur Aufbewahrung.
@@ -50,7 +49,7 @@ namespace WebApp.Models
         /// </summary>
         public Store()
         {
-            Identifier = Guid.NewGuid();
+            UniqueIdentifier = Guid.NewGuid();
         }
 
         /// <summary>
@@ -63,7 +62,7 @@ namespace WebApp.Models
                 .Entity<Store>()
                 .HasOptional( s => s.Container )
                 .WithMany()
-                .HasForeignKey( s => s.ContainerName )
+                .HasForeignKey( s => s.ContainerIdentifier )
                 .WillCascadeOnDelete( false );
         }
     }

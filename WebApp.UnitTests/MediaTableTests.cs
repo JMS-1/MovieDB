@@ -41,8 +41,8 @@ namespace WebApp.UnitTests
         {
             var id = Guid.NewGuid();
 
-            TestContext.Stores.Add( new Store { Identifier = id, Location = "A1", Type = StoreType.DVD } );
-            TestContext.Stores.Add( new Store { Identifier = id, Location = "B1", Type = StoreType.DVD } );
+            TestContext.Stores.Add( new Store { UniqueIdentifier = id, Location = "A1", Type = StoreType.DVD } );
+            TestContext.Stores.Add( new Store { UniqueIdentifier = id, Location = "B1", Type = StoreType.DVD } );
             TestContext.SaveChanges();
         }
 
@@ -89,27 +89,27 @@ namespace WebApp.UnitTests
         public void DeletingTheContainerJustResetsTheReference()
         {
             var container = TestContext.Containers.Add( new Container { Name = "A2", Type = ContainerType.Box } );
-            var media = TestContext.Stores.Add( new Store { Type = StoreType.DVD, Location = "1L", Container = container } ).Identifier;
+            var media = TestContext.Stores.Add( new Store { Type = StoreType.DVD, Location = "1L", Container = container } ).UniqueIdentifier;
 
             TestContext.SaveChanges();
 
             Recreate();
 
-            var retest = TestContext.Stores.AsNoTracking().Include( m => m.Container ).Single( m => m.Identifier == media );
+            var retest = TestContext.Stores.AsNoTracking().Include( m => m.Container ).Single( m => m.UniqueIdentifier == media );
 
             Assert.IsNotNull( retest.Container, "before" );
-            Assert.AreEqual( "A2", retest.ContainerName, "before ContainerName" );
+            Assert.AreEqual( "A2", retest.Container.Name, "before ContainerName" );
             Assert.AreEqual( "1L", retest.Location, "before Location" );
 
-            TestContext.Entry( new Container { Name = "A2" } ).State = EntityState.Deleted;
+            TestContext.Entry( new Container { UniqueIdentifier = container.UniqueIdentifier } ).State = EntityState.Deleted;
             TestContext.SaveChanges();
 
             Recreate();
 
-            retest = TestContext.Stores.AsNoTracking().Include( m => m.Container ).Single( m => m.Identifier == media );
+            retest = TestContext.Stores.AsNoTracking().Include( m => m.Container ).Single( m => m.UniqueIdentifier == media );
 
             Assert.IsNull( retest.Container, "after" );
-            Assert.IsNull( retest.ContainerName, "after ContainerName" );
+            Assert.IsNull( retest.Container, "after ContainerName" );
             Assert.AreEqual( "1L", retest.Location, "after Location" );
 
         }

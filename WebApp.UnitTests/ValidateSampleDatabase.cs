@@ -58,7 +58,7 @@ namespace WebApp.UnitTests
             var recordings =
                 TestContext
                     .Recordings
-                    .Join( series, r => r.SeriesIdentifier, s => s.Identifier, ( r, s ) => r )
+                    .Join( series, r => r.SeriesIdentifier, s => s.UniqueIdentifier, ( r, s ) => r )
                     .Include( r => r.Languages )
                     .Include( r => r.Genres )
                     .OrderBy( r => r.FullName )
@@ -67,7 +67,7 @@ namespace WebApp.UnitTests
                     .ToArray();
 
             Assert.AreEqual( 12, recordings.Length, "#recordings" );
-            Assert.AreEqual( "05 Sontar-Ha", recordings[4].Title, "title" );
+            Assert.AreEqual( "05 Sontar-Ha", recordings[4].Name, "title" );
             Assert.AreEqual( "Doctor Who > Confidential > Series 04 > 05 Sontar-Ha", recordings[4].FullName, "full name" );
         }
     }

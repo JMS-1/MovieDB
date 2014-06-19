@@ -26,7 +26,7 @@ namespace WebApp.Models
         /// </summary>
         [Required, Key]
         [Column( "For", Order = 0 )]
-        public Guid Identifier { get; set; }
+        public Guid UniqueIdentifier { get; set; }
 
         /// <summary>
         /// Der eigentliche Verweis.

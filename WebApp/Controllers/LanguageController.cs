@@ -49,7 +49,7 @@ namespace WebApp.Controllers
         public async Task<IHttpActionResult> Create( [FromBody] LanguageDescription newLanguage )
         {
             // Add to collection
-            Database.Languages.Add( new Language { Description = newLanguage.Description } );
+            Database.Languages.Add( new Language { Name = newLanguage.Description } );
 
             // Process update
             await Database.SaveChangesAsync();
@@ -71,7 +71,7 @@ namespace WebApp.Controllers
             var language = Database.Languages.Find( identifier );
 
             // Update
-            language.Description = newData.Description;
+            language.Name = newData.Description;
 
             // Process update
             await Database.SaveChangesAsync();
@@ -89,7 +89,7 @@ namespace WebApp.Controllers
         public async Task<IHttpActionResult> Delete( Guid identifier )
         {
             // Mark as deleted
-            Database.Entry<Language>( new Language { UniqueIdentifier = identifier } ).State = EntityState.Deleted;
+            Database.Entry( new Language { UniqueIdentifier = identifier } ).State = EntityState.Deleted;
 
             // Process update
             await Database.SaveChangesAsync();

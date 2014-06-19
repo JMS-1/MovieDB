@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -19,14 +20,14 @@ namespace WebApp.Controllers
         /// <summary>
         /// Ermittelt eine einzelne Aufbewahrung.
         /// </summary>
-        /// <param name="name">Der eindeutige Name der Aufbewahrung.</param>
+        /// <param name="identifier">Der eindeutige Name der Aufbewahrung.</param>
         /// <returns>Die gewünschte Aufbewahrung.</returns>
-        [Route( "" )]
+        [Route( "{identifier}" )]
         [HttpGet]
-        public ContainerEditInfo Find( string name )
+        public ContainerEditInfo Find( Guid identifier )
         {
             // Find the one
-            var container = Database.Containers.Find( name );
+            var container = Database.Containers.Find( identifier );
 
             // Report
             if (container == null)
@@ -36,13 +37,13 @@ namespace WebApp.Controllers
             var children =
                 Database
                     .Containers
-                    .Where( c => c.ParentContainer.Name == container.Name )
+                    .Where( c => c.ParentIdentifier == container.UniqueIdentifier )
                     .OrderBy( c => c.Name );
             var recordings =
                 Database
                     .Recordings
                     .Include( r => r.Store )
-                    .Where( r => r.Store.ContainerName == container.Name )
+                    .Where( r => r.Store.ContainerIdentifier == container.UniqueIdentifier )
                     .OrderBy( r => r.FullName );
 
             // Construct
@@ -60,7 +61,7 @@ namespace WebApp.Controllers
             // Add to collection
             Database.Containers.Add( new Container
             {
-                ParentName = newContainer.ParentContainerName,
+                ParentIdentifier = newContainer.ParentContainer,
                 Description = newContainer.Description,
                 Location = newContainer.ParentLocation,
                 Type = newContainer.ContainerType,
@@ -79,15 +80,15 @@ namespace WebApp.Controllers
         /// </summary>
         /// <param name="identifier">Der eindeutige Name der Aufbewahrung.</param>
         /// <param name="newData">Die neuen Daten für die Aufbewahrung.</param>
-        [Route( "" )]
+        [Route( "{identifier}" )]
         [HttpPut]
-        public async Task<IHttpActionResult> Update( string name, [FromBody] ContainerEdit newData )
+        public async Task<IHttpActionResult> Update( Guid identifier, [FromBody] ContainerEdit newData )
         {
             // Locate
-            var container = Database.Containers.Find( name );
+            var container = Database.Containers.Find( identifier );
 
             // Update
-            container.ParentName = newData.ParentContainerName;
+            container.ParentIdentifier = newData.ParentContainer;
             container.Description = newData.Description;
             container.Location = newData.ParentLocation;
             container.Type = newData.ContainerType;
@@ -103,13 +104,13 @@ namespace WebApp.Controllers
         /// <summary>
         /// Entfernt eine existierende Aufbewahrung.
         /// </summary>
-        /// <param name="name">Der eindeutige Name der Aufbewahrung.</param>
-        [Route( "" )]
+        /// <param name="identifier">Der eindeutige Name der Aufbewahrung.</param>
+        [Route( "{identifier}" )]
         [HttpDelete]
-        public async Task<IHttpActionResult> Delete( string name )
+        public async Task<IHttpActionResult> Delete( Guid identifier )
         {
             // Mark as deleted
-            Database.Entry<Container>( new Container { Name = name } ).State = EntityState.Deleted;
+            Database.Entry( new Container { UniqueIdentifier = identifier } ).State = EntityState.Deleted;
 
             // Process update
             await Database.SaveChangesAsync();

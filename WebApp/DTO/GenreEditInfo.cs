@@ -41,7 +41,7 @@ namespace WebApp.DTO
                 {
                     CanBeDeleted = numberOfRecordings < 1,
                     Identifier = genre.UniqueIdentifier,
-                    DisplayName = genre.Description,
+                    DisplayName = genre.Name,
                 };
         }
     }

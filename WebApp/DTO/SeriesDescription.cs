@@ -45,7 +45,7 @@ namespace WebApp.DTO
                 new SeriesDescription
                 {
                     ParentIdentifier = series.ParentIdentifier,
-                    UniqueIdentifier = series.Identifier,
+                    UniqueIdentifier = series.UniqueIdentifier,
                     FullName = series.FullName,
                     Name = series.Name,
                 };

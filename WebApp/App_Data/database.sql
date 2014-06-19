@@ -1,14 +1,20 @@
 ﻿-- Container
 
 	CREATE TABLE [Containers] (
-		[Name]				NVARCHAR (50)   NOT NULL,
-		[Type]				TINYINT         NOT NULL,
-		[Description]		NVARCHAR (2000) NULL,
-		[Parent]			NVARCHAR (50)   NULL,
-		[ParentLocation]	NVARCHAR (100)  NULL,
-		PRIMARY KEY CLUSTERED ([Name]),
-		CONSTRAINT [FK_Containers_Parent] FOREIGN KEY ([Parent]) REFERENCES [Containers] ([Name])
+		[Id]				UNIQUEIDENTIFIER	NOT NULL,
+		[Name]				NVARCHAR (50)		NOT NULL,
+		[Type]				TINYINT				NOT NULL,
+		[Description]		NVARCHAR (2000)		NULL,
+		[Parent]			UNIQUEIDENTIFIER	NULL,
+		[ParentLocation]	NVARCHAR (100)		NULL,
+		PRIMARY KEY CLUSTERED ([Id]),
+		CONSTRAINT [U_Containers_Name] UNIQUE ([Name]) ,
+		CONSTRAINT [FK_Containers_Parent] FOREIGN KEY ([Parent]) REFERENCES [Containers] ([Id])
 	);
+	GO
+
+	CREATE NONCLUSTERED INDEX [IX_Container_Parent]
+		ON [Containers]([Parent]);
 	GO
 
 	CREATE TRIGGER [Container_Delete]
@@ -17,8 +23,8 @@
 		AS
 		BEGIN
 			SET NoCount ON
-			UPDATE [Containers] SET [Parent] = NULL, [ParentLocation] = NULL WHERE [Parent] IN (SELECT Name FROM DELETED)
-			DELETE FROM [Containers] WHERE [Name] IN (SELECT Name FROM DELETED)
+			UPDATE [Containers] SET [Parent] = NULL, [ParentLocation] = NULL WHERE [Parent] IN (SELECT [Id] FROM DELETED)
+			DELETE FROM [Containers] WHERE [Id] IN (SELECT [Id] FROM DELETED)
 		END
 	GO
 
@@ -65,12 +71,12 @@
 -- Media
 
 	CREATE TABLE [Media] (
-		[Id]        UNIQUEIDENTIFIER NOT NULL,
-		[Type]      TINYINT          NOT NULL,
-		[Container] NVARCHAR (50)    NULL,
-		[Position]  NVARCHAR (100)   NULL,
+		[Id]		UNIQUEIDENTIFIER	NOT NULL,
+		[Type]		TINYINT				NOT NULL,
+		[Container]	UNIQUEIDENTIFIER	NULL,
+		[Position]	NVARCHAR (100)		NULL,
 		PRIMARY KEY CLUSTERED ([Id]),
-		CONSTRAINT [FK_Media_Container] FOREIGN KEY ([Container]) REFERENCES [Containers] ([Name]) ON DELETE SET NULL
+		CONSTRAINT	[FK_Media_Container]	FOREIGN KEY	([Container])	REFERENCES [Containers] ([Id])	ON DELETE SET NULL
 	);
 	GO
 

@@ -30,17 +30,17 @@ namespace WebApp.UnitTests
         {
             var languages = TestContext.Languages;
 
-            var de = languages.Add( new Language { Description = "Deutsch" } ).UniqueIdentifier;
-            var en = languages.Add( new Language { Description = "Englisch" } ).UniqueIdentifier;
-            var fr = languages.Add( new Language { Description = "Französisch" } ).UniqueIdentifier;
+            var de = languages.Add( new Language { Name = "Deutsch" } ).UniqueIdentifier;
+            var en = languages.Add( new Language { Name = "Englisch" } ).UniqueIdentifier;
+            var fr = languages.Add( new Language { Name = "Französisch" } ).UniqueIdentifier;
 
             TestContext.SaveChanges();
 
             Recreate();
 
-            Assert.AreEqual( "Deutsch", TestContext.Languages.Find( de ).Description, "de" );
+            Assert.AreEqual( "Deutsch", TestContext.Languages.Find( de ).Name, "de" );
 
-            var map = TestContext.Languages.ToDictionary( l => l.UniqueIdentifier, l => l.Description );
+            var map = TestContext.Languages.ToDictionary( l => l.UniqueIdentifier, l => l.Name );
 
             Assert.AreEqual( "Deutsch", map[de], "de" );
             Assert.AreEqual( "Englisch", map[en], "en" );
@@ -57,7 +57,7 @@ namespace WebApp.UnitTests
         [ExpectedException( typeof( DbEntityValidationException ) )]
         public void LongNameMustHaveBetween1And100Charaters( string longName )
         {
-            TestContext.Languages.Add( new Language { Description = longName } );
+            TestContext.Languages.Add( new Language { Name = longName } );
             TestContext.SaveChanges();
         }
 
@@ -68,8 +68,8 @@ namespace WebApp.UnitTests
         [ExpectedException( typeof( DbUpdateException ) )]
         public void LongNameMustBeUnique()
         {
-            TestContext.Languages.Add( new Language { Description = "long" } );
-            TestContext.Languages.Add( new Language { Description = "long" } );
+            TestContext.Languages.Add( new Language { Name = "long" } );
+            TestContext.Languages.Add( new Language { Name = "long" } );
             TestContext.SaveChanges();
         }
     }

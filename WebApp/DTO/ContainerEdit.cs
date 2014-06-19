@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -33,7 +34,7 @@ namespace WebApp.DTO
         /// Die übergeordnete Aufbewahrung.
         /// </summary>
         [DataMember( Name = "parent" )]
-        public string ParentContainerName { get; set; }
+        public Guid? ParentContainer { get; set; }
 
         /// <summary>
         /// Die relative Position innerhalb der übergeordneten Aufbewahrung.
