@@ -15,23 +15,6 @@
 .filterArea {
   background-color: lightcyan;
 }
-.genreFilter {
-  margin-bottom: 10px;
-}
-.genreFilter #genreFilter {
-  margin: 0px 5px 0px 15px;
-}
-.genreFilter .genreFilterHeader {
-  margin: 0px 5px 0px 10px;
-  font-weight: bold;
-  font-size: small;
-}
-.genreFilter label {
-  width: 15em;
-  margin: 2px !important;
-  padding: 2px !important;
-  font-size: small !important;
-}
 .languageFilter {
   clear: both;
   float: left;
@@ -129,5 +112,18 @@
 .deleteConfirm {
   border: 2px solid red;
   color: red !important;
+}
+.genreFilterHeader {
+  font-weight: bold;
+  font-size: small;
+}
+#genreFilter {
+  margin-left: 10px;
+  padding: 2px 5px 5px 5px !important;
+}
+.genreFilter label {
+  font-size: small !important;
+  margin-right: 10px !important;
+  width: 17.5em;
 }
 /*# sourceMappingURL=appStyles.css.map */

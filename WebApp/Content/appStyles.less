@@ -26,27 +26,6 @@
     background-color: lightcyan;
 }
 
-.genreFilter {
-    margin-bottom: 10px;
-
-    #genreFilter {
-        margin: 0px 5px 0px 15px;
-    }
-
-    .genreFilterHeader {
-        margin: 0px 5px 0px 10px;
-        font-weight: bold;
-        font-size: small;
-    }
-
-    label {
-        width: 15em;
-        margin: 2px !important;
-        padding: 2px !important;
-        font-size: small !important;
-    }
-}
-
 .languageFilter {
     clear: both;
     float: left;
@@ -178,4 +157,32 @@
 }
 
 .descriptionEdit {
+}
+
+@filterAccordionFont: small;
+@filterAccordionWeight: bold;
+@filterAccordionContentPadding: 2px 5px 5px 5px;
+@filterAccordionContentMargin: 10px;
+@filterAccordionContentWidth: 17.5em;
+@filterAccordionContentFont: small;
+@filterAccordionContentMargin: 10px;
+
+// Die Auswahl der Kategorien für die Suche
+
+.genreFilterHeader {
+    font-weight: @filterAccordionWeight;
+    font-size: @filterAccordionFont;
+}
+
+#genreFilter {
+    margin-left: @filterAccordionContentMargin;
+    padding: @filterAccordionContentPadding !important;
+}
+
+.genreFilter {
+    label {
+        font-size: @filterAccordionContentFont !important;
+        margin-right: @filterAccordionContentMargin !important;
+        width: @filterAccordionContentWidth;
+    }
 }

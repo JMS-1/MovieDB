@@ -108,6 +108,8 @@ var GenreSelector = (function () {
 
         this.label = $('<label />', { 'for': id, text: genre.name }).appendTo(container);
         this.description = genre.name;
+
+        this.checkbox.button();
     }
     GenreSelector.prototype.reset = function () {
         if (this.checkbox.prop('checked')) {
@@ -132,7 +134,6 @@ var GenreSelectors = (function () {
     function GenreSelectors(containerSelector) {
         this.genres = {};
         this.container = $(containerSelector);
-        this.container.buttonset();
     }
     GenreSelectors.prototype.initialize = function (genres, onChange) {
         var _this = this;
@@ -142,8 +143,6 @@ var GenreSelectors = (function () {
         $.each(genres, function (index, genre) {
             return _this.genres[genre.id] = new GenreSelector(genre, _this.container, onChange);
         });
-
-        this.container.buttonset('refresh');
     };
 
     GenreSelectors.prototype.setCounts = function (statistics) {
@@ -154,16 +153,12 @@ var GenreSelectors = (function () {
         $.each(statistics, function (index, genre) {
             return _this.genres[genre.id].setCount(genre.count);
         });
-
-        this.container.buttonset('refresh');
     };
 
     GenreSelectors.prototype.resetFilter = function () {
         this.foreachSelected(function (checkbox) {
-            return checkbox.prop('checked', false);
+            return checkbox.prop('checked', false).button('refresh');
         });
-
-        this.container.buttonset('refresh');
     };
 
     GenreSelectors.prototype.foreachSelected = function (processor) {

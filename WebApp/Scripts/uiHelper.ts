@@ -98,6 +98,8 @@ class GenreSelector {
 
         this.label = $('<label />', { 'for': id, text: genre.name }).appendTo(container);
         this.description = genre.name;
+
+        this.checkbox.button();
     }
 
     private checkbox: JQuery;
@@ -132,7 +134,6 @@ class GenreSelectors {
 
     constructor(containerSelector: string) {
         this.container = $(containerSelector);
-        this.container.buttonset();
     }
 
     initialize(genres: IGenreContract[], onChange: () => void): void {
@@ -140,21 +141,15 @@ class GenreSelectors {
         this.genres = {};
 
         $.each(genres, (index, genre) => this.genres[genre.id] = new GenreSelector(genre, this.container, onChange));
-
-        this.container.buttonset('refresh');
     }
 
     setCounts(statistics: IGenreStatisticsContract[]): void {
         $.each(this.genres, (key, genre: GenreSelector) => genre.reset());
         $.each(statistics, (index, genre) => (<GenreSelector>this.genres[genre.id]).setCount(genre.count));
-
-        this.container.buttonset('refresh');
     }
 
     resetFilter(): void {
-        this.foreachSelected(checkbox => checkbox.prop('checked', false));
-
-        this.container.buttonset('refresh');
+        this.foreachSelected(checkbox => checkbox.prop('checked', false).button('refresh'));
     }
 
     foreachSelected(processor: (checkbox: JQuery) => void): void {
