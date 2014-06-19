@@ -258,7 +258,7 @@ class ContainerEditor {
 
         var existing = this.chooser().find('option');
 
-        for (var i = 0; i < existing.length; i++)
+        for (var i = 1; i < existing.length; i++)
             if (existing[i].innerText == newData.name)
                 if (existing[i].getAttribute('value') != this.identifier)
                     return "Der Name wird bereits verwendet";

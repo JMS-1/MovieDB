@@ -363,7 +363,17 @@ var SuggestionListEditor = (function () {
 
         var isValid = true;
 
-        if (Tools.setError(this.nameField(), this.validateName(newData)))
+        var nameError = this.validateName(newData);
+        if (nameError == null) {
+            var existing = this.chooser().find('option');
+
+            for (var i = 1; i < existing.length; i++)
+                if (existing[i].innerHTML == newData.name)
+                    if (existing[i].getAttribute('value') != this.identifier)
+                        nameError = "Der Name wird bereits verwendet";
+        }
+
+        if (Tools.setError(this.nameField(), nameError))
             isValid = false;
 
         this.saveButton().button('option', 'disabled', !isValid);
