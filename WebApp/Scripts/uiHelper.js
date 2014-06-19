@@ -98,10 +98,15 @@ var Tools = (function () {
 var GenreSelector = (function () {
     function GenreSelector(genre, container, onChange) {
         var id = 'genreCheckbox' + genre.id;
-        var block = $('<div class="withLabel" />').appendTo(container);
 
-        this.checkbox = $('<input />', { type: 'checkbox', id: id, name: genre.id }).appendTo(block).change(onChange);
-        this.label = $('<label />', { 'for': id, text: genre.name }).appendTo(block);
+        this.checkbox = $('<input />', {
+            'class': 'filterGenreToggle',
+            type: 'checkbox',
+            name: genre.id,
+            id: id
+        }).appendTo(container).change(onChange).attr('data-text', genre.name);
+
+        this.label = $('<label />', { 'for': id, text: genre.name }).appendTo(container);
         this.description = genre.name;
     }
     GenreSelector.prototype.reset = function () {
@@ -127,6 +132,7 @@ var GenreSelectors = (function () {
     function GenreSelectors(containerSelector) {
         this.genres = {};
         this.container = $(containerSelector);
+        this.container.buttonset();
     }
     GenreSelectors.prototype.initialize = function (genres, onChange) {
         var _this = this;
@@ -136,6 +142,8 @@ var GenreSelectors = (function () {
         $.each(genres, function (index, genre) {
             return _this.genres[genre.id] = new GenreSelector(genre, _this.container, onChange);
         });
+
+        this.container.buttonset('refresh');
     };
 
     GenreSelectors.prototype.setCounts = function (statistics) {
@@ -146,12 +154,16 @@ var GenreSelectors = (function () {
         $.each(statistics, function (index, genre) {
             return _this.genres[genre.id].setCount(genre.count);
         });
+
+        this.container.buttonset('refresh');
     };
 
     GenreSelectors.prototype.resetFilter = function () {
         this.foreachSelected(function (checkbox) {
             return checkbox.prop('checked', false);
         });
+
+        this.container.buttonset('refresh');
     };
 
     GenreSelectors.prototype.foreachSelected = function (processor) {

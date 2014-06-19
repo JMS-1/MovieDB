@@ -239,18 +239,24 @@ class RecordingFilter extends SearchRequestContract {
 
     // Die Auswahl der Art von Aufzeichnung wurde verändert
     private onGenreChanged(query: boolean): void {
+        var selected: string[] = [];
+
         this.genres = [];
         this.page = 0;
 
         // Erst einmal sammeln wir alle Arten, die angewählt sind
-        this.genreMap.foreachSelected(checkbox => this.genres.push(checkbox.attr('name')));
+        this.genreMap.foreachSelected(checkbox => {
+            this.genres.push(checkbox.attr('name'));
+
+            selected.push(checkbox.attr('data-text'));
+        });
 
         // Dann machen wir daraus einen Gesamttext als schnelle Übersicht für den Anwender
         var genreFilterHeader = $('#genreFilterHeader');
         if (this.genres.length < 1)
             genreFilterHeader.text('(egal)');
         else
-            genreFilterHeader.text(this.genres.join(' und '));
+            genreFilterHeader.text(selected.join(' und '));
 
         if (query)
             this.query();

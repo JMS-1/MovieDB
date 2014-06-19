@@ -162,10 +162,9 @@
 
         <div id="queryMode" class="operationMode invisible">
             <div class="filterArea">
-                <div class="genreFilter">
-                    Genre: <span id="genreFilterHeader">(egal)</span><div id="genreFilter"></div>
+                <div id="genreFilterCollapsable" class="genreFilter">
+                    <h3 class="genreFilterHeader">Genre: <span id="genreFilterHeader">(egal)</span></h3><div id="genreFilter"></div>
                 </div>
-
                 <div class="languageFilter">
                     <span class="languageFilterLabel">Sprache: </span><span id="languageFilter"></span>
                 </div>
@@ -315,8 +314,11 @@
 
             <div class="editNavigation">
                 <a id="updateRecording" href="javascript:void(0)" class="editButton">Speichern und zurück</a>
+                <a id="cloneAfterUpdateRecording" href="javascript:void(0)" class="editButton">Speichern und neue Kopie</a>
+                <a id="newAfterUpdateRecording" href="javascript:void(0)" class="editButton">Speichern und ganz neu</a>
+                <a id="cloneRecording" href="javascript:void(0)" class="editButton">Kopie erstellen</a>
                 <a id="deleteRecording" href="javascript:void(0)" class="editButton">Löschen</a>
-                <a id="gotoQuery" href="javascript:void(0)" class="navigationButton">Zurück</a>
+                <a id="gotoQuery" href="javascript:void(0)" class="editButton">Zurück</a>
             </div>
         </div>
     </div>

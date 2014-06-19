@@ -340,6 +340,12 @@ var MovieDatabase;
                 return _this.requestApplicationInformation();
             });
 
+            $('#genreFilterCollapsable').accordion({
+                active: false,
+                collapsible: true,
+                heightStyle: 'content'
+            });
+
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');
 

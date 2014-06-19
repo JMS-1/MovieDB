@@ -84,10 +84,19 @@ class Tools {
 class GenreSelector {
     constructor(genre: IGenreContract, container: JQuery, onChange: () => void) {
         var id = 'genreCheckbox' + genre.id;
-        var block = $('<div class="withLabel" />').appendTo(container);
 
-        this.checkbox = $('<input />', { type: 'checkbox', id: id, name: genre.id }).appendTo(block).change(onChange);
-        this.label = $('<label />', { 'for': id, text: genre.name }).appendTo(block);
+        this.checkbox = $('<input />',
+            {
+                'class': 'filterGenreToggle',
+                type: 'checkbox',
+                name: genre.id,
+                id: id,
+            })
+            .appendTo(container)
+            .change(onChange)
+            .attr('data-text', genre.name);
+
+        this.label = $('<label />', { 'for': id, text: genre.name }).appendTo(container);
         this.description = genre.name;
     }
 
@@ -123,6 +132,7 @@ class GenreSelectors {
 
     constructor(containerSelector: string) {
         this.container = $(containerSelector);
+        this.container.buttonset();
     }
 
     initialize(genres: IGenreContract[], onChange: () => void): void {
@@ -130,15 +140,21 @@ class GenreSelectors {
         this.genres = {};
 
         $.each(genres, (index, genre) => this.genres[genre.id] = new GenreSelector(genre, this.container, onChange));
+
+        this.container.buttonset('refresh');
     }
 
     setCounts(statistics: IGenreStatisticsContract[]): void {
         $.each(this.genres, (key, genre: GenreSelector) => genre.reset());
         $.each(statistics, (index, genre) => (<GenreSelector>this.genres[genre.id]).setCount(genre.count));
+
+        this.container.buttonset('refresh');
     }
 
     resetFilter(): void {
         this.foreachSelected(checkbox => checkbox.prop('checked', false));
+
+        this.container.buttonset('refresh');
     }
 
     foreachSelected(processor: (checkbox: JQuery) => void): void {
