@@ -107,11 +107,11 @@ class ContainerEditor {
             // Ansonsten fragen wir den Web Service immer nach dem neuesten Stand
             this.identifier = null;
 
-            $.ajax('movie/container' + choosen).done((info: IContainerEditInfoContract) => {
+            $.ajax('movie/container/' + choosen).done((info: IContainerEditInfoContract) => {
                 if (info == null)
                     return;
 
-                this.identifier = info.name;
+                this.identifier = info.id;
 
                 this.descriptionField().val(info.description);
                 this.typeField().val(info.type.toString());
@@ -216,8 +216,15 @@ class ContainerEditor {
             return 'Es muss ein Name angegeben werden';
         else if (name.length > 50)
             return 'Der Name darf maximal 50 Zeichen haben';
-        else
-            return null;
+
+        var existing = this.chooser().find('option');
+
+        for (var i = 0; i < existing.length; i++)
+            if (existing[i].innerText == newData.name)
+                if (existing[i].getAttribute('value') != this.identifier)
+                    return "Der Name wird bereits verwendet";
+
+        return null;
     }
 
     private validateDescription(newData: IContainerEditContract): string {

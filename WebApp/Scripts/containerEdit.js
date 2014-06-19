@@ -119,11 +119,11 @@ var ContainerEditor = (function () {
             // Ansonsten fragen wir den Web Service immer nach dem neuesten Stand
             this.identifier = null;
 
-            $.ajax('movie/container' + choosen).done(function (info) {
+            $.ajax('movie/container/' + choosen).done(function (info) {
                 if (info == null)
                     return;
 
-                _this.identifier = info.name;
+                _this.identifier = info.id;
 
                 _this.descriptionField().val(info.description);
                 _this.typeField().val(info.type.toString());
@@ -227,8 +227,15 @@ var ContainerEditor = (function () {
             return 'Es muss ein Name angegeben werden';
         else if (name.length > 50)
             return 'Der Name darf maximal 50 Zeichen haben';
-        else
-            return null;
+
+        var existing = this.chooser().find('option');
+
+        for (var i = 0; i < existing.length; i++)
+            if (existing[i].innerText == newData.name)
+                if (existing[i].getAttribute('value') != this.identifier)
+                    return "Der Name wird bereits verwendet";
+
+        return null;
     };
 
     ContainerEditor.prototype.validateDescription = function (newData) {

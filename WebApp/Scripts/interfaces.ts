@@ -162,6 +162,8 @@ interface IContainerRecordingContract {
 }
 
 interface IContainerEditInfoContract {
+    id: string;
+
     name: string;
 
     description: string;
