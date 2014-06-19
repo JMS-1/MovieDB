@@ -43,7 +43,7 @@ namespace WebApp.DTO
         /// Die Namen aller Aufbewahrungen.
         /// </summary>
         [DataMember( Name = "containers" )]
-        public string[] ContainerNames { get; set; }
+        public ContainerDescription[] Containers { get; set; }
 
         /// <summary>
         /// Das Trennzeichen für die Trennung der einzelnen Ebenen in Serien.

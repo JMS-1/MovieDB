@@ -44,8 +44,8 @@ class Tools {
         }
     }
 
-    static fillStringSelection(selector: JQuery, items: string[], nullSelection: string): void {
-        Tools.fillSelection(selector, items, nullSelection, s => s, s=> s);
+    static fillMappingSelection(selector: JQuery, items: IMappingContract[], nullSelection: string): void {
+        Tools.fillSelection(selector, items, nullSelection, item => item.id, item=> item.name);
     }
 
     static fillSeriesSelection(selector: JQuery, series: ISeriesMappingContract[], nullSelection: string): void {
@@ -76,8 +76,8 @@ class GenreSelector {
         var block = $('<div class="withLabel" />').appendTo(container);
 
         this.checkbox = $('<input />', { type: 'checkbox', id: id, name: genre.id }).appendTo(block).change(onChange);
-        this.label = $('<label />', { 'for': id, text: genre.description }).appendTo(block);
-        this.description = genre.description;
+        this.label = $('<label />', { 'for': id, text: genre.name }).appendTo(block);
+        this.description = genre.name;
     }
 
     private checkbox: JQuery;
@@ -143,8 +143,8 @@ class LanguageSelector {
         var block = $('<div class="withLabel" />').appendTo(container);
 
         this.radio = $('<input />', { type: 'radio', id: id, name: LanguageSelector.optionGroupName, value: language.id }).appendTo(block);
-        this.label = $('<label />', { 'for': id, text: language.description }).appendTo(block);
-        this.description = language.description;
+        this.label = $('<label />', { 'for': id, text: language.name }).appendTo(block);
+        this.description = language.name;
     }
 
     private radio: JQuery;
@@ -218,7 +218,7 @@ class SeriesSelectors {
     }
 }
 
-class MultiValueEditor<T> {
+class MultiValueEditor<T extends IMappingContract> {
     constructor(containerSelector: string, onChange: () => void) {
         this.onChange = onChange;
 
@@ -259,7 +259,7 @@ class MultiValueEditor<T> {
         }
     }
 
-    reset(items: T[], idSelector: (item: T) => string, nameSelector: (item: T) => string): void {
+    reset(items: T[]): void {
         // Zuerst merken wir uns mal die aktuelle Einstellung
         var previousValue = this.val();
 
@@ -270,8 +270,8 @@ class MultiValueEditor<T> {
         $.each(items, (index, item) => {
             var id = "mve" + (++MultiValueEditor.idCounter);
 
-            var checkbox = $('<input />', { type: 'checkbox', id: id, value: idSelector(item) }).appendTo(this.container).click(() => this.onChange());
-            var label = $('<label />', { 'for': id, text: nameSelector(item) }).appendTo(this.container);
+            var checkbox = $('<input />', { type: 'checkbox', id: id, value: item.id }).appendTo(this.container).click(() => this.onChange());
+            var label = $('<label />', { 'for': id, text: item.name }).appendTo(this.container);
         });
 
         // Alle Werte, die wir ausgewählt haben, werden wieder aktiviert - sofern sie bekannt sind
@@ -291,8 +291,6 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
         this.saveButton().click(() => this.save());
         this.cancelButton().click(() => this.close());
 
-        this.descriptionField().on('change', () => this.validate());
-        this.descriptionField().on('input', () => this.validate());
         this.nameField().on('change', () => this.validate());
         this.nameField().on('input', () => this.validate());
         this.chooser().change(() => this.choose());
@@ -300,7 +298,7 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
 
     private reload: () => void;
 
-    private createNew: boolean = null;
+    private identifier: string = null;
 
     private confirmedDelete: DeleteButton;
 
@@ -325,8 +323,8 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
     private createUpdate(): TUpdateContext {
         var newData: IMappingContract =
             {
-                description: (this.descriptionField().val() || '').trim(),
-                id: (this.nameField().val() || '').trim(),
+                name: (this.nameField().val() || '').trim(),
+                id: this.identifier,
             };
 
         // Der Downcast ist etwas unsauber, aber wir wissen hier genau, was wir tun
@@ -334,7 +332,7 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
     }
 
     reset(list: TUpdateContext[]): void {
-        Tools.fillSelection(this.chooser(), list, this.createNewOption(), i => i.id, i=> i.description);
+        Tools.fillSelection(this.chooser(), list, this.createNewOption(), i => i.id, i=> i.name);
     }
 
     private validate(newData: TUpdateContext = null): boolean {
@@ -344,8 +342,6 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
         var isValid = true;
 
         if (Tools.setError(this.nameField(), this.validateName(newData)))
-            isValid = false;
-        if (Tools.setError(this.descriptionField(), this.validateDescription(newData)))
             isValid = false;
 
         this.saveButton().button('option', 'disabled', !isValid);
@@ -362,28 +358,25 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
 
         this.confirmedDelete.disable();
 
-        this.nameField().prop('disabled', choosen.length > 0);
         this.nameField().val('');
-        this.descriptionField().val('');
 
         if (choosen.length < 1) {
             // Einfach ist es, wenn wir etwas neu Anlegen
-            this.createNew = true;
+            this.identifier = '';
 
             this.validate();
         }
         else {
             // Ansonsten fragen wir den Web Service immer nach dem neuesten Stand
-            this.createNew = null;
+            this.identifier = null;
 
             $.ajax('movie/' + this.controllerName() + '/' + choosen).done((info: TInfoContract) => {
                 if (info == null)
                     return;
 
-                this.createNew = false;
+                this.identifier = info.id;
 
-                this.nameField().val(info.id);
-                this.descriptionField().val(info.name);
+                this.nameField().val(info.name);
 
                 if (info.unused)
                     this.confirmedDelete.enable();
@@ -395,9 +388,9 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
     }
 
     private remove(): void {
-        if (this.createNew == null)
+        if (this.identifier == null)
             return;
-        if (this.createNew)
+        if (this.identifier.length < 1)
             return;
 
         var newData = this.createUpdate();
@@ -414,7 +407,7 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
     }
 
     private save(): void {
-        if (this.createNew == null)
+        if (this.identifier == null)
             return;
 
         var newData = this.createUpdate();
@@ -424,12 +417,12 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
             return;
 
         var url = 'movie/' + this.controllerName();
-        if (!this.createNew)
+        if (this.identifier.length > 0)
             url += '/' + newData.id;
 
         $
             .ajax(url, {
-                type: this.createNew ? 'POST' : 'PUT',
+                type: (this.identifier.length < 1) ? 'POST' : 'PUT',
                 contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify(newData),
             })
@@ -467,19 +460,11 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
     }
 
     private nameField(): JQuery {
-        return this.dialog().find('.editKey');
-    }
-
-    private descriptionField(): JQuery {
         return this.dialog().find('.editName');
     }
 
     validateName(newData: TUpdateContext): string {
         throw 'Bitte validateName implementieren';
-    }
-
-    validateDescription(newData: TUpdateContext): string {
-        throw 'Bitte validateDescription implementieren';
     }
 }
 

@@ -99,10 +99,10 @@ var MovieDatabase;
             this.allLanguages = {};
 
             $.each(info.genres, function (index, genre) {
-                return _this.allGenres[genre.id] = genre.description;
+                return _this.allGenres[genre.id] = genre.name;
             });
             $.each(info.languages, function (index, language) {
-                return _this.allLanguages[language.id] = language.description;
+                return _this.allLanguages[language.id] = language.name;
             });
 
             this.currentApplicationInformation = info;
@@ -117,23 +117,18 @@ var MovieDatabase;
 
             this.buildSeriesMapping();
 
-            this.languageEditor.reset(info.languages, function (l) {
-                return l.id;
-            }, function (l) {
-                return l.description;
-            });
-            this.genreEditor.reset(info.genres, function (g) {
-                return g.id;
-            }, function (g) {
-                return g.description;
-            });
-            this.containerDialog.reset(info.containers);
+            this.languageEditor.reset(info.languages);
             this.languageDialog.reset(info.languages);
-            this.seriesDialog.reset(info.series);
+
+            this.genreEditor.reset(info.genres);
             this.genreDialog.reset(info.genres);
 
+            this.containerDialog.reset(info.containers);
+
+            this.seriesDialog.reset(info.series);
+
             Tools.fillSeriesSelection(RecordingEditor.seriesField(), info.series, '(gehört zu keiner Serie)');
-            Tools.fillStringSelection(RecordingEditor.containerField(), info.containers, '(Aufbewahrung nicht bekannt)');
+            Tools.fillMappingSelection(RecordingEditor.containerField(), info.containers, '(Aufbewahrung nicht bekannt)');
 
             this.recordingFilter.setLanguages(info.languages);
             this.recordingFilter.setGenres(info.genres);

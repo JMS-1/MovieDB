@@ -116,8 +116,8 @@ module MovieDatabase {
             this.allGenres = {};
             this.allLanguages = {};
 
-            $.each(info.genres, (index, genre) => this.allGenres[genre.id] = genre.description);
-            $.each(info.languages, (index, language) => this.allLanguages[language.id] = language.description);
+            $.each(info.genres, (index, genre) => this.allGenres[genre.id] = genre.name);
+            $.each(info.languages, (index, language) => this.allLanguages[language.id] = language.name);
 
             this.currentApplicationInformation = info;
 
@@ -131,15 +131,18 @@ module MovieDatabase {
 
             this.buildSeriesMapping();
 
-            this.languageEditor.reset(info.languages, l => l.id, l => l.description);
-            this.genreEditor.reset(info.genres, g => g.id, g => g.description);
-            this.containerDialog.reset(info.containers);
+            this.languageEditor.reset(info.languages);
             this.languageDialog.reset(info.languages);
-            this.seriesDialog.reset(info.series);
+
+            this.genreEditor.reset(info.genres);
             this.genreDialog.reset(info.genres);
 
+            this.containerDialog.reset(info.containers);
+
+            this.seriesDialog.reset(info.series);
+
             Tools.fillSeriesSelection(RecordingEditor.seriesField(), info.series, '(gehört zu keiner Serie)');
-            Tools.fillStringSelection(RecordingEditor.containerField(), info.containers, '(Aufbewahrung nicht bekannt)');
+            Tools.fillMappingSelection(RecordingEditor.containerField(), info.containers, '(Aufbewahrung nicht bekannt)');
 
             this.recordingFilter.setLanguages(info.languages);
             this.recordingFilter.setGenres(info.genres);

@@ -47,11 +47,11 @@ var Tools = (function () {
         }
     };
 
-    Tools.fillStringSelection = function (selector, items, nullSelection) {
-        Tools.fillSelection(selector, items, nullSelection, function (s) {
-            return s;
-        }, function (s) {
-            return s;
+    Tools.fillMappingSelection = function (selector, items, nullSelection) {
+        Tools.fillSelection(selector, items, nullSelection, function (item) {
+            return item.id;
+        }, function (item) {
+            return item.name;
         });
     };
 
@@ -90,8 +90,8 @@ var GenreSelector = (function () {
         var block = $('<div class="withLabel" />').appendTo(container);
 
         this.checkbox = $('<input />', { type: 'checkbox', id: id, name: genre.id }).appendTo(block).change(onChange);
-        this.label = $('<label />', { 'for': id, text: genre.description }).appendTo(block);
-        this.description = genre.description;
+        this.label = $('<label />', { 'for': id, text: genre.name }).appendTo(block);
+        this.description = genre.name;
     }
     GenreSelector.prototype.reset = function () {
         if (this.checkbox.prop('checked')) {
@@ -157,8 +157,8 @@ var LanguageSelector = (function () {
         var block = $('<div class="withLabel" />').appendTo(container);
 
         this.radio = $('<input />', { type: 'radio', id: id, name: LanguageSelector.optionGroupName, value: language.id }).appendTo(block);
-        this.label = $('<label />', { 'for': id, text: language.description }).appendTo(block);
-        this.description = language.description;
+        this.label = $('<label />', { 'for': id, text: language.name }).appendTo(block);
+        this.description = language.name;
     }
     LanguageSelector.prototype.reset = function () {
         if (this.radio.prop('checked')) {
@@ -263,7 +263,7 @@ var MultiValueEditor = (function () {
         }
     };
 
-    MultiValueEditor.prototype.reset = function (items, idSelector, nameSelector) {
+    MultiValueEditor.prototype.reset = function (items) {
         var _this = this;
         // Zuerst merken wir uns mal die aktuelle Einstellung
         var previousValue = this.val();
@@ -275,10 +275,10 @@ var MultiValueEditor = (function () {
         $.each(items, function (index, item) {
             var id = "mve" + (++MultiValueEditor.idCounter);
 
-            var checkbox = $('<input />', { type: 'checkbox', id: id, value: idSelector(item) }).appendTo(_this.container).click(function () {
+            var checkbox = $('<input />', { type: 'checkbox', id: id, value: item.id }).appendTo(_this.container).click(function () {
                 return _this.onChange();
             });
-            var label = $('<label />', { 'for': id, text: nameSelector(item) }).appendTo(_this.container);
+            var label = $('<label />', { 'for': id, text: item.name }).appendTo(_this.container);
         });
 
         // Alle Werte, die wir ausgewählt haben, werden wieder aktiviert - sofern sie bekannt sind
@@ -292,7 +292,7 @@ var MultiValueEditor = (function () {
 var SuggestionListEditor = (function () {
     function SuggestionListEditor(openButtonSelector, reloadApplicationData) {
         var _this = this;
-        this.createNew = null;
+        this.identifier = null;
         this.reload = reloadApplicationData;
 
         this.confirmedDelete = new DeleteButton(this.dialog().find('.dialogDelete'), function () {
@@ -310,12 +310,6 @@ var SuggestionListEditor = (function () {
             return _this.close();
         });
 
-        this.descriptionField().on('change', function () {
-            return _this.validate();
-        });
-        this.descriptionField().on('input', function () {
-            return _this.validate();
-        });
         this.nameField().on('change', function () {
             return _this.validate();
         });
@@ -346,8 +340,8 @@ var SuggestionListEditor = (function () {
 
     SuggestionListEditor.prototype.createUpdate = function () {
         var newData = {
-            description: (this.descriptionField().val() || '').trim(),
-            id: (this.nameField().val() || '').trim()
+            name: (this.nameField().val() || '').trim(),
+            id: this.identifier
         };
 
         // Der Downcast ist etwas unsauber, aber wir wissen hier genau, was wir tun
@@ -358,7 +352,7 @@ var SuggestionListEditor = (function () {
         Tools.fillSelection(this.chooser(), list, this.createNewOption(), function (i) {
             return i.id;
         }, function (i) {
-            return i.description;
+            return i.name;
         });
     };
 
@@ -370,8 +364,6 @@ var SuggestionListEditor = (function () {
         var isValid = true;
 
         if (Tools.setError(this.nameField(), this.validateName(newData)))
-            isValid = false;
-        if (Tools.setError(this.descriptionField(), this.validateDescription(newData)))
             isValid = false;
 
         this.saveButton().button('option', 'disabled', !isValid);
@@ -389,27 +381,24 @@ var SuggestionListEditor = (function () {
 
         this.confirmedDelete.disable();
 
-        this.nameField().prop('disabled', choosen.length > 0);
         this.nameField().val('');
-        this.descriptionField().val('');
 
         if (choosen.length < 1) {
             // Einfach ist es, wenn wir etwas neu Anlegen
-            this.createNew = true;
+            this.identifier = '';
 
             this.validate();
         } else {
             // Ansonsten fragen wir den Web Service immer nach dem neuesten Stand
-            this.createNew = null;
+            this.identifier = null;
 
             $.ajax('movie/' + this.controllerName() + '/' + choosen).done(function (info) {
                 if (info == null)
                     return;
 
-                _this.createNew = false;
+                _this.identifier = info.id;
 
-                _this.nameField().val(info.id);
-                _this.descriptionField().val(info.name);
+                _this.nameField().val(info.name);
 
                 if (info.unused)
                     _this.confirmedDelete.enable();
@@ -422,9 +411,9 @@ var SuggestionListEditor = (function () {
 
     SuggestionListEditor.prototype.remove = function () {
         var _this = this;
-        if (this.createNew == null)
+        if (this.identifier == null)
             return;
-        if (this.createNew)
+        if (this.identifier.length < 1)
             return;
 
         var newData = this.createUpdate();
@@ -441,7 +430,7 @@ var SuggestionListEditor = (function () {
 
     SuggestionListEditor.prototype.save = function () {
         var _this = this;
-        if (this.createNew == null)
+        if (this.identifier == null)
             return;
 
         var newData = this.createUpdate();
@@ -451,11 +440,11 @@ var SuggestionListEditor = (function () {
             return;
 
         var url = 'movie/' + this.controllerName();
-        if (!this.createNew)
+        if (this.identifier.length > 0)
             url += '/' + newData.id;
 
         $.ajax(url, {
-            type: this.createNew ? 'POST' : 'PUT',
+            type: (this.identifier.length < 1) ? 'POST' : 'PUT',
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(newData)
         }).done(function () {
@@ -492,19 +481,11 @@ var SuggestionListEditor = (function () {
     };
 
     SuggestionListEditor.prototype.nameField = function () {
-        return this.dialog().find('.editKey');
-    };
-
-    SuggestionListEditor.prototype.descriptionField = function () {
         return this.dialog().find('.editName');
     };
 
     SuggestionListEditor.prototype.validateName = function (newData) {
         throw 'Bitte validateName implementieren';
-    };
-
-    SuggestionListEditor.prototype.validateDescription = function (newData) {
-        throw 'Bitte validateDescription implementieren';
     };
     return SuggestionListEditor;
 })();

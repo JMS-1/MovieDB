@@ -2,7 +2,6 @@
 
 
 
-
 // Die Eigenschaften, nach denen Aufzeichnungen sortiert werden können
 var OrderSelector = (function () {
     function OrderSelector() {

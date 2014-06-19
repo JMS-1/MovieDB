@@ -2,15 +2,18 @@
 interface IMappingContract {
     id: string;
 
-    description: string;
+    name: string;
 }
 
 interface ILanguageContract extends IMappingContract {
 }
 
-// Die Information zu einer einzelnen Kategorie
 interface IGenreContract extends IMappingContract {
 }
+
+interface IContainerContract extends IMappingContract {
+}
+
 
 // Die Minimalinformation zu einer Serie
 interface ISeriesMappingContract {
@@ -31,7 +34,7 @@ interface ISeriesContract {
     description: string;
 }
 
-interface IContainerContract {
+interface IContainerEditContract {
     name: string;
 
     description: string;
@@ -120,7 +123,7 @@ interface IApplicationInformationContract {
 
     series: ISeriesMappingContract[];
 
-    containers: string[];
+    containers: IContainerContract[];
 
     seriesSeparator: string;
 };

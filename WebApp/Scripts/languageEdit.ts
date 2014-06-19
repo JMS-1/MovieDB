@@ -24,21 +24,12 @@ class LanguageEditor extends SuggestionListEditor<ILanguageEditInfoContract, ILa
     }
 
     validateName(language: ILanguageContract): string {
-        var uniqueName = language.id;
+        var name = language.name;
 
-        if (!LanguageEditor.namePattern.test(uniqueName))
-            return 'Das Kürzel muss aus genau 2 Buchstaben bestehen';
-        else
-            return null;
-    }
-
-    validateDescription(language: ILanguageContract): string {
-        var description = language.description;
-
-        if (description.length < 1)
-            return 'Es muss eine Beschreibung angegeben werden';
-        else if (description.length > 100)
-            return 'Die Beschreibung darf maximal 100 Zeichen haben';
+        if (name.length < 1)
+            return 'Es muss ein Name angegeben werden';
+        else if (name.length > 100)
+            return 'Der Name darf maximal 100 Zeichen haben';
         else
             return null;
     }

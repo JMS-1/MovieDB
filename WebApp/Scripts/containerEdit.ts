@@ -47,8 +47,8 @@ class ContainerEditor {
         this.reload();
     }
 
-    private createUpdate(): IContainerContract {
-        var newData: IContainerContract =
+    private createUpdate(): IContainerEditContract {
+        var newData: IContainerEditContract =
             {
                 description: (this.descriptionField().val() || '').trim(),
                 location: (this.locationField().val() || '').trim(),
@@ -60,12 +60,12 @@ class ContainerEditor {
         return newData;
     }
 
-    reset(list: string[]): void {
-        Tools.fillStringSelection(this.chooser(), list, '(Neue Aufbewahrung anlegen)');
-        Tools.fillStringSelection(this.parentChooser(), list, '(Keine)');
+    reset(list: IContainerContract[]): void {
+        Tools.fillMappingSelection(this.chooser(), list, '(Neue Aufbewahrung anlegen)');
+        Tools.fillMappingSelection(this.parentChooser(), list, '(Keine)');
     }
 
-    private validate(newData: IContainerContract = null): boolean {
+    private validate(newData: IContainerEditContract = null): boolean {
         if (newData == null)
             newData = this.createUpdate();
 
@@ -212,7 +212,7 @@ class ContainerEditor {
         return this.dialog().find('.editLocation');
     }
 
-    private validateName(newData: IContainerContract): string {
+    private validateName(newData: IContainerEditContract): string {
         var name = newData.name;
 
         if (name.length < 1)
@@ -223,7 +223,7 @@ class ContainerEditor {
             return null;
     }
 
-    private validateDescription(newData: IContainerContract): string {
+    private validateDescription(newData: IContainerEditContract): string {
         var description = newData.description;
 
         if (description.length > 2000)
@@ -232,7 +232,7 @@ class ContainerEditor {
             return null;
     }
 
-    private validateLocation(newData: IContainerContract): string {
+    private validateLocation(newData: IContainerEditContract): string {
         var location = newData.location;
 
         if (location.length > 100)

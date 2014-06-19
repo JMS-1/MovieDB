@@ -26,21 +26,12 @@ var GenreEditor = (function (_super) {
     };
 
     GenreEditor.prototype.validateName = function (genre) {
-        var uniqueName = genre.id;
+        var name = genre.name;
 
-        if (!GenreEditor.namePattern.test(uniqueName))
-            return 'Der Name muss aus 1 bis 20 Buchstaben oder Ziffern bestehen';
-        else
-            return null;
-    };
-
-    GenreEditor.prototype.validateDescription = function (genre) {
-        var description = genre.description;
-
-        if (description.length < 1)
-            return 'Es muss eine Beschreibung angegeben werden';
-        else if (description.length > 100)
-            return 'Die Beschreibung darf maximal 100 Zeichen haben';
+        if (name.length < 1)
+            return 'Es muss ein Name angegeben werden';
+        else if (name.length > 100)
+            return 'Der Name darf maximal 100 Zeichen haben';
         else
             return null;
     };

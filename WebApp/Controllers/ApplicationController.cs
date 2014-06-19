@@ -27,9 +27,9 @@ namespace WebApp.Controllers
                 new ApplicationInformation
                 {
                     Series = Database.Series.Include( s => s.ParentSeries ).Select( SeriesDescription.Create ).OrderBy( s => s.FullName, StringComparer.InvariantCultureIgnoreCase ).ToArray(),
+                    Containers = Database.Containers.OrderBy( c => c.Name ).Select( ContainerDescription.Create ).ToArray(),
                     Languages = Database.Languages.OrderBy( l => l.Name ).Select( LanguageDescription.Create ).ToArray(),
                     Genres = Database.Genres.OrderBy( g => g.Name ).Select( GenreDescription.Create ).ToArray(),
-                    ContainerNames = Database.Containers.OrderBy( c => c.Name ).Select( c => c.Name ).ToArray(),
                     NumberOfRecordings = Database.Recordings.Count(),
                 };
 

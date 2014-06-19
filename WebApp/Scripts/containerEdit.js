@@ -72,8 +72,8 @@ var ContainerEditor = (function () {
     };
 
     ContainerEditor.prototype.reset = function (list) {
-        Tools.fillStringSelection(this.chooser(), list, '(Neue Aufbewahrung anlegen)');
-        Tools.fillStringSelection(this.parentChooser(), list, '(Keine)');
+        Tools.fillMappingSelection(this.chooser(), list, '(Neue Aufbewahrung anlegen)');
+        Tools.fillMappingSelection(this.parentChooser(), list, '(Keine)');
     };
 
     ContainerEditor.prototype.validate = function (newData) {
