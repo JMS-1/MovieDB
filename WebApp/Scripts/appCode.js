@@ -260,6 +260,8 @@ var MovieDatabase;
             var hash = window.location.hash;
             if (hash.length < 2)
                 $('#queryMode').removeClass(Styles.invisble);
+            else if (hash == '#new')
+                this.fillEditForm(null);
             else
                 $.ajax('movie/db/' + hash.substring(1)).done(function (recording) {
                     return _this.fillEditForm(recording);
@@ -380,6 +382,9 @@ var MovieDatabase;
 
             $('#gotoQuery').click(function () {
                 return window.location.hash = '';
+            });
+            $('#newRecording').click(function () {
+                return window.location.hash = 'new';
             });
 
             RecordingEditor.saveButton().click(function () {

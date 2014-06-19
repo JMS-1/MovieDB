@@ -128,7 +128,7 @@ class RecordingFilter extends SearchRequestContract {
         // Jede Suche bekommt eine neue Nummer und es wird immer nur das letzte Ergebnis ausgewertet
         var thisRequest = ++this.pending;
 
-        $.ajax('movie/db', {
+        $.ajax('movie/db/query', {
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(this, RecordingFilter.propertyFilter),
             dataType: 'json',

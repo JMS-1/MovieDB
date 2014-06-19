@@ -5,21 +5,34 @@
 
 class RecordingEditor {
     constructor(recording: IRecordingEditContract, genreEditor: MultiValueEditor<IGenreContract>, languageEditor: MultiValueEditor<ILanguageContract>) {
-        this.identifier = recording.id;
         this.genreEditor = genreEditor;
         this.languageEditor = languageEditor;
 
-        RecordingEditor.mediaField().val(recording.mediaType.toString());
-        RecordingEditor.descriptionField().val(recording.description);
-        RecordingEditor.containerField().val(recording.container);
-        RecordingEditor.locationField().val(recording.location);
-        RecordingEditor.seriesField().val(recording.series);
-        RecordingEditor.titleField().val(recording.title);
-        RecordingEditor.titleField().val(recording.title);
-        RecordingEditor.rentField().val(recording.rent);
+        if (recording == null) {
+            this.identifier = '';
+            RecordingEditor.descriptionField().val('');
+            RecordingEditor.containerField().val('');
+            RecordingEditor.locationField().val('');
+            RecordingEditor.mediaField().val('0');
+            RecordingEditor.seriesField().val('');
+            RecordingEditor.titleField().val('');
+            RecordingEditor.rentField().val('');
 
-        languageEditor.val(recording.languages);
-        genreEditor.val(recording.genres);
+            languageEditor.val([]);
+            genreEditor.val([]);
+        } else {
+            this.identifier = recording.id;
+            RecordingEditor.mediaField().val(recording.mediaType.toString());
+            RecordingEditor.descriptionField().val(recording.description);
+            RecordingEditor.containerField().val(recording.container);
+            RecordingEditor.locationField().val(recording.location);
+            RecordingEditor.seriesField().val(recording.series);
+            RecordingEditor.titleField().val(recording.title);
+            RecordingEditor.rentField().val(recording.rent);
+
+            languageEditor.val(recording.languages);
+            genreEditor.val(recording.genres);
+        }
 
         this.validate();
 

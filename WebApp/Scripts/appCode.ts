@@ -270,6 +270,8 @@ module MovieDatabase {
             var hash: string = window.location.hash;
             if (hash.length < 2)
                 $('#queryMode').removeClass(Styles.invisble);
+            else if (hash == '#new')
+                this.fillEditForm(null);
             else
                 $.ajax('movie/db/' + hash.substring(1)).done(recording => this.fillEditForm(recording));
         }
@@ -362,6 +364,7 @@ module MovieDatabase {
             $('.navigationButton, .editButton').button();
 
             $('#gotoQuery').click(() => window.location.hash = '');
+            $('#newRecording').click(() => window.location.hash = 'new');
 
             RecordingEditor.saveButton().click(() => this.currentRecording.save(() => this.backToQuery()));
             RecordingEditor.titleField().on('change', validateRecordingEditForm);

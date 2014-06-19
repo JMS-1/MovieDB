@@ -28,7 +28,7 @@ namespace WebApp.Controllers
         /// </summary>
         /// <returns>Eine Liste passender Ergebnisse.</returns>
         [HttpGet]
-        [Route( "" )]
+        [Route( "query" )]
         public SearchInformation Query()
         {
             return Query( null );
@@ -40,7 +40,7 @@ namespace WebApp.Controllers
         /// <param name="request">Die Beschreibung der auszuführenden Suche.</param>
         /// <returns>Eine Liste passender Ergebnisse.</returns>
         [HttpPost]
-        [Route( "" )]
+        [Route( "query" )]
         public SearchInformation Query( [FromBody] SearchRequest request )
         {
             // Default
@@ -129,7 +129,7 @@ namespace WebApp.Controllers
                 recording.Genres.Add( genre );
 
             // Copy all
-            recording.Store = Database.Stores.FirstOrDefault( s => s.ContainerIdentifier == newData.Container && s.Location == location ) ?? new Models.Store { ContainerIdentifier = newData.Container, Location = location };
+            recording.Store = Database.Stores.FirstOrDefault( s => s.ContainerIdentifier == newData.Container && s.Location == location && s.Type == newData.StoreType ) ?? new Models.Store { ContainerIdentifier = newData.Container, Location = location, Type = newData.StoreType };
             recording.Description = GetEmptyAsNull( newData.Description );
             recording.RentTo = GetEmptyAsNull( newData.RentTo );
             recording.Name = GetEmptyAsNull( newData.Name );
@@ -141,6 +141,42 @@ namespace WebApp.Controllers
             // Done
             return Ok();
         }
+
+        /// <summary>
+        /// Legt eine neue Aufzeichnung an.
+        /// </summary>
+        /// <param name="newData">Die Daten der Aufzeichnung.</param>
+        /// <returns>Steuerung des Ergebnisses.</returns>
+        [Route( "" )]
+        [HttpPost]
+        public async Task<IHttpActionResult> Update( [FromBody] RecordingEditInfo newData )
+        {
+            // Create
+            var location = GetEmptyAsNull( newData.Location );
+            var recording = new Models.Recording
+            {
+                Store = Database.Stores.FirstOrDefault( s => s.ContainerIdentifier == newData.Container && s.Location == location && s.Type == newData.StoreType ) ?? new Models.Store { ContainerIdentifier = newData.Container, Location = location, Type = newData.StoreType },
+                Description = GetEmptyAsNull( newData.Description ),
+                RentTo = GetEmptyAsNull( newData.RentTo ),
+                Name = GetEmptyAsNull( newData.Name ),
+                SeriesIdentifier = newData.Series,
+                CreationTime = DateTime.UtcNow,
+            };
+
+            // Multi-value collections
+            recording.Languages = Database.Languages.Where( l => newData.Languages.Contains( l.UniqueIdentifier ) ).ToList();
+            recording.Genres = Database.Genres.Where( g => newData.Genres.Contains( g.UniqueIdentifier ) ).ToList();
+
+            // Remember it
+            Database.Recordings.Add( recording );
+
+            // Process update
+            await Database.SaveChangesAsync();
+
+            // Done
+            return Ok();
+        }
+
 
         /// <summary>
         /// Füllt eine leere Datenbank aus der alten Serialisierungsform.
