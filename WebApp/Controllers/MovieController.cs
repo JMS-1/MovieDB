@@ -177,6 +177,24 @@ namespace WebApp.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Löscht eine Aufzeichnung.
+        /// </summary>
+        /// <param name="identifier">Die eindeutige Kennung der Aufzeichnung.</param>
+        /// <returns>Die Steuerung des Zugriffs.</returns>
+        [Route( "{identifier}" )]
+        [HttpDelete]
+        public async Task<IHttpActionResult> Delete( Guid identifier )
+        {
+            // Mark as deleted
+            Database.Entry( new Models.Recording { UniqueIdentifier = identifier } ).State = EntityState.Deleted;
+
+            // Process update
+            await Database.SaveChangesAsync();
+
+            // Done
+            return Ok();
+        }
 
         /// <summary>
         /// Füllt eine leere Datenbank aus der alten Serialisierungsform.

@@ -108,6 +108,21 @@ class RecordingEditor {
             });
     }
 
+    remove(success: () => void): void {
+        if (this.identifier.length < 1)
+            return;
+
+        $
+            .ajax('movie/db/' + this.identifier, {
+                type: 'DELETE',
+            })
+            .done(success)
+            .fail(() => {
+                // Bei der Fehlerbehandlung ist noch Potential
+                alert('Da ist leider etwas schief gegangen');
+            });
+    }
+
     private createContract(): IRecordingEditContract {
         var newData: IRecordingEditContract =
             {

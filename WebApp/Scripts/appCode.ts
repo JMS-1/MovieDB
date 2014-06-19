@@ -64,6 +64,8 @@ module MovieDatabase {
 
         private allLanguages: any = {};
 
+        private deleteRecording: DeleteButton;
+
         private migrate(): void {
             var legacyFile = $('#theFile');
 
@@ -277,6 +279,11 @@ module MovieDatabase {
         }
 
         private fillEditForm(recording: IRecordingEditContract): void {
+            this.deleteRecording.disable();
+
+            if (recording != null)
+                this.deleteRecording.enable();
+
             this.currentRecording = new RecordingEditor(recording, this.genreEditor, this.languageEditor);
         }
 
@@ -365,6 +372,8 @@ module MovieDatabase {
 
             $('#gotoQuery').click(() => window.location.hash = '');
             $('#newRecording').click(() => window.location.hash = 'new');
+
+            this.deleteRecording = new DeleteButton($('#deleteRecording'), () => this.currentRecording.remove(() => this.backToQuery()));
 
             RecordingEditor.saveButton().click(() => this.currentRecording.save(() => this.backToQuery()));
             RecordingEditor.titleField().on('change', validateRecordingEditForm);

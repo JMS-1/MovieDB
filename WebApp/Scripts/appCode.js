@@ -269,6 +269,11 @@ var MovieDatabase;
         };
 
         Application.prototype.fillEditForm = function (recording) {
+            this.deleteRecording.disable();
+
+            if (recording != null)
+                this.deleteRecording.enable();
+
             this.currentRecording = new RecordingEditor(recording, this.genreEditor, this.languageEditor);
         };
 
@@ -385,6 +390,12 @@ var MovieDatabase;
             });
             $('#newRecording').click(function () {
                 return window.location.hash = 'new';
+            });
+
+            this.deleteRecording = new DeleteButton($('#deleteRecording'), function () {
+                return _this.currentRecording.remove(function () {
+                    return _this.backToQuery();
+                });
             });
 
             RecordingEditor.saveButton().click(function () {

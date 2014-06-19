@@ -97,6 +97,18 @@ var RecordingEditor = (function () {
         });
     };
 
+    RecordingEditor.prototype.remove = function (success) {
+        if (this.identifier.length < 1)
+            return;
+
+        $.ajax('movie/db/' + this.identifier, {
+            type: 'DELETE'
+        }).done(success).fail(function () {
+            // Bei der Fehlerbehandlung ist noch Potential
+            alert('Da ist leider etwas schief gegangen');
+        });
+    };
+
     RecordingEditor.prototype.createContract = function () {
         var newData = {
             description: (RecordingEditor.descriptionField().val() || '').trim(),
