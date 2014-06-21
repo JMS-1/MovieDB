@@ -26,6 +26,14 @@ class Styles {
     static inputError = 'validationError';
 
     static deleteConfirmation = 'deleteConfirm';
+
+    static treeNode = 'treeNode';
+
+    static isNode = 'nodeInTree';
+
+    static isLeaf = 'leafInTree';
+
+    static isExpanded = 'nodeExpanded';
 }
 
 class Tools {
@@ -241,6 +249,49 @@ class SeriesSelectors {
 
     initialize(series: ISeriesMappingContract[]): void {
         Tools.fillSeriesSelection(this.container, series, '(egal)');
+    }
+}
+
+class SeriesTreeSelector {
+    container: JQuery;
+
+    constructor(containerSelector: string) {
+        this.container = $(containerSelector);
+    }
+
+    resetFilter(): void {
+        this.container.val(null);
+    }
+
+    initialize(series: ISeriesMapping[]): void {
+        this.container.empty();
+
+        this.buildTree(series.filter(s => s.parentId == null), this.container);
+
+        //Tools.fillSeriesSelection(this.container, series, '(egal)');
+    }
+
+    private buildTree(children: ISeriesMapping[], parent: JQuery): void {
+        $.each(children, (index, item) => {
+            var child = $('<div />', { 'class': Styles.treeNode }).text(item.name).attr('data-id', item.id).appendTo(parent);
+
+            if (item.children.length < 1) {
+                child.addClass(Styles.isLeaf);
+            } else {
+                child.addClass(Styles.isNode);
+
+                var childContainer = $('<div />', { 'class': Styles.invisble }).appendTo(child);
+
+                this.buildTree(item.children, childContainer);
+
+                child.on('click', ev => {
+                    if (ev.currentTarget === ev.target) {
+                        childContainer.toggleClass(Styles.invisble);
+                        child.toggleClass(Styles.isExpanded);
+                    }
+                });
+            }
+        });
     }
 }
 

@@ -102,18 +102,26 @@
   border: 2px solid red;
   color: red !important;
 }
-.genreFilterHeader,
-.languageFilterHeader {
-  font-weight: bold;
-  font-size: small;
+.seriesTree {
+  width: 80%;
+  min-height: 50px;
+  max-height: 400px;
+  overflow-y: scroll;
+}
+.treeNode {
+  margin-left: 1em;
 }
 #genreFilter,
-#languageFilter {
+#languageFilter,
+#seriesFilter {
   margin-left: 10px;
   padding: 2px 5px 5px 5px !important;
 }
-.genreFilter label,
-.languageFilter label {
+.filterCollapsable h3 {
+  font-weight: bold;
+  font-size: small;
+}
+.filterCollapsable label {
   font-size: small !important;
   margin-right: 10px !important;
   width: 17.5em;

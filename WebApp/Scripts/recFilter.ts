@@ -56,11 +56,14 @@ class RecordingFilter extends SearchRequestContract {
     // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
     private timeout: number = null;
 
+    // Die Auswahl der Sprachen
     private languageMap: LanguageSelectors;
 
+    // Die Auswahl der Kategorien
     private genreMap: GenreSelectors;
 
-    private seriesMap: SeriesSelectors;
+    // Die Auswahl der Serien
+    private seriesMap: SeriesTreeSelector;
 
     // Stellt sicher, dass bei der Serialisierung keine internen Strukturen übertragen werden
     private static propertyFilter(propertyName: string, propertyValue: any): any {
@@ -291,18 +294,18 @@ class RecordingFilter extends SearchRequestContract {
         var series: string = this.seriesMap.container.val();
         if (series.length > 0)
             this.applySeriesToFilterRecursive(this.seriesLookup(series));
-
+        
         this.query();
     }
 
     // Verbindet mit dem Oberflächenelement zur Auswahl der Serie
     private prepareSeries(): void {
-        this.seriesMap = new SeriesSelectors('#seriesFilter');
+        this.seriesMap = new SeriesTreeSelector('#seriesFilter');
         this.seriesMap.container.change(() => this.onSeriesChanged());
     }
 
     // Meldet alle bekannten Serien
-    setSeries(series: ISeriesMappingContract[]): void {
+    setSeries(series: ISeriesMapping[]): void {
         this.series = [];
         this.page = 0;
 

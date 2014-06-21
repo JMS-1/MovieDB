@@ -145,6 +145,23 @@
 .descriptionEdit {
 }
 
+.seriesTree {
+    width: 80%;
+    min-height: 50px;
+    max-height: 400px;
+    overflow-y: scroll;
+}
+
+.treeNode {
+    margin-left: 1em;
+}
+
+.nodeInTree {
+}
+
+.leafInTree {
+}
+
 @filterAccordionFont: small;
 @filterAccordionWeight: bold;
 @filterAccordionContentPadding: 2px 5px 5px 5px;
@@ -155,17 +172,17 @@
 
 // Die Auswahl der Kategorien für die Suche
 
-.genreFilterHeader, .languageFilterHeader {
-    font-weight: @filterAccordionWeight;
-    font-size: @filterAccordionFont;
-}
-
-#genreFilter, #languageFilter {
+#genreFilter, #languageFilter, #seriesFilter {
     margin-left: @filterAccordionContentMargin;
     padding: @filterAccordionContentPadding !important;
 }
 
-.genreFilter, .languageFilter {
+.filterCollapsable {
+    h3 {
+        font-weight: @filterAccordionWeight;
+        font-size: @filterAccordionFont;
+    }
+
     label {
         font-size: @filterAccordionContentFont !important;
         margin-right: @filterAccordionContentMargin !important;

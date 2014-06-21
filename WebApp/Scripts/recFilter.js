@@ -294,7 +294,7 @@ var RecordingFilter = (function (_super) {
     // Verbindet mit dem Oberflächenelement zur Auswahl der Serie
     RecordingFilter.prototype.prepareSeries = function () {
         var _this = this;
-        this.seriesMap = new SeriesSelectors('#seriesFilter');
+        this.seriesMap = new SeriesTreeSelector('#seriesFilter');
         this.seriesMap.container.change(function () {
             return _this.onSeriesChanged();
         });

@@ -27,6 +27,14 @@ var Styles = (function () {
     Styles.inputError = 'validationError';
 
     Styles.deleteConfirmation = 'deleteConfirm';
+
+    Styles.treeNode = 'treeNode';
+
+    Styles.isNode = 'nodeInTree';
+
+    Styles.isLeaf = 'leafInTree';
+
+    Styles.isExpanded = 'nodeExpanded';
     return Styles;
 })();
 
@@ -249,6 +257,49 @@ var SeriesSelectors = (function () {
         Tools.fillSeriesSelection(this.container, series, '(egal)');
     };
     return SeriesSelectors;
+})();
+
+var SeriesTreeSelector = (function () {
+    function SeriesTreeSelector(containerSelector) {
+        this.container = $(containerSelector);
+    }
+    SeriesTreeSelector.prototype.resetFilter = function () {
+        this.container.val(null);
+    };
+
+    SeriesTreeSelector.prototype.initialize = function (series) {
+        this.container.empty();
+
+        this.buildTree(series.filter(function (s) {
+            return s.parentId == null;
+        }), this.container);
+        //Tools.fillSeriesSelection(this.container, series, '(egal)');
+    };
+
+    SeriesTreeSelector.prototype.buildTree = function (children, parent) {
+        var _this = this;
+        $.each(children, function (index, item) {
+            var child = $('<div />', { 'class': Styles.treeNode }).text(item.name).attr('data-id', item.id).appendTo(parent);
+
+            if (item.children.length < 1) {
+                child.addClass(Styles.isLeaf);
+            } else {
+                child.addClass(Styles.isNode);
+
+                var childContainer = $('<div />', { 'class': Styles.invisble }).appendTo(child);
+
+                _this.buildTree(item.children, childContainer);
+
+                child.on('click', function (ev) {
+                    if (ev.currentTarget === ev.target) {
+                        childContainer.toggleClass(Styles.invisble);
+                        child.toggleClass(Styles.isExpanded);
+                    }
+                });
+            }
+        });
+    };
+    return SeriesTreeSelector;
 })();
 
 var MultiValueEditor = (function () {
