@@ -55,6 +55,7 @@ var RecordingFilter = (function (_super) {
 
         this.series = [];
         this.seriesMap.resetFilter();
+        $('#seriesFilterHeader').text('(egal)');
 
         this.genres = [];
         this.genreMap.resetFilter();
@@ -279,13 +280,14 @@ var RecordingFilter = (function (_super) {
     };
 
     // Wird aufgerufen, sobald der die Serie verändert hat
-    RecordingFilter.prototype.onSeriesChanged = function () {
+    RecordingFilter.prototype.onSeriesChanged = function (series, name) {
+        $('#seriesFilterHeader').text(name || '(egal)');
+
         this.series = [];
         this.page = 0;
 
         // In dieser Oberfläche bedeutet die Auswahl einer Serie automatisch auch, dass alle untergeordneten Serien mit berücksichtigt werden sollen
-        var series = this.seriesMap.container.val();
-        if (series.length > 0)
+        if (series != null)
             this.applySeriesToFilterRecursive(this.seriesLookup(series));
 
         this.query();
@@ -294,9 +296,8 @@ var RecordingFilter = (function (_super) {
     // Verbindet mit dem Oberflächenelement zur Auswahl der Serie
     RecordingFilter.prototype.prepareSeries = function () {
         var _this = this;
-        this.seriesMap = new SeriesTreeSelector('#seriesFilter');
-        this.seriesMap.container.change(function () {
-            return _this.onSeriesChanged();
+        this.seriesMap = new SeriesTreeSelector('#seriesFilter', function (series, name) {
+            return _this.onSeriesChanged(series, name);
         });
     };
 

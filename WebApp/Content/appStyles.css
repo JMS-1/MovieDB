@@ -15,10 +15,6 @@
 .filterArea {
   background-color: lightcyan;
 }
-.seriesFilter {
-  clear: both;
-  background-color: pink;
-}
 .rentFilter {
   background-color: darkorange;
 }
@@ -43,7 +39,6 @@
 }
 #busyIndicator {
   float: right;
-  margin-left: -0.1em;
 }
 .editNavigation {
   background-color: cyan;
@@ -103,13 +98,35 @@
   color: red !important;
 }
 .seriesTree {
-  width: 80%;
-  min-height: 50px;
-  max-height: 400px;
+  width: 90%;
+  min-height: 5em;
+  max-height: 16em;
   overflow-y: scroll;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.treeNodeHeader div.ui-icon {
+  margin-left: -3px;
+  margin-top: 1px;
+  float: left;
 }
 .treeNode {
+  font-size: small;
   margin-left: 1em;
+}
+.nodeInTree,
+.leafInTree {
+  font-size: small;
+}
+.nodeInTree:hover,
+.leafInTree:hover {
+  background-color: #add8e6;
+}
+.nodeInTree.nodeSelected,
+.leafInTree.nodeSelected {
+  background-color: #1e90ff;
 }
 #genreFilter,
 #languageFilter,

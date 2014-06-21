@@ -333,8 +333,9 @@ module MovieDatabase {
 
             var filterAccordionSettings = {
                 active: false,
+                animate: false,
                 collapsible: true,
-                heightStyle: 'content',
+                heightStyle: 'content',                
             };
 
             $('.filterCollapsable').accordion(filterAccordionSettings);

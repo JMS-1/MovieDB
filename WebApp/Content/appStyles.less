@@ -26,11 +26,6 @@
     background-color: lightcyan;
 }
 
-.seriesFilter {
-    clear: both;
-    background-color: pink;
-}
-
 .rentFilter {
     background-color: darkorange;
 }
@@ -62,7 +57,6 @@
 
 #busyIndicator {
     float: right;
-    margin-left: -0.1em;
 }
 
 .editNavigation {
@@ -145,23 +139,6 @@
 .descriptionEdit {
 }
 
-.seriesTree {
-    width: 80%;
-    min-height: 50px;
-    max-height: 400px;
-    overflow-y: scroll;
-}
-
-.treeNode {
-    margin-left: 1em;
-}
-
-.nodeInTree {
-}
-
-.leafInTree {
-}
-
 @filterAccordionFont: small;
 @filterAccordionWeight: bold;
 @filterAccordionContentPadding: 2px 5px 5px 5px;
@@ -169,6 +146,48 @@
 @filterAccordionContentWidth: 17.5em;
 @filterAccordionContentFont: small;
 @filterAccordionLabelPadding: 2px;
+
+@seriesMinHeight: 5em;
+@seriesMaxHeight: 16em;
+@seriesIndent: 1em;
+@seriesHoverColor: lightblue;
+@seriesSelectColor: dodgerblue;
+
+.seriesTree {
+    width: 90%;
+    min-height: @seriesMinHeight;
+    max-height: @seriesMaxHeight;
+    overflow-y: scroll;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.treeNodeHeader {
+    div.ui-icon {
+        margin-left: -3px;
+        margin-top: 1px;
+        float: left;
+    }
+}
+
+.treeNode {
+    font-size: @filterAccordionContentFont;
+    margin-left: @seriesIndent;
+}
+
+.nodeInTree, .leafInTree {
+    font-size: @filterAccordionContentFont;
+}
+
+.nodeInTree:hover, .leafInTree:hover {
+    background-color: @seriesHoverColor;
+}
+
+.nodeInTree.nodeSelected, .leafInTree.nodeSelected {
+    background-color: @seriesSelectColor;
+}
 
 // Die Auswahl der Kategorien für die Suche
 

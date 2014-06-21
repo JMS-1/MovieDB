@@ -88,6 +88,7 @@ class RecordingFilter extends SearchRequestContract {
 
         this.series = [];
         this.seriesMap.resetFilter();
+        $('#seriesFilterHeader').text('(egal)');
 
         this.genres = [];
         this.genreMap.resetFilter();
@@ -286,22 +287,22 @@ class RecordingFilter extends SearchRequestContract {
     }
 
     // Wird aufgerufen, sobald der die Serie verändert hat
-    private onSeriesChanged(): void {
+    private onSeriesChanged(series: string, name: string): void {
+        $('#seriesFilterHeader').text(name || '(egal)');
+
         this.series = [];
         this.page = 0;
 
         // In dieser Oberfläche bedeutet die Auswahl einer Serie automatisch auch, dass alle untergeordneten Serien mit berücksichtigt werden sollen
-        var series: string = this.seriesMap.container.val();
-        if (series.length > 0)
+        if (series != null)
             this.applySeriesToFilterRecursive(this.seriesLookup(series));
-        
+
         this.query();
     }
 
     // Verbindet mit dem Oberflächenelement zur Auswahl der Serie
     private prepareSeries(): void {
-        this.seriesMap = new SeriesTreeSelector('#seriesFilter');
-        this.seriesMap.container.change(() => this.onSeriesChanged());
+        this.seriesMap = new SeriesTreeSelector('#seriesFilter', (series, name) => this.onSeriesChanged(series, name));
     }
 
     // Meldet alle bekannten Serien

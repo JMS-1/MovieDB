@@ -11,6 +11,10 @@ class Styles {
 
     static idle = 'ui-icon-check';
 
+    static expanded = 'ui-icon-circlesmall-minus';
+
+    static collapsed = 'ui-icon-circlesmall-plus';
+
     static pageButton = 'pageButton';
 
     static activePageButton = 'pageButtonSelected';
@@ -29,11 +33,13 @@ class Styles {
 
     static treeNode = 'treeNode';
 
+    static nodeHeader = 'treeNodeHeader';
+
     static isNode = 'nodeInTree';
 
     static isLeaf = 'leafInTree';
 
-    static isExpanded = 'nodeExpanded';
+    static selectedNode = 'nodeSelected';
 }
 
 class Tools {
@@ -253,44 +259,104 @@ class SeriesSelectors {
 }
 
 class SeriesTreeSelector {
-    container: JQuery;
+    private container: JQuery;
 
-    constructor(containerSelector: string) {
+    private whenChanged: (id: string, name: string) => void;
+
+    constructor(containerSelector: string, onChanged: (id: string, name: string) => void) {
         this.container = $(containerSelector);
+        this.whenChanged = onChanged;
     }
 
     resetFilter(): void {
-        this.container.val(null);
+        this.selected().removeClass(Styles.selectedNode);
     }
 
     initialize(series: ISeriesMapping[]): void {
         this.container.empty();
 
         this.buildTree(series.filter(s => s.parentId == null), this.container);
+    }
 
-        //Tools.fillSeriesSelection(this.container, series, '(egal)');
+    private selected(): JQuery {
+        return this.container.find('.' + Styles.selectedNode);
+    }
+
+    private selectNode(node: JQuery): void {
+        var wasSelected = node.hasClass(Styles.selectedNode);
+
+        this.resetFilter();
+
+        if (wasSelected)
+            this.whenChanged(null, null);
+        else {
+            node.addClass(Styles.selectedNode);
+
+            this.whenChanged(node.attr('data-id'), node.attr('data-name'));
+        }
+
     }
 
     private buildTree(children: ISeriesMapping[], parent: JQuery): void {
         $.each(children, (index, item) => {
-            var child = $('<div />', { 'class': Styles.treeNode }).text(item.name).attr('data-id', item.id).appendTo(parent);
+            var child = $('<div />').appendTo(parent);
+
+            if (item.parentId != null)
+                child.addClass(Styles.treeNode);
 
             if (item.children.length < 1) {
-                child.addClass(Styles.isLeaf);
+                child
+                    .text(item.name)
+                    .attr('data-id', item.id)
+                    .attr('data-name', item.hierarchicalName)
+                    .addClass(Styles.isLeaf)
+                    .on('click', () => this.selectNode(child));
             } else {
-                child.addClass(Styles.isNode);
+                // Das kleine Symbol zum Auf- und Zuklappen muss auch noch rein
+                var header =
+                    $('<div />', { 'class': Styles.nodeHeader })
+                        .appendTo(child);
 
+                var toggle =
+                    $('<div />', { 'class': 'ui-icon' })
+                        .addClass(Styles.collapsed)
+                        .appendTo(header);
+
+                var headerText =
+                    $('<div />')
+                        .text(item.name)
+                        .attr('data-id', item.id)
+                        .attr('data-name', item.hierarchicalName)
+                        .addClass(Styles.isNode)
+                        .appendTo(header);
+
+                headerText.on('click', ev => this.selectNode(headerText));
+
+                // Dann erst die Unterserien
                 var childContainer = $('<div />', { 'class': Styles.invisble }).appendTo(child);
 
                 this.buildTree(item.children, childContainer);
 
-                child.on('click', ev => {
-                    if (ev.currentTarget === ev.target) {
-                        childContainer.toggleClass(Styles.invisble);
-                        child.toggleClass(Styles.isExpanded);
+                // Und wir müssen natürlich nicht auf die Änderung reagieren
+                toggle.on('click', ev => {
+                    if (ev.currentTarget !== ev.target)
+                        return;
+
+                    if (toggle.hasClass(Styles.expanded)) {
+                        toggle.removeClass(Styles.expanded);
+                        toggle.addClass(Styles.collapsed);
+
+                        childContainer.addClass(Styles.invisble);
+                    }
+                    else {
+                        toggle.removeClass(Styles.collapsed);
+                        toggle.addClass(Styles.expanded);
+
+                        childContainer.removeClass(Styles.invisble);
                     }
                 });
             }
+
         });
     }
 }

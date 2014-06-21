@@ -344,6 +344,7 @@ var MovieDatabase;
 
             var filterAccordionSettings = {
                 active: false,
+                animate: false,
                 collapsible: true,
                 heightStyle: 'content'
             };

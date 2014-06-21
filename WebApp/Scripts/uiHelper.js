@@ -12,6 +12,10 @@ var Styles = (function () {
 
     Styles.idle = 'ui-icon-check';
 
+    Styles.expanded = 'ui-icon-circlesmall-minus';
+
+    Styles.collapsed = 'ui-icon-circlesmall-plus';
+
     Styles.pageButton = 'pageButton';
 
     Styles.activePageButton = 'pageButtonSelected';
@@ -30,11 +34,13 @@ var Styles = (function () {
 
     Styles.treeNode = 'treeNode';
 
+    Styles.nodeHeader = 'treeNodeHeader';
+
     Styles.isNode = 'nodeInTree';
 
     Styles.isLeaf = 'leafInTree';
 
-    Styles.isExpanded = 'nodeExpanded';
+    Styles.selectedNode = 'nodeSelected';
     return Styles;
 })();
 
@@ -260,11 +266,12 @@ var SeriesSelectors = (function () {
 })();
 
 var SeriesTreeSelector = (function () {
-    function SeriesTreeSelector(containerSelector) {
+    function SeriesTreeSelector(containerSelector, onChanged) {
         this.container = $(containerSelector);
+        this.whenChanged = onChanged;
     }
     SeriesTreeSelector.prototype.resetFilter = function () {
-        this.container.val(null);
+        this.selected().removeClass(Styles.selectedNode);
     };
 
     SeriesTreeSelector.prototype.initialize = function (series) {
@@ -273,27 +280,70 @@ var SeriesTreeSelector = (function () {
         this.buildTree(series.filter(function (s) {
             return s.parentId == null;
         }), this.container);
-        //Tools.fillSeriesSelection(this.container, series, '(egal)');
+    };
+
+    SeriesTreeSelector.prototype.selected = function () {
+        return this.container.find('.' + Styles.selectedNode);
+    };
+
+    SeriesTreeSelector.prototype.selectNode = function (node) {
+        var wasSelected = node.hasClass(Styles.selectedNode);
+
+        this.resetFilter();
+
+        if (wasSelected)
+            this.whenChanged(null, null);
+        else {
+            node.addClass(Styles.selectedNode);
+
+            this.whenChanged(node.attr('data-id'), node.attr('data-name'));
+        }
     };
 
     SeriesTreeSelector.prototype.buildTree = function (children, parent) {
         var _this = this;
         $.each(children, function (index, item) {
-            var child = $('<div />', { 'class': Styles.treeNode }).text(item.name).attr('data-id', item.id).appendTo(parent);
+            var child = $('<div />').appendTo(parent);
+
+            if (item.parentId != null)
+                child.addClass(Styles.treeNode);
 
             if (item.children.length < 1) {
-                child.addClass(Styles.isLeaf);
+                child.text(item.name).attr('data-id', item.id).attr('data-name', item.hierarchicalName).addClass(Styles.isLeaf).on('click', function () {
+                    return _this.selectNode(child);
+                });
             } else {
-                child.addClass(Styles.isNode);
+                // Das kleine Symbol zum Auf- und Zuklappen muss auch noch rein
+                var header = $('<div />', { 'class': Styles.nodeHeader }).appendTo(child);
 
+                var toggle = $('<div />', { 'class': 'ui-icon' }).addClass(Styles.collapsed).appendTo(header);
+
+                var headerText = $('<div />').text(item.name).attr('data-id', item.id).attr('data-name', item.hierarchicalName).addClass(Styles.isNode).appendTo(header);
+
+                headerText.on('click', function (ev) {
+                    return _this.selectNode(headerText);
+                });
+
+                // Dann erst die Unterserien
                 var childContainer = $('<div />', { 'class': Styles.invisble }).appendTo(child);
 
                 _this.buildTree(item.children, childContainer);
 
-                child.on('click', function (ev) {
-                    if (ev.currentTarget === ev.target) {
-                        childContainer.toggleClass(Styles.invisble);
-                        child.toggleClass(Styles.isExpanded);
+                // Und wir müssen natürlich nicht auf die Änderung reagieren
+                toggle.on('click', function (ev) {
+                    if (ev.currentTarget !== ev.target)
+                        return;
+
+                    if (toggle.hasClass(Styles.expanded)) {
+                        toggle.removeClass(Styles.expanded);
+                        toggle.addClass(Styles.collapsed);
+
+                        childContainer.addClass(Styles.invisble);
+                    } else {
+                        toggle.removeClass(Styles.collapsed);
+                        toggle.addClass(Styles.expanded);
+
+                        childContainer.removeClass(Styles.invisble);
                     }
                 });
             }
