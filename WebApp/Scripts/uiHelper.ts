@@ -263,23 +263,55 @@ class SeriesTreeSelector {
 
     private whenChanged: (id: string, name: string) => void;
 
+    private nextReset = 0;
+
+    private search: string;
+
     constructor(containerSelector: string, onChanged: (id: string, name: string) => void) {
-        this.container = $(containerSelector);
+        this.container = $(containerSelector).keypress(ev => this.onKeyPressed(ev));
         this.whenChanged = onChanged;
     }
 
-    toggled(event: JQueryEventObject, ui: JQueryUI.AccordionUIParams): void {
-        if (ui.newPanel.length < 1)
-            return;
+    private onKeyPressed(ev: JQueryEventObject): void {
+        var now = $.now();
+        if (now >= this.nextReset)
+            this.search = '';
+        
+        this.search = (this.search + ev.char).toLowerCase();
+        this.nextReset = now + 1000;
 
-        var selected = this.selected();
+        var nodes = this.container.find('[data-name]');
+        for (var i = 0; i < nodes.length; i++) {
+            var node = $(nodes[i]);
+            var name = node.attr('data-name');
+            if (name.length >= this.search.length)
+                if (name.substr(0, this.search.length).toLowerCase() == this.search) {
+                    this.scrollTo(node);
+
+                    return;
+                }
+        }
+    }
+
+    activate(): void {
+        this.container.focus();
+        this.nextReset = 0;
+
+        this.scrollToSelected();
+    }
+
+    private scrollToSelected(): void {
+        this.scrollTo(this.selected());
+    }
+
+    private scrollTo(selected: JQuery): void {
         if (selected.length < 1)
             return;
 
-        var panelTop = ui.newPanel.position().top;
-        var selectedTop = selected.position().top;
+        var firstTop = this.container.children().first().offset().top;
+        var selectedTop = selected.offset().top;
 
-        ui.newPanel.scrollTop(selectedTop - panelTop);
+        this.container.scrollTop(selectedTop - firstTop);
     }
 
     resetFilter(): void {
@@ -308,7 +340,6 @@ class SeriesTreeSelector {
 
             this.whenChanged(node.attr('data-id'), node.attr('data-name'));
         }
-
     }
 
     private buildTree(children: ISeriesMapping[], parent: JQuery): void {

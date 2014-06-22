@@ -300,9 +300,9 @@ var RecordingFilter = (function (_super) {
             return _this.onSeriesChanged(series, name);
         });
 
-        $().accordion;
         $('#seriesFilterAccordion').on('accordionactivate', function (event, ui) {
-            return _this.seriesMap.toggled(event, ui);
+            if (ui.newPanel.length > 0)
+                _this.seriesMap.activate();
         });
     };
 

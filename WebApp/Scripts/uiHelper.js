@@ -267,21 +267,53 @@ var SeriesSelectors = (function () {
 
 var SeriesTreeSelector = (function () {
     function SeriesTreeSelector(containerSelector, onChanged) {
-        this.container = $(containerSelector);
+        var _this = this;
+        this.nextReset = 0;
+        this.container = $(containerSelector).keypress(function (ev) {
+            return _this.onKeyPressed(ev);
+        });
         this.whenChanged = onChanged;
     }
-    SeriesTreeSelector.prototype.toggled = function (event, ui) {
-        if (ui.newPanel.length < 1)
-            return;
+    SeriesTreeSelector.prototype.onKeyPressed = function (ev) {
+        var now = $.now();
+        if (now >= this.nextReset)
+            this.search = '';
 
-        var selected = this.selected();
+        this.search = (this.search + ev.char).toLowerCase();
+        this.nextReset = now + 1000;
+
+        var nodes = this.container.find('[data-name]');
+        for (var i = 0; i < nodes.length; i++) {
+            var node = $(nodes[i]);
+            var name = node.attr('data-name');
+            if (name.length >= this.search.length)
+                if (name.substr(0, this.search.length).toLowerCase() == this.search) {
+                    this.scrollTo(node);
+
+                    return;
+                }
+        }
+    };
+
+    SeriesTreeSelector.prototype.activate = function () {
+        this.container.focus();
+        this.nextReset = 0;
+
+        this.scrollToSelected();
+    };
+
+    SeriesTreeSelector.prototype.scrollToSelected = function () {
+        this.scrollTo(this.selected());
+    };
+
+    SeriesTreeSelector.prototype.scrollTo = function (selected) {
         if (selected.length < 1)
             return;
 
-        var panelTop = ui.newPanel.position().top;
-        var selectedTop = selected.position().top;
+        var firstTop = this.container.children().first().offset().top;
+        var selectedTop = selected.offset().top;
 
-        ui.newPanel.scrollTop(selectedTop - panelTop);
+        this.container.scrollTop(selectedTop - firstTop);
     };
 
     SeriesTreeSelector.prototype.resetFilter = function () {

@@ -304,8 +304,10 @@ class RecordingFilter extends SearchRequestContract {
     private prepareSeries(): void {
         this.seriesMap = new SeriesTreeSelector('#seriesFilter', (series, name) => this.onSeriesChanged(series, name));
 
-        $().accordion
-        $('#seriesFilterAccordion').on('accordionactivate', (event, ui) => this.seriesMap.toggled(event, ui));
+        $('#seriesFilterAccordion').on('accordionactivate', (event, ui) => {
+            if (ui.newPanel.length > 0)
+                this.seriesMap.activate();
+        });
     }
 
     // Meldet alle bekannten Serien
