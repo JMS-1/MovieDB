@@ -268,6 +268,20 @@ class SeriesTreeSelector {
         this.whenChanged = onChanged;
     }
 
+    toggled(event: JQueryEventObject, ui: JQueryUI.AccordionUIParams): void {
+        if (ui.newPanel.length < 1)
+            return;
+
+        var selected = this.selected();
+        if (selected.length < 1)
+            return;
+
+        var panelTop = ui.newPanel.position().top;
+        var selectedTop = selected.position().top;
+
+        ui.newPanel.scrollTop(selectedTop - panelTop);
+    }
+
     resetFilter(): void {
         this.selected().removeClass(Styles.selectedNode);
     }

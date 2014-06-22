@@ -299,6 +299,11 @@ var RecordingFilter = (function (_super) {
         this.seriesMap = new SeriesTreeSelector('#seriesFilter', function (series, name) {
             return _this.onSeriesChanged(series, name);
         });
+
+        $().accordion;
+        $('#seriesFilterAccordion').on('accordionactivate', function (event, ui) {
+            return _this.seriesMap.toggled(event, ui);
+        });
     };
 
     // Meldet alle bekannten Serien

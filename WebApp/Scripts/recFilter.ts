@@ -303,6 +303,9 @@ class RecordingFilter extends SearchRequestContract {
     // Verbindet mit dem Oberflächenelement zur Auswahl der Serie
     private prepareSeries(): void {
         this.seriesMap = new SeriesTreeSelector('#seriesFilter', (series, name) => this.onSeriesChanged(series, name));
+
+        $().accordion
+        $('#seriesFilterAccordion').on('accordionactivate', (event, ui) => this.seriesMap.toggled(event, ui));
     }
 
     // Meldet alle bekannten Serien

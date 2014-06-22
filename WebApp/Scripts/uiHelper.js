@@ -270,6 +270,20 @@ var SeriesTreeSelector = (function () {
         this.container = $(containerSelector);
         this.whenChanged = onChanged;
     }
+    SeriesTreeSelector.prototype.toggled = function (event, ui) {
+        if (ui.newPanel.length < 1)
+            return;
+
+        var selected = this.selected();
+        if (selected.length < 1)
+            return;
+
+        var panelTop = ui.newPanel.position().top;
+        var selectedTop = selected.position().top;
+
+        ui.newPanel.scrollTop(selectedTop - panelTop);
+    };
+
     SeriesTreeSelector.prototype.resetFilter = function () {
         this.selected().removeClass(Styles.selectedNode);
     };
