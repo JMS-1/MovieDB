@@ -282,10 +282,10 @@ var SeriesTreeSelector = (function () {
         this.search = (this.search + ev.char).toLowerCase();
         this.nextReset = now + 1000;
 
-        var nodes = this.container.find('[data-name]');
+        var nodes = this.container.find('[' + SeriesTreeSelector.attributeName + ']');
         for (var i = 0; i < nodes.length; i++) {
             var node = $(nodes[i]);
-            var name = node.attr('data-name');
+            var name = node.attr(SeriesTreeSelector.attributeName);
             if (name.length >= this.search.length)
                 if (name.substr(0, this.search.length).toLowerCase() == this.search) {
                     this.scrollTo(node);
@@ -342,44 +342,52 @@ var SeriesTreeSelector = (function () {
         else {
             node.addClass(Styles.selectedNode);
 
-            this.whenChanged(node.attr('data-id'), node.attr('data-name'));
+            this.whenChanged(node.attr(SeriesTreeSelector.attributeId), node.attr(SeriesTreeSelector.attributeName));
         }
     };
 
+    // Erzeugt einen Knoten oder ein Blatt für eine konkrete Serie
+    SeriesTreeSelector.prototype.createNode = function (node, item, isLeaf) {
+        var _this = this;
+        // Zur Vereinfachung verwenden wir hier die fluent-API von jQuery
+        return node.text(item.name).attr(SeriesTreeSelector.attributeId, item.id).attr(SeriesTreeSelector.attributeName, item.hierarchicalName).addClass(isLeaf ? Styles.isLeaf : Styles.isNode).on('click', function () {
+            return _this.selectNode(node);
+        });
+    };
+
+    // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
     SeriesTreeSelector.prototype.buildTree = function (children, parent) {
         var _this = this;
         $.each(children, function (index, item) {
+            // Für jede Serie wird ein gesondertes Fragment erzeugt
             var child = $('<div />').appendTo(parent);
 
+            // Die Wurzelserien werden nicht markiert, da diese Markierung für das relative Einrücken sorgt
             if (item.parentId != null)
                 child.addClass(Styles.treeNode);
 
+            // Blätter sind sehr einfach darzustellen, bei Knoten müssen wir etwas mehr tun
             if (item.children.length < 1) {
-                child.text(item.name).attr('data-id', item.id).attr('data-name', item.hierarchicalName).addClass(Styles.isLeaf).on('click', function () {
-                    return _this.selectNode(child);
-                });
+                _this.createNode(child, item, true);
             } else {
                 // Das kleine Symbol zum Auf- und Zuklappen muss auch noch rein
                 var header = $('<div />', { 'class': Styles.nodeHeader }).appendTo(child);
 
+                // Für die Unterserien wird ein eigener Container angelegt, den wir dann über dieses Symbol auf- und zuklappen
                 var toggle = $('<div />', { 'class': 'ui-icon' }).addClass(Styles.collapsed).appendTo(header);
 
-                var headerText = $('<div />').text(item.name).attr('data-id', item.id).attr('data-name', item.hierarchicalName).addClass(Styles.isNode).appendTo(header);
-
-                headerText.on('click', function (ev) {
-                    return _this.selectNode(headerText);
-                });
+                // Nun kann der Name der Serie zum Anklicken eingeblendet werden
+                _this.createNode($('<div />'), item, false).appendTo(header);
 
                 // Dann erst die Unterserien
                 var childContainer = $('<div />', { 'class': Styles.invisble }).appendTo(child);
-
-                _this.buildTree(item.children, childContainer);
 
                 // Und wir müssen natürlich nicht auf die Änderung reagieren
                 toggle.on('click', function (ev) {
                     if (ev.currentTarget !== ev.target)
                         return;
 
+                    // Auf- oder Zuklappen, je nach aktuellem Zustand
                     if (toggle.hasClass(Styles.expanded)) {
                         toggle.removeClass(Styles.expanded);
                         toggle.addClass(Styles.collapsed);
@@ -392,9 +400,15 @@ var SeriesTreeSelector = (function () {
                         childContainer.removeClass(Styles.invisble);
                     }
                 });
+
+                // Nun alle unsere Unterserien
+                _this.buildTree(item.children, childContainer);
             }
         });
     };
+    SeriesTreeSelector.attributeId = 'data-id';
+
+    SeriesTreeSelector.attributeName = 'data-name';
     return SeriesTreeSelector;
 })();
 

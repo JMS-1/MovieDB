@@ -63,7 +63,7 @@ var RecordingFilter = (function (_super) {
 
         this.rent = null;
         $('#anyRent').prop('checked', true);
-        $('#rentFilter').buttonset('refresh');
+        $('#rentFilter').find('input').button('refresh');
 
         this.text = null;
         $('#textSearch').val(null);
@@ -182,7 +182,7 @@ var RecordingFilter = (function (_super) {
     // Bereitet die Auswahl des Ausleihers vor
     RecordingFilter.prototype.prepareRent = function () {
         var _this = this;
-        $('#rentFilter').buttonset().change(function () {
+        $('#rentFilter').find('input').button().change(function () {
             return _this.onRentChanged();
         });
     };

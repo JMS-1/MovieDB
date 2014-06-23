@@ -96,7 +96,7 @@ class RecordingFilter extends SearchRequestContract {
 
         this.rent = null;
         $('#anyRent').prop('checked', true);
-        $('#rentFilter').buttonset('refresh');
+        $('#rentFilter').find('input').button('refresh');
 
         this.text = null;
         $('#textSearch').val(null);
@@ -201,7 +201,7 @@ class RecordingFilter extends SearchRequestContract {
 
     // Bereitet die Auswahl des Ausleihers vor
     private prepareRent(): void {
-        $('#rentFilter').buttonset().change(() => this.onRentChanged());
+        $('#rentFilter').find('input').button().change(() => this.onRentChanged());
     }
 
     // Legt die bekannten Sprachen fest

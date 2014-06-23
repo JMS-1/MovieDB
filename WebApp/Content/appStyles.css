@@ -15,9 +15,6 @@
 .filterArea {
   background-color: lightcyan;
 }
-.rentFilter {
-  background-color: darkorange;
-}
 .pageSize {
   background-color: aqua;
 }
@@ -130,7 +127,8 @@
 }
 #genreFilter,
 #languageFilter,
-#seriesFilter {
+#seriesFilter,
+#rentFilter {
   margin-left: 10px;
   padding: 2px 5px 5px 5px !important;
 }
