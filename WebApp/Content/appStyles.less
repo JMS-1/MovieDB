@@ -18,16 +18,10 @@
 }
 
 #queryMode {
-    background-color: chocolate;
     padding: 5px;
 }
 
 .filterArea {
-    background-color: lightcyan;
-}
-
-.pageSize {
-    background-color: aqua;
 }
 
 .recordingTable {
@@ -35,7 +29,11 @@
 }
 
 .pageButtons {
-    background-color: peru;
+    padding-top: 5px;
+
+    a {
+        width: 3em;
+    }
 }
 
 .pageButtonSelected {
@@ -135,6 +133,28 @@
 .descriptionEdit {
 }
 
+.pageSize {
+    padding: 5px 0px;
+
+    .ui-button-text {
+        font-size: small;
+    }
+}
+
+.textfilter {
+    span:first-child{
+        font-weight: bold;
+    }
+
+    .ui-button-text {
+        font-size: small;
+    }
+
+    .queryToEditButtons {
+        float: right;
+    }
+}
+
 @filterAccordionFont: small;
 @filterAccordionWeight: bold;
 @filterAccordionContentPadding: 2px 5px 5px 5px;
@@ -193,6 +213,8 @@
 }
 
 .filterCollapsable {
+    margin: 5px 0px 5px 20px;
+
     h3 {
         font-weight: @filterAccordionWeight;
         font-size: @filterAccordionFont;

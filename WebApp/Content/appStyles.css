@@ -9,20 +9,16 @@
   display: none;
 }
 #queryMode {
-  background-color: chocolate;
   padding: 5px;
-}
-.filterArea {
-  background-color: lightcyan;
-}
-.pageSize {
-  background-color: aqua;
 }
 .recordingTable {
   background-color: lightgoldenrodyellow;
 }
 .pageButtons {
-  background-color: peru;
+  padding-top: 5px;
+}
+.pageButtons a {
+  width: 3em;
 }
 .pageButtonSelected {
   font-weight: bold;
@@ -94,6 +90,21 @@
   border: 2px solid red;
   color: red !important;
 }
+.pageSize {
+  padding: 5px 0px;
+}
+.pageSize .ui-button-text {
+  font-size: small;
+}
+.textfilter span:first-child {
+  font-weight: bold;
+}
+.textfilter .ui-button-text {
+  font-size: small;
+}
+.textfilter .queryToEditButtons {
+  float: right;
+}
 .seriesTree {
   width: 90%;
   min-height: 5em;
@@ -131,6 +142,9 @@
 #rentFilter {
   margin-left: 10px;
   padding: 2px 5px 5px 5px !important;
+}
+.filterCollapsable {
+  margin: 5px 0px 5px 20px;
 }
 .filterCollapsable h3 {
   font-weight: bold;

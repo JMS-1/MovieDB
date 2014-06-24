@@ -109,6 +109,23 @@ module MovieDatabase {
             });
         }
 
+        private setCountInfo(countInFilter: number): void {
+            var total = this.currentApplicationInformation.total;
+            var text = '(Es gibt ' + total + ' Aufzeichnung';
+
+            if (total != 1)
+                text += 'en';
+
+            if (countInFilter != null)
+                if (countInFilter < total)
+                    if (countInFilter == 1)
+                        text += ', eine davon wird angezeigt';
+                    else
+                        text += ', ' + countInFilter + ' davon werden angezeigt';
+
+            $('#countInfo').text(text + ')');
+        }
+
         private fillApplicationInformation(info: IApplicationInformation): void {
             var busyIndicator = $('#busyIndicator');
 
@@ -129,7 +146,7 @@ module MovieDatabase {
             else
                 migrateButton.addClass(Styles.invisble);
 
-            $('#countInfo').text('(Es gibt ' + info.total + ' Aufzeichnung' + ((info.total == 1) ? '' : 'en') + ')');
+            this.setCountInfo(null);
 
             this.buildSeriesMapping();
 
@@ -158,16 +175,13 @@ module MovieDatabase {
           und dann als Tabellenzeilen in die Oberfläche übernommen.
         */
         private fillResultTable(results: ISearchInformation): void {
-            var pageSizeCount = $('#pageSizeCount');
+            this.setCountInfo(results.total);
+
             var pageButtons = $('#pageButtons');
             if (results.total < results.size) {
-                pageSizeCount.text('');
-
                 pageButtons.addClass(Styles.invisble);
             }
             else {
-                pageSizeCount.text(results.total);
-
                 pageButtons.removeClass(Styles.invisble);
                 pageButtons.empty();
 
@@ -335,7 +349,7 @@ module MovieDatabase {
                 active: false,
                 animate: false,
                 collapsible: true,
-                heightStyle: 'content',                
+                heightStyle: 'content',
             };
 
             $('.filterCollapsable').accordion(filterAccordionSettings);
@@ -347,9 +361,8 @@ module MovieDatabase {
             legacyFile.change(() => this.migrate());
             migrateButton.button().click(() => legacyFile.click());
 
-            var pageSize = $('#pageSize');
-            pageSize.change(() => {
-                this.recordingFilter.size = parseInt(pageSize.val());
+            $('input[name="pageSize"]').button().click(ev => {
+                this.recordingFilter.size = parseInt($(ev.target).val());
                 this.recordingFilter.page = 0;
 
                 this.recordingFilter.query();

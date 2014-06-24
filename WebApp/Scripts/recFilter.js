@@ -64,6 +64,7 @@ var RecordingFilter = (function (_super) {
         this.rent = null;
         $('#anyRent').prop('checked', true);
         $('#rentFilter').find('input').button('refresh');
+        $('#rentFilterHeader').text('(egal)');
 
         this.text = null;
         $('#textSearch').val(null);
@@ -172,6 +173,12 @@ var RecordingFilter = (function (_super) {
             newRent = (choice == '1');
         if (this.rent == newRent)
             return;
+
+        // Feedback aktualisieren
+        if (newRent == null)
+            $('#rentFilterHeader').text('(egal)');
+        else
+            $('#rentFilterHeader').text(newRent ? 'nur verliehene' : 'nur nicht verliehene');
 
         // Suche aktualisieren
         this.rent = newRent;
