@@ -166,7 +166,7 @@ module MovieDatabase {
                 pageButtons.addClass(Styles.invisble);
             }
             else {
-                pageSizeCount.text(' von ' + results.total);
+                pageSizeCount.text(results.total);
 
                 pageButtons.removeClass(Styles.invisble);
                 pageButtons.empty();
@@ -376,7 +376,7 @@ module MovieDatabase {
                 this.recordingFilter.query();
             });
 
-            $('#resetQuery').button().click(() => this.recordingFilter.reset(true));
+            $('#resetQuery').click(() => this.recordingFilter.reset(true));
 
             $('.navigationButton, .editButton').button();
 

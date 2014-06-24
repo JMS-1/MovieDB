@@ -134,7 +134,7 @@ class GenreSelector {
     }
 
     setCount(count: number): void {
-        this.label.text(this.description + ' (' + count + ')');
+        this.checkbox.button('option', 'text', this.description + ' (' + count + ')');
 
         this.checkbox.removeClass(Styles.invisble);
         this.label.removeClass(Styles.invisble);
@@ -200,7 +200,7 @@ class LanguageSelector {
     }
 
     setCount(count: number): void {
-        this.label.text(this.description + ' (' + count + ')');
+        this.radio.button('option', 'text', this.description + ' (' + count + ')');
 
         this.radio.removeClass(Styles.invisble);
         this.label.removeClass(Styles.invisble);
@@ -221,12 +221,11 @@ class LanguageSelectors {
         this.languages = {};
 
         $('<input />', { type: 'radio', id: 'anyLanguageChoice', name: LanguageSelector.optionGroupName, value: '' }).appendTo(this.container);
-        $('<label />', { 'for': 'anyLanguageChoice' }).appendTo(this.container);
+        $('<label />', { 'for': 'anyLanguageChoice', text: '(egal)' }).appendTo(this.container);
 
         $.each(languages, (index, language) => this.languages[language.id] = new LanguageSelector(language, this.container));
 
         this.container.find('input').button();
-        this.container.find('label').first().text('(egal)');
 
         this.resetFilter();
     }
@@ -258,6 +257,7 @@ class SeriesSelectors {
     }
 }
 
+// Bietet die Hierarchie der Serien zur Auswahl im Filter an
 class SeriesTreeSelector {
     private static attributeId = 'data-id';
 
@@ -276,7 +276,9 @@ class SeriesTreeSelector {
         this.whenChanged = onChanged;
     }
 
+    // Ein Tastendruck führt im allgemeinen dazu, dass sich die Liste auf den ersten Eintrag mit einem passenden Namen verschiebt
     private onKeyPressed(ev: JQueryEventObject): void {
+        // Tasten innerhalb eines Zeitraums von einer Sekunde werden zu einem zu vergleichenden Gesamtpräfix zusammengefasst
         var now = $.now();
         if (now >= this.nextReset)
             this.search = '';
@@ -284,6 +286,7 @@ class SeriesTreeSelector {
         this.search = (this.search + ev.char).toLowerCase();
         this.nextReset = now + 1000;
 
+        // Wir suchen hier nach dem vollständigen (hierarchischen) Namen, was uns in der ersten Version erlaubt, auf ein Aufklappen zu verzichten
         var nodes = this.container.find('[' + SeriesTreeSelector.attributeName + ']');
         for (var i = 0; i < nodes.length; i++) {
             var node = $(nodes[i]);
@@ -292,11 +295,14 @@ class SeriesTreeSelector {
                 if (name.substr(0, this.search.length).toLowerCase() == this.search) {
                     this.scrollTo(node);
 
+                    ev.preventDefault();
+
                     return;
                 }
         }
     }
 
+    // Wenn das jQuery UI Accordion geöffnet wirde, müssen wir irgendwie einen sinnvollen Anfangszustand herstellen
     activate(): void {
         this.container.focus();
         this.nextReset = 0;
@@ -304,39 +310,18 @@ class SeriesTreeSelector {
         this.scrollToSelected();
     }
 
-    private scrollToSelected(): void {
-        this.scrollTo(this.selected());
-    }
-
-    private scrollTo(selected: JQuery): void {
-        if (selected.length < 1)
-            return;
-
-        var firstTop = this.container.children().first().offset().top;
-        var selectedTop = selected.offset().top;
-
-        this.container.scrollTop(selectedTop - firstTop);
-    }
-
-    resetFilter(): void {
-        this.selected().removeClass(Styles.selectedNode);
-    }
-
-    initialize(series: ISeriesMapping[]): void {
-        this.container.empty();
-
-        this.buildTree(series.filter(s => s.parentId == null), this.container);
-    }
-
+    // Ermittelt die aktuell ausgewählte Serie
     private selected(): JQuery {
         return this.container.find('.' + Styles.selectedNode);
     }
 
+    // Wählt eine bestimmt Serie aus
     private selectNode(node: JQuery): void {
         var wasSelected = node.hasClass(Styles.selectedNode);
 
         this.resetFilter();
 
+        // Die Änderung wird an unseren Chef gemeldet
         if (wasSelected)
             this.whenChanged(null, null);
         else {
@@ -344,6 +329,43 @@ class SeriesTreeSelector {
 
             this.whenChanged(node.attr(SeriesTreeSelector.attributeId), node.attr(SeriesTreeSelector.attributeName));
         }
+    }
+
+    // Stellt sicher, dass die aktuell ausgewählte Serie ganz oben angezeigt wird
+    private scrollToSelected(): void {
+        this.scrollTo(this.selected());
+    }
+
+    // Stellt sicher, dass eine beliebige Serie ganz oben dargestellt wird
+    private scrollTo(selected: JQuery): void {
+        if (selected.length < 1)
+            return;
+
+        // Alles aufklappen, damit wir die Serie überhaupt sehen können
+        for (var parent = selected.parent(); (parent.length == 1) && (parent[0] !== this.container[0]); parent = parent.parent()) {
+            var toggle = parent.prev().children().first();
+            if (toggle.hasClass(Styles.collapsed))
+                toggle.removeClass(Styles.collapsed).addClass(Styles.expanded);
+
+            parent.removeClass(Styles.invisble);
+        }
+
+        var firstTop = this.container.children().first().offset().top;
+        var selectedTop = selected.offset().top;
+
+        this.container.scrollTop(selectedTop - firstTop);
+    }
+
+    // Hebt die aktuelle Auswahl auf
+    resetFilter(): void {
+        this.selected().removeClass(Styles.selectedNode);
+    }
+
+    // Baut die Hierarchie der Serien auf
+    initialize(series: ISeriesMapping[]): void {
+        this.container.empty();
+
+        this.buildTree(series.filter(s => s.parentId == null), this.container);
     }
 
     // Erzeugt einen Knoten oder ein Blatt für eine konkrete Serie
@@ -370,7 +392,7 @@ class SeriesTreeSelector {
     // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
     private buildTree(children: ISeriesMapping[], parent: JQuery): void {
         $.each(children, (index, item) => {
-            
+
             // Für jede Serie wird ein gesondertes Fragment erzeugt
             var child = $('<div />').appendTo(parent);
 

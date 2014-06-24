@@ -136,7 +136,7 @@ var GenreSelector = (function () {
     };
 
     GenreSelector.prototype.setCount = function (count) {
-        this.label.text(this.description + ' (' + count + ')');
+        this.checkbox.button('option', 'text', this.description + ' (' + count + ')');
 
         this.checkbox.removeClass(Styles.invisble);
         this.label.removeClass(Styles.invisble);
@@ -202,7 +202,7 @@ var LanguageSelector = (function () {
     };
 
     LanguageSelector.prototype.setCount = function (count) {
-        this.label.text(this.description + ' (' + count + ')');
+        this.radio.button('option', 'text', this.description + ' (' + count + ')');
 
         this.radio.removeClass(Styles.invisble);
         this.label.removeClass(Styles.invisble);
@@ -222,14 +222,13 @@ var LanguageSelectors = (function () {
         this.languages = {};
 
         $('<input />', { type: 'radio', id: 'anyLanguageChoice', name: LanguageSelector.optionGroupName, value: '' }).appendTo(this.container);
-        $('<label />', { 'for': 'anyLanguageChoice' }).appendTo(this.container);
+        $('<label />', { 'for': 'anyLanguageChoice', text: '(egal)' }).appendTo(this.container);
 
         $.each(languages, function (index, language) {
             return _this.languages[language.id] = new LanguageSelector(language, _this.container);
         });
 
         this.container.find('input').button();
-        this.container.find('label').first().text('(egal)');
 
         this.resetFilter();
     };
@@ -265,6 +264,7 @@ var SeriesSelectors = (function () {
     return SeriesSelectors;
 })();
 
+// Bietet die Hierarchie der Serien zur Auswahl im Filter an
 var SeriesTreeSelector = (function () {
     function SeriesTreeSelector(containerSelector, onChanged) {
         var _this = this;
@@ -274,7 +274,9 @@ var SeriesTreeSelector = (function () {
         });
         this.whenChanged = onChanged;
     }
+    // Ein Tastendruck führt im allgemeinen dazu, dass sich die Liste auf den ersten Eintrag mit einem passenden Namen verschiebt
     SeriesTreeSelector.prototype.onKeyPressed = function (ev) {
+        // Tasten innerhalb eines Zeitraums von einer Sekunde werden zu einem zu vergleichenden Gesamtpräfix zusammengefasst
         var now = $.now();
         if (now >= this.nextReset)
             this.search = '';
@@ -282,6 +284,7 @@ var SeriesTreeSelector = (function () {
         this.search = (this.search + ev.char).toLowerCase();
         this.nextReset = now + 1000;
 
+        // Wir suchen hier nach dem vollständigen (hierarchischen) Namen, was uns in der ersten Version erlaubt, auf ein Aufklappen zu verzichten
         var nodes = this.container.find('[' + SeriesTreeSelector.attributeName + ']');
         for (var i = 0; i < nodes.length; i++) {
             var node = $(nodes[i]);
@@ -290,11 +293,14 @@ var SeriesTreeSelector = (function () {
                 if (name.substr(0, this.search.length).toLowerCase() == this.search) {
                     this.scrollTo(node);
 
+                    ev.preventDefault();
+
                     return;
                 }
         }
     };
 
+    // Wenn das jQuery UI Accordion geöffnet wirde, müssen wir irgendwie einen sinnvollen Anfangszustand herstellen
     SeriesTreeSelector.prototype.activate = function () {
         this.container.focus();
         this.nextReset = 0;
@@ -302,41 +308,18 @@ var SeriesTreeSelector = (function () {
         this.scrollToSelected();
     };
 
-    SeriesTreeSelector.prototype.scrollToSelected = function () {
-        this.scrollTo(this.selected());
-    };
-
-    SeriesTreeSelector.prototype.scrollTo = function (selected) {
-        if (selected.length < 1)
-            return;
-
-        var firstTop = this.container.children().first().offset().top;
-        var selectedTop = selected.offset().top;
-
-        this.container.scrollTop(selectedTop - firstTop);
-    };
-
-    SeriesTreeSelector.prototype.resetFilter = function () {
-        this.selected().removeClass(Styles.selectedNode);
-    };
-
-    SeriesTreeSelector.prototype.initialize = function (series) {
-        this.container.empty();
-
-        this.buildTree(series.filter(function (s) {
-            return s.parentId == null;
-        }), this.container);
-    };
-
+    // Ermittelt die aktuell ausgewählte Serie
     SeriesTreeSelector.prototype.selected = function () {
         return this.container.find('.' + Styles.selectedNode);
     };
 
+    // Wählt eine bestimmt Serie aus
     SeriesTreeSelector.prototype.selectNode = function (node) {
         var wasSelected = node.hasClass(Styles.selectedNode);
 
         this.resetFilter();
 
+        // Die Änderung wird an unseren Chef gemeldet
         if (wasSelected)
             this.whenChanged(null, null);
         else {
@@ -344,6 +327,44 @@ var SeriesTreeSelector = (function () {
 
             this.whenChanged(node.attr(SeriesTreeSelector.attributeId), node.attr(SeriesTreeSelector.attributeName));
         }
+    };
+
+    // Stellt sicher, dass die aktuell ausgewählte Serie ganz oben angezeigt wird
+    SeriesTreeSelector.prototype.scrollToSelected = function () {
+        this.scrollTo(this.selected());
+    };
+
+    // Stellt sicher, dass eine beliebige Serie ganz oben dargestellt wird
+    SeriesTreeSelector.prototype.scrollTo = function (selected) {
+        if (selected.length < 1)
+            return;
+
+        for (var parent = selected.parent(); (parent.length == 1) && (parent[0] !== this.container[0]); parent = parent.parent()) {
+            var toggle = parent.prev().children().first();
+            if (toggle.hasClass(Styles.collapsed))
+                toggle.removeClass(Styles.collapsed).addClass(Styles.expanded);
+
+            parent.removeClass(Styles.invisble);
+        }
+
+        var firstTop = this.container.children().first().offset().top;
+        var selectedTop = selected.offset().top;
+
+        this.container.scrollTop(selectedTop - firstTop);
+    };
+
+    // Hebt die aktuelle Auswahl auf
+    SeriesTreeSelector.prototype.resetFilter = function () {
+        this.selected().removeClass(Styles.selectedNode);
+    };
+
+    // Baut die Hierarchie der Serien auf
+    SeriesTreeSelector.prototype.initialize = function (series) {
+        this.container.empty();
+
+        this.buildTree(series.filter(function (s) {
+            return s.parentId == null;
+        }), this.container);
     };
 
     // Erzeugt einen Knoten oder ein Blatt für eine konkrete Serie

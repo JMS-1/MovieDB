@@ -150,7 +150,7 @@ var MovieDatabase;
 
                 pageButtons.addClass(Styles.invisble);
             } else {
-                pageSizeCount.text(' von ' + results.total);
+                pageSizeCount.text(results.total);
 
                 pageButtons.removeClass(Styles.invisble);
                 pageButtons.empty();
@@ -391,7 +391,7 @@ var MovieDatabase;
                 _this.recordingFilter.query();
             });
 
-            $('#resetQuery').button().click(function () {
+            $('#resetQuery').click(function () {
                 return _this.recordingFilter.reset(true);
             });
 
