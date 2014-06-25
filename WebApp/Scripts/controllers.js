@@ -1,14 +1,14 @@
 ﻿// Die Auswahl des Verleihers wird über drei separate Optionsfelder realisiert
 var RentFilterController = (function () {
-    function RentFilterController(view, model) {
+    function RentFilterController(view) {
         var _this = this;
         this.view = view;
-        this.model = model;
+        this.model = new RentFilterModel();
         this.view.accordion(Styles.accordionSettings).find('input').button().change(function () {
             return _this.viewToModel();
         });
 
-        this.model.change(function (newValue, oldValue) {
+        this.model.change(function () {
             return _this.modelToView();
         });
 
@@ -39,18 +39,17 @@ var RentFilterController = (function () {
 
 /// Die Auswahl der Sprache erfolgt durch eine Reihe von Alternativen
 var LanguageFilterController = (function () {
-    function LanguageFilterController(view, model, getLanguageName) {
+    function LanguageFilterController(view) {
         var _this = this;
         this.view = view;
-        this.model = model;
-        this.getLanguageName = getLanguageName;
+        this.model = new LanguageFilterModel();
         this.view.accordion(Styles.accordionSettings);
 
         this.languageMap = new LanguageSelectors(view.find('.container'), function () {
             return _this.viewToModel();
         });
 
-        this.model.change(function (newValue, oldValue) {
+        this.model.change(function () {
             return _this.modelToView();
         });
 
@@ -65,7 +64,7 @@ var LanguageFilterController = (function () {
 
         this.languageMap.val(val);
 
-        this.view.find('.header').text(this.getLanguageName(val));
+        this.view.find('.header').text(this.languageMap.lookupLanguageName(val) || '(egal)');
     };
 
     LanguageFilterController.prototype.initialize = function (languages) {
@@ -76,5 +75,51 @@ var LanguageFilterController = (function () {
         this.languageMap.setCounts(languages);
     };
     return LanguageFilterController;
+})();
+
+// Bei den Kategorien ist im Filter eine Mehrfachauswahl möglich
+var GenreFilterController = (function () {
+    function GenreFilterController(view) {
+        var _this = this;
+        this.view = view;
+        this.model = new GenreFilterModel();
+        this.view.accordion(Styles.accordionSettings);
+
+        this.genreMap = new GenreSelectors(view.find('.container'), function () {
+            return _this.viewToModel();
+        });
+
+        this.model.change(function () {
+            return _this.modelToView();
+        });
+
+        this.modelToView();
+    }
+    GenreFilterController.prototype.viewToModel = function () {
+        this.model.val(this.genreMap.val());
+    };
+
+    GenreFilterController.prototype.modelToView = function () {
+        var _this = this;
+        var genres = this.model.val();
+
+        this.genreMap.val(genres);
+
+        if (genres.length < 1)
+            this.view.find('.header').text('(egal)');
+        else
+            this.view.find('.header').text($.map(genres, function (genre) {
+                return _this.genreMap.lookupGenreName(genre);
+            }).join(' und '));
+    };
+
+    GenreFilterController.prototype.initialize = function (genres) {
+        this.genreMap.initialize(genres);
+    };
+
+    GenreFilterController.prototype.setCounts = function (genres) {
+        this.genreMap.setCounts(genres);
+    };
+    return GenreFilterController;
 })();
 //# sourceMappingURL=controllers.js.map

@@ -122,7 +122,7 @@ var GenreSelector = (function () {
             type: 'checkbox',
             name: genre.id,
             id: id
-        }).appendTo(container).change(onChange).attr('data-text', genre.name);
+        }).appendTo(container).change(onChange);
 
         this.label = $('<label />', { 'for': id, text: genre.name }).appendTo(container);
         this.description = genre.name;
@@ -149,17 +149,18 @@ var GenreSelector = (function () {
 })();
 
 var GenreSelectors = (function () {
-    function GenreSelectors(containerSelector) {
+    function GenreSelectors(container, onChange) {
+        this.container = container;
+        this.onChange = onChange;
         this.genres = {};
-        this.container = $(containerSelector);
     }
-    GenreSelectors.prototype.initialize = function (genres, onChange) {
+    GenreSelectors.prototype.initialize = function (genres) {
         var _this = this;
         this.container.empty();
         this.genres = {};
 
         $.each(genres, function (index, genre) {
-            return _this.genres[genre.id] = new GenreSelector(genre, _this.container, onChange);
+            return _this.genres[genre.id] = new GenreSelector(genre, _this.container, _this.onChange);
         });
     };
 
@@ -173,16 +174,31 @@ var GenreSelectors = (function () {
         });
     };
 
-    GenreSelectors.prototype.resetFilter = function () {
-        this.foreachSelected(function (checkbox) {
-            return checkbox.prop('checked', false).button('refresh');
-        });
+    GenreSelectors.prototype.lookupGenreName = function (genre) {
+        return this.genres[genre].description;
     };
 
-    GenreSelectors.prototype.foreachSelected = function (processor) {
+    GenreSelectors.prototype.val = function (genres) {
+        if (typeof genres === "undefined") { genres = undefined; }
+        if (genres !== undefined) {
+            var newValue = {};
+
+            $.each(genres, function (index, genre) {
+                return newValue[genre] = true;
+            });
+
+            this.container.find('input[type=checkbox]').each(function (index, checkbox) {
+                return $(checkbox).prop('checked', newValue[checkbox.getAttribute('name')] || false).button('refresh');
+            });
+        }
+
+        var selected = [];
+
         this.container.find('input[type=checkbox]:checked').each(function (index, checkbox) {
-            return processor($(checkbox));
+            return selected.push(checkbox.getAttribute('name'));
         });
+
+        return selected;
     };
     return GenreSelectors;
 })();
@@ -245,6 +261,17 @@ var LanguageSelectors = (function () {
         $.each(statistics, function (index, language) {
             return _this.languages[language.id].setCount(language.count);
         });
+    };
+
+    LanguageSelectors.prototype.lookupLanguageName = function (language) {
+        if (language == null)
+            return null;
+
+        var selector = this.languages[language];
+        if (selector == null)
+            return null;
+        else
+            return selector.description;
     };
 
     LanguageSelectors.prototype.val = function (language) {

@@ -1,30 +1,35 @@
 ﻿
-// Auswahl des Verleihers (verliehen / nicht verliehen / egal)
-class RentFilterModel {
-    private value: boolean = null
+// Basisklasse für ein einfaches Modell mit nur einem Wert
+class Model<TModelType, TSimpleType>{
+    private onChange: { (): void }[] = [];
 
-    private onChange: { (newValue: boolean, oldValue: boolean): void }[] = [];
-
-    change(callback: (newValue: boolean, oldValue: boolean) => void): RentFilterModel {
+    // Hier kann sich ein Interessent an Änderungen des einzigen Wertes anmelden
+    change(callback: () => void): TModelType {
         if (callback != null)
             this.onChange.push(callback);
 
-        return this;
+        return <TModelType><any>this;
     }
 
-    val(): boolean;
+    private onChanged(): void {
+        $.each(this.onChange, (index, callback) => callback());
+    }
 
-    val(newValue: boolean): boolean;
+    // Das wäre dann der einzige Wert
+    private value: TSimpleType = null;
 
-    val(newValue: boolean = undefined): any {
+    val(): TSimpleType;
+
+    val(newValue: TSimpleType): TSimpleType;
+
+    val(newValue: TSimpleType = undefined): any {
         // Vielleicht will ja nur jemand den aktuellen Wert kennen lernen
         if (newValue !== undefined) {
-            var oldValue = this.value;
-            if (newValue != oldValue) {
+            if (newValue != this.value) {
                 this.value = newValue;
 
                 // Wenn sich der Wert verändert hat, dann müssen wir alle Interessenten informieren
-                $.each(this.onChange, (index, callback) => callback(newValue, oldValue));
+                this.onChanged();
             }
         }
 
@@ -33,36 +38,20 @@ class RentFilterModel {
     }
 }
 
+// Auswahl des Verleihers (verliehen / nicht verliehen / egal)
+class RentFilterModel extends Model<RentFilterModel, boolean> {
+}
+
 // Die Auswahl der Sprache (eindeutige Kennung / egal)
-class LanguageFilterModel {
-    private value: string = null
+class LanguageFilterModel extends Model<LanguageFilterModel, string> {
+}
 
-    private onChange: { (newLanguage: string, oldLanguage: string): void }[] = [];
+// Die Auswahl der Kategorien (Liste eindeutiger Kennungen)
+class GenreFilterModel extends Model<GenreFilterModel, string[]> {
+    constructor() {
+        super();
 
-    change(callback: (newLanguage: string, oldLanguage: string) => void): LanguageFilterModel {
-        if (callback != null)
-            this.onChange.push(callback);
-
-        return this;
-    }
-
-    val(): string;
-
-    val(newLanguage: string): string;
-
-    val(newLanguage: string = undefined): any {
-        // Vielleicht will ja nur jemand den aktuellen Wert kennen lernen
-        if (newLanguage !== undefined) {
-            var oldLanguage = this.value;
-            if (newLanguage != oldLanguage) {
-                this.value = newLanguage;
-
-                // Wenn sich der Wert verändert hat, dann müssen wir alle Interessenten informieren
-                $.each(this.onChange, (index, callback) => callback(newLanguage, oldLanguage));
-            }
-        }
-
-        // Wir melden immer den nun aktuellen Wert
-        return this.value;
+        // Wir stellen sicher, dass immer ein (wenn auch leeres) Feld vorhanden ist
+        super.val([]);
     }
 }

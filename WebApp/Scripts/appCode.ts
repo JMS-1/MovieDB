@@ -327,8 +327,8 @@ module MovieDatabase {
             // Man beachte, dass alle der folgenden Benachrichtigungen immer an den aktuellen Änderungsvorgang koppeln, so dass keine Abmeldung notwendig ist
             var validateRecordingEditForm = () => this.currentRecording.validate();
 
-            this.recordingFilter = new RecordingFilter(result => this.fillResultTable(result), series => this.allSeries[series], language => this.allLanguages[language] || '(egal)');
             this.seriesDialog = new SeriesEditor('.openSeriesEditDialog', () => this.requestApplicationInformation(), series => this.getChildren(series));
+            this.recordingFilter = new RecordingFilter(result => this.fillResultTable(result), series => this.allSeries[series]);
             this.containerDialog = new ContainerEditor('.openContainerEditDialog', () => this.requestApplicationInformation());
             this.languageEditor = new MultiValueEditor<ILanguageContract>('#recordingEditLanguage', validateRecordingEditForm);
             this.languageDialog = new LanguageEditor('.openLanguageEditDialog', () => this.requestApplicationInformation());

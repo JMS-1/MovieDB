@@ -1,14 +1,16 @@
 ﻿
 // Die Auswahl des Verleihers wird über drei separate Optionsfelder realisiert
 class RentFilterController {
-    constructor(public view: JQuery, public model: RentFilterModel) {
+    private model = new RentFilterModel();
+
+    constructor(private view: JQuery) {
         this.view
             .accordion(Styles.accordionSettings)
             .find('input')
             .button()
             .change(() => this.viewToModel());
 
-        this.model.change((newValue, oldValue) => this.modelToView());
+        this.model.change(() => this.modelToView());
 
         this.modelToView();
     }
@@ -37,12 +39,14 @@ class RentFilterController {
 
 /// Die Auswahl der Sprache erfolgt durch eine Reihe von Alternativen
 class LanguageFilterController {
-    constructor(public view: JQuery, public model: LanguageFilterModel, private getLanguageName: (identifier: string) => string) {
+    private model = new LanguageFilterModel();
+
+    constructor(private view: JQuery) {
         this.view.accordion(Styles.accordionSettings);
-        
+
         this.languageMap = new LanguageSelectors(view.find('.container'), () => this.viewToModel());
 
-        this.model.change((newValue, oldValue) => this.modelToView());
+        this.model.change(() => this.modelToView());
 
         this.modelToView();
     }
@@ -58,7 +62,7 @@ class LanguageFilterController {
 
         this.languageMap.val(val);
 
-        this.view.find('.header').text(this.getLanguageName(val));
+        this.view.find('.header').text(this.languageMap.lookupLanguageName(val) || '(egal)');
     }
 
     initialize(languages: ILanguageContract[]): void {
@@ -67,5 +71,45 @@ class LanguageFilterController {
 
     setCounts(languages: ILanguageStatisticsContract[]): void {
         this.languageMap.setCounts(languages);
+    }
+}
+
+// Bei den Kategorien ist im Filter eine Mehrfachauswahl möglich
+class GenreFilterController {
+    private model = new GenreFilterModel();
+
+    constructor(private view: JQuery) {
+        this.view.accordion(Styles.accordionSettings);
+
+        this.genreMap = new GenreSelectors(view.find('.container'), () => this.viewToModel());
+
+        this.model.change(() => this.modelToView());
+
+        this.modelToView();
+    }
+
+    private genreMap: GenreSelectors;
+
+    private viewToModel() {
+        this.model.val(this.genreMap.val());
+    }
+
+    private modelToView(): void {
+        var genres = this.model.val();
+
+        this.genreMap.val(genres);
+
+        if (genres.length < 1)
+            this.view.find('.header').text('(egal)');
+        else
+            this.view.find('.header').text($.map(genres, genre => this.genreMap.lookupGenreName(genre)).join(' und '));
+    }
+
+    initialize(genres: IGenreContract[]): void {
+        this.genreMap.initialize(genres);
+    }
+
+    setCounts(genres: IGenreStatisticsContract[]): void {
+        this.genreMap.setCounts(genres);
     }
 }

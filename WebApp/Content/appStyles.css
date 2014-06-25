@@ -139,25 +139,29 @@
 }
 .filterCollapsable,
 .rentFilter,
-.languageFilter {
+.languageFilter,
+.genreFilter {
   clear: both;
   margin: 5px 0px 5px 20px;
 }
 .filterCollapsable .ui-accordion-content,
 .rentFilter .ui-accordion-content,
-.languageFilter .ui-accordion-content {
+.languageFilter .ui-accordion-content,
+.genreFilter .ui-accordion-content {
   margin-left: 10px;
   padding: 2px 5px 5px 5px;
 }
 .filterCollapsable h3,
 .rentFilter h3,
-.languageFilter h3 {
+.languageFilter h3,
+.genreFilter h3 {
   font-weight: bold;
   font-size: small;
 }
 .filterCollapsable label,
 .rentFilter label,
-.languageFilter label {
+.languageFilter label,
+.genreFilter label {
   font-size: small !important;
   margin-right: 10px !important;
   width: 15em;

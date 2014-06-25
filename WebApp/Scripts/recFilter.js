@@ -10,7 +10,7 @@
 // Die Verwaltung der Suche nach Aufzeichnungen
 var RecordingFilter = (function (_super) {
     __extends(RecordingFilter, _super);
-    function RecordingFilter(resultProcessor, getSeries, getLanguageName) {
+    function RecordingFilter(resultProcessor, getSeries) {
         _super.call(this);
         // Hiermit stellen wir sicher, dass ein nervös klickender Anwender immer nur das letzte Suchergebnis bekommt
         this.pending = 0;
@@ -19,15 +19,16 @@ var RecordingFilter = (function (_super) {
         // Gesetzt, wenn keine automatische Suche ausgelöst werden soll
         this.disallowQuery = false;
 
-        this.languageController = new LanguageFilterController($('.languageFilter'), new LanguageFilterModel(), getLanguageName);
-        this.rentController = new RentFilterController($('.rentFilter'), new RentFilterModel());
+        this.languageController = new LanguageFilterController($('.languageFilter'));
+        this.genreController = new GenreFilterController($('.genreFilter'));
+        this.rentController = new RentFilterController($('.rentFilter'));
 
         this.callback = resultProcessor;
         this.seriesLookup = getSeries;
 
         this.prepareText();
         this.prepareRent();
-        this.prepareGenre();
+        this.prepareGenres();
         this.prepareSeries();
         this.prepareLanguage();
 
@@ -39,14 +40,11 @@ var RecordingFilter = (function (_super) {
         try  {
             this.languageController.model.val(null);
             this.rentController.model.val(null);
+            this.genreController.model.val([]);
 
             this.series = [];
             this.seriesMap.resetFilter();
             $('#seriesFilterHeader').text('(egal)');
-
-            this.genres = [];
-            this.genreMap.resetFilter();
-            this.onGenreChanged(false);
 
             this.text = null;
             $('#textSearch').val(null);
@@ -102,9 +100,9 @@ var RecordingFilter = (function (_super) {
         // Suche zusammenstellen
         var request = {
             language: this.languageController.model.val(),
+            genres: this.genreController.model.val(),
             rent: this.rentController.model.val(),
             ascending: this.ascending,
-            genres: this.genres,
             series: this.series,
             order: this.order,
             text: this.text,
@@ -170,7 +168,7 @@ var RecordingFilter = (function (_super) {
     // Bereitet die Auswahl des Ausleihers vor
     RecordingFilter.prototype.prepareRent = function () {
         var _this = this;
-        this.rentController.model.change(function (newValue, oldValue) {
+        this.rentController.model.change(function () {
             return _this.query(true);
         });
     };
@@ -188,54 +186,27 @@ var RecordingFilter = (function (_super) {
     // Verbindet die Oberflächenelemente zur Auswahl der Sprache
     RecordingFilter.prototype.prepareLanguage = function () {
         var _this = this;
-        this.languageController.model.change(function (newLanguage, oldLanguage) {
+        this.languageController.model.change(function () {
             return _this.query(true);
         });
     };
 
     // Meldet alle bekannten Arten von Aufzeichnungen
     RecordingFilter.prototype.setGenres = function (genres) {
-        var _this = this;
-        this.genreMap.initialize(genres, function () {
-            return _this.onGenreChanged(true);
-        });
-        this.onGenreChanged(false);
+        this.genreController.initialize(genres);
     };
 
     // Meldet die Anzahl der Aufzeichnungen pro
     RecordingFilter.prototype.setGenreCounts = function (genres) {
-        this.genreMap.setCounts(genres);
-    };
-
-    // Die Auswahl der Art von Aufzeichnung wurde verändert
-    RecordingFilter.prototype.onGenreChanged = function (query) {
-        var _this = this;
-        var selected = [];
-
-        this.genres = [];
-        this.page = 0;
-
-        // Erst einmal sammeln wir alle Arten, die angewählt sind
-        this.genreMap.foreachSelected(function (checkbox) {
-            _this.genres.push(checkbox.attr('name'));
-
-            selected.push(checkbox.attr('data-text'));
-        });
-
-        // Dann machen wir daraus einen Gesamttext als schnelle Übersicht für den Anwender
-        var genreFilterHeader = $('#genreFilterHeader');
-        if (this.genres.length < 1)
-            genreFilterHeader.text('(egal)');
-        else
-            genreFilterHeader.text(selected.join(' und '));
-
-        if (query)
-            this.query();
+        this.genreController.setCounts(genres);
     };
 
     // Verbindet die Oberflächenelemente zur Auswahl der Art von Aufzeichnung
-    RecordingFilter.prototype.prepareGenre = function () {
-        this.genreMap = new GenreSelectors('#genreFilter');
+    RecordingFilter.prototype.prepareGenres = function () {
+        var _this = this;
+        this.genreController.model.change(function () {
+            return _this.query(true);
+        });
     };
 
     // Fügt eine Serie und alle untergeordneten Serien zur Suche hinzu

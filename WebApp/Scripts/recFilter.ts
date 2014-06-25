@@ -22,18 +22,19 @@ interface ISeriesMapping extends ISeriesMappingContract {
 
 // Die Verwaltung der Suche nach Aufzeichnungen
 class RecordingFilter extends SearchRequestContract {
-    constructor(resultProcessor: (result: ISearchInformation) => void, getSeries: (series: string) => ISeriesMapping, getLanguageName: (identifier: string) => string) {
+    constructor(resultProcessor: (result: ISearchInformation) => void, getSeries: (series: string) => ISeriesMapping) {
         super();
 
-        this.languageController = new LanguageFilterController($('.languageFilter'), new LanguageFilterModel(), getLanguageName);
-        this.rentController = new RentFilterController($('.rentFilter'), new RentFilterModel());
+        this.languageController = new LanguageFilterController($('.languageFilter'));
+        this.genreController = new GenreFilterController($('.genreFilter'));
+        this.rentController = new RentFilterController($('.rentFilter'));
 
         this.callback = resultProcessor;
         this.seriesLookup = getSeries;
 
         this.prepareText();
         this.prepareRent();
-        this.prepareGenre();
+        this.prepareGenres();
         this.prepareSeries();
         this.prepareLanguage();
 
@@ -45,6 +46,9 @@ class RecordingFilter extends SearchRequestContract {
 
     // Verwaltet die Auswahl der Sprache
     private languageController;
+
+    // Verwaltet die Auswahl der Kategorien
+    private genreController;
 
     // Hiermit stellen wir sicher, dass ein nervös klickender Anwender immer nur das letzte Suchergebnis bekommt
     private pending: number = 0;
@@ -58,9 +62,6 @@ class RecordingFilter extends SearchRequestContract {
     // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
     private timeout: number = null;
 
-    // Die Auswahl der Kategorien
-    private genreMap: GenreSelectors;
-
     // Die Auswahl der Serien
     private seriesMap: SeriesTreeSelector;
 
@@ -73,14 +74,11 @@ class RecordingFilter extends SearchRequestContract {
         try {
             this.languageController.model.val(null);
             this.rentController.model.val(null);
+            this.genreController.model.val([]);
 
             this.series = [];
             this.seriesMap.resetFilter();
             $('#seriesFilterHeader').text('(egal)');
-
-            this.genres = [];
-            this.genreMap.resetFilter();
-            this.onGenreChanged(false);
 
             this.text = null;
             $('#textSearch').val(null);
@@ -135,9 +133,9 @@ class RecordingFilter extends SearchRequestContract {
         // Suche zusammenstellen
         var request: SearchRequestContract = {
             language: this.languageController.model.val(),
+            genres: this.genreController.model.val(),
             rent: this.rentController.model.val(),
             ascending: this.ascending,
-            genres: this.genres,
             series: this.series,
             order: this.order,
             text: this.text,
@@ -190,7 +188,7 @@ class RecordingFilter extends SearchRequestContract {
 
     // Bereitet die Auswahl des Ausleihers vor
     private prepareRent(): void {
-        this.rentController.model.change((newValue, oldValue) => this.query(true));
+        this.rentController.model.change(() => this.query(true));
     }
 
     // Legt die bekannten Sprachen fest
@@ -205,48 +203,22 @@ class RecordingFilter extends SearchRequestContract {
 
     // Verbindet die Oberflächenelemente zur Auswahl der Sprache
     private prepareLanguage(): void {
-        this.languageController.model.change((newLanguage, oldLanguage) => this.query(true));
+        this.languageController.model.change(() => this.query(true));
     }
 
     // Meldet alle bekannten Arten von Aufzeichnungen
     setGenres(genres: IGenreContract[]): void {
-        this.genreMap.initialize(genres, () => this.onGenreChanged(true));
-        this.onGenreChanged(false);
+        this.genreController.initialize(genres);
     }
 
     // Meldet die Anzahl der Aufzeichnungen pro 
     setGenreCounts(genres: IGenreStatisticsContract[]): void {
-        this.genreMap.setCounts(genres);
-    }
-
-    // Die Auswahl der Art von Aufzeichnung wurde verändert
-    private onGenreChanged(query: boolean): void {
-        var selected: string[] = [];
-
-        this.genres = [];
-        this.page = 0;
-
-        // Erst einmal sammeln wir alle Arten, die angewählt sind
-        this.genreMap.foreachSelected(checkbox => {
-            this.genres.push(checkbox.attr('name'));
-
-            selected.push(checkbox.attr('data-text'));
-        });
-
-        // Dann machen wir daraus einen Gesamttext als schnelle Übersicht für den Anwender
-        var genreFilterHeader = $('#genreFilterHeader');
-        if (this.genres.length < 1)
-            genreFilterHeader.text('(egal)');
-        else
-            genreFilterHeader.text(selected.join(' und '));
-
-        if (query)
-            this.query();
-    }
+        this.genreController.setCounts(genres);
+    }  
 
     // Verbindet die Oberflächenelemente zur Auswahl der Art von Aufzeichnung
-    private prepareGenre(): void {
-        this.genreMap = new GenreSelectors('#genreFilter');
+    private prepareGenres(): void {
+        this.genreController.model.change(() => this.query(true));
     }
 
     // Fügt eine Serie und alle untergeordneten Serien zur Suche hinzu

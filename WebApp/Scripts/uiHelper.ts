@@ -111,8 +111,7 @@ class GenreSelector {
                 id: id,
             })
             .appendTo(container)
-            .change(onChange)
-            .attr('data-text', genre.name);
+            .change(onChange);
 
         this.label = $('<label />', { 'for': id, text: genre.name }).appendTo(container);
         this.description = genre.name;
@@ -124,7 +123,7 @@ class GenreSelector {
 
     private label: JQuery;
 
-    private description: string;
+    description: string;
 
     reset(): void {
         if (this.checkbox.prop('checked')) {
@@ -148,17 +147,14 @@ class GenreSelector {
 class GenreSelectors {
     private genres: any = {};
 
-    container: JQuery;
-
-    constructor(containerSelector: string) {
-        this.container = $(containerSelector);
+    constructor(public container: JQuery, private onChange: () => void) {
     }
 
-    initialize(genres: IGenreContract[], onChange: () => void): void {
+    initialize(genres: IGenreContract[]): void {
         this.container.empty();
         this.genres = {};
 
-        $.each(genres, (index, genre) => this.genres[genre.id] = new GenreSelector(genre, this.container, onChange));
+        $.each(genres, (index, genre) => this.genres[genre.id] = new GenreSelector(genre, this.container, this.onChange));
     }
 
     setCounts(statistics: IGenreStatisticsContract[]): void {
@@ -166,12 +162,28 @@ class GenreSelectors {
         $.each(statistics, (index, genre) => (<GenreSelector>this.genres[genre.id]).setCount(genre.count));
     }
 
-    resetFilter(): void {
-        this.foreachSelected(checkbox => checkbox.prop('checked', false).button('refresh'));
+    lookupGenreName(genre: string): string {
+        return this.genres[genre].description;
     }
 
-    foreachSelected(processor: (checkbox: JQuery) => void): void {
-        this.container.find('input[type=checkbox]:checked').each((index, checkbox) => processor($(checkbox)));
+    val(): string[];
+
+    val(genres: string[]): string[];
+
+    val(genres: string[]= undefined): any {
+        if (genres !== undefined) {
+            var newValue: any = {};
+
+            $.each(genres, (index, genre) => newValue[genre] = true);
+
+            this.container.find('input[type=checkbox]').each((index, checkbox) => $(checkbox).prop('checked', newValue[checkbox.getAttribute('name')] || false).button('refresh'));
+        }
+
+        var selected: string[] = [];
+
+        this.container.find('input[type=checkbox]:checked').each((index, checkbox) => selected.push(checkbox.getAttribute('name')));
+
+        return selected;
     }
 }
 
@@ -190,7 +202,7 @@ class LanguageSelector {
 
     private label: JQuery;
 
-    private description: string;
+    description: string;
 
     reset(): void {
         if (this.radio.prop('checked')) {
@@ -234,6 +246,17 @@ class LanguageSelectors {
     setCounts(statistics: ILanguageStatisticsContract[]): void {
         $.each(this.languages, (key, language: LanguageSelector) => language.reset());
         $.each(statistics, (index, language) => (<LanguageSelector>this.languages[language.id]).setCount(language.count));
+    }
+
+    lookupLanguageName(language: string): string {
+        if (language == null)
+            return null;
+
+        var selector: LanguageSelector = this.languages[language];
+        if (selector == null)
+            return null;
+        else
+            return selector.description;
     }
 
     val(): string;
