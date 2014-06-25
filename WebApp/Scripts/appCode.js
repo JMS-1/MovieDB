@@ -1,6 +1,7 @@
 ﻿/// <reference path='typings/jquery/jquery.d.ts' />
 /// <reference path='typings/jqueryui/jqueryui.d.ts' />
 /// <reference path='interfaces.ts' />
+/// <reference path='models.ts' />
 /// <reference path='uiHelper.ts' />
 /// <reference path='recFilter.ts' />
 /// <reference path='recEdit.ts' />

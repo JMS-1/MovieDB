@@ -103,6 +103,7 @@
   font-size: small;
 }
 .textfilter .queryToEditButtons {
+  margin-bottom: 5px;
   float: right;
 }
 .seriesTree {
@@ -144,6 +145,7 @@
   padding: 2px 5px 5px 5px !important;
 }
 .filterCollapsable {
+  clear: both;
   margin: 5px 0px 5px 20px;
 }
 .filterCollapsable h3 {
@@ -153,7 +155,7 @@
 .filterCollapsable label {
   font-size: small !important;
   margin-right: 10px !important;
-  width: 17.5em;
+  width: 10em;
   padding: 2px;
 }
 /*# sourceMappingURL=appStyles.css.map */

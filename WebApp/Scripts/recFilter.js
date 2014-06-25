@@ -15,6 +15,8 @@ var RecordingFilter = (function (_super) {
     __extends(RecordingFilter, _super);
     function RecordingFilter(resultProcessor, getSeries, getLanguageName) {
         _super.call(this);
+        // Verwaltet die Auswahl für den Verleiher
+        this.rentModel = new RentFilterModel();
         // Hiermit stellen wir sicher, dass ein nervös klickender Anwender immer nur das letzte Suchergebnis bekommt
         this.pending = 0;
         // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
@@ -32,21 +34,6 @@ var RecordingFilter = (function (_super) {
 
         this.reset(false);
     }
-    // Stellt sicher, dass bei der Serialisierung keine internen Strukturen übertragen werden
-    RecordingFilter.propertyFilter = function (propertyName, propertyValue) {
-        if (propertyName != 'pending')
-            if (propertyName != 'callback')
-                if (propertyName != 'seriesLookup')
-                    if (propertyName != 'languageLookup')
-                        if (propertyName != 'languageMap')
-                            if (propertyName != 'genreMap')
-                                if (propertyName != 'seriesMap')
-                                    if (propertyName != 'timeout')
-                                        return propertyValue;
-
-        return undefined;
-    };
-
     // Setzt die Suchbedingung und die zugehörigen Oberflächenelemente auf den Grundzustand zurück und fordert ein neues Suchergebnis an
     RecordingFilter.prototype.reset = function (query) {
         this.language = null;
@@ -61,7 +48,7 @@ var RecordingFilter = (function (_super) {
         this.genreMap.resetFilter();
         this.onGenreChanged(false);
 
-        this.rent = null;
+        this.rentModel.val(null, false);
         $('#anyRent').prop('checked', true);
         $('#rentFilter').find('input').button('refresh');
         $('#rentFilterHeader').text('(egal)');
@@ -107,9 +94,22 @@ var RecordingFilter = (function (_super) {
         // Jede Suche bekommt eine neue Nummer und es wird immer nur das letzte Ergebnis ausgewertet
         var thisRequest = ++this.pending;
 
+        // Suche zusammenstellen
+        var request = {
+            rent: this.rentModel.val(),
+            ascending: this.ascending,
+            language: this.language,
+            genres: this.genres,
+            series: this.series,
+            order: this.order,
+            text: this.text,
+            size: this.size,
+            page: this.page
+        };
+
         $.ajax('movie/db/query', {
             contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify(this, RecordingFilter.propertyFilter),
+            data: JSON.stringify(request),
             dataType: 'json',
             type: 'POST'
         }).done(function (searchResult) {
@@ -164,24 +164,13 @@ var RecordingFilter = (function (_super) {
 
     // Die Auswahl des Ausleihers wurde verändert
     RecordingFilter.prototype.onRentChanged = function () {
-        // Es ist immer nur eine Auswahl aktiv
-        var choice = $('#rentFilter').find(':checked').val();
-
-        // Und uns interessieren nur Änderungen
-        var newRent = null;
-        if (choice.length > 0)
-            newRent = (choice == '1');
-        if (this.rent == newRent)
-            return;
-
-        // Feedback aktualisieren
+        var newRent = this.rentModel.val();
         if (newRent == null)
             $('#rentFilterHeader').text('(egal)');
         else
             $('#rentFilterHeader').text(newRent ? 'nur verliehene' : 'nur nicht verliehene');
 
         // Suche aktualisieren
-        this.rent = newRent;
         this.page = 0;
         this.query();
     };
@@ -189,8 +178,18 @@ var RecordingFilter = (function (_super) {
     // Bereitet die Auswahl des Ausleihers vor
     RecordingFilter.prototype.prepareRent = function () {
         var _this = this;
-        $('#rentFilter').find('input').button().change(function () {
+        this.rentModel.change(function (newValue, oldValue) {
             return _this.onRentChanged();
+        });
+
+        $('#rentFilter').find('input').button().change(function () {
+            var choice = $('#rentFilter').find(':checked').val();
+
+            var newRent = null;
+            if (choice.length > 0)
+                newRent = (choice == '1');
+
+            _this.rentModel.val(newRent);
         });
     };
 

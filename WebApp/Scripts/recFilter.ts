@@ -41,6 +41,9 @@ class RecordingFilter extends SearchRequestContract {
         this.reset(false);
     }
 
+    // Verwaltet die Auswahl für den Verleiher
+    private rentModel = new RentFilterModel();
+
     // Hiermit stellen wir sicher, dass ein nervös klickender Anwender immer nur das letzte Suchergebnis bekommt
     private pending: number = 0;
 
@@ -65,21 +68,6 @@ class RecordingFilter extends SearchRequestContract {
     // Die Auswahl der Serien
     private seriesMap: SeriesTreeSelector;
 
-    // Stellt sicher, dass bei der Serialisierung keine internen Strukturen übertragen werden
-    private static propertyFilter(propertyName: string, propertyValue: any): any {
-        if (propertyName != 'pending')
-            if (propertyName != 'callback')
-                if (propertyName != 'seriesLookup')
-                    if (propertyName != 'languageLookup')
-                        if (propertyName != 'languageMap')
-                            if (propertyName != 'genreMap')
-                                if (propertyName != 'seriesMap')
-                                    if (propertyName != 'timeout')
-                                        return propertyValue;
-
-        return undefined;
-    }
-
     // Setzt die Suchbedingung und die zugehörigen Oberflächenelemente auf den Grundzustand zurück und fordert ein neues Suchergebnis an
     reset(query: boolean): void {
         this.language = null;
@@ -94,7 +82,7 @@ class RecordingFilter extends SearchRequestContract {
         this.genreMap.resetFilter();
         this.onGenreChanged(false);
 
-        this.rent = null;
+        this.rentModel.val(null, false);
         $('#anyRent').prop('checked', true);
         $('#rentFilter').find('input').button('refresh');
         $('#rentFilterHeader').text('(egal)');
@@ -139,9 +127,22 @@ class RecordingFilter extends SearchRequestContract {
         // Jede Suche bekommt eine neue Nummer und es wird immer nur das letzte Ergebnis ausgewertet
         var thisRequest = ++this.pending;
 
+        // Suche zusammenstellen
+        var request: SearchRequestContract = {
+            rent: this.rentModel.val(),
+            ascending: this.ascending,
+            language: this.language,
+            genres: this.genres,
+            series: this.series,
+            order: this.order,
+            text: this.text,
+            size: this.size,
+            page: this.page,
+        };
+
         $.ajax('movie/db/query', {
             contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify(this, RecordingFilter.propertyFilter),
+            data: JSON.stringify(request),
             dataType: 'json',
             type: 'POST',
         }).done((searchResult: ISearchInformation) => {
@@ -184,31 +185,30 @@ class RecordingFilter extends SearchRequestContract {
 
     // Die Auswahl des Ausleihers wurde verändert
     private onRentChanged(): void {
-        // Es ist immer nur eine Auswahl aktiv
-        var choice: string = $('#rentFilter').find(':checked').val();
-
-        // Und uns interessieren nur Änderungen
-        var newRent: boolean = null;
-        if (choice.length > 0)
-            newRent = (choice == '1');
-        if (this.rent == newRent)
-            return;
-
-        // Feedback aktualisieren
+        var newRent = this.rentModel.val();
         if (newRent == null)
             $('#rentFilterHeader').text('(egal)');
         else
             $('#rentFilterHeader').text(newRent ? 'nur verliehene' : 'nur nicht verliehene');
 
         // Suche aktualisieren
-        this.rent = newRent;
         this.page = 0;
         this.query();
     }
 
     // Bereitet die Auswahl des Ausleihers vor
     private prepareRent(): void {
-        $('#rentFilter').find('input').button().change(() => this.onRentChanged());
+        this.rentModel.change((newValue, oldValue) => this.onRentChanged());
+
+        $('#rentFilter').find('input').button().change(() => {
+            var choice: string = $('#rentFilter').find(':checked').val();
+
+            var newRent: boolean = null;
+            if (choice.length > 0)
+                newRent = (choice == '1');
+
+            this.rentModel.val(newRent);
+        });
     }
 
     // Legt die bekannten Sprachen fest
