@@ -2,43 +2,79 @@
 var RentFilterController = (function () {
     function RentFilterController(view, model) {
         var _this = this;
-        var accordionSettings = {
-            active: false,
-            animate: false,
-            collapsible: true,
-            heightStyle: 'content'
-        };
-
-        view.accordion(accordionSettings).find('input').button().change(function () {
-            return _this.viewToModel(view, model);
+        this.view = view;
+        this.model = model;
+        this.view.accordion(Styles.accordionSettings).find('input').button().change(function () {
+            return _this.viewToModel();
         });
 
-        model.change(function (newValue, oldValue) {
-            return _this.modelToView(model, view);
+        this.model.change(function (newValue, oldValue) {
+            return _this.modelToView();
         });
 
-        this.modelToView(model, view);
+        this.modelToView();
     }
-    RentFilterController.prototype.viewToModel = function (view, model) {
-        var choice = view.find(':checked').val();
+    RentFilterController.prototype.viewToModel = function () {
+        var choice = this.view.find(':checked').val();
         if (choice.length < 1)
-            model.val(null);
+            this.model.val(null);
         else
-            model.val(choice == '1');
+            this.model.val(choice == '1');
     };
 
-    RentFilterController.prototype.modelToView = function (model, view) {
-        var val = model.val();
+    RentFilterController.prototype.modelToView = function () {
+        var val = this.model.val();
         var value = (val == null) ? '' : (val ? '1' : '0');
-        var selected = view.find('input[value="' + value + '"]').prop('checked', true);
 
-        view.find('input').button('refresh');
+        this.view.find('input[value="' + value + '"]').prop('checked', true);
+        this.view.find('input').button('refresh');
 
         if (val == null)
-            view.find('.header').text('(egal)');
+            this.view.find('.header').text('(egal)');
         else
-            view.find('.header').text(val ? 'nur verliehene' : 'nur nicht verliehene');
+            this.view.find('.header').text(val ? 'nur verliehene' : 'nur nicht verliehene');
     };
     return RentFilterController;
+})();
+
+/// Die Auswahl der Sprache erfolgt durch eine Reihe von Alternativen
+var LanguageFilterController = (function () {
+    function LanguageFilterController(view, model, getLanguageName) {
+        var _this = this;
+        this.view = view;
+        this.model = model;
+        this.getLanguageName = getLanguageName;
+        this.view.accordion(Styles.accordionSettings);
+
+        this.languageMap = new LanguageSelectors(view.find('.container'), function () {
+            return _this.viewToModel();
+        });
+
+        this.model.change(function (newValue, oldValue) {
+            return _this.modelToView();
+        });
+
+        this.modelToView();
+    }
+    LanguageFilterController.prototype.viewToModel = function () {
+        this.model.val(this.languageMap.val());
+    };
+
+    LanguageFilterController.prototype.modelToView = function () {
+        var val = this.model.val();
+
+        this.languageMap.val(val);
+
+        this.view.find('.header').text(this.getLanguageName(val));
+    };
+
+    LanguageFilterController.prototype.initialize = function (languages) {
+        this.languageMap.initialize(languages);
+    };
+
+    LanguageFilterController.prototype.setCounts = function (languages) {
+        this.languageMap.setCounts(languages);
+    };
+    return LanguageFilterController;
 })();
 //# sourceMappingURL=controllers.js.map

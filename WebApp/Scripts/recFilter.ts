@@ -25,7 +25,9 @@ class RecordingFilter extends SearchRequestContract {
     constructor(resultProcessor: (result: ISearchInformation) => void, getSeries: (series: string) => ISeriesMapping, getLanguageName: (identifier: string) => string) {
         super();
 
-        this.languageLookup = getLanguageName;
+        this.languageController = new LanguageFilterController($('.languageFilter'), new LanguageFilterModel(), getLanguageName);
+        this.rentController = new RentFilterController($('.rentFilter'), new RentFilterModel());
+
         this.callback = resultProcessor;
         this.seriesLookup = getSeries;
 
@@ -39,7 +41,10 @@ class RecordingFilter extends SearchRequestContract {
     }
 
     // Verwaltet die Auswahl für den Verleiher
-    private rentModel = new RentFilterModel();
+    private rentController;
+
+    // Verwaltet die Auswahl der Sprache
+    private languageController;
 
     // Hiermit stellen wir sicher, dass ein nervös klickender Anwender immer nur das letzte Suchergebnis bekommt
     private pending: number = 0;
@@ -50,14 +55,8 @@ class RecordingFilter extends SearchRequestContract {
     // Wird verwendet, um zur eindeutigen Kennung einer Serie die erweiterten Serieninformationen zu ermitteln
     private seriesLookup: (series: string) => ISeriesMapping;
 
-    // Ermittelt zur eindeutigen Kennung einer Sprache den Anzeigenamen
-    private languageLookup: (identifier: string) => string
-
     // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
     private timeout: number = null;
-
-    // Die Auswahl der Sprachen
-    private languageMap: LanguageSelectors;
 
     // Die Auswahl der Kategorien
     private genreMap: GenreSelectors;
@@ -72,9 +71,8 @@ class RecordingFilter extends SearchRequestContract {
     reset(query: boolean): void {
         this.disallowQuery = true;
         try {
-            this.language = null;
-            this.languageMap.resetFilter();
-            $('#languageFilterHeader').text(this.languageLookup(''));
+            this.languageController.model.val(null);
+            this.rentController.model.val(null);
 
             this.series = [];
             this.seriesMap.resetFilter();
@@ -83,8 +81,6 @@ class RecordingFilter extends SearchRequestContract {
             this.genres = [];
             this.genreMap.resetFilter();
             this.onGenreChanged(false);
-
-            this.rentModel.val(null);
 
             this.text = null;
             $('#textSearch').val(null);
@@ -138,9 +134,9 @@ class RecordingFilter extends SearchRequestContract {
 
         // Suche zusammenstellen
         var request: SearchRequestContract = {
-            rent: this.rentModel.val(),
+            language: this.languageController.model.val(),
+            rent: this.rentController.model.val(),
             ascending: this.ascending,
-            language: this.language,
             genres: this.genres,
             series: this.series,
             order: this.order,
@@ -194,41 +190,22 @@ class RecordingFilter extends SearchRequestContract {
 
     // Bereitet die Auswahl des Ausleihers vor
     private prepareRent(): void {
-        new RentFilterController($('.rentFilter'), this.rentModel.change((newValue, oldValue) => this.query(true)));
+        this.rentController.model.change((newValue, oldValue) => this.query(true));
     }
 
     // Legt die bekannten Sprachen fest
     setLanguages(languages: ILanguageContract[]): void {
-        this.language = null;
-        this.page = 0;
-
-        this.languageMap.initialize(languages);
+        this.languageController.initialize(languages);
     }
 
     // Setzt die Anzahl von Aufzeichnungen pro Sprache gemäß der aktuelle Suchbedingung
     setLanguageCounts(languages: ILanguageStatisticsContract[]): void {
-        this.languageMap.setCounts(languages);
-    }
-
-    // Die Auswahl der Sprache wurde verändert
-    private onLanguageChanged(): void {
-        // Wir reagieren nur auf Veränderungen
-        var newLanguage = this.languageMap.container.find(':checked').val();
-        if (this.language == newLanguage)
-            return;
-
-        $('#languageFilterHeader').text(this.languageLookup(newLanguage));
-
-        // Suche aktualisieren
-        this.language = newLanguage;
-        this.page = 0;
-        this.query();
+        this.languageController.setCounts(languages);
     }
 
     // Verbindet die Oberflächenelemente zur Auswahl der Sprache
     private prepareLanguage(): void {
-        this.languageMap = new LanguageSelectors('#languageFilter');
-        this.languageMap.container.change(() => this.onLanguageChanged());
+        this.languageController.model.change((newLanguage, oldLanguage) => this.query(true));
     }
 
     // Meldet alle bekannten Arten von Aufzeichnungen

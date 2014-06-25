@@ -37,6 +37,13 @@ class Styles {
     static isLeaf = 'leafInTree';
 
     static selectedNode = 'nodeSelected';
+
+    static accordionSettings: JQueryUI.AccordionOptions = {
+        active: false,
+        animate: false,
+        collapsible: true,
+        heightStyle: 'content',
+    };
 }
 
 class Tools {
@@ -131,7 +138,7 @@ class GenreSelector {
     }
 
     setCount(count: number): void {
-        this.checkbox.button('option', 'text', this.description + ' (' + count + ')');
+        this.checkbox.button('option', 'label', this.description + ' (' + count + ')');
 
         this.checkbox.removeClass(Styles.invisble);
         this.label.removeClass(Styles.invisble);
@@ -197,7 +204,7 @@ class LanguageSelector {
     }
 
     setCount(count: number): void {
-        this.radio.button('option', 'text', this.description + ' (' + count + ')');
+        this.radio.button('option', 'label', this.description + ' (' + count + ')');
 
         this.radio.removeClass(Styles.invisble);
         this.label.removeClass(Styles.invisble);
@@ -207,10 +214,8 @@ class LanguageSelector {
 class LanguageSelectors {
     private languages: any = {};
 
-    container: JQuery;
-
-    constructor(containerSelector: string) {
-        this.container = $(containerSelector);
+    constructor(private container: JQuery, onChange: () => void) {
+        this.container.change(onChange);
     }
 
     initialize(languages: ILanguageContract[]): void {
@@ -223,8 +228,7 @@ class LanguageSelectors {
         $.each(languages, (index, language) => this.languages[language.id] = new LanguageSelector(language, this.container));
 
         this.container.find('input').button();
-
-        this.resetFilter();
+        this.val(null);
     }
 
     setCounts(statistics: ILanguageStatisticsContract[]): void {
@@ -232,9 +236,17 @@ class LanguageSelectors {
         $.each(statistics, (index, language) => (<LanguageSelector>this.languages[language.id]).setCount(language.count));
     }
 
-    resetFilter(): void {
-        this.container.find('input').first().prop('checked', true);
-        this.container.find('input').button('refresh');
+    val(): string;
+
+    val(language: string): string;
+
+    val(language: string = undefined): any {
+        if (language !== undefined) {
+            this.container.find('input[value="' + (language || '') + '"]').prop('checked', true);
+            this.container.find('input').button('refresh');
+        }
+
+        return this.container.find(':checked').val();
     }
 }
 

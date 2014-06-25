@@ -38,6 +38,13 @@
     Styles.isLeaf = 'leafInTree';
 
     Styles.selectedNode = 'nodeSelected';
+
+    Styles.accordionSettings = {
+        active: false,
+        animate: false,
+        collapsible: true,
+        heightStyle: 'content'
+    };
     return Styles;
 })();
 
@@ -133,7 +140,7 @@ var GenreSelector = (function () {
     };
 
     GenreSelector.prototype.setCount = function (count) {
-        this.checkbox.button('option', 'text', this.description + ' (' + count + ')');
+        this.checkbox.button('option', 'label', this.description + ' (' + count + ')');
 
         this.checkbox.removeClass(Styles.invisble);
         this.label.removeClass(Styles.invisble);
@@ -199,7 +206,7 @@ var LanguageSelector = (function () {
     };
 
     LanguageSelector.prototype.setCount = function (count) {
-        this.radio.button('option', 'text', this.description + ' (' + count + ')');
+        this.radio.button('option', 'label', this.description + ' (' + count + ')');
 
         this.radio.removeClass(Styles.invisble);
         this.label.removeClass(Styles.invisble);
@@ -209,9 +216,10 @@ var LanguageSelector = (function () {
 })();
 
 var LanguageSelectors = (function () {
-    function LanguageSelectors(containerSelector) {
+    function LanguageSelectors(container, onChange) {
+        this.container = container;
         this.languages = {};
-        this.container = $(containerSelector);
+        this.container.change(onChange);
     }
     LanguageSelectors.prototype.initialize = function (languages) {
         var _this = this;
@@ -226,8 +234,7 @@ var LanguageSelectors = (function () {
         });
 
         this.container.find('input').button();
-
-        this.resetFilter();
+        this.val(null);
     };
 
     LanguageSelectors.prototype.setCounts = function (statistics) {
@@ -240,9 +247,14 @@ var LanguageSelectors = (function () {
         });
     };
 
-    LanguageSelectors.prototype.resetFilter = function () {
-        this.container.find('input').first().prop('checked', true);
-        this.container.find('input').button('refresh');
+    LanguageSelectors.prototype.val = function (language) {
+        if (typeof language === "undefined") { language = undefined; }
+        if (language !== undefined) {
+            this.container.find('input[value="' + (language || '') + '"]').prop('checked', true);
+            this.container.find('input').button('refresh');
+        }
+
+        return this.container.find(':checked').val();
     };
     return LanguageSelectors;
 })();

@@ -12,8 +12,6 @@ var RecordingFilter = (function (_super) {
     __extends(RecordingFilter, _super);
     function RecordingFilter(resultProcessor, getSeries, getLanguageName) {
         _super.call(this);
-        // Verwaltet die Auswahl für den Verleiher
-        this.rentModel = new RentFilterModel();
         // Hiermit stellen wir sicher, dass ein nervös klickender Anwender immer nur das letzte Suchergebnis bekommt
         this.pending = 0;
         // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
@@ -21,7 +19,9 @@ var RecordingFilter = (function (_super) {
         // Gesetzt, wenn keine automatische Suche ausgelöst werden soll
         this.disallowQuery = false;
 
-        this.languageLookup = getLanguageName;
+        this.languageController = new LanguageFilterController($('.languageFilter'), new LanguageFilterModel(), getLanguageName);
+        this.rentController = new RentFilterController($('.rentFilter'), new RentFilterModel());
+
         this.callback = resultProcessor;
         this.seriesLookup = getSeries;
 
@@ -37,9 +37,8 @@ var RecordingFilter = (function (_super) {
     RecordingFilter.prototype.reset = function (query) {
         this.disallowQuery = true;
         try  {
-            this.language = null;
-            this.languageMap.resetFilter();
-            $('#languageFilterHeader').text(this.languageLookup(''));
+            this.languageController.model.val(null);
+            this.rentController.model.val(null);
 
             this.series = [];
             this.seriesMap.resetFilter();
@@ -48,8 +47,6 @@ var RecordingFilter = (function (_super) {
             this.genres = [];
             this.genreMap.resetFilter();
             this.onGenreChanged(false);
-
-            this.rentModel.val(null);
 
             this.text = null;
             $('#textSearch').val(null);
@@ -104,9 +101,9 @@ var RecordingFilter = (function (_super) {
 
         // Suche zusammenstellen
         var request = {
-            rent: this.rentModel.val(),
+            language: this.languageController.model.val(),
+            rent: this.rentController.model.val(),
             ascending: this.ascending,
-            language: this.language,
             genres: this.genres,
             series: this.series,
             order: this.order,
@@ -173,45 +170,26 @@ var RecordingFilter = (function (_super) {
     // Bereitet die Auswahl des Ausleihers vor
     RecordingFilter.prototype.prepareRent = function () {
         var _this = this;
-        new RentFilterController($('.rentFilter'), this.rentModel.change(function (newValue, oldValue) {
+        this.rentController.model.change(function (newValue, oldValue) {
             return _this.query(true);
-        }));
+        });
     };
 
     // Legt die bekannten Sprachen fest
     RecordingFilter.prototype.setLanguages = function (languages) {
-        this.language = null;
-        this.page = 0;
-
-        this.languageMap.initialize(languages);
+        this.languageController.initialize(languages);
     };
 
     // Setzt die Anzahl von Aufzeichnungen pro Sprache gemäß der aktuelle Suchbedingung
     RecordingFilter.prototype.setLanguageCounts = function (languages) {
-        this.languageMap.setCounts(languages);
-    };
-
-    // Die Auswahl der Sprache wurde verändert
-    RecordingFilter.prototype.onLanguageChanged = function () {
-        // Wir reagieren nur auf Veränderungen
-        var newLanguage = this.languageMap.container.find(':checked').val();
-        if (this.language == newLanguage)
-            return;
-
-        $('#languageFilterHeader').text(this.languageLookup(newLanguage));
-
-        // Suche aktualisieren
-        this.language = newLanguage;
-        this.page = 0;
-        this.query();
+        this.languageController.setCounts(languages);
     };
 
     // Verbindet die Oberflächenelemente zur Auswahl der Sprache
     RecordingFilter.prototype.prepareLanguage = function () {
         var _this = this;
-        this.languageMap = new LanguageSelectors('#languageFilter');
-        this.languageMap.container.change(function () {
-            return _this.onLanguageChanged();
+        this.languageController.model.change(function (newLanguage, oldLanguage) {
+            return _this.query(true);
         });
     };
 

@@ -31,4 +31,38 @@ var RentFilterModel = (function () {
     };
     return RentFilterModel;
 })();
+
+// Die Auswahl der Sprache (eindeutige Kennung / egal)
+var LanguageFilterModel = (function () {
+    function LanguageFilterModel() {
+        this.value = null;
+        this.onChange = [];
+    }
+    LanguageFilterModel.prototype.change = function (callback) {
+        if (callback != null)
+            this.onChange.push(callback);
+
+        return this;
+    };
+
+    LanguageFilterModel.prototype.val = function (newLanguage) {
+        if (typeof newLanguage === "undefined") { newLanguage = undefined; }
+        // Vielleicht will ja nur jemand den aktuellen Wert kennen lernen
+        if (newLanguage !== undefined) {
+            var oldLanguage = this.value;
+            if (newLanguage != oldLanguage) {
+                this.value = newLanguage;
+
+                // Wenn sich der Wert verändert hat, dann müssen wir alle Interessenten informieren
+                $.each(this.onChange, function (index, callback) {
+                    return callback(newLanguage, oldLanguage);
+                });
+            }
+        }
+
+        // Wir melden immer den nun aktuellen Wert
+        return this.value;
+    };
+    return LanguageFilterModel;
+})();
 //# sourceMappingURL=models.js.map
