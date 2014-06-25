@@ -6,6 +6,7 @@
     <script src="Scripts/jquery-ui-1.10.4.js"></script>
     <script src="Scripts/interfaces.js"></script>
     <script src="Scripts/models.js"></script>
+    <script src="Scripts/controllers.js"></script>
     <script src="Scripts/uiHelper.js"></script>
     <script src="Scripts/recFilter.js"></script>
     <script src="Scripts/recEdit.js"></script>
@@ -188,8 +189,8 @@
                     <h3 class="seriesFilterHeader">Serie: <span id="seriesFilterHeader">(egal)</span></h3><div id="seriesFilter" class="seriesTree"></div>
                 </div>
 
-                <div class="rentFilter filterCollapsable">
-                    <h3 class="rentFilterHeader">Verliehen: <span id="rentFilterHeader">(egal)</span></h3><div id="rentFilter">
+                <div class="rentFilter">
+                    <h3>Verliehen: <span class="header">(egal)</span></h3><div>
                         <input type="radio" id="anyRent" name="rentFilter" value="" checked />
                         <label for="anyRent">(egal)</label>
                         <input type="radio" id="gotRent" name="rentFilter" value="1" />

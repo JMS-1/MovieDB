@@ -1,7 +1,4 @@
-﻿/// <reference path='typings/jquery/jquery.d.ts' />
-/// <reference path='typings/jqueryui/jqueryui.d.ts' />
-/// <reference path='interfaces.ts' />
-
+﻿
 // Erweiterte Informationen zu einer Aufzeichnung in der Tabellenansicht
 interface IRecordingInfo extends IRecordingRowContract {
     // Das Datum als JavaScript Objekt
@@ -68,29 +65,35 @@ class RecordingFilter extends SearchRequestContract {
     // Die Auswahl der Serien
     private seriesMap: SeriesTreeSelector;
 
+    // Gesetzt, wenn keine automatische Suche ausgelöst werden soll
+    private disallowQuery: boolean = false;
+
     // Setzt die Suchbedingung und die zugehörigen Oberflächenelemente auf den Grundzustand zurück und fordert ein neues Suchergebnis an
     reset(query: boolean): void {
-        this.language = null;
-        this.languageMap.resetFilter();
-        $('#languageFilterHeader').text(this.languageLookup(''));
+        this.disallowQuery = true;
+        try {
+            this.language = null;
+            this.languageMap.resetFilter();
+            $('#languageFilterHeader').text(this.languageLookup(''));
 
-        this.series = [];
-        this.seriesMap.resetFilter();
-        $('#seriesFilterHeader').text('(egal)');
+            this.series = [];
+            this.seriesMap.resetFilter();
+            $('#seriesFilterHeader').text('(egal)');
 
-        this.genres = [];
-        this.genreMap.resetFilter();
-        this.onGenreChanged(false);
+            this.genres = [];
+            this.genreMap.resetFilter();
+            this.onGenreChanged(false);
 
-        this.rentModel.val(null, false);
-        $('#anyRent').prop('checked', true);
-        $('#rentFilter').find('input').button('refresh');
-        $('#rentFilterHeader').text('(egal)');
+            this.rentModel.val(null);
 
-        this.text = null;
-        $('#textSearch').val(null);
+            this.text = null;
+            $('#textSearch').val(null);
 
-        this.page = 0;
+            this.page = 0;
+        }
+        finally {
+            this.disallowQuery = false;
+        }
 
         if (query)
             this.query();
@@ -116,7 +119,13 @@ class RecordingFilter extends SearchRequestContract {
     }
 
     // Führt eine Suche mit der aktuellen Einschränkung aus
-    query(): void {
+    query(resetPage: boolean = false): void {
+        if (this.disallowQuery)
+            return;
+
+        if (resetPage)
+            this.page = 0;
+
         this.stopAutoQuery();
 
         // Anzeige auf der Oberfläche herrichten
@@ -183,32 +192,9 @@ class RecordingFilter extends SearchRequestContract {
         $('#textSearch').on('keypress', () => this.onTextChanged());
     }
 
-    // Die Auswahl des Ausleihers wurde verändert
-    private onRentChanged(): void {
-        var newRent = this.rentModel.val();
-        if (newRent == null)
-            $('#rentFilterHeader').text('(egal)');
-        else
-            $('#rentFilterHeader').text(newRent ? 'nur verliehene' : 'nur nicht verliehene');
-
-        // Suche aktualisieren
-        this.page = 0;
-        this.query();
-    }
-
     // Bereitet die Auswahl des Ausleihers vor
     private prepareRent(): void {
-        this.rentModel.change((newValue, oldValue) => this.onRentChanged());
-
-        $('#rentFilter').find('input').button().change(() => {
-            var choice: string = $('#rentFilter').find(':checked').val();
-
-            var newRent: boolean = null;
-            if (choice.length > 0)
-                newRent = (choice == '1');
-
-            this.rentModel.val(newRent);
-        });
+        new RentFilterController($('.rentFilter'), this.rentModel.change((newValue, oldValue) => this.query(true)));
     }
 
     // Legt die bekannten Sprachen fest

@@ -137,22 +137,23 @@
 .leafInTree.nodeSelected {
   background-color: #1e90ff;
 }
-#genreFilter,
-#languageFilter,
-#seriesFilter,
-#rentFilter {
-  margin-left: 10px;
-  padding: 2px 5px 5px 5px !important;
-}
-.filterCollapsable {
+.filterCollapsable,
+.rentFilter {
   clear: both;
   margin: 5px 0px 5px 20px;
 }
-.filterCollapsable h3 {
+.filterCollapsable .ui-accordion-content,
+.rentFilter .ui-accordion-content {
+  margin-left: 10px;
+  padding: 2px 5px 5px 5px;
+}
+.filterCollapsable h3,
+.rentFilter h3 {
   font-weight: bold;
   font-size: small;
 }
-.filterCollapsable label {
+.filterCollapsable label,
+.rentFilter label {
   font-size: small !important;
   margin-right: 10px !important;
   width: 10em;

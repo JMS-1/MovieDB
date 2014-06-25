@@ -1,4 +1,5 @@
-﻿// Die Informationen zu einer Tonspur
+﻿
+// Die Informationen zu einer Tonspur
 interface IMappingContract {
     id: string;
 

@@ -1,8 +1,4 @@
-﻿/// <reference path='typings/jquery/jquery.d.ts' />
-/// <reference path='typings/jqueryui/jqueryui.d.ts' />
-/// <reference path='interfaces.ts' />
-/// <reference path='uiHelper.ts' />
-
+﻿
 class GenreEditor extends SuggestionListEditor<IGenreEditInfoContract, IGenreContract> {
 
     constructor(openButtonSelector: string, reloadApplicationData: () => void) {

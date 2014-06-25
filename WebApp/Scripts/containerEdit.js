@@ -1,7 +1,4 @@
-﻿/// <reference path='typings/jquery/jquery.d.ts' />
-/// <reference path='typings/jqueryui/jqueryui.d.ts' />
-/// <reference path='interfaces.ts' />
-var ContainerEditor = (function () {
+﻿var ContainerEditor = (function () {
     function ContainerEditor(openButtonSelector, reloadApplicationData) {
         var _this = this;
         this.identifier = null;

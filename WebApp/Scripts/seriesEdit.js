@@ -1,7 +1,4 @@
-﻿/// <reference path='typings/jquery/jquery.d.ts' />
-/// <reference path='typings/jqueryui/jqueryui.d.ts' />
-/// <reference path='interfaces.ts' />
-var SeriesEditor = (function () {
+﻿var SeriesEditor = (function () {
     function SeriesEditor(openButtonSelector, reloadApplicationData, getChildren) {
         var _this = this;
         this.seriesIdentifier = null;

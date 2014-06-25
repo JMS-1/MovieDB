@@ -1,8 +1,4 @@
-﻿/// <reference path='typings/jquery/jquery.d.ts' />
-/// <reference path='typings/jqueryui/jqueryui.d.ts' />
-/// <reference path='interfaces.ts' />
-/// <reference path='uiHelper.ts' />
-var RecordingEditor = (function () {
+﻿var RecordingEditor = (function () {
     function RecordingEditor(recording, genreEditor, languageEditor) {
         this.genreEditor = genreEditor;
         this.languageEditor = languageEditor;

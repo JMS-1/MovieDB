@@ -208,14 +208,14 @@
 
 // Die Auswahl der Kategorien für die Suche
 
-#genreFilter, #languageFilter, #seriesFilter, #rentFilter {
-    margin-left: @filterAccordionContentMargin;
-    padding: @filterAccordionContentPadding !important;
-}
-
-.filterCollapsable {
+.filterCollapsable, .rentFilter {
     clear: both;
     margin: 5px 0px 5px 20px;
+
+    .ui-accordion-content {
+        margin-left: @filterAccordionContentMargin;
+        padding: @filterAccordionContentPadding;
+    }
 
     h3 {
         font-weight: @filterAccordionWeight;

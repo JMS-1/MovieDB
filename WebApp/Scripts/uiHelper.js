@@ -1,7 +1,4 @@
-﻿/// <reference path='typings/jquery/jquery.d.ts' />
-/// <reference path='typings/jqueryui/jqueryui.d.ts' />
-/// <reference path='interfaces.ts' />
-var Styles = (function () {
+﻿var Styles = (function () {
     function Styles() {
     }
     Styles.invisble = 'invisible';

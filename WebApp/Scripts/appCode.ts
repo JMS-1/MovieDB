@@ -1,15 +1,4 @@
-﻿/// <reference path='typings/jquery/jquery.d.ts' />
-/// <reference path='typings/jqueryui/jqueryui.d.ts' />
-/// <reference path='interfaces.ts' />
-/// <reference path='models.ts' />
-/// <reference path='uiHelper.ts' />
-/// <reference path='recFilter.ts' />
-/// <reference path='recEdit.ts' />
-/// <reference path='languageEdit.ts' />
-/// <reference path='genreEdit.ts' />
-/// <reference path='seriesEdit.ts' />
-/// <reference path='containerEdit.ts' />
-
+﻿
 module MovieDatabase {
 
     interface IApplicationInformation extends IApplicationInformationContract {
@@ -353,7 +342,6 @@ module MovieDatabase {
                 heightStyle: 'content',
             };
 
-            $('.filterCollapsable').accordion(filterAccordionSettings);
             $('.filterCollapsable').accordion(filterAccordionSettings);
 
             var legacyFile = $('#theFile');

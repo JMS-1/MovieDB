@@ -1,7 +1,4 @@
-﻿/// <reference path='typings/jquery/jquery.d.ts' />
-/// <reference path='typings/jqueryui/jqueryui.d.ts' />
-/// <reference path='interfaces.ts' />
-var __extends = this.__extends || function (d, b) {
+﻿var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -21,6 +18,8 @@ var RecordingFilter = (function (_super) {
         this.pending = 0;
         // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
         this.timeout = null;
+        // Gesetzt, wenn keine automatische Suche ausgelöst werden soll
+        this.disallowQuery = false;
 
         this.languageLookup = getLanguageName;
         this.callback = resultProcessor;
@@ -36,27 +35,29 @@ var RecordingFilter = (function (_super) {
     }
     // Setzt die Suchbedingung und die zugehörigen Oberflächenelemente auf den Grundzustand zurück und fordert ein neues Suchergebnis an
     RecordingFilter.prototype.reset = function (query) {
-        this.language = null;
-        this.languageMap.resetFilter();
-        $('#languageFilterHeader').text(this.languageLookup(''));
+        this.disallowQuery = true;
+        try  {
+            this.language = null;
+            this.languageMap.resetFilter();
+            $('#languageFilterHeader').text(this.languageLookup(''));
 
-        this.series = [];
-        this.seriesMap.resetFilter();
-        $('#seriesFilterHeader').text('(egal)');
+            this.series = [];
+            this.seriesMap.resetFilter();
+            $('#seriesFilterHeader').text('(egal)');
 
-        this.genres = [];
-        this.genreMap.resetFilter();
-        this.onGenreChanged(false);
+            this.genres = [];
+            this.genreMap.resetFilter();
+            this.onGenreChanged(false);
 
-        this.rentModel.val(null, false);
-        $('#anyRent').prop('checked', true);
-        $('#rentFilter').find('input').button('refresh');
-        $('#rentFilterHeader').text('(egal)');
+            this.rentModel.val(null);
 
-        this.text = null;
-        $('#textSearch').val(null);
+            this.text = null;
+            $('#textSearch').val(null);
 
-        this.page = 0;
+            this.page = 0;
+        } finally {
+            this.disallowQuery = false;
+        }
 
         if (query)
             this.query();
@@ -82,8 +83,15 @@ var RecordingFilter = (function (_super) {
     };
 
     // Führt eine Suche mit der aktuellen Einschränkung aus
-    RecordingFilter.prototype.query = function () {
+    RecordingFilter.prototype.query = function (resetPage) {
         var _this = this;
+        if (typeof resetPage === "undefined") { resetPage = false; }
+        if (this.disallowQuery)
+            return;
+
+        if (resetPage)
+            this.page = 0;
+
         this.stopAutoQuery();
 
         // Anzeige auf der Oberfläche herrichten
@@ -162,35 +170,12 @@ var RecordingFilter = (function (_super) {
         });
     };
 
-    // Die Auswahl des Ausleihers wurde verändert
-    RecordingFilter.prototype.onRentChanged = function () {
-        var newRent = this.rentModel.val();
-        if (newRent == null)
-            $('#rentFilterHeader').text('(egal)');
-        else
-            $('#rentFilterHeader').text(newRent ? 'nur verliehene' : 'nur nicht verliehene');
-
-        // Suche aktualisieren
-        this.page = 0;
-        this.query();
-    };
-
     // Bereitet die Auswahl des Ausleihers vor
     RecordingFilter.prototype.prepareRent = function () {
         var _this = this;
-        this.rentModel.change(function (newValue, oldValue) {
-            return _this.onRentChanged();
-        });
-
-        $('#rentFilter').find('input').button().change(function () {
-            var choice = $('#rentFilter').find(':checked').val();
-
-            var newRent = null;
-            if (choice.length > 0)
-                newRent = (choice == '1');
-
-            _this.rentModel.val(newRent);
-        });
+        new RentFilterController($('.rentFilter'), this.rentModel.change(function (newValue, oldValue) {
+            return _this.query(true);
+        }));
     };
 
     // Legt die bekannten Sprachen fest
