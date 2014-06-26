@@ -63,15 +63,54 @@ class GenreFilterModel extends Model<GenreFilterModel, string[]> {
     }
 }
 
-// Ein Element in einem Baum
+class TreeItemModel {
+    private isSelected = false;
 
-class NodeItemModel {
-    name: string;
+    select = () => { };
 
-    isLeaf: boolean;
+    selected(): boolean;
+
+    selected(isSelected: boolean): boolean;
+
+    selected(isSelected: boolean = undefined): any {
+        if (isSelected !== undefined)
+            if (isSelected != this.isSelected) {
+                this.isSelected = isSelected;
+
+                this.select();
+            }
+
+        return this.isSelected;
+    }
+}
+
+class TreeNodeModel extends TreeItemModel {
+    private isExpanded = false;
+
+    changed = () => { };
 
     constructor(data: ISeriesMapping) {
-        this.name = data.name;
-        this.isLeaf = data.children.length < 1;
+        super();
+    }
+
+    expanded(): boolean;
+
+    expanded(isExpanded: boolean): boolean;
+
+    expanded(isExpanded: boolean = undefined): any {
+        if (isExpanded !== undefined)
+            if (isExpanded != this.isExpanded) {
+                this.isExpanded = isExpanded;
+
+                this.changed();
+            }
+
+        return this.isExpanded;
+    }
+}
+
+class TreeLeafModel extends TreeItemModel {
+    constructor(data: ISeriesMapping) {
+        super();
     }
 }

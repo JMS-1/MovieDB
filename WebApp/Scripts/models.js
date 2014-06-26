@@ -72,12 +72,53 @@ var GenreFilterModel = (function (_super) {
     return GenreFilterModel;
 })(Model);
 
-// Ein Element in einem Baum
-var NodeItemModel = (function () {
-    function NodeItemModel(data) {
-        this.name = data.name;
-        this.isLeaf = data.children.length < 1;
+var TreeItemModel = (function () {
+    function TreeItemModel() {
+        this.isSelected = false;
+        this.select = function () {
+        };
     }
-    return NodeItemModel;
+    TreeItemModel.prototype.selected = function (isSelected) {
+        if (typeof isSelected === "undefined") { isSelected = undefined; }
+        if (isSelected !== undefined)
+            if (isSelected != this.isSelected) {
+                this.isSelected = isSelected;
+
+                this.select();
+            }
+
+        return this.isSelected;
+    };
+    return TreeItemModel;
 })();
+
+var TreeNodeModel = (function (_super) {
+    __extends(TreeNodeModel, _super);
+    function TreeNodeModel(data) {
+        _super.call(this);
+        this.isExpanded = false;
+        this.changed = function () {
+        };
+    }
+    TreeNodeModel.prototype.expanded = function (isExpanded) {
+        if (typeof isExpanded === "undefined") { isExpanded = undefined; }
+        if (isExpanded !== undefined)
+            if (isExpanded != this.isExpanded) {
+                this.isExpanded = isExpanded;
+
+                this.changed();
+            }
+
+        return this.isExpanded;
+    };
+    return TreeNodeModel;
+})(TreeItemModel);
+
+var TreeLeafModel = (function (_super) {
+    __extends(TreeLeafModel, _super);
+    function TreeLeafModel(data) {
+        _super.call(this);
+    }
+    return TreeLeafModel;
+})(TreeItemModel);
 //# sourceMappingURL=models.js.map

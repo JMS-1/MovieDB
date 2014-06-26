@@ -36,6 +36,8 @@ class Styles {
 
     static isLeaf = 'leafInTree';
 
+    static treeItem = 'treeItem';
+
     static selectedNode = 'nodeSelected';
 
     static accordionSettings: JQueryUI.AccordionOptions = {
@@ -248,18 +250,24 @@ class SeriesTreeSelector {
     }
 
     // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
-    private buildTree_new(children: ISeriesMapping[], parent: JQuery): void {
-        $.each(children, (index, item) => {
-            var model = new NodeItemModel(item);
+    private buildTree(children: ISeriesMapping[], parent: JQuery): TreeController[] {
+        return $.map(children, item => {
+            // Blätter sind einfach
+            if (item.children.length < 1)
+                return new TreeLeafController(new TreeLeafModel(item), new TreeLeafView(item.name, item.parentId == null, parent));
 
-            var view: ITreeItemView = model.isLeaf ? new TreeLeafView(parent) : new TreeNodeView(parent);
+            // Bei Knoten müssen wir etwas mehr tun
+            var node = new TreeNodeController(new TreeNodeModel(item), new TreeNodeView(item.name, item.parentId == null, parent));
 
-            view.text(model.name);
+            // Für alle untergeordeneten Serien müssen wir eine entsprechende Anzeige vorbereiten
+            node.children = this.buildTree(item.children, node.view.childView);
+
+            return <TreeController>node;
         });
     }
 
     // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
-    private buildTree(children: ISeriesMapping[], parent: JQuery): void {
+    private buildTree_old(children: ISeriesMapping[], parent: JQuery): void {
         $.each(children, (index, item) => {
 
             // Für jede Serie wird ein gesondertes Fragment erzeugt

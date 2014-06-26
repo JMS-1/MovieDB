@@ -84,37 +84,71 @@ class CheckView {
 
 // Ein Blatt in einem Baum
 
-interface ITreeItemView {
-    text(name: string): void;
-}
+class TreeItemView {
+    view: JQuery;
 
-class TreeLeafView implements ITreeItemView {
-    private view: JQuery;
+    text: JQuery;
 
     constructor(container: JQuery) {
         this.view = $('<div />').appendTo(container);
+        this.text = this.view;
     }
 
-    text(name: string): void {
-        this.view.text(name);
+    selected(isSelected: boolean): void {
+        if (isSelected)
+            this.text.addClass(Styles.selectedNode);
+        else
+            this.text.removeClass(Styles.selectedNode);
     }
 }
 
-class TreeNodeView implements ITreeItemView {
-    private view: JQuery;
+class TreeLeafView extends TreeItemView {
+    click = () => { };
 
-    constructor(container: JQuery) {
-        this.view = $('<div />').appendTo(container);
+    constructor(name: string, isRoot: boolean, container: JQuery) {
+        super(container);
+
+        this.view.addClass(Styles.treeItem).text(name).click(() => this.click());
+
+        if (!isRoot)
+            this.view.addClass(Styles.treeNode);
+    }
+}
+
+class TreeNodeView extends TreeItemView {
+    childView: JQuery;
+
+    toggle = () => { };
+
+    click = () => { };
+
+    constructor(name: string, isRoot: boolean, container: JQuery) {
+        super(container);
+
+        if (!isRoot)
+            this.view.addClass(Styles.treeNode);
 
         var header = $('<div />', { 'class': Styles.nodeHeader }).appendTo(this.view);
 
-        $('<div />', { 'class': 'ui-icon ' + Styles.collapsed }).appendTo(header);
-        $('<div />').appendTo(header);
+        $('<div />', { 'class': 'ui-icon' }).click(() => this.toggle()).appendTo(header);
 
-        $('<div />', { 'class': Styles.invisble }).appendTo(this.view);
+        this.text = $('<div />').addClass(Styles.treeItem).text(name).click(() => this.click()).appendTo(header);
+
+        this.childView = $('<div />').appendTo(this.view);
     }
 
-    text(name: string): void {
-        this.view.children().first().children().last().text(name);
+    expanded(isExpanded: boolean): void {
+        var toggle = this.view.children().first().children().first();
+
+        if (isExpanded) {
+            toggle.removeClass(Styles.collapsed).addClass(Styles.expanded);
+
+            this.childView.removeClass(Styles.invisble);
+        }
+        else {
+            toggle.removeClass(Styles.expanded).addClass(Styles.collapsed);
+
+            this.childView.addClass(Styles.invisble);
+        }
     }
 }

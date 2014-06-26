@@ -125,16 +125,13 @@
   font-size: small;
   margin-left: 1em;
 }
-.nodeInTree,
-.leafInTree {
+.treeItem {
   font-size: small;
 }
-.nodeInTree:hover,
-.leafInTree:hover {
+.treeItem:hover {
   background-color: #add8e6;
 }
-.nodeInTree.nodeSelected,
-.leafInTree.nodeSelected {
+.treeItem.nodeSelected {
   background-color: #1e90ff;
 }
 .filterCollapsable,

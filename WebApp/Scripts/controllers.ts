@@ -198,3 +198,43 @@ class GenreFilterController extends CheckGroupController<GenreFilterModel> {
             this.view.find('.header').text($.map(genres, genre => this.getName(genre)).join(' und '));
     }
 }
+
+// Die Steuerung der Hierarchien
+class TreeController {
+}
+
+class TreeNodeController extends TreeController {
+    children: TreeController[] = [];
+
+    constructor(private model: TreeNodeModel, public view: TreeNodeView) {
+        super();
+
+        this.view.toggle = () => this.model.expanded(!this.model.expanded());
+        this.view.click = () => this.model.selected(!this.model.selected());
+        this.model.changed = () => this.modelExpanded();
+        this.model.select = () => this.modelSelected();
+
+        this.modelExpanded();
+    }
+
+    private modelExpanded(): void {
+        this.view.expanded(this.model.expanded());
+    }
+
+    private modelSelected(): void {
+        this.view.selected(this.model.selected());
+    }
+}
+
+class TreeLeafController extends TreeController {
+    constructor(public model: TreeLeafModel, public view: TreeLeafView) {
+        super();
+
+        this.view.click = () => this.model.selected(!this.model.selected());
+        this.model.select = () => this.modelSelected();
+    }
+
+    private modelSelected(): void {
+        this.view.selected(this.model.selected());
+    }
+}

@@ -37,6 +37,8 @@
 
     Styles.isLeaf = 'leafInTree';
 
+    Styles.treeItem = 'treeItem';
+
     Styles.selectedNode = 'nodeSelected';
 
     Styles.accordionSettings = {
@@ -240,18 +242,25 @@ var SeriesTreeSelector = (function () {
     };
 
     // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
-    SeriesTreeSelector.prototype.buildTree_new = function (children, parent) {
-        $.each(children, function (index, item) {
-            var model = new NodeItemModel(item);
+    SeriesTreeSelector.prototype.buildTree = function (children, parent) {
+        var _this = this;
+        return $.map(children, function (item) {
+            // Blätter sind einfach
+            if (item.children.length < 1)
+                return new TreeLeafController(new TreeLeafModel(item), new TreeLeafView(item.name, item.parentId == null, parent));
 
-            var view = model.isLeaf ? new TreeLeafView(parent) : new TreeNodeView(parent);
+            // Bei Knoten müssen wir etwas mehr tun
+            var node = new TreeNodeController(new TreeNodeModel(item), new TreeNodeView(item.name, item.parentId == null, parent));
 
-            view.text(model.name);
+            // Für alle untergeordeneten Serien müssen wir eine entsprechende Anzeige vorbereiten
+            node.children = _this.buildTree(item.children, node.view.childView);
+
+            return node;
         });
     };
 
     // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
-    SeriesTreeSelector.prototype.buildTree = function (children, parent) {
+    SeriesTreeSelector.prototype.buildTree_old = function (children, parent) {
         var _this = this;
         $.each(children, function (index, item) {
             // Für jede Serie wird ein gesondertes Fragment erzeugt

@@ -1,4 +1,10 @@
-﻿// Ein einzelne Option einer Alternativauswahl
+﻿var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+// Ein einzelne Option einer Alternativauswahl
 var RadioView = (function () {
     function RadioView(model, container, optionGroupName) {
         this.model = model;
@@ -73,31 +79,77 @@ var CheckView = (function () {
     return CheckView;
 })();
 
-
-var TreeLeafView = (function () {
-    function TreeLeafView(container) {
+// Ein Blatt in einem Baum
+var TreeItemView = (function () {
+    function TreeItemView(container) {
         this.view = $('<div />').appendTo(container);
+        this.text = this.view;
     }
-    TreeLeafView.prototype.text = function (name) {
-        this.view.text(name);
+    TreeItemView.prototype.selected = function (isSelected) {
+        if (isSelected)
+            this.text.addClass(Styles.selectedNode);
+        else
+            this.text.removeClass(Styles.selectedNode);
     };
-    return TreeLeafView;
+    return TreeItemView;
 })();
 
-var TreeNodeView = (function () {
-    function TreeNodeView(container) {
-        this.view = $('<div />').appendTo(container);
+var TreeLeafView = (function (_super) {
+    __extends(TreeLeafView, _super);
+    function TreeLeafView(name, isRoot, container) {
+        var _this = this;
+        _super.call(this, container);
+        this.click = function () {
+        };
+
+        this.view.addClass(Styles.treeItem).text(name).click(function () {
+            return _this.click();
+        });
+
+        if (!isRoot)
+            this.view.addClass(Styles.treeNode);
+    }
+    return TreeLeafView;
+})(TreeItemView);
+
+var TreeNodeView = (function (_super) {
+    __extends(TreeNodeView, _super);
+    function TreeNodeView(name, isRoot, container) {
+        var _this = this;
+        _super.call(this, container);
+        this.toggle = function () {
+        };
+        this.click = function () {
+        };
+
+        if (!isRoot)
+            this.view.addClass(Styles.treeNode);
 
         var header = $('<div />', { 'class': Styles.nodeHeader }).appendTo(this.view);
 
-        $('<div />', { 'class': 'ui-icon ' + Styles.collapsed }).appendTo(header);
-        $('<div />').appendTo(header);
+        $('<div />', { 'class': 'ui-icon' }).click(function () {
+            return _this.toggle();
+        }).appendTo(header);
 
-        $('<div />', { 'class': Styles.invisble }).appendTo(this.view);
+        this.text = $('<div />').addClass(Styles.treeItem).text(name).click(function () {
+            return _this.click();
+        }).appendTo(header);
+
+        this.childView = $('<div />').appendTo(this.view);
     }
-    TreeNodeView.prototype.text = function (name) {
-        this.view.children().first().children().last().text(name);
+    TreeNodeView.prototype.expanded = function (isExpanded) {
+        var toggle = this.view.children().first().children().first();
+
+        if (isExpanded) {
+            toggle.removeClass(Styles.collapsed).addClass(Styles.expanded);
+
+            this.childView.removeClass(Styles.invisble);
+        } else {
+            toggle.removeClass(Styles.expanded).addClass(Styles.collapsed);
+
+            this.childView.addClass(Styles.invisble);
+        }
     };
     return TreeNodeView;
-})();
+})(TreeItemView);
 //# sourceMappingURL=views.js.map
