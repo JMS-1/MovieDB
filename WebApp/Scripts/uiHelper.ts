@@ -248,6 +248,17 @@ class SeriesTreeSelector {
     }
 
     // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
+    private buildTree_new(children: ISeriesMapping[], parent: JQuery): void {
+        $.each(children, (index, item) => {
+            var model = new NodeItemModel(item);
+
+            var view: ITreeItemView = model.isLeaf ? new TreeLeafView(parent) : new TreeNodeView(parent);
+
+            view.text(model.name);
+        });
+    }
+
+    // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
     private buildTree(children: ISeriesMapping[], parent: JQuery): void {
         $.each(children, (index, item) => {
 

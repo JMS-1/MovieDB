@@ -240,6 +240,17 @@ var SeriesTreeSelector = (function () {
     };
 
     // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
+    SeriesTreeSelector.prototype.buildTree_new = function (children, parent) {
+        $.each(children, function (index, item) {
+            var model = new NodeItemModel(item);
+
+            var view = model.isLeaf ? new TreeLeafView(parent) : new TreeNodeView(parent);
+
+            view.text(model.name);
+        });
+    };
+
+    // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
     SeriesTreeSelector.prototype.buildTree = function (children, parent) {
         var _this = this;
         $.each(children, function (index, item) {

@@ -1,4 +1,5 @@
 ﻿
+// Mehr müssel wir über einen einzelnen Wert nicht wissen (Wert auslesen, Wert setzen, Änderungen überwachen)
 interface IModel<TSimpleType> {
     change(callback: () => void): void;
 
@@ -59,5 +60,18 @@ class GenreFilterModel extends Model<GenreFilterModel, string[]> {
 
         // Wir stellen sicher, dass immer ein (wenn auch leeres) Feld vorhanden ist
         super.val([]);
+    }
+}
+
+// Ein Element in einem Baum
+
+class NodeItemModel {
+    name: string;
+
+    isLeaf: boolean;
+
+    constructor(data: ISeriesMapping) {
+        this.name = data.name;
+        this.isLeaf = data.children.length < 1;
     }
 }

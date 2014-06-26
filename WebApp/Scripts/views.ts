@@ -82,4 +82,39 @@ class CheckView {
     }
 }
 
+// Ein Blatt in einem Baum
 
+interface ITreeItemView {
+    text(name: string): void;
+}
+
+class TreeLeafView implements ITreeItemView {
+    private view: JQuery;
+
+    constructor(container: JQuery) {
+        this.view = $('<div />').appendTo(container);
+    }
+
+    text(name: string): void {
+        this.view.text(name);
+    }
+}
+
+class TreeNodeView implements ITreeItemView {
+    private view: JQuery;
+
+    constructor(container: JQuery) {
+        this.view = $('<div />').appendTo(container);
+
+        var header = $('<div />', { 'class': Styles.nodeHeader }).appendTo(this.view);
+
+        $('<div />', { 'class': 'ui-icon ' + Styles.collapsed }).appendTo(header);
+        $('<div />').appendTo(header);
+
+        $('<div />', { 'class': Styles.invisble }).appendTo(this.view);
+    }
+
+    text(name: string): void {
+        this.view.children().first().children().last().text(name);
+    }
+}

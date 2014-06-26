@@ -20,11 +20,11 @@ interface IContainerContract extends IMappingContract {
 interface ISeriesMappingContract {
     id: string;
 
-    parentId: string;
-
     name: string;
 
     hierarchicalName: string;
+
+    parentId: string;
 }
 
 interface ISeriesContract {

@@ -4,6 +4,7 @@
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+
 // Basisklasse für ein einfaches Modell mit nur einem Wert
 var Model = (function () {
     function Model() {
@@ -70,4 +71,13 @@ var GenreFilterModel = (function (_super) {
     }
     return GenreFilterModel;
 })(Model);
+
+// Ein Element in einem Baum
+var NodeItemModel = (function () {
+    function NodeItemModel(data) {
+        this.name = data.name;
+        this.isLeaf = data.children.length < 1;
+    }
+    return NodeItemModel;
+})();
 //# sourceMappingURL=models.js.map

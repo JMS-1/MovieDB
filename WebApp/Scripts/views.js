@@ -72,4 +72,32 @@ var CheckView = (function () {
     };
     return CheckView;
 })();
+
+
+var TreeLeafView = (function () {
+    function TreeLeafView(container) {
+        this.view = $('<div />').appendTo(container);
+    }
+    TreeLeafView.prototype.text = function (name) {
+        this.view.text(name);
+    };
+    return TreeLeafView;
+})();
+
+var TreeNodeView = (function () {
+    function TreeNodeView(container) {
+        this.view = $('<div />').appendTo(container);
+
+        var header = $('<div />', { 'class': Styles.nodeHeader }).appendTo(this.view);
+
+        $('<div />', { 'class': 'ui-icon ' + Styles.collapsed }).appendTo(header);
+        $('<div />').appendTo(header);
+
+        $('<div />', { 'class': Styles.invisble }).appendTo(this.view);
+    }
+    TreeNodeView.prototype.text = function (name) {
+        this.view.children().first().children().last().text(name);
+    };
+    return TreeNodeView;
+})();
 //# sourceMappingURL=views.js.map
