@@ -37,79 +37,164 @@ class RentFilterController {
     }
 }
 
-/// Die Auswahl der Sprache erfolgt durch eine Reihe von Alternativen
-class LanguageFilterController {
-    private model = new LanguageFilterModel();
+// Beschreibt die Auswahl aus eine Liste von Alternativen
+class RadioGroupController<TModelType extends IModel<string>> {
+    private radios: any = {};
 
-    constructor(private view: JQuery) {
-        this.view.accordion(Styles.accordionSettings);
-
-        this.languageMap = new LanguageSelectors(view.find('.container'), () => this.viewToModel());
+    constructor(public model: TModelType, private groupView: JQuery, private groupName: string) {
+        this.groupView.change(() => this.viewToModel());
 
         this.model.change(() => this.modelToView());
+    }
+
+    viewToModel() {
+        this.model.val(this.val());
+    }
+
+    modelToView(): void {
+        this.val(this.model.val());
+    }
+
+    initialize(models: IMappingContract[]): void {
+        this.groupView.empty();
+        this.radios = {};
+
+        this.radios[''] = new RadioView({ id: '', name: '(egal)' }, this.groupView, this.groupName);
+
+        $.each(models, (index, model) => this.radios[model.id] = new RadioView(model, this.groupView, this.groupName));
+
+        this.val(null);
+    }
+
+    setCounts(statistics: IStatisticsContract[]): void {
+        $.each(this.radios, (key, stat: RadioView) => stat.reset());
+        $.each(statistics, (index, stat) => (<RadioView>this.radios[stat.id]).setCount(stat.count));
+    }
+
+    getName(id: string): string {
+        var radio: RadioView = this.radios[id || ''];
+        if (radio == null)
+            return null;
+        else
+            return radio.model.name;
+    }
+
+    val(): string;
+
+    val(id: string): string;
+
+    val(id: string = undefined): any {
+        if (id !== undefined) {
+            var radio: RadioView = this.radios[id || ''];
+            if (radio != null)
+                radio.check();
+        }
+
+        return this.groupView.find(':checked').val();
+    }
+}
+
+// Beschreibt eine Mehrfachauswahl
+class CheckGroupController<TModelType extends IModel<string[]>> {
+    private checks: any = {};
+
+    constructor(public model: TModelType, public container: JQuery, private groupName: string) {
+        this.model.change(() => this.modelToView());
+    }
+
+    initialize(models: IMappingContract[]): void {
+        this.container.empty();
+        this.checks = {};
+
+        $.each(models, (index, model) => this.checks[model.id] = new CheckView(model, this.container, () => this.viewToModel(), this.groupName));
+    }
+
+    setCounts(statistics: IStatisticsContract[]): void {
+        $.each(this.checks, (key, check: CheckView) => check.reset());
+        $.each(statistics, (index, check) => (<CheckView>this.checks[check.id]).setCount(check.count));
+    }
+
+    getName(genre: string): string {
+        var check = <CheckView>this.checks[genre];
+        if (check == null)
+            return null;
+        else
+            return check.model.name;
+    }
+
+    viewToModel() {
+        this.model.val(this.val());
+    }
+
+    modelToView(): void {
+        this.val(this.model.val());
+    }
+
+    val(): string[];
+
+    val(ids: string[]): string[];
+
+    val(ids: string[]= undefined): any {
+        if (ids !== undefined) {
+            var newValue: any = {};
+
+            $.each(ids, (index, id) => newValue[id] = true);
+
+            for (var id in this.checks) {
+                var check = <CheckView>this.checks[id];
+
+                check.check(newValue[check.model.id] || false);
+            }
+        }
+
+        var selected: string[] = [];
+
+        for (var id in this.checks) {
+            var check = <CheckView>this.checks[id];
+
+            if (check.isChecked())
+                selected.push(check.model.id);
+        }
+
+        return selected;
+    }
+}
+
+// Die Auswahl der Sprache erfolgt durch eine Reihe von Alternativen
+class LanguageFilterController extends RadioGroupController<LanguageFilterModel> {
+    constructor(private view: JQuery) {
+        super(new LanguageFilterModel(), view.find('.container'), 'languageChoice');
+
+        this.view.accordion(Styles.accordionSettings);
 
         this.modelToView();
     }
 
-    private languageMap: LanguageSelectors;
+    modelToView(): void {
+        super.modelToView();
 
-    private viewToModel() {
-        this.model.val(this.languageMap.val());
-    }
-
-    private modelToView(): void {
-        var val = this.model.val();
-
-        this.languageMap.val(val);
-
-        this.view.find('.header').text(this.languageMap.lookupLanguageName(val) || '(egal)');
-    }
-
-    initialize(languages: ILanguageContract[]): void {
-        this.languageMap.initialize(languages);
-    }
-
-    setCounts(languages: ILanguageStatisticsContract[]): void {
-        this.languageMap.setCounts(languages);
+        this.view.find('.header').text(this.getName(this.model.val()) || '(egal)');
     }
 }
 
 // Bei den Kategorien ist im Filter eine Mehrfachauswahl möglich
-class GenreFilterController {
-    private model = new GenreFilterModel();
-
+class GenreFilterController extends CheckGroupController<GenreFilterModel> {
     constructor(private view: JQuery) {
+        super(new GenreFilterModel(), view.find('.container'), 'genreCheckbox');
+
         this.view.accordion(Styles.accordionSettings);
-
-        this.genreMap = new GenreSelectors(view.find('.container'), () => this.viewToModel());
-
-        this.model.change(() => this.modelToView());
 
         this.modelToView();
     }
 
-    private genreMap: GenreSelectors;
+    modelToView(): void {
+        super.modelToView();
 
-    private viewToModel() {
-        this.model.val(this.genreMap.val());
-    }
-
-    private modelToView(): void {
         var genres = this.model.val();
-
-        this.genreMap.val(genres);
 
         if (genres.length < 1)
             this.view.find('.header').text('(egal)');
         else
-            this.view.find('.header').text($.map(genres, genre => this.genreMap.lookupGenreName(genre)).join(' und '));
-    }
-
-    initialize(genres: IGenreContract[]): void {
-        this.genreMap.initialize(genres);
-    }
-
-    setCounts(genres: IGenreStatisticsContract[]): void {
-        this.genreMap.setCounts(genres);
+            this.view.find('.header').text($.map(genres, genre => this.getName(genre)).join(' und '));
     }
 }

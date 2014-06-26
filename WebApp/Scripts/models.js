@@ -15,8 +15,6 @@ var Model = (function () {
     Model.prototype.change = function (callback) {
         if (callback != null)
             this.onChange.push(callback);
-
-        return this;
     };
 
     Model.prototype.onChanged = function () {

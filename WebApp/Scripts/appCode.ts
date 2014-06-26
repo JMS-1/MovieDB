@@ -157,7 +157,7 @@ module MovieDatabase {
             this.recordingFilter.setGenres(info.genres);
             this.recordingFilter.setSeries(info.series);
 
-            this.recordingFilter.query();
+            this.recordingFilter.reset(true);
         }
 
         /*

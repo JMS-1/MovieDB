@@ -246,7 +246,8 @@
 		[Genre]		UNIQUEIDENTIFIER	NOT NULL,
 		[Recording]	UNIQUEIDENTIFIER	NOT NULL,
 		CONSTRAINT	[FK_RecordingGenres_Genre]		FOREIGN KEY	([Genre])		REFERENCES [Genres] ([Id]),
-		CONSTRAINT	[FK_RecordingGenres_Recording]	FOREIGN KEY	([Recording])	REFERENCES [Recordings] ([Id])	ON DELETE CASCADE
+		CONSTRAINT	[FK_RecordingGenres_Recording]	FOREIGN KEY	([Recording])	REFERENCES [Recordings] ([Id])	ON DELETE CASCADE,
+		CONSTRAINT [U_RecordingGenres] UNIQUE NONCLUSTERED ([Genre], [Recording])
 	);
 	GO
 
@@ -262,7 +263,8 @@
 		[Language]	UNIQUEIDENTIFIER	NOT NULL,
 		[Recording]	UNIQUEIDENTIFIER	NOT NULL,
 		CONSTRAINT	[FK_RecordingLanguages_Language]	FOREIGN KEY	([Language])	REFERENCES [Languages] ([Id]),
-		CONSTRAINT	[FK_RecordingLanguages_Recording]	FOREIGN KEY	([Recording])	REFERENCES [Recordings] ([Id])	ON DELETE CASCADE
+		CONSTRAINT	[FK_RecordingLanguages_Recording]	FOREIGN KEY	([Recording])	REFERENCES [Recordings] ([Id])	ON DELETE CASCADE,
+		CONSTRAINT [U_RecordingLanguages] UNIQUE NONCLUSTERED ([Language], [Recording])
 	);
 	GO
 

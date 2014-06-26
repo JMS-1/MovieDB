@@ -279,6 +279,10 @@
     <Content Include="Scripts\controllers.js">
       <DependentUpon>controllers.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Scripts\views.ts" />
+    <Content Include="Scripts\views.js">
+      <DependentUpon>views.ts</DependentUpon>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_GlobalResources\MovieDBStrings.resx">

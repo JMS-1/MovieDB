@@ -1,14 +1,20 @@
 ﻿
+interface IModel<TSimpleType> {
+    change(callback: () => void): void;
+
+    val(): TSimpleType;
+
+    val(newValue: TSimpleType): TSimpleType;
+}
+
 // Basisklasse für ein einfaches Modell mit nur einem Wert
-class Model<TModelType, TSimpleType>{
+class Model<TModelType, TSimpleType> implements IModel<TSimpleType>{
     private onChange: { (): void }[] = [];
 
     // Hier kann sich ein Interessent an Änderungen des einzigen Wertes anmelden
-    change(callback: () => void): TModelType {
+    change(callback: () => void): void {
         if (callback != null)
             this.onChange.push(callback);
-
-        return <TModelType><any>this;
     }
 
     private onChanged(): void {
