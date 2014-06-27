@@ -38,7 +38,7 @@ class RentFilterController {
 }
 
 // Beschreibt die Auswahl aus eine Liste von Alternativen
-class RadioGroupController<TModelType extends IModel<string>> {
+class RadioGroupController<TModelType extends Model<string>> {
     private radios: any = {};
 
     constructor(public model: TModelType, private groupView: JQuery, private groupName: string) {
@@ -95,7 +95,7 @@ class RadioGroupController<TModelType extends IModel<string>> {
 }
 
 // Beschreibt eine Mehrfachauswahl
-class CheckGroupController<TModelType extends IModel<string[]>> {
+class CheckGroupController<TModelType extends Model<string[]>> {
     private checks: any = {};
 
     constructor(public model: TModelType, public container: JQuery, private groupName: string) {
@@ -201,40 +201,71 @@ class GenreFilterController extends CheckGroupController<GenreFilterModel> {
 
 // Die Steuerung der Hierarchien
 class TreeController {
+    constructor(public model: TreeItemModel) {
+    }
+
+    selected = (target: TreeController) => { };
+
+    click(callback: (target: TreeController) => void): void {
+        this.selected = callback;
+    }
+
+    unselect(allbut: TreeController): void {
+    }
 }
 
 class TreeNodeController extends TreeController {
     children: TreeController[] = [];
 
-    constructor(private model: TreeNodeModel, public view: TreeNodeView) {
-        super();
+    constructor(private nodeModel: TreeNodeModel, public view: TreeNodeView) {
+        super(nodeModel);
 
-        this.view.toggle = () => this.model.expanded(!this.model.expanded());
-        this.view.click = () => this.model.selected(!this.model.selected());
-        this.model.changed = () => this.modelExpanded();
-        this.model.select = () => this.modelSelected();
+        this.view.toggle = () => this.nodeModel.expanded.val(!this.nodeModel.expanded.val());
+        this.view.click = () => this.nodeModel.selected.val(!this.nodeModel.selected.val());
+        this.nodeModel.expanded.change(() => this.modelExpanded());
+        this.nodeModel.selected.change(() => this.modelSelected());
 
         this.modelExpanded();
     }
 
     private modelExpanded(): void {
-        this.view.expanded(this.model.expanded());
+        this.view.expanded(this.nodeModel.expanded.val());
     }
 
     private modelSelected(): void {
-        this.view.selected(this.model.selected());
+        this.view.selected(this.nodeModel.selected.val());
+        this.selected(this);
+    }
+
+    click(callback: (target: TreeController) => void): void {
+        super.click(callback);
+
+        $.each(this.children, (index, child) => child.click(callback));
+    }
+
+    unselect(allbut: TreeController): void {
+        if (allbut !== this)
+            this.nodeModel.selected.val(false);
+
+        $.each(this.children, (index, child) => child.unselect(allbut));
     }
 }
 
 class TreeLeafController extends TreeController {
-    constructor(public model: TreeLeafModel, public view: TreeLeafView) {
-        super();
+    constructor(public leafModel: TreeLeafModel, public view: TreeLeafView) {
+        super(leafModel);
 
-        this.view.click = () => this.model.selected(!this.model.selected());
-        this.model.select = () => this.modelSelected();
+        this.view.click = () => this.leafModel.selected.val(!this.leafModel.selected.val());
+        this.leafModel.selected.change(() => this.modelSelected());
     }
 
     private modelSelected(): void {
-        this.view.selected(this.model.selected());
+        this.view.selected(this.leafModel.selected.val());
+        this.selected(this);
+    }
+
+    unselect(allbut: TreeController): void {
+        if (allbut !== this)
+            this.leafModel.selected.val(false);
     }
 }

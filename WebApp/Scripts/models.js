@@ -4,13 +4,12 @@
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-
 // Basisklasse für ein einfaches Modell mit nur einem Wert
 var Model = (function () {
-    function Model() {
+    function Model(initialValue) {
+        if (typeof initialValue === "undefined") { initialValue = null; }
         this.onChange = [];
-        // Das wäre dann der einzige Wert
-        this.value = null;
+        this.value = initialValue;
     }
     // Hier kann sich ein Interessent an Änderungen des einzigen Wertes anmelden
     Model.prototype.change = function (callback) {
@@ -72,53 +71,32 @@ var GenreFilterModel = (function (_super) {
     return GenreFilterModel;
 })(Model);
 
+// Ein Element in einer hierarchischen Ansicht kann ausgewählt werden
 var TreeItemModel = (function () {
-    function TreeItemModel() {
-        this.isSelected = false;
-        this.select = function () {
-        };
+    function TreeItemModel(item) {
+        this.selected = new Model(false);
+        this.id = item.id;
+        this.fullName = item.hierarchicalName;
     }
-    TreeItemModel.prototype.selected = function (isSelected) {
-        if (typeof isSelected === "undefined") { isSelected = undefined; }
-        if (isSelected !== undefined)
-            if (isSelected != this.isSelected) {
-                this.isSelected = isSelected;
-
-                this.select();
-            }
-
-        return this.isSelected;
-    };
     return TreeItemModel;
 })();
 
-var TreeNodeModel = (function (_super) {
-    __extends(TreeNodeModel, _super);
-    function TreeNodeModel(data) {
-        _super.call(this);
-        this.isExpanded = false;
-        this.changed = function () {
-        };
-    }
-    TreeNodeModel.prototype.expanded = function (isExpanded) {
-        if (typeof isExpanded === "undefined") { isExpanded = undefined; }
-        if (isExpanded !== undefined)
-            if (isExpanded != this.isExpanded) {
-                this.isExpanded = isExpanded;
-
-                this.changed();
-            }
-
-        return this.isExpanded;
-    };
-    return TreeNodeModel;
-})(TreeItemModel);
-
+// Ein Blatt in einer hierarchischen Ansicht kann nur ausgewählt werden
 var TreeLeafModel = (function (_super) {
     __extends(TreeLeafModel, _super);
-    function TreeLeafModel(data) {
-        _super.call(this);
+    function TreeLeafModel(item) {
+        _super.call(this, item);
     }
     return TreeLeafModel;
+})(TreeItemModel);
+
+// Ein Knoten in einer hierarchischen Ansicht kann zusätzlicher zur Auswahl auch auf- und zugeklappt werden
+var TreeNodeModel = (function (_super) {
+    __extends(TreeNodeModel, _super);
+    function TreeNodeModel(item) {
+        _super.call(this, item);
+        this.expanded = new Model(false);
+    }
+    return TreeNodeModel;
 })(TreeItemModel);
 //# sourceMappingURL=models.js.map

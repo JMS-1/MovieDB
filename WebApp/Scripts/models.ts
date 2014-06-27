@@ -1,15 +1,6 @@
 ﻿
-// Mehr müssel wir über einen einzelnen Wert nicht wissen (Wert auslesen, Wert setzen, Änderungen überwachen)
-interface IModel<TSimpleType> {
-    change(callback: () => void): void;
-
-    val(): TSimpleType;
-
-    val(newValue: TSimpleType): TSimpleType;
-}
-
 // Basisklasse für ein einfaches Modell mit nur einem Wert
-class Model<TModelType, TSimpleType> implements IModel<TSimpleType>{
+class Model<TSimpleType> {
     private onChange: { (): void }[] = [];
 
     // Hier kann sich ein Interessent an Änderungen des einzigen Wertes anmelden
@@ -22,8 +13,12 @@ class Model<TModelType, TSimpleType> implements IModel<TSimpleType>{
         $.each(this.onChange, (index, callback) => callback());
     }
 
+    constructor(initialValue: TSimpleType = null) {
+        this.value = initialValue;
+    }
+
     // Das wäre dann der einzige Wert
-    private value: TSimpleType = null;
+    private value: TSimpleType;
 
     val(): TSimpleType;
 
@@ -46,15 +41,15 @@ class Model<TModelType, TSimpleType> implements IModel<TSimpleType>{
 }
 
 // Auswahl des Verleihers (verliehen / nicht verliehen / egal)
-class RentFilterModel extends Model<RentFilterModel, boolean> {
+class RentFilterModel extends Model<boolean> {
 }
 
 // Die Auswahl der Sprache (eindeutige Kennung / egal)
-class LanguageFilterModel extends Model<LanguageFilterModel, string> {
+class LanguageFilterModel extends Model<string> {
 }
 
 // Die Auswahl der Kategorien (Liste eindeutiger Kennungen)
-class GenreFilterModel extends Model<GenreFilterModel, string[]> {
+class GenreFilterModel extends Model<string[]> {
     constructor() {
         super();
 
@@ -63,54 +58,33 @@ class GenreFilterModel extends Model<GenreFilterModel, string[]> {
     }
 }
 
+// Ein Element in einer hierarchischen Ansicht kann ausgewählt werden
 class TreeItemModel {
-    private isSelected = false;
+    selected = new Model<boolean>(false);
 
-    select = () => { };
+    id: string;
 
-    selected(): boolean;
+    fullName: string;
 
-    selected(isSelected: boolean): boolean;
-
-    selected(isSelected: boolean = undefined): any {
-        if (isSelected !== undefined)
-            if (isSelected != this.isSelected) {
-                this.isSelected = isSelected;
-
-                this.select();
-            }
-
-        return this.isSelected;
+    constructor(item: ISeriesMapping) {
+        this.id = item.id;
+        this.fullName = item.hierarchicalName;
     }
 }
 
-class TreeNodeModel extends TreeItemModel {
-    private isExpanded = false;
-
-    changed = () => { };
-
-    constructor(data: ISeriesMapping) {
-        super();
-    }
-
-    expanded(): boolean;
-
-    expanded(isExpanded: boolean): boolean;
-
-    expanded(isExpanded: boolean = undefined): any {
-        if (isExpanded !== undefined)
-            if (isExpanded != this.isExpanded) {
-                this.isExpanded = isExpanded;
-
-                this.changed();
-            }
-
-        return this.isExpanded;
-    }
-}
-
+// Ein Blatt in einer hierarchischen Ansicht kann nur ausgewählt werden
 class TreeLeafModel extends TreeItemModel {
-    constructor(data: ISeriesMapping) {
-        super();
+    constructor(item: ISeriesMapping) {
+        super(item);
     }
 }
+
+// Ein Knoten in einer hierarchischen Ansicht kann zusätzlicher zur Auswahl auch auf- und zugeklappt werden
+class TreeNodeModel extends TreeItemModel {
+    expanded = new Model<boolean>(false);
+
+    constructor(item: ISeriesMapping) {
+        super(item);
+    }
+}
+

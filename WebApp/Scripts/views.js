@@ -79,64 +79,68 @@ var CheckView = (function () {
     return CheckView;
 })();
 
-// Ein Blatt in einem Baum
+// Jedes Element in einem Baum wird durch einen Text in einem Oberflächenelement repräsentiert
 var TreeItemView = (function () {
-    function TreeItemView(container) {
+    function TreeItemView(container, isRoot) {
+        // Wird ausgelöst, wenn der Name angeklickt wird
+        this.click = function () {
+        };
         this.view = $('<div />').appendTo(container);
-        this.text = this.view;
+
+        if (!isRoot)
+            this.view.addClass(Styles.treeNode);
     }
+    // Gemeinsam ist allen Elementen auch, dass sie ausgewählt werden können und dies durch ein optisches Feedback anzeigen
     TreeItemView.prototype.selected = function (isSelected) {
         if (isSelected)
             this.text.addClass(Styles.selectedNode);
         else
             this.text.removeClass(Styles.selectedNode);
     };
+
+    // Legt den Anzeigenamen fest
+    TreeItemView.prototype.setText = function (name, view) {
+        var _this = this;
+        this.text = view.addClass(Styles.treeItem).text(name).click(function () {
+            return _this.click();
+        });
+    };
     return TreeItemView;
 })();
 
+// Ein Blatt zeigt im wesentlichen nur seinen Namen an
 var TreeLeafView = (function (_super) {
     __extends(TreeLeafView, _super);
     function TreeLeafView(name, isRoot, container) {
-        var _this = this;
-        _super.call(this, container);
-        this.click = function () {
-        };
+        _super.call(this, container, isRoot);
 
-        this.view.addClass(Styles.treeItem).text(name).click(function () {
-            return _this.click();
-        });
-
-        if (!isRoot)
-            this.view.addClass(Styles.treeNode);
+        this.setText(name, this.view);
     }
     return TreeLeafView;
 })(TreeItemView);
 
+// Ein Knoten hat zusätzlich einen Bereich für Kindknoten, der zudem auf- und zugeklappt werden kann
 var TreeNodeView = (function (_super) {
     __extends(TreeNodeView, _super);
     function TreeNodeView(name, isRoot, container) {
         var _this = this;
-        _super.call(this, container);
+        _super.call(this, container, isRoot);
         this.toggle = function () {
         };
-        this.click = function () {
-        };
 
-        if (!isRoot)
-            this.view.addClass(Styles.treeNode);
-
+        // Der Kopfbereich wird das Klappsymbol und den Namen enthalten
         var header = $('<div />', { 'class': Styles.nodeHeader }).appendTo(this.view);
 
         $('<div />', { 'class': 'ui-icon' }).click(function () {
             return _this.toggle();
         }).appendTo(header);
 
-        this.text = $('<div />').addClass(Styles.treeItem).text(name).click(function () {
-            return _this.click();
-        }).appendTo(header);
+        this.setText(name, $('<div />').appendTo(header));
 
+        // Der Kindbereich bleibt erst einmal leer
         this.childView = $('<div />').appendTo(this.view);
     }
+    // Zeigt oder verbirgt die Unterstruktur
     TreeNodeView.prototype.expanded = function (isExpanded) {
         var toggle = this.view.children().first().children().first();
 

@@ -240,62 +240,95 @@ var GenreFilterController = (function (_super) {
 
 // Die Steuerung der Hierarchien
 var TreeController = (function () {
-    function TreeController() {
+    function TreeController(model) {
+        this.model = model;
+        this.selected = function (target) {
+        };
     }
+    TreeController.prototype.click = function (callback) {
+        this.selected = callback;
+    };
+
+    TreeController.prototype.unselect = function (allbut) {
+    };
     return TreeController;
 })();
 
 var TreeNodeController = (function (_super) {
     __extends(TreeNodeController, _super);
-    function TreeNodeController(model, view) {
+    function TreeNodeController(nodeModel, view) {
         var _this = this;
-        _super.call(this);
-        this.model = model;
+        _super.call(this, nodeModel);
+        this.nodeModel = nodeModel;
         this.view = view;
         this.children = [];
 
         this.view.toggle = function () {
-            return _this.model.expanded(!_this.model.expanded());
+            return _this.nodeModel.expanded.val(!_this.nodeModel.expanded.val());
         };
         this.view.click = function () {
-            return _this.model.selected(!_this.model.selected());
+            return _this.nodeModel.selected.val(!_this.nodeModel.selected.val());
         };
-        this.model.changed = function () {
+        this.nodeModel.expanded.change(function () {
             return _this.modelExpanded();
-        };
-        this.model.select = function () {
+        });
+        this.nodeModel.selected.change(function () {
             return _this.modelSelected();
-        };
+        });
 
         this.modelExpanded();
     }
     TreeNodeController.prototype.modelExpanded = function () {
-        this.view.expanded(this.model.expanded());
+        this.view.expanded(this.nodeModel.expanded.val());
     };
 
     TreeNodeController.prototype.modelSelected = function () {
-        this.view.selected(this.model.selected());
+        this.view.selected(this.nodeModel.selected.val());
+        this.selected(this);
+    };
+
+    TreeNodeController.prototype.click = function (callback) {
+        _super.prototype.click.call(this, callback);
+
+        $.each(this.children, function (index, child) {
+            return child.click(callback);
+        });
+    };
+
+    TreeNodeController.prototype.unselect = function (allbut) {
+        if (allbut !== this)
+            this.nodeModel.selected.val(false);
+
+        $.each(this.children, function (index, child) {
+            return child.unselect(allbut);
+        });
     };
     return TreeNodeController;
 })(TreeController);
 
 var TreeLeafController = (function (_super) {
     __extends(TreeLeafController, _super);
-    function TreeLeafController(model, view) {
+    function TreeLeafController(leafModel, view) {
         var _this = this;
-        _super.call(this);
-        this.model = model;
+        _super.call(this, leafModel);
+        this.leafModel = leafModel;
         this.view = view;
 
         this.view.click = function () {
-            return _this.model.selected(!_this.model.selected());
+            return _this.leafModel.selected.val(!_this.leafModel.selected.val());
         };
-        this.model.select = function () {
+        this.leafModel.selected.change(function () {
             return _this.modelSelected();
-        };
+        });
     }
     TreeLeafController.prototype.modelSelected = function () {
-        this.view.selected(this.model.selected());
+        this.view.selected(this.leafModel.selected.val());
+        this.selected(this);
+    };
+
+    TreeLeafController.prototype.unselect = function (allbut) {
+        if (allbut !== this)
+            this.leafModel.selected.val(false);
     };
     return TreeLeafController;
 })(TreeController);

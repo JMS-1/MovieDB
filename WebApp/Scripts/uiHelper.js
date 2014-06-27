@@ -131,10 +131,14 @@ var SeriesSelectors = (function () {
 
 // Bietet die Hierarchie der Serien zur Auswahl im Filter an
 var SeriesTreeSelector = (function () {
-    function SeriesTreeSelector(containerSelector, onChanged) {
+    function SeriesTreeSelector(view, onChanged) {
         var _this = this;
+        this.view = view;
         this.nextReset = 0;
-        this.container = $(containerSelector).keypress(function (ev) {
+        this.nodes = [];
+        // Wird wärend der Änderung der Auswahl gesetzt
+        this.selecting = false;
+        this.view.keypress(function (ev) {
             return _this.onKeyPressed(ev);
         });
         this.whenChanged = onChanged;
@@ -150,7 +154,7 @@ var SeriesTreeSelector = (function () {
         this.nextReset = now + 1000;
 
         // Wir suchen hier nach dem vollständigen (hierarchischen) Namen, was uns in der ersten Version erlaubt, auf ein Aufklappen zu verzichten
-        var nodes = this.container.find('[' + SeriesTreeSelector.attributeName + ']');
+        var nodes = this.view.find('[' + SeriesTreeSelector.attributeName + ']');
         for (var i = 0; i < nodes.length; i++) {
             var node = $(nodes[i]);
             var name = node.attr(SeriesTreeSelector.attributeName);
@@ -167,7 +171,7 @@ var SeriesTreeSelector = (function () {
 
     // Wenn das jQuery UI Accordion geöffnet wirde, müssen wir irgendwie einen sinnvollen Anfangszustand herstellen
     SeriesTreeSelector.prototype.activate = function () {
-        this.container.focus();
+        this.view.focus();
         this.nextReset = 0;
 
         this.scrollToSelected();
@@ -175,23 +179,7 @@ var SeriesTreeSelector = (function () {
 
     // Ermittelt die aktuell ausgewählte Serie
     SeriesTreeSelector.prototype.selected = function () {
-        return this.container.find('.' + Styles.selectedNode);
-    };
-
-    // Wählt eine bestimmt Serie aus
-    SeriesTreeSelector.prototype.selectNode = function (node) {
-        var wasSelected = node.hasClass(Styles.selectedNode);
-
-        this.resetFilter();
-
-        // Die Änderung wird an unseren Chef gemeldet
-        if (wasSelected)
-            this.whenChanged(null, null);
-        else {
-            node.addClass(Styles.selectedNode);
-
-            this.whenChanged(node.attr(SeriesTreeSelector.attributeId), node.attr(SeriesTreeSelector.attributeName));
-        }
+        return this.view.find('.' + Styles.selectedNode);
     };
 
     // Stellt sicher, dass die aktuell ausgewählte Serie ganz oben angezeigt wird
@@ -204,7 +192,7 @@ var SeriesTreeSelector = (function () {
         if (selected.length < 1)
             return;
 
-        for (var parent = selected.parent(); (parent.length == 1) && (parent[0] !== this.container[0]); parent = parent.parent()) {
+        for (var parent = selected.parent(); (parent.length == 1) && (parent[0] !== this.view[0]); parent = parent.parent()) {
             var toggle = parent.prev().children().first();
             if (toggle.hasClass(Styles.collapsed))
                 toggle.removeClass(Styles.collapsed).addClass(Styles.expanded);
@@ -212,37 +200,59 @@ var SeriesTreeSelector = (function () {
             parent.removeClass(Styles.invisble);
         }
 
-        var firstTop = this.container.children().first().offset().top;
+        var firstTop = this.view.children().first().offset().top;
         var selectedTop = selected.offset().top;
 
-        this.container.scrollTop(selectedTop - firstTop);
+        this.view.scrollTop(selectedTop - firstTop);
     };
 
     // Hebt die aktuelle Auswahl auf
     SeriesTreeSelector.prototype.resetFilter = function () {
-        this.selected().removeClass(Styles.selectedNode);
+        $.each(this.nodes, function (index, node) {
+            return node.unselect(null);
+        });
     };
 
     // Baut die Hierarchie der Serien auf
     SeriesTreeSelector.prototype.initialize = function (series) {
-        this.container.empty();
-
-        this.buildTree(series.filter(function (s) {
-            return s.parentId == null;
-        }), this.container);
-    };
-
-    // Erzeugt einen Knoten oder ein Blatt für eine konkrete Serie
-    SeriesTreeSelector.prototype.createNode = function (node, item, isLeaf) {
         var _this = this;
-        // Zur Vereinfachung verwenden wir hier die fluent-API von jQuery
-        return node.text(item.name).attr(SeriesTreeSelector.attributeId, item.id).attr(SeriesTreeSelector.attributeName, item.hierarchicalName).addClass(isLeaf ? Styles.isLeaf : Styles.isNode).on('click', function () {
-            return _this.selectNode(node);
+        this.view.empty();
+
+        this.nodes = SeriesTreeSelector.buildTree(series.filter(function (s) {
+            return s.parentId == null;
+        }), this.view);
+
+        $.each(this.nodes, function (index, node) {
+            return node.click(function (target) {
+                return _this.itemClick(target);
+            });
         });
     };
 
+    // Wird immer dann ausgelöst, wenn ein Knoten oder Blatt angeklick wurde
+    SeriesTreeSelector.prototype.itemClick = function (target) {
+        if (this.selecting)
+            return;
+
+        this.selecting = true;
+        try  {
+            // In der aktuellen Implementierung darf immer nur eine einzige Serie ausgewählt werden
+            $.each(this.nodes, function (index, node) {
+                return node.unselect(target);
+            });
+
+            var model = target.model;
+            if (model.selected.val())
+                this.whenChanged(model.id, model.fullName);
+            else
+                this.whenChanged(null, null);
+        } finally {
+            this.selecting = false;
+        }
+    };
+
     // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
-    SeriesTreeSelector.prototype.buildTree = function (children, parent) {
+    SeriesTreeSelector.buildTree = function (children, parent) {
         var _this = this;
         return $.map(children, function (item) {
             // Blätter sind einfach
@@ -256,58 +266,6 @@ var SeriesTreeSelector = (function () {
             node.children = _this.buildTree(item.children, node.view.childView);
 
             return node;
-        });
-    };
-
-    // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
-    SeriesTreeSelector.prototype.buildTree_old = function (children, parent) {
-        var _this = this;
-        $.each(children, function (index, item) {
-            // Für jede Serie wird ein gesondertes Fragment erzeugt
-            var child = $('<div />').appendTo(parent);
-
-            // Die Wurzelserien werden nicht markiert, da diese Markierung für das relative Einrücken sorgt
-            if (item.parentId != null)
-                child.addClass(Styles.treeNode);
-
-            // Blätter sind sehr einfach darzustellen, bei Knoten müssen wir etwas mehr tun
-            if (item.children.length < 1) {
-                _this.createNode(child, item, true);
-            } else {
-                // Das kleine Symbol zum Auf- und Zuklappen muss auch noch rein
-                var header = $('<div />', { 'class': Styles.nodeHeader }).appendTo(child);
-
-                // Für die Unterserien wird ein eigener Container angelegt, den wir dann über dieses Symbol auf- und zuklappen
-                var toggle = $('<div />', { 'class': 'ui-icon' }).addClass(Styles.collapsed).appendTo(header);
-
-                // Nun kann der Name der Serie zum Anklicken eingeblendet werden
-                _this.createNode($('<div />'), item, false).appendTo(header);
-
-                // Dann erst die Unterserien
-                var childContainer = $('<div />', { 'class': Styles.invisble }).appendTo(child);
-
-                // Und wir müssen natürlich nicht auf die Änderung reagieren
-                toggle.on('click', function (ev) {
-                    if (ev.currentTarget !== ev.target)
-                        return;
-
-                    // Auf- oder Zuklappen, je nach aktuellem Zustand
-                    if (toggle.hasClass(Styles.expanded)) {
-                        toggle.removeClass(Styles.expanded);
-                        toggle.addClass(Styles.collapsed);
-
-                        childContainer.addClass(Styles.invisble);
-                    } else {
-                        toggle.removeClass(Styles.collapsed);
-                        toggle.addClass(Styles.expanded);
-
-                        childContainer.removeClass(Styles.invisble);
-                    }
-                });
-
-                // Nun alle unsere Unterserien
-                _this.buildTree(item.children, childContainer);
-            }
         });
     };
     SeriesTreeSelector.attributeId = 'data-id';
