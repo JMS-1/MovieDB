@@ -1,4 +1,6 @@
-﻿body {
+﻿@import "filter.less";
+
+body {
 }
 
 #headline {
@@ -155,85 +157,3 @@
         float: right;
     }
 }
-
-@filterAccordionFont: small;
-@filterAccordionWeight: bold;
-@filterAccordionContentPadding: 2px 5px 5px 5px;
-@filterAccordionContentMargin: 10px;
-@filterAccordionContentWidth: 15em;
-@filterAccordionContentFont: small;
-@filterAccordionLabelPadding: 2px;
-
-@seriesMinHeight: 5em;
-@seriesMaxHeight: 16em;
-@seriesIndent: 1em;
-@seriesHoverColor: lightblue;
-@seriesSelectColor: dodgerblue;
-
-.seriesFilter, .rentFilter, .languageFilter, .genreFilter {
-    clear: both;
-    margin: 5px 0px 5px 20px;
-
-    .ui-accordion-header {
-        -moz-user-select: none;
-        -ms-user-select: none;
-        -webkit-user-select: none;
-        user-select: none;
-    }
-
-    .ui-accordion-content {
-        margin-left: @filterAccordionContentMargin;
-        padding: @filterAccordionContentPadding;
-    }
-
-    h3 {
-        font-weight: @filterAccordionWeight;
-        font-size: @filterAccordionFont;
-    }
-
-    label {
-        font-size: @filterAccordionContentFont !important;
-        margin-right: @filterAccordionContentMargin !important;
-        width: @filterAccordionContentWidth;
-        padding: @filterAccordionLabelPadding;
-    }
-}
-
-.seriesFilter {
-    .ui-accordion-content {
-        width: 90%;
-        min-height: @seriesMinHeight;
-        max-height: @seriesMaxHeight;
-        overflow-y: scroll;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        -webkit-user-select: none;
-        user-select: none;
-    }
-}
-
-.treeNodeHeader {
-    div.ui-icon {
-        margin-left: -3px;
-        margin-top: 1px;
-        float: left;
-    }
-}
-
-.treeNode {
-    font-size: @filterAccordionContentFont;
-    margin-left: @seriesIndent;
-}
-
-.treeItem {
-    font-size: @filterAccordionContentFont;
-}
-
-.treeItem:hover {
-    background-color: @seriesHoverColor;
-}
-
-.treeItem.nodeSelected {
-    background-color: @seriesSelectColor;
-}
-

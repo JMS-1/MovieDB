@@ -98,6 +98,12 @@
     <Content Include="Content\appStyles.min.css">
       <DependentUpon>appStyles.css</DependentUpon>
     </Content>
+    <Content Include="Content\filter.css">
+      <DependentUpon>filter.less</DependentUpon>
+    </Content>
+    <Content Include="Content\filter.min.css">
+      <DependentUpon>filter.css</DependentUpon>
+    </Content>
     <Content Include="Content\themes\base\images\animated-overlay.gif" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
@@ -165,6 +171,10 @@
       <DependentUpon>appStyles.css</DependentUpon>
     </Content>
     <Content Include="default.html" />
+    <Content Include="Content\filter.less" />
+    <Content Include="Content\filter.css.map">
+      <DependentUpon>filter.css</DependentUpon>
+    </Content>
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
