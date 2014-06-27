@@ -88,7 +88,7 @@ class TreeItemView {
     view: JQuery;
 
     // Die Darstellung des eigentlichen Namens - technisch gesehen protected
-    private text: JQuery;
+    text: JQuery;
 
     // Wird ausgelöst, wenn der Name angeklickt wird
     click = () => { };

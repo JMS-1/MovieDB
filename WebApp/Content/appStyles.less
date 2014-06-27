@@ -212,6 +212,13 @@
     clear: both;
     margin: 5px 0px 5px 20px;
 
+    .ui-accordion-header {
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
     .ui-accordion-content {
         margin-left: @filterAccordionContentMargin;
         padding: @filterAccordionContentPadding;

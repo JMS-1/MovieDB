@@ -153,14 +153,14 @@ var SeriesTreeSelector = (function () {
         this.search = (this.search + ev.char).toLowerCase();
         this.nextReset = now + 1000;
 
-        // Wir suchen hier nach dem vollständigen (hierarchischen) Namen, was uns in der ersten Version erlaubt, auf ein Aufklappen zu verzichten
-        var nodes = this.view.find('[' + SeriesTreeSelector.attributeName + ']');
-        for (var i = 0; i < nodes.length; i++) {
-            var node = $(nodes[i]);
-            var name = node.attr(SeriesTreeSelector.attributeName);
+        for (var i = 0; i < this.nodes.length; i++) {
+            var node = this.nodes[i];
+            var name = node.model.fullName;
+
+            // Der Vergleich ist wirklich etwas faul und dient wirklich nur zum grob anspringen
             if (name.length >= this.search.length)
                 if (name.substr(0, this.search.length).toLowerCase() == this.search) {
-                    this.scrollTo(node);
+                    this.scrollTo(node, []);
 
                     ev.preventDefault();
 
@@ -177,39 +177,40 @@ var SeriesTreeSelector = (function () {
         this.scrollToSelected();
     };
 
-    // Ermittelt die aktuell ausgewählte Serie
-    SeriesTreeSelector.prototype.selected = function () {
-        return this.view.find('.' + Styles.selectedNode);
-    };
-
     // Stellt sicher, dass die aktuell ausgewählte Serie ganz oben angezeigt wird
     SeriesTreeSelector.prototype.scrollToSelected = function () {
-        this.scrollTo(this.selected());
+        var _this = this;
+        $.each(this.nodes, function (index, node) {
+            return node.foreachSelected(function (target, path) {
+                return _this.scrollTo(target, path);
+            }, null);
+        });
     };
 
     // Stellt sicher, dass eine beliebige Serie ganz oben dargestellt wird
-    SeriesTreeSelector.prototype.scrollTo = function (selected) {
-        if (selected.length < 1)
-            return;
+    SeriesTreeSelector.prototype.scrollTo = function (selected, path) {
+        // Wir klappen den Baum immer bis zur Auswahl auf
+        $.each(path, function (index, node) {
+            return node.nodeModel.expanded.val(true);
+        });
 
-        for (var parent = selected.parent(); (parent.length == 1) && (parent[0] !== this.view[0]); parent = parent.parent()) {
-            var toggle = parent.prev().children().first();
-            if (toggle.hasClass(Styles.collapsed))
-                toggle.removeClass(Styles.collapsed).addClass(Styles.expanded);
-
-            parent.removeClass(Styles.invisble);
-        }
+        // Und dann verschieben wir das Sichtfenster so, dass die ausgewählte Serie ganz oben steht - ja, das kann man sicher eleganter machen
+        if (path.length > 0)
+            selected = path[0];
 
         var firstTop = this.view.children().first().offset().top;
-        var selectedTop = selected.offset().top;
+        var selectedTop = selected.view.text.offset().top;
 
         this.view.scrollTop(selectedTop - firstTop);
     };
 
     // Hebt die aktuelle Auswahl auf
-    SeriesTreeSelector.prototype.resetFilter = function () {
+    SeriesTreeSelector.prototype.resetFilter = function (allbut) {
+        if (typeof allbut === "undefined") { allbut = null; }
         $.each(this.nodes, function (index, node) {
-            return node.unselect(null);
+            return node.foreachSelected(function (target, path) {
+                return target.model.selected.val(false);
+            }, allbut);
         });
     };
 
@@ -237,9 +238,7 @@ var SeriesTreeSelector = (function () {
         this.selecting = true;
         try  {
             // In der aktuellen Implementierung darf immer nur eine einzige Serie ausgewählt werden
-            $.each(this.nodes, function (index, node) {
-                return node.unselect(target);
-            });
+            this.resetFilter(target);
 
             var model = target.model;
             if (model.selected.val())
@@ -263,7 +262,7 @@ var SeriesTreeSelector = (function () {
             var node = new TreeNodeController(new TreeNodeModel(item), new TreeNodeView(item.name, item.parentId == null, parent));
 
             // Für alle untergeordeneten Serien müssen wir eine entsprechende Anzeige vorbereiten
-            node.children = _this.buildTree(item.children, node.view.childView);
+            node.children = _this.buildTree(item.children, node.nodeView.childView);
 
             return node;
         });

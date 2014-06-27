@@ -201,7 +201,7 @@ class GenreFilterController extends CheckGroupController<GenreFilterModel> {
 
 // Die Steuerung der Hierarchien
 class TreeController {
-    constructor(public model: TreeItemModel) {
+    constructor(public model: TreeItemModel, public view: TreeItemView) {
     }
 
     selected = (target: TreeController) => { };
@@ -210,17 +210,20 @@ class TreeController {
         this.selected = callback;
     }
 
-    unselect(allbut: TreeController): void {
+    foreachSelected(callback: (target: TreeController, path: TreeNodeController[]) => void, allbut: TreeController, path: TreeNodeController[]= []): void {
+        if (allbut !== this)
+            if (this.model.selected.val())
+                callback(this, path);
     }
 }
 
 class TreeNodeController extends TreeController {
     children: TreeController[] = [];
 
-    constructor(private nodeModel: TreeNodeModel, public view: TreeNodeView) {
-        super(nodeModel);
+    constructor(public nodeModel: TreeNodeModel, public nodeView: TreeNodeView) {
+        super(nodeModel, nodeView);
 
-        this.view.toggle = () => this.nodeModel.expanded.val(!this.nodeModel.expanded.val());
+        this.nodeView.toggle = () => this.nodeModel.expanded.val(!this.nodeModel.expanded.val());
         this.view.click = () => this.nodeModel.selected.val(!this.nodeModel.selected.val());
         this.nodeModel.expanded.change(() => this.modelExpanded());
         this.nodeModel.selected.change(() => this.modelSelected());
@@ -229,7 +232,7 @@ class TreeNodeController extends TreeController {
     }
 
     private modelExpanded(): void {
-        this.view.expanded(this.nodeModel.expanded.val());
+        this.nodeView.expanded(this.nodeModel.expanded.val());
     }
 
     private modelSelected(): void {
@@ -243,17 +246,20 @@ class TreeNodeController extends TreeController {
         $.each(this.children, (index, child) => child.click(callback));
     }
 
-    unselect(allbut: TreeController): void {
-        if (allbut !== this)
-            this.nodeModel.selected.val(false);
+    foreachSelected(callback: (target: TreeController, path: TreeNodeController[]) => void, allbut: TreeController, path: TreeNodeController[]= []): void {
+        super.foreachSelected(callback, allbut);
 
-        $.each(this.children, (index, child) => child.unselect(allbut));
+        path.push(this);
+
+        $.each(this.children, (index, child) => child.foreachSelected(callback, allbut, path));
+
+        path.pop();
     }
 }
 
 class TreeLeafController extends TreeController {
-    constructor(public leafModel: TreeLeafModel, public view: TreeLeafView) {
-        super(leafModel);
+    constructor(public leafModel: TreeLeafModel, public leafView: TreeLeafView) {
+        super(leafModel, leafView);
 
         this.view.click = () => this.leafModel.selected.val(!this.leafModel.selected.val());
         this.leafModel.selected.change(() => this.modelSelected());
@@ -262,10 +268,5 @@ class TreeLeafController extends TreeController {
     private modelSelected(): void {
         this.view.selected(this.leafModel.selected.val());
         this.selected(this);
-    }
-
-    unselect(allbut: TreeController): void {
-        if (allbut !== this)
-            this.leafModel.selected.val(false);
     }
 }
