@@ -335,15 +335,6 @@ module MovieDatabase {
             this.genreEditor = new MultiValueEditor<IGenreContract>('#recordingEditGenre', validateRecordingEditForm);
             this.genreDialog = new GenreEditor('.openGenreEditDialog', () => this.requestApplicationInformation());
 
-            var filterAccordionSettings = {
-                active: false,
-                animate: false,
-                collapsible: true,
-                heightStyle: 'content',
-            };
-
-            $('.filterCollapsable').accordion(filterAccordionSettings);
-
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');
 

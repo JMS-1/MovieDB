@@ -1,7 +1,7 @@
 ﻿
 // Die Auswahl des Verleihers wird über drei separate Optionsfelder realisiert
 class RentFilterController {
-    private model = new RentFilterModel();
+    model = new Model<boolean>(null);
 
     constructor(private view: JQuery) {
         this.view
@@ -31,17 +31,19 @@ class RentFilterController {
         this.view.find('input').button('refresh');
 
         if (val == null)
-            this.view.find('.header').text('(egal)');
+            this.view.find('.ui-accordion-header>span').text('(egal)');
         else
-            this.view.find('.header').text(val ? 'nur verliehene' : 'nur nicht verliehene');
+            this.view.find('.ui-accordion-header>span').text(val ? 'nur verliehene' : 'nur nicht verliehene');
     }
 }
 
 // Beschreibt die Auswahl aus eine Liste von Alternativen
-class RadioGroupController<TModelType extends Model<string>> {
+class RadioGroupController {
+    model = new Model<string>(null);
+
     private radios: any = {};
 
-    constructor(public model: TModelType, private groupView: JQuery, private groupName: string) {
+    constructor(public groupView: JQuery, private groupName: string) {
         this.groupView.change(() => this.viewToModel());
 
         this.model.change(() => this.modelToView());
@@ -56,12 +58,16 @@ class RadioGroupController<TModelType extends Model<string>> {
     }
 
     initialize(models: IMappingContract[]): void {
-        this.groupView.empty();
+        this.fillView(this.groupView, models);
+    }
+
+    fillView(view: JQuery, models: IMappingContract[]): void {
+        view.empty();
+
         this.radios = {};
+        this.radios[''] = new RadioView({ id: '', name: '(egal)' }, view, this.groupName);
 
-        this.radios[''] = new RadioView({ id: '', name: '(egal)' }, this.groupView, this.groupName);
-
-        $.each(models, (index, model) => this.radios[model.id] = new RadioView(model, this.groupView, this.groupName));
+        $.each(models, (index, model) => this.radios[model.id] = new RadioView(model, view, this.groupName));
 
         this.val(null);
     }
@@ -95,18 +101,25 @@ class RadioGroupController<TModelType extends Model<string>> {
 }
 
 // Beschreibt eine Mehrfachauswahl
-class CheckGroupController<TModelType extends Model<string[]>> {
+class CheckGroupController {
+    model = new Model<string[]>([]);
+
     private checks: any = {};
 
-    constructor(public model: TModelType, public container: JQuery, private groupName: string) {
+    constructor(public groupView: JQuery, private groupName: string) {
         this.model.change(() => this.modelToView());
     }
 
     initialize(models: IMappingContract[]): void {
-        this.container.empty();
+        this.fillView(this.groupView, models);
+    }
+
+    fillView(view: JQuery, models: IMappingContract[]): void {
+        view.empty();
+
         this.checks = {};
 
-        $.each(models, (index, model) => this.checks[model.id] = new CheckView(model, this.container, () => this.viewToModel(), this.groupName));
+        $.each(models, (index, model) => this.checks[model.id] = new CheckView(model, view, () => this.viewToModel(), this.groupName));
     }
 
     setCounts(statistics: IStatisticsContract[]): void {
@@ -161,9 +174,9 @@ class CheckGroupController<TModelType extends Model<string[]>> {
 }
 
 // Die Auswahl der Sprache erfolgt durch eine Reihe von Alternativen
-class LanguageFilterController extends RadioGroupController<LanguageFilterModel> {
+class LanguageFilterController extends RadioGroupController {
     constructor(private view: JQuery) {
-        super(new LanguageFilterModel(), view.find('.container'), 'languageChoice');
+        super(view, 'languageChoice');
 
         this.view.accordion(Styles.accordionSettings);
 
@@ -173,14 +186,18 @@ class LanguageFilterController extends RadioGroupController<LanguageFilterModel>
     modelToView(): void {
         super.modelToView();
 
-        this.view.find('.header').text(this.getName(this.model.val()) || '(egal)');
+        this.view.find('.ui-accordion-header>span').text(this.getName(this.model.val()) || '(egal)');
+    }
+
+    initialize(models: IMappingContract[]): void {
+        this.fillView(this.groupView.find('.ui-accordion-content'), models);
     }
 }
 
 // Bei den Kategorien ist im Filter eine Mehrfachauswahl möglich
-class GenreFilterController extends CheckGroupController<GenreFilterModel> {
+class GenreFilterController extends CheckGroupController {
     constructor(private view: JQuery) {
-        super(new GenreFilterModel(), view.find('.container'), 'genreCheckbox');
+        super(view, 'genreCheckbox');
 
         this.view.accordion(Styles.accordionSettings);
 
@@ -193,9 +210,160 @@ class GenreFilterController extends CheckGroupController<GenreFilterModel> {
         var genres = this.model.val();
 
         if (genres.length < 1)
-            this.view.find('.header').text('(egal)');
+            this.view.find('.ui-accordion-header>span').text('(egal)');
         else
-            this.view.find('.header').text($.map(genres, genre => this.getName(genre)).join(' und '));
+            this.view.find('.ui-accordion-header>span').text($.map(genres, genre => this.getName(genre)).join(' und '));
+    }
+
+    initialize(models: IMappingContract[]): void {
+        this.fillView(this.groupView.find('.ui-accordion-content'), models);
+    }
+}
+
+// Serien werden über einen Baum ausgewählt
+class SeriesFilterController {
+    model = new Model<string>(null);
+
+    private nextReset = 0;
+
+    private search: string;
+
+    private nodes: TreeController[] = [];
+
+    private container: JQuery;
+
+    constructor(private view: JQuery) {
+        this.view.accordion(Styles.accordionSettings).on('accordionactivate', (event, ui) => {
+            if (ui.newPanel.length > 0)
+                this.activate();
+        });
+
+        this.container = this.view.find('.ui-accordion-content');
+        this.container.keypress(ev => this.onKeyPressed(ev));
+        this.model.change(() => this.modelToView());
+
+        this.modelToView();
+    }
+
+    private modelToView() {
+        var selected = this.model.val();
+        var name = '(egal)';
+
+        $.each(this.nodes, (index, node) => node.foreach(target => {
+            if (target.model.selected.val(target.model.id == selected))
+                name = target.model.fullName;
+        }, null));
+
+        this.view.find('.ui-accordion-header>span').text(name);
+    }
+
+    // Ein Tastendruck führt im allgemeinen dazu, dass sich die Liste auf den ersten Eintrag mit einem passenden Namen verschiebt
+    private onKeyPressed(ev: JQueryEventObject): void {
+        // Tasten innerhalb eines Zeitraums von einer Sekunde werden zu einem zu vergleichenden Gesamtpräfix zusammengefasst
+        var now = $.now();
+        if (now >= this.nextReset)
+            this.search = '';
+
+        this.search = (this.search + ev.char).toLowerCase();
+        this.nextReset = now + 1000;
+
+        // Wir suchen erst einmal nur nach den Namen auf der obersten Ebene, das sollte für fast alles reichen
+        for (var i = 0; i < this.nodes.length; i++) {
+            var node = this.nodes[i];
+            var name = node.model.fullName;
+
+            // Der Vergleich ist wirklich etwas faul und dient wirklich nur zum grob anspringen
+            if (name.length >= this.search.length)
+                if (name.substr(0, this.search.length).toLowerCase() == this.search) {
+                    this.scrollTo(node, []);
+
+                    ev.preventDefault();
+
+                    return;
+                }
+        }
+    }
+
+    // Wenn das jQuery UI Accordion geöffnet wirde, müssen wir irgendwie einen sinnvollen Anfangszustand herstellen
+    private activate(): void {
+        this.container.focus();
+        this.nextReset = 0;
+
+        // Stellt sicher, dass die aktuell ausgewählte Serie ganz oben angezeigt wird
+        $.each(this.nodes, (index, node) => node.foreach((target, path) => {
+            if (target.model.selected.val())
+                this.scrollTo(target, path);
+        }, null));
+    }
+
+    // Stellt sicher, dass eine beliebige Serie ganz oben dargestellt wird
+    private scrollTo(selected: TreeController, path: TreeNodeController[]): void {
+        // Wir klappen den Baum immer bis zur Auswahl auf
+        $.each(path, (index, node) => node.nodeModel.expanded.val(true));
+
+        // Und dann verschieben wir das Sichtfenster so, dass die ausgewählte Serie ganz oben steht - ja, das kann man sicher eleganter machen
+        if (path.length > 0)
+            selected = path[0];
+
+        var firstTop = this.container.children().first().offset().top;
+        var selectedTop = selected.view.text.offset().top;
+
+        this.container.scrollTop(selectedTop - firstTop);
+    }
+
+    // Hebt die aktuelle Auswahl auf
+    resetFilter(allbut: TreeController = null): void {
+        $.each(this.nodes, (index, node) => node.foreach((target, path) => target.model.selected.val(false), allbut));
+    }
+
+    // Baut die Hierarchie der Serien auf
+    initialize(series: ISeriesMapping[]): void {
+        this.container.empty();
+
+        this.nodes = SeriesFilterController.buildTree(series.filter(s => s.parentId == null), this.container);
+
+        $.each(this.nodes, (index, node) => node.click(target => this.itemClick(target)));
+    }
+
+    // Wird wärend der Änderung der Auswahl gesetzt
+    private selecting = false;
+
+    // Wird immer dann ausgelöst, wenn ein Knoten oder Blatt angeklick wurde
+    private itemClick(target: TreeController): void {
+        if (this.selecting)
+            return;
+
+        this.selecting = true;
+        try {
+            // In der aktuellen Implementierung darf immer nur eine einzige Serie ausgewählt werden
+            this.resetFilter(target);
+
+            var model = target.model;
+            if (model.selected.val())
+                this.model.val(model.id);
+            else
+                this.model.val(null);
+        }
+        finally {
+            this.selecting = false;
+        }
+    }
+
+    // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
+    private static buildTree(children: ISeriesMapping[], parent: JQuery): TreeController[] {
+        return $.map(children, item => {
+            // Blätter sind einfach
+            if (item.children.length < 1)
+                return new TreeLeafController(new TreeLeafModel(item), new TreeLeafView(item.name, item.parentId == null, parent));
+
+            // Bei Knoten müssen wir etwas mehr tun
+            var node = new TreeNodeController(new TreeNodeModel(item), new TreeNodeView(item.name, item.parentId == null, parent));
+
+            // Für alle untergeordeneten Serien müssen wir eine entsprechende Anzeige vorbereiten
+            node.children = this.buildTree(item.children, node.nodeView.childView);
+
+            return <TreeController>node;
+        });
     }
 }
 
@@ -210,10 +378,9 @@ class TreeController {
         this.selected = callback;
     }
 
-    foreachSelected(callback: (target: TreeController, path: TreeNodeController[]) => void, allbut: TreeController, path: TreeNodeController[]= []): void {
+    foreach(callback: (target: TreeController, path: TreeNodeController[]) => void, allbut: TreeController, path: TreeNodeController[]= []): void {
         if (allbut !== this)
-            if (this.model.selected.val())
-                callback(this, path);
+            callback(this, path);
     }
 }
 
@@ -246,12 +413,12 @@ class TreeNodeController extends TreeController {
         $.each(this.children, (index, child) => child.click(callback));
     }
 
-    foreachSelected(callback: (target: TreeController, path: TreeNodeController[]) => void, allbut: TreeController, path: TreeNodeController[]= []): void {
-        super.foreachSelected(callback, allbut);
+    foreach(callback: (target: TreeController, path: TreeNodeController[]) => void, allbut: TreeController, path: TreeNodeController[]= []): void {
+        super.foreach(callback, allbut);
 
         path.push(this);
 
-        $.each(this.children, (index, child) => child.foreachSelected(callback, allbut, path));
+        $.each(this.children, (index, child) => child.foreach(callback, allbut, path));
 
         path.pop();
     }

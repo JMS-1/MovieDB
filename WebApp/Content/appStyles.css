@@ -106,7 +106,46 @@
   margin-bottom: 5px;
   float: right;
 }
-.seriesTree {
+.seriesFilter,
+.rentFilter,
+.languageFilter,
+.genreFilter {
+  clear: both;
+  margin: 5px 0px 5px 20px;
+}
+.seriesFilter .ui-accordion-header,
+.rentFilter .ui-accordion-header,
+.languageFilter .ui-accordion-header,
+.genreFilter .ui-accordion-header {
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.seriesFilter .ui-accordion-content,
+.rentFilter .ui-accordion-content,
+.languageFilter .ui-accordion-content,
+.genreFilter .ui-accordion-content {
+  margin-left: 10px;
+  padding: 2px 5px 5px 5px;
+}
+.seriesFilter h3,
+.rentFilter h3,
+.languageFilter h3,
+.genreFilter h3 {
+  font-weight: bold;
+  font-size: small;
+}
+.seriesFilter label,
+.rentFilter label,
+.languageFilter label,
+.genreFilter label {
+  font-size: small !important;
+  margin-right: 10px !important;
+  width: 15em;
+  padding: 2px;
+}
+.seriesFilter .ui-accordion-content {
   width: 90%;
   min-height: 5em;
   max-height: 16em;
@@ -133,44 +172,5 @@
 }
 .treeItem.nodeSelected {
   background-color: #1e90ff;
-}
-.filterCollapsable,
-.rentFilter,
-.languageFilter,
-.genreFilter {
-  clear: both;
-  margin: 5px 0px 5px 20px;
-}
-.filterCollapsable .ui-accordion-header,
-.rentFilter .ui-accordion-header,
-.languageFilter .ui-accordion-header,
-.genreFilter .ui-accordion-header {
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-.filterCollapsable .ui-accordion-content,
-.rentFilter .ui-accordion-content,
-.languageFilter .ui-accordion-content,
-.genreFilter .ui-accordion-content {
-  margin-left: 10px;
-  padding: 2px 5px 5px 5px;
-}
-.filterCollapsable h3,
-.rentFilter h3,
-.languageFilter h3,
-.genreFilter h3 {
-  font-weight: bold;
-  font-size: small;
-}
-.filterCollapsable label,
-.rentFilter label,
-.languageFilter label,
-.genreFilter label {
-  font-size: small !important;
-  margin-right: 10px !important;
-  width: 15em;
-  padding: 2px;
 }
 /*# sourceMappingURL=appStyles.css.map */

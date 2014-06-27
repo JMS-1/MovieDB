@@ -7,7 +7,6 @@
 // Basisklasse für ein einfaches Modell mit nur einem Wert
 var Model = (function () {
     function Model(initialValue) {
-        if (typeof initialValue === "undefined") { initialValue = null; }
         this.onChange = [];
         this.value = initialValue;
     }
@@ -40,36 +39,6 @@ var Model = (function () {
     };
     return Model;
 })();
-
-// Auswahl des Verleihers (verliehen / nicht verliehen / egal)
-var RentFilterModel = (function (_super) {
-    __extends(RentFilterModel, _super);
-    function RentFilterModel() {
-        _super.apply(this, arguments);
-    }
-    return RentFilterModel;
-})(Model);
-
-// Die Auswahl der Sprache (eindeutige Kennung / egal)
-var LanguageFilterModel = (function (_super) {
-    __extends(LanguageFilterModel, _super);
-    function LanguageFilterModel() {
-        _super.apply(this, arguments);
-    }
-    return LanguageFilterModel;
-})(Model);
-
-// Die Auswahl der Kategorien (Liste eindeutiger Kennungen)
-var GenreFilterModel = (function (_super) {
-    __extends(GenreFilterModel, _super);
-    function GenreFilterModel() {
-        _super.call(this);
-
-        // Wir stellen sicher, dass immer ein (wenn auch leeres) Feld vorhanden ist
-        _super.prototype.val.call(this, []);
-    }
-    return GenreFilterModel;
-})(Model);
 
 // Ein Element in einer hierarchischen Ansicht kann ausgewählt werden
 var TreeItemModel = (function () {

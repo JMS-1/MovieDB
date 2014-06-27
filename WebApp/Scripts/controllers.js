@@ -9,7 +9,7 @@ var RentFilterController = (function () {
     function RentFilterController(view) {
         var _this = this;
         this.view = view;
-        this.model = new RentFilterModel();
+        this.model = new Model(null);
         this.view.accordion(Styles.accordionSettings).find('input').button().change(function () {
             return _this.viewToModel();
         });
@@ -36,20 +36,20 @@ var RentFilterController = (function () {
         this.view.find('input').button('refresh');
 
         if (val == null)
-            this.view.find('.header').text('(egal)');
+            this.view.find('.ui-accordion-header>span').text('(egal)');
         else
-            this.view.find('.header').text(val ? 'nur verliehene' : 'nur nicht verliehene');
+            this.view.find('.ui-accordion-header>span').text(val ? 'nur verliehene' : 'nur nicht verliehene');
     };
     return RentFilterController;
 })();
 
 // Beschreibt die Auswahl aus eine Liste von Alternativen
 var RadioGroupController = (function () {
-    function RadioGroupController(model, groupView, groupName) {
+    function RadioGroupController(groupView, groupName) {
         var _this = this;
-        this.model = model;
         this.groupView = groupView;
         this.groupName = groupName;
+        this.model = new Model(null);
         this.radios = {};
         this.groupView.change(function () {
             return _this.viewToModel();
@@ -68,14 +68,18 @@ var RadioGroupController = (function () {
     };
 
     RadioGroupController.prototype.initialize = function (models) {
-        var _this = this;
-        this.groupView.empty();
-        this.radios = {};
+        this.fillView(this.groupView, models);
+    };
 
-        this.radios[''] = new RadioView({ id: '', name: '(egal)' }, this.groupView, this.groupName);
+    RadioGroupController.prototype.fillView = function (view, models) {
+        var _this = this;
+        view.empty();
+
+        this.radios = {};
+        this.radios[''] = new RadioView({ id: '', name: '(egal)' }, view, this.groupName);
 
         $.each(models, function (index, model) {
-            return _this.radios[model.id] = new RadioView(model, _this.groupView, _this.groupName);
+            return _this.radios[model.id] = new RadioView(model, view, _this.groupName);
         });
 
         this.val(null);
@@ -114,23 +118,28 @@ var RadioGroupController = (function () {
 
 // Beschreibt eine Mehrfachauswahl
 var CheckGroupController = (function () {
-    function CheckGroupController(model, container, groupName) {
+    function CheckGroupController(groupView, groupName) {
         var _this = this;
-        this.model = model;
-        this.container = container;
+        this.groupView = groupView;
         this.groupName = groupName;
+        this.model = new Model([]);
         this.checks = {};
         this.model.change(function () {
             return _this.modelToView();
         });
     }
     CheckGroupController.prototype.initialize = function (models) {
+        this.fillView(this.groupView, models);
+    };
+
+    CheckGroupController.prototype.fillView = function (view, models) {
         var _this = this;
-        this.container.empty();
+        view.empty();
+
         this.checks = {};
 
         $.each(models, function (index, model) {
-            return _this.checks[model.id] = new CheckView(model, _this.container, function () {
+            return _this.checks[model.id] = new CheckView(model, view, function () {
                 return _this.viewToModel();
             }, _this.groupName);
         });
@@ -196,7 +205,7 @@ var CheckGroupController = (function () {
 var LanguageFilterController = (function (_super) {
     __extends(LanguageFilterController, _super);
     function LanguageFilterController(view) {
-        _super.call(this, new LanguageFilterModel(), view.find('.container'), 'languageChoice');
+        _super.call(this, view, 'languageChoice');
         this.view = view;
 
         this.view.accordion(Styles.accordionSettings);
@@ -206,7 +215,11 @@ var LanguageFilterController = (function (_super) {
     LanguageFilterController.prototype.modelToView = function () {
         _super.prototype.modelToView.call(this);
 
-        this.view.find('.header').text(this.getName(this.model.val()) || '(egal)');
+        this.view.find('.ui-accordion-header>span').text(this.getName(this.model.val()) || '(egal)');
+    };
+
+    LanguageFilterController.prototype.initialize = function (models) {
+        this.fillView(this.groupView.find('.ui-accordion-content'), models);
     };
     return LanguageFilterController;
 })(RadioGroupController);
@@ -215,7 +228,7 @@ var LanguageFilterController = (function (_super) {
 var GenreFilterController = (function (_super) {
     __extends(GenreFilterController, _super);
     function GenreFilterController(view) {
-        _super.call(this, new GenreFilterModel(), view.find('.container'), 'genreCheckbox');
+        _super.call(this, view, 'genreCheckbox');
         this.view = view;
 
         this.view.accordion(Styles.accordionSettings);
@@ -229,14 +242,181 @@ var GenreFilterController = (function (_super) {
         var genres = this.model.val();
 
         if (genres.length < 1)
-            this.view.find('.header').text('(egal)');
+            this.view.find('.ui-accordion-header>span').text('(egal)');
         else
-            this.view.find('.header').text($.map(genres, function (genre) {
+            this.view.find('.ui-accordion-header>span').text($.map(genres, function (genre) {
                 return _this.getName(genre);
             }).join(' und '));
     };
+
+    GenreFilterController.prototype.initialize = function (models) {
+        this.fillView(this.groupView.find('.ui-accordion-content'), models);
+    };
     return GenreFilterController;
 })(CheckGroupController);
+
+// Serien werden über einen Baum ausgewählt
+var SeriesFilterController = (function () {
+    function SeriesFilterController(view) {
+        var _this = this;
+        this.view = view;
+        this.model = new Model(null);
+        this.nextReset = 0;
+        this.nodes = [];
+        // Wird wärend der Änderung der Auswahl gesetzt
+        this.selecting = false;
+        this.view.accordion(Styles.accordionSettings).on('accordionactivate', function (event, ui) {
+            if (ui.newPanel.length > 0)
+                _this.activate();
+        });
+
+        this.container = this.view.find('.ui-accordion-content');
+        this.container.keypress(function (ev) {
+            return _this.onKeyPressed(ev);
+        });
+        this.model.change(function () {
+            return _this.modelToView();
+        });
+
+        this.modelToView();
+    }
+    SeriesFilterController.prototype.modelToView = function () {
+        var selected = this.model.val();
+        var name = '(egal)';
+
+        $.each(this.nodes, function (index, node) {
+            return node.foreach(function (target) {
+                if (target.model.selected.val(target.model.id == selected))
+                    name = target.model.fullName;
+            }, null);
+        });
+
+        this.view.find('.ui-accordion-header>span').text(name);
+    };
+
+    // Ein Tastendruck führt im allgemeinen dazu, dass sich die Liste auf den ersten Eintrag mit einem passenden Namen verschiebt
+    SeriesFilterController.prototype.onKeyPressed = function (ev) {
+        // Tasten innerhalb eines Zeitraums von einer Sekunde werden zu einem zu vergleichenden Gesamtpräfix zusammengefasst
+        var now = $.now();
+        if (now >= this.nextReset)
+            this.search = '';
+
+        this.search = (this.search + ev.char).toLowerCase();
+        this.nextReset = now + 1000;
+
+        for (var i = 0; i < this.nodes.length; i++) {
+            var node = this.nodes[i];
+            var name = node.model.fullName;
+
+            // Der Vergleich ist wirklich etwas faul und dient wirklich nur zum grob anspringen
+            if (name.length >= this.search.length)
+                if (name.substr(0, this.search.length).toLowerCase() == this.search) {
+                    this.scrollTo(node, []);
+
+                    ev.preventDefault();
+
+                    return;
+                }
+        }
+    };
+
+    // Wenn das jQuery UI Accordion geöffnet wirde, müssen wir irgendwie einen sinnvollen Anfangszustand herstellen
+    SeriesFilterController.prototype.activate = function () {
+        var _this = this;
+        this.container.focus();
+        this.nextReset = 0;
+
+        // Stellt sicher, dass die aktuell ausgewählte Serie ganz oben angezeigt wird
+        $.each(this.nodes, function (index, node) {
+            return node.foreach(function (target, path) {
+                if (target.model.selected.val())
+                    _this.scrollTo(target, path);
+            }, null);
+        });
+    };
+
+    // Stellt sicher, dass eine beliebige Serie ganz oben dargestellt wird
+    SeriesFilterController.prototype.scrollTo = function (selected, path) {
+        // Wir klappen den Baum immer bis zur Auswahl auf
+        $.each(path, function (index, node) {
+            return node.nodeModel.expanded.val(true);
+        });
+
+        // Und dann verschieben wir das Sichtfenster so, dass die ausgewählte Serie ganz oben steht - ja, das kann man sicher eleganter machen
+        if (path.length > 0)
+            selected = path[0];
+
+        var firstTop = this.container.children().first().offset().top;
+        var selectedTop = selected.view.text.offset().top;
+
+        this.container.scrollTop(selectedTop - firstTop);
+    };
+
+    // Hebt die aktuelle Auswahl auf
+    SeriesFilterController.prototype.resetFilter = function (allbut) {
+        if (typeof allbut === "undefined") { allbut = null; }
+        $.each(this.nodes, function (index, node) {
+            return node.foreach(function (target, path) {
+                return target.model.selected.val(false);
+            }, allbut);
+        });
+    };
+
+    // Baut die Hierarchie der Serien auf
+    SeriesFilterController.prototype.initialize = function (series) {
+        var _this = this;
+        this.container.empty();
+
+        this.nodes = SeriesFilterController.buildTree(series.filter(function (s) {
+            return s.parentId == null;
+        }), this.container);
+
+        $.each(this.nodes, function (index, node) {
+            return node.click(function (target) {
+                return _this.itemClick(target);
+            });
+        });
+    };
+
+    // Wird immer dann ausgelöst, wenn ein Knoten oder Blatt angeklick wurde
+    SeriesFilterController.prototype.itemClick = function (target) {
+        if (this.selecting)
+            return;
+
+        this.selecting = true;
+        try  {
+            // In der aktuellen Implementierung darf immer nur eine einzige Serie ausgewählt werden
+            this.resetFilter(target);
+
+            var model = target.model;
+            if (model.selected.val())
+                this.model.val(model.id);
+            else
+                this.model.val(null);
+        } finally {
+            this.selecting = false;
+        }
+    };
+
+    // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
+    SeriesFilterController.buildTree = function (children, parent) {
+        var _this = this;
+        return $.map(children, function (item) {
+            // Blätter sind einfach
+            if (item.children.length < 1)
+                return new TreeLeafController(new TreeLeafModel(item), new TreeLeafView(item.name, item.parentId == null, parent));
+
+            // Bei Knoten müssen wir etwas mehr tun
+            var node = new TreeNodeController(new TreeNodeModel(item), new TreeNodeView(item.name, item.parentId == null, parent));
+
+            // Für alle untergeordeneten Serien müssen wir eine entsprechende Anzeige vorbereiten
+            node.children = _this.buildTree(item.children, node.nodeView.childView);
+
+            return node;
+        });
+    };
+    return SeriesFilterController;
+})();
 
 // Die Steuerung der Hierarchien
 var TreeController = (function () {
@@ -250,11 +430,10 @@ var TreeController = (function () {
         this.selected = callback;
     };
 
-    TreeController.prototype.foreachSelected = function (callback, allbut, path) {
+    TreeController.prototype.foreach = function (callback, allbut, path) {
         if (typeof path === "undefined") { path = []; }
         if (allbut !== this)
-            if (this.model.selected.val())
-                callback(this, path);
+            callback(this, path);
     };
     return TreeController;
 })();
@@ -300,14 +479,14 @@ var TreeNodeController = (function (_super) {
         });
     };
 
-    TreeNodeController.prototype.foreachSelected = function (callback, allbut, path) {
+    TreeNodeController.prototype.foreach = function (callback, allbut, path) {
         if (typeof path === "undefined") { path = []; }
-        _super.prototype.foreachSelected.call(this, callback, allbut);
+        _super.prototype.foreach.call(this, callback, allbut);
 
         path.push(this);
 
         $.each(this.children, function (index, child) {
-            return child.foreachSelected(callback, allbut, path);
+            return child.foreach(callback, allbut, path);
         });
 
         path.pop();

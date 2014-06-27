@@ -137,9 +137,9 @@
                 var childCount = info.children.length;
                 if (info.children.length > 0) {
                     if (childCount == 1)
-                        childTable.find('.collabsableCount').text("Eine Aufbewahrung");
+                        childTable.find('.collabsableCount').text('Eine Aufbewahrung');
                     else
-                        childTable.find('.collabsableCount').text(childCount + " Aufbewahrungen");
+                        childTable.find('.collabsableCount').text(childCount + ' Aufbewahrungen');
 
                     childTable.removeClass(Styles.invisble);
                 } else
@@ -149,9 +149,9 @@
                 var recordingCount = info.recordings.length;
                 if (recordingCount > 0) {
                     if (recordingCount == 1)
-                        recordingTable.find('.collabsableCount').text("Eine Aufzeichnung");
+                        recordingTable.find('.collabsableCount').text('Eine Aufzeichnung');
                     else
-                        recordingTable.find('.collabsableCount').text(recordingCount + " Aufzeichnungen");
+                        recordingTable.find('.collabsableCount').text(recordingCount + ' Aufzeichnungen');
 
                     recordingTable.removeClass(Styles.invisble);
                 } else
@@ -262,7 +262,7 @@
         else if (name.length > 50)
             return 'Der Name darf maximal 50 Zeichen haben';
         else if (Tools.checkCollision(this.chooser(), newData.name, this.identifier))
-            return "Der Name wird bereits verwendet";
+            return 'Der Name wird bereits verwendet';
         else
             return null;
     };

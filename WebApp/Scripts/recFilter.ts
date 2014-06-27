@@ -25,10 +25,6 @@ class RecordingFilter extends SearchRequestContract {
     constructor(resultProcessor: (result: ISearchInformation) => void, getSeries: (series: string) => ISeriesMapping) {
         super();
 
-        this.languageController = new LanguageFilterController($('.languageFilter'));
-        this.genreController = new GenreFilterController($('.genreFilter'));
-        this.rentController = new RentFilterController($('.rentFilter'));
-
         this.callback = resultProcessor;
         this.seriesLookup = getSeries;
 
@@ -42,13 +38,16 @@ class RecordingFilter extends SearchRequestContract {
     }
 
     // Verwaltet die Auswahl für den Verleiher
-    private rentController;
+    private rentController = new RentFilterController($('.rentFilter'));
+
+    // Die Auswahl der Serien
+    private seriesController = new SeriesFilterController($('.seriesFilter'));
 
     // Verwaltet die Auswahl der Sprache
-    private languageController;
+    private languageController = new LanguageFilterController($('.languageFilter'));
 
     // Verwaltet die Auswahl der Kategorien
-    private genreController;
+    private genreController = new GenreFilterController($('.genreFilter'));
 
     // Hiermit stellen wir sicher, dass ein nervös klickender Anwender immer nur das letzte Suchergebnis bekommt
     private pending: number = 0;
@@ -62,9 +61,6 @@ class RecordingFilter extends SearchRequestContract {
     // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
     private timeout: number = null;
 
-    // Die Auswahl der Serien
-    private seriesMap: SeriesTreeSelector;
-
     // Gesetzt, wenn keine automatische Suche ausgelöst werden soll
     private disallowQuery: boolean = false;
 
@@ -73,12 +69,9 @@ class RecordingFilter extends SearchRequestContract {
         this.disallowQuery = true;
         try {
             this.languageController.model.val(null);
+            this.seriesController.model.val(null);
             this.rentController.model.val(null);
             this.genreController.model.val([]);
-
-            this.series = [];
-            this.seriesMap.resetFilter();
-            $('#seriesFilterHeader').text('(egal)');
 
             this.text = null;
             $('#textSearch').val(null);
@@ -214,7 +207,7 @@ class RecordingFilter extends SearchRequestContract {
     // Meldet die Anzahl der Aufzeichnungen pro 
     setGenreCounts(genres: IGenreStatisticsContract[]): void {
         this.genreController.setCounts(genres);
-    }  
+    }
 
     // Verbindet die Oberflächenelemente zur Auswahl der Art von Aufzeichnung
     private prepareGenres(): void {
@@ -229,11 +222,14 @@ class RecordingFilter extends SearchRequestContract {
     }
 
     // Wird aufgerufen, sobald der die Serie verändert hat
-    private onSeriesChanged(series: string, name: string): void {
-        $('#seriesFilterHeader').text(name || '(egal)');
+    private onSeriesChanged(): void {
+        var series = this.seriesController.model.val();
 
         this.series = [];
         this.page = 0;
+
+        //        $('#seriesFilterHeader').text(name || '(egal)');
+
 
         // In dieser Oberfläche bedeutet die Auswahl einer Serie automatisch auch, dass alle untergeordneten Serien mit berücksichtigt werden sollen
         if (series != null)
@@ -243,13 +239,8 @@ class RecordingFilter extends SearchRequestContract {
     }
 
     // Verbindet mit dem Oberflächenelement zur Auswahl der Serie
-    private prepareSeries(): void {
-        this.seriesMap = new SeriesTreeSelector($('#seriesFilter'), (series, name) => this.onSeriesChanged(series, name));
-
-        $('#seriesFilterAccordion').on('accordionactivate', (event, ui) => {
-            if (ui.newPanel.length > 0)
-                this.seriesMap.activate();
-        });
+    private prepareSeries(): void {        
+        this.seriesController.model.change(() => this.onSeriesChanged());
     }
 
     // Meldet alle bekannten Serien
@@ -257,6 +248,6 @@ class RecordingFilter extends SearchRequestContract {
         this.series = [];
         this.page = 0;
 
-        this.seriesMap.initialize(series);
+        this.seriesController.initialize(series);
     }
 } 

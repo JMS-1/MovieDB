@@ -170,45 +170,7 @@
 @seriesHoverColor: lightblue;
 @seriesSelectColor: dodgerblue;
 
-.seriesTree {
-    width: 90%;
-    min-height: @seriesMinHeight;
-    max-height: @seriesMaxHeight;
-    overflow-y: scroll;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;
-}
-
-.treeNodeHeader {
-    div.ui-icon {
-        margin-left: -3px;
-        margin-top: 1px;
-        float: left;
-    }
-}
-
-.treeNode {
-    font-size: @filterAccordionContentFont;
-    margin-left: @seriesIndent;
-}
-
-.treeItem {
-    font-size: @filterAccordionContentFont;
-}
-
-.treeItem:hover {
-    background-color: @seriesHoverColor;
-}
-
-.treeItem.nodeSelected {
-    background-color: @seriesSelectColor;
-}
-
-// Die Auswahl der Kategorien für die Suche
-
-.filterCollapsable, .rentFilter, .languageFilter, .genreFilter {
+.seriesFilter, .rentFilter, .languageFilter, .genreFilter {
     clear: both;
     margin: 5px 0px 5px 20px;
 
@@ -236,3 +198,42 @@
         padding: @filterAccordionLabelPadding;
     }
 }
+
+.seriesFilter {
+    .ui-accordion-content {
+        width: 90%;
+        min-height: @seriesMinHeight;
+        max-height: @seriesMaxHeight;
+        overflow-y: scroll;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+}
+
+.treeNodeHeader {
+    div.ui-icon {
+        margin-left: -3px;
+        margin-top: 1px;
+        float: left;
+    }
+}
+
+.treeNode {
+    font-size: @filterAccordionContentFont;
+    margin-left: @seriesIndent;
+}
+
+.treeItem {
+    font-size: @filterAccordionContentFont;
+}
+
+.treeItem:hover {
+    background-color: @seriesHoverColor;
+}
+
+.treeItem.nodeSelected {
+    background-color: @seriesSelectColor;
+}
+

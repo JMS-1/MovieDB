@@ -344,15 +344,6 @@
                 return _this.requestApplicationInformation();
             });
 
-            var filterAccordionSettings = {
-                active: false,
-                animate: false,
-                collapsible: true,
-                heightStyle: 'content'
-            };
-
-            $('.filterCollapsable').accordion(filterAccordionSettings);
-
             var legacyFile = $('#theFile');
             var migrateButton = $('#migrate');
 

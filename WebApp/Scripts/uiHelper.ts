@@ -30,13 +30,9 @@ class Styles {
 
     static treeNode = 'treeNode';
 
-    static nodeHeader = 'treeNodeHeader';
-
-    static isNode = 'nodeInTree';
-
-    static isLeaf = 'leafInTree';
-
     static treeItem = 'treeItem';
+
+    static nodeHeader = 'treeNodeHeader';
 
     static selectedNode = 'nodeSelected';
 
@@ -97,152 +93,6 @@ class Tools {
             closeOnEscape: false,
             width: 'auto',
             modal: true,
-        });
-    }
-}
-
-class SeriesSelectors {
-    container: JQuery;
-
-    constructor(containerSelector: string) {
-        this.container = $(containerSelector);
-    }
-
-    resetFilter(): void {
-        this.container.val(null);
-    }
-
-    initialize(series: ISeriesMappingContract[]): void {
-        Tools.fillSeriesSelection(this.container, series, '(egal)');
-    }
-}
-
-// Bietet die Hierarchie der Serien zur Auswahl im Filter an
-class SeriesTreeSelector {
-    private static attributeId = 'data-id';
-
-    private static attributeName = 'data-name';
-
-    private whenChanged: (id: string, name: string) => void;
-
-    private nextReset = 0;
-
-    private search: string;
-
-    private nodes: TreeController[] = [];
-
-    constructor(private view: JQuery, onChanged: (id: string, name: string) => void) {
-        this.view.keypress(ev => this.onKeyPressed(ev));
-        this.whenChanged = onChanged;
-    }
-
-    // Ein Tastendruck führt im allgemeinen dazu, dass sich die Liste auf den ersten Eintrag mit einem passenden Namen verschiebt
-    private onKeyPressed(ev: JQueryEventObject): void {
-        // Tasten innerhalb eines Zeitraums von einer Sekunde werden zu einem zu vergleichenden Gesamtpräfix zusammengefasst
-        var now = $.now();
-        if (now >= this.nextReset)
-            this.search = '';
-
-        this.search = (this.search + ev.char).toLowerCase();
-        this.nextReset = now + 1000;
-
-        // Wir suchen erst einmal nur nach den Namen auf der obersten Ebene, das sollte für fast alles reichen
-        for (var i = 0; i < this.nodes.length; i++) {
-            var node = this.nodes[i];
-            var name = node.model.fullName;
-
-            // Der Vergleich ist wirklich etwas faul und dient wirklich nur zum grob anspringen
-            if (name.length >= this.search.length)
-                if (name.substr(0, this.search.length).toLowerCase() == this.search) {
-                    this.scrollTo(node, []);
-
-                    ev.preventDefault();
-
-                    return;
-                }
-        }
-    }
-
-    // Wenn das jQuery UI Accordion geöffnet wirde, müssen wir irgendwie einen sinnvollen Anfangszustand herstellen
-    activate(): void {
-        this.view.focus();
-        this.nextReset = 0;
-
-        this.scrollToSelected();
-    }
-
-    // Stellt sicher, dass die aktuell ausgewählte Serie ganz oben angezeigt wird
-    private scrollToSelected(): void {
-        $.each(this.nodes, (index, node) => node.foreachSelected((target, path) => this.scrollTo(target, path), null));
-    }
-
-    // Stellt sicher, dass eine beliebige Serie ganz oben dargestellt wird
-    private scrollTo(selected: TreeController, path: TreeNodeController[]): void {
-        // Wir klappen den Baum immer bis zur Auswahl auf
-        $.each(path, (index, node) => node.nodeModel.expanded.val(true));
-
-        // Und dann verschieben wir das Sichtfenster so, dass die ausgewählte Serie ganz oben steht - ja, das kann man sicher eleganter machen
-        if (path.length > 0)
-            selected = path[0];
-
-        var firstTop = this.view.children().first().offset().top;
-        var selectedTop = selected.view.text.offset().top;
-
-        this.view.scrollTop(selectedTop - firstTop);
-    }
-
-    // Hebt die aktuelle Auswahl auf
-    resetFilter(allbut: TreeController = null): void {
-        $.each(this.nodes, (index, node) => node.foreachSelected((target, path) => target.model.selected.val(false), allbut));
-    }
-
-    // Baut die Hierarchie der Serien auf
-    initialize(series: ISeriesMapping[]): void {
-        this.view.empty();
-
-        this.nodes = SeriesTreeSelector.buildTree(series.filter(s => s.parentId == null), this.view);
-
-        $.each(this.nodes, (index, node) => node.click(target => this.itemClick(target)));
-    }
-
-    // Wird wärend der Änderung der Auswahl gesetzt
-    private selecting = false;
-
-    // Wird immer dann ausgelöst, wenn ein Knoten oder Blatt angeklick wurde
-    private itemClick(target: TreeController): void {
-        if (this.selecting)
-            return;
-
-        this.selecting = true;
-        try {
-            // In der aktuellen Implementierung darf immer nur eine einzige Serie ausgewählt werden
-            this.resetFilter(target);
-
-            var model = target.model;
-            if (model.selected.val())
-                this.whenChanged(model.id, model.fullName);
-            else
-                this.whenChanged(null, null);
-        }
-        finally {
-            this.selecting = false;
-        }
-    }
-
-    // Baut ausgehend von einer Liste von Geschwisterserien den gesamten Baum unterhalb dieser Serien auf
-    private static buildTree(children: ISeriesMapping[], parent: JQuery): TreeController[] {
-        return $.map(children, item => {
-            // Blätter sind einfach
-            if (item.children.length < 1)
-                return new TreeLeafController(new TreeLeafModel(item), new TreeLeafView(item.name, item.parentId == null, parent));
-
-            // Bei Knoten müssen wir etwas mehr tun
-            var node = new TreeNodeController(new TreeNodeModel(item), new TreeNodeView(item.name, item.parentId == null, parent));
-
-            // Für alle untergeordeneten Serien müssen wir eine entsprechende Anzeige vorbereiten
-            node.children = this.buildTree(item.children, node.nodeView.childView);
-
-            return <TreeController>node;
         });
     }
 }

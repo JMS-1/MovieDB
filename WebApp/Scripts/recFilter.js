@@ -12,16 +12,20 @@ var RecordingFilter = (function (_super) {
     __extends(RecordingFilter, _super);
     function RecordingFilter(resultProcessor, getSeries) {
         _super.call(this);
+        // Verwaltet die Auswahl für den Verleiher
+        this.rentController = new RentFilterController($('.rentFilter'));
+        // Die Auswahl der Serien
+        this.seriesController = new SeriesFilterController($('.seriesFilter'));
+        // Verwaltet die Auswahl der Sprache
+        this.languageController = new LanguageFilterController($('.languageFilter'));
+        // Verwaltet die Auswahl der Kategorien
+        this.genreController = new GenreFilterController($('.genreFilter'));
         // Hiermit stellen wir sicher, dass ein nervös klickender Anwender immer nur das letzte Suchergebnis bekommt
         this.pending = 0;
         // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
         this.timeout = null;
         // Gesetzt, wenn keine automatische Suche ausgelöst werden soll
         this.disallowQuery = false;
-
-        this.languageController = new LanguageFilterController($('.languageFilter'));
-        this.genreController = new GenreFilterController($('.genreFilter'));
-        this.rentController = new RentFilterController($('.rentFilter'));
 
         this.callback = resultProcessor;
         this.seriesLookup = getSeries;
@@ -39,12 +43,9 @@ var RecordingFilter = (function (_super) {
         this.disallowQuery = true;
         try  {
             this.languageController.model.val(null);
+            this.seriesController.model.val(null);
             this.rentController.model.val(null);
             this.genreController.model.val([]);
-
-            this.series = [];
-            this.seriesMap.resetFilter();
-            $('#seriesFilterHeader').text('(egal)');
 
             this.text = null;
             $('#textSearch').val(null);
@@ -220,12 +221,13 @@ var RecordingFilter = (function (_super) {
     };
 
     // Wird aufgerufen, sobald der die Serie verändert hat
-    RecordingFilter.prototype.onSeriesChanged = function (series, name) {
-        $('#seriesFilterHeader').text(name || '(egal)');
+    RecordingFilter.prototype.onSeriesChanged = function () {
+        var series = this.seriesController.model.val();
 
         this.series = [];
         this.page = 0;
 
+        //        $('#seriesFilterHeader').text(name || '(egal)');
         // In dieser Oberfläche bedeutet die Auswahl einer Serie automatisch auch, dass alle untergeordneten Serien mit berücksichtigt werden sollen
         if (series != null)
             this.applySeriesToFilterRecursive(this.seriesLookup(series));
@@ -236,13 +238,8 @@ var RecordingFilter = (function (_super) {
     // Verbindet mit dem Oberflächenelement zur Auswahl der Serie
     RecordingFilter.prototype.prepareSeries = function () {
         var _this = this;
-        this.seriesMap = new SeriesTreeSelector($('#seriesFilter'), function (series, name) {
-            return _this.onSeriesChanged(series, name);
-        });
-
-        $('#seriesFilterAccordion').on('accordionactivate', function (event, ui) {
-            if (ui.newPanel.length > 0)
-                _this.seriesMap.activate();
+        this.seriesController.model.change(function () {
+            return _this.onSeriesChanged();
         });
     };
 
@@ -251,7 +248,7 @@ var RecordingFilter = (function (_super) {
         this.series = [];
         this.page = 0;
 
-        this.seriesMap.initialize(series);
+        this.seriesController.initialize(series);
     };
     return RecordingFilter;
 })(SearchRequestContract);

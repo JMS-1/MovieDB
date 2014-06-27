@@ -13,7 +13,7 @@ class Model<TSimpleType> {
         $.each(this.onChange, (index, callback) => callback());
     }
 
-    constructor(initialValue: TSimpleType = null) {
+    constructor(initialValue: TSimpleType) {
         this.value = initialValue;
     }
 
@@ -37,24 +37,6 @@ class Model<TSimpleType> {
 
         // Wir melden immer den nun aktuellen Wert
         return this.value;
-    }
-}
-
-// Auswahl des Verleihers (verliehen / nicht verliehen / egal)
-class RentFilterModel extends Model<boolean> {
-}
-
-// Die Auswahl der Sprache (eindeutige Kennung / egal)
-class LanguageFilterModel extends Model<string> {
-}
-
-// Die Auswahl der Kategorien (Liste eindeutiger Kennungen)
-class GenreFilterModel extends Model<string[]> {
-    constructor() {
-        super();
-
-        // Wir stellen sicher, dass immer ein (wenn auch leeres) Feld vorhanden ist
-        super.val([]);
     }
 }
 
