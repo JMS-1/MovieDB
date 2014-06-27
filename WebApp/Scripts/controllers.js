@@ -4,6 +4,57 @@
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+// Das Freitextfeld ist wirklich nur ein Textfeld, allerdings mit einer zeitgesteuerten automatischen Suche
+var TextFilterController = (function () {
+    function TextFilterController(view) {
+        var _this = this;
+        this.view = view;
+        this.model = new Model(null);
+        this.elapsed = function () {
+        };
+        // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
+        this.timeout = null;
+        this.view.on('keypress', function () {
+            return _this.viewToModel();
+        });
+        this.view.on('change', function () {
+            return _this.viewToModel();
+        });
+        this.view.on('input', function () {
+            return _this.viewToModel();
+        });
+
+        this.model.change(function () {
+            return _this.modelToView();
+        });
+
+        this.modelToView();
+    }
+    TextFilterController.prototype.viewToModel = function () {
+        var _this = this;
+        this.stop();
+
+        this.model.val(this.view.val());
+
+        this.timeout = window.setTimeout(function () {
+            return _this.elapsed();
+        }, 300);
+    };
+
+    // Asynchrone automatische Suche deaktivieren
+    TextFilterController.prototype.stop = function () {
+        if (this.timeout != null)
+            window.clearTimeout(this.timeout);
+
+        this.timeout = null;
+    };
+
+    TextFilterController.prototype.modelToView = function () {
+        this.view.val(this.model.val());
+    };
+    return TextFilterController;
+})();
+
 // Die Auswahl des Verleihers wird über drei separate Optionsfelder realisiert
 var RentFilterController = (function () {
     function RentFilterController(view) {

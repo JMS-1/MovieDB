@@ -225,11 +225,7 @@ module MovieDatabase {
                         if (capturedIndex == results.page)
                             anchor.removeAttr('href');
                         else
-                            anchor.click(() => {
-                                this.recordingFilter.page = capturedIndex;
-
-                                this.recordingFilter.query();
-                            });
+                            anchor.click(() => this.recordingFilter.page.val(capturedIndex));
                     })(index);
             }
 
@@ -252,11 +248,11 @@ module MovieDatabase {
 
                 var recordingRow = $('<tr></tr>').appendTo(tableBody);
 
-                $('<a />', { text: recording.hierarchicalName, href: '#' + recording.id }).appendTo($('<td />').appendTo(recordingRow));
-                $('<td />').appendTo(recordingRow).text($.map(recording.languages, language => this.allLanguages[language] || language).join('; '));
-                $('<td />').appendTo(recordingRow).text($.map(recording.genres, genre=> this.allGenres[genre] || genre).join('; '));
-                $('<td />').appendTo(recordingRow).text(DateTimeTools.toStandard(recording.created));
-                $('<td />').appendTo(recordingRow).text(recording.rent);
+                $('<a />', { text: recording.hierarchicalName, href: '#' + recording.id }).appendTo($('<td class="nameColumn"/>').appendTo(recordingRow));
+                $('<td class="dateColumn"/>').appendTo(recordingRow).text(DateTimeTools.toStandard(recording.created));
+                $('<td class="languageColumn"/>').appendTo(recordingRow).text($.map(recording.languages, language => this.allLanguages[language] || language).join('; '));
+                $('<td class="genreColumn"/>').appendTo(recordingRow).text($.map(recording.genres, genre=> this.allGenres[genre] || genre).join('; '));
+                $('<td class="rentColumn"/>').appendTo(recordingRow).text(recording.rent);
             });
 
             this.setMode();
@@ -341,12 +337,8 @@ module MovieDatabase {
             legacyFile.change(() => this.migrate());
             migrateButton.button().click(() => legacyFile.click());
 
-            $('input[name="pageSize"]').button().click(ev => {
-                this.recordingFilter.size = parseInt($(ev.target).val());
-                this.recordingFilter.page = 0;
-
-                this.recordingFilter.query();
-            });
+            $('input[name="pageSize"][value="15"]').prop('checked', true);
+            $('input[name="pageSize"]').button().click(ev => this.recordingFilter.size.val(parseInt($(ev.target).val())));
 
             var sortName = $('#sortName')
             var sortDate = $('#sortDate');
@@ -354,8 +346,8 @@ module MovieDatabase {
             sortName.click(() => {
                 this.disableSort(sortDate);
 
-                this.recordingFilter.ascending = this.enableSort(sortName);
-                this.recordingFilter.order = OrderSelector.title;
+                this.recordingFilter.ascending.val(this.enableSort(sortName));
+                this.recordingFilter.order.val(OrderSelector.title);
 
                 this.recordingFilter.query();
             });
@@ -363,8 +355,8 @@ module MovieDatabase {
             sortDate.click(() => {
                 this.disableSort(sortName);
 
-                this.recordingFilter.ascending = this.enableSort(sortDate);
-                this.recordingFilter.order = OrderSelector.created;
+                this.recordingFilter.ascending.val(this.enableSort(sortDate));
+                this.recordingFilter.order.val(OrderSelector.created);
 
                 this.recordingFilter.query();
             });

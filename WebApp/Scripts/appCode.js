@@ -206,9 +206,7 @@
                             anchor.removeAttr('href');
                         else
                             anchor.click(function () {
-                                _this.recordingFilter.page = capturedIndex;
-
-                                _this.recordingFilter.query();
+                                return _this.recordingFilter.page.val(capturedIndex);
                             });
                     })(index);
             }
@@ -232,15 +230,15 @@
 
                 var recordingRow = $('<tr></tr>').appendTo(tableBody);
 
-                $('<a />', { text: recording.hierarchicalName, href: '#' + recording.id }).appendTo($('<td />').appendTo(recordingRow));
-                $('<td />').appendTo(recordingRow).text($.map(recording.languages, function (language) {
+                $('<a />', { text: recording.hierarchicalName, href: '#' + recording.id }).appendTo($('<td class="nameColumn"/>').appendTo(recordingRow));
+                $('<td class="dateColumn"/>').appendTo(recordingRow).text(DateTimeTools.toStandard(recording.created));
+                $('<td class="languageColumn"/>').appendTo(recordingRow).text($.map(recording.languages, function (language) {
                     return _this.allLanguages[language] || language;
                 }).join('; '));
-                $('<td />').appendTo(recordingRow).text($.map(recording.genres, function (genre) {
+                $('<td class="genreColumn"/>').appendTo(recordingRow).text($.map(recording.genres, function (genre) {
                     return _this.allGenres[genre] || genre;
                 }).join('; '));
-                $('<td />').appendTo(recordingRow).text(DateTimeTools.toStandard(recording.created));
-                $('<td />').appendTo(recordingRow).text(recording.rent);
+                $('<td class="rentColumn"/>').appendTo(recordingRow).text(recording.rent);
             });
 
             this.setMode();
@@ -354,11 +352,9 @@
                 return legacyFile.click();
             });
 
+            $('input[name="pageSize"][value="15"]').prop('checked', true);
             $('input[name="pageSize"]').button().click(function (ev) {
-                _this.recordingFilter.size = parseInt($(ev.target).val());
-                _this.recordingFilter.page = 0;
-
-                _this.recordingFilter.query();
+                return _this.recordingFilter.size.val(parseInt($(ev.target).val()));
             });
 
             var sortName = $('#sortName');
@@ -367,8 +363,8 @@
             sortName.click(function () {
                 _this.disableSort(sortDate);
 
-                _this.recordingFilter.ascending = _this.enableSort(sortName);
-                _this.recordingFilter.order = OrderSelector.title;
+                _this.recordingFilter.ascending.val(_this.enableSort(sortName));
+                _this.recordingFilter.order.val(OrderSelector.title);
 
                 _this.recordingFilter.query();
             });
@@ -376,8 +372,8 @@
             sortDate.click(function () {
                 _this.disableSort(sortName);
 
-                _this.recordingFilter.ascending = _this.enableSort(sortDate);
-                _this.recordingFilter.order = OrderSelector.created;
+                _this.recordingFilter.ascending.val(_this.enableSort(sortDate));
+                _this.recordingFilter.order.val(OrderSelector.created);
 
                 _this.recordingFilter.query();
             });

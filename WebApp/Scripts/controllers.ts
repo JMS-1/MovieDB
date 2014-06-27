@@ -1,4 +1,44 @@
 ﻿
+// Das Freitextfeld ist wirklich nur ein Textfeld, allerdings mit einer zeitgesteuerten automatischen Suche
+class TextFilterController {
+    model = new Model<string>(null);
+
+    elapsed = () => { };
+
+    // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
+    private timeout: number = null;
+
+    constructor(private view: JQuery) {
+        this.view.on('keypress', () => this.viewToModel());
+        this.view.on('change', () => this.viewToModel());
+        this.view.on('input', () => this.viewToModel());
+
+        this.model.change(() => this.modelToView());
+
+        this.modelToView();
+    }
+
+    private viewToModel(): void {
+        this.stop();
+
+        this.model.val(this.view.val());
+
+        this.timeout = window.setTimeout(() => this.elapsed(), 300);
+    }
+
+    // Asynchrone automatische Suche deaktivieren
+    stop(): void {
+        if (this.timeout != null)
+            window.clearTimeout(this.timeout);
+
+        this.timeout = null;
+    }
+
+    private modelToView(): void {
+        this.view.val(this.model.val());
+    }
+}
+
 // Die Auswahl des Verleihers wird über drei separate Optionsfelder realisiert
 class RentFilterController {
     model = new Model<boolean>(null);

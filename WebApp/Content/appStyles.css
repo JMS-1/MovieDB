@@ -173,15 +173,21 @@ body {
   padding: 5px;
   width: 100%;
 }
+.recordingTable td {
+  padding: 2px 6px 0px 4px;
+}
 .recordingTable thead {
   font-weight: bold;
   background-color: #c0c0c0;
 }
-.recordingTable thead td {
-  padding: 2px 6px 0px 4px;
-}
 .recordingTable thead .nameColumn {
-  width: 50%;
+  width: 40%;
+}
+.recordingTable thead .dateColumn {
+  width: 9em;
+}
+.recordingTable tbody td {
+  vertical-align: top;
 }
 .recordingTable tbody tr:nth-child(even) {
   background: #c0c0c0;

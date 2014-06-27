@@ -1,17 +1,10 @@
-﻿var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-
+﻿
 
 
 // Die Verwaltung der Suche nach Aufzeichnungen
-var RecordingFilter = (function (_super) {
-    __extends(RecordingFilter, _super);
+var RecordingFilter = (function () {
     function RecordingFilter(resultProcessor, getSeries) {
-        _super.call(this);
+        var _this = this;
         // Verwaltet die Auswahl für den Verleiher
         this.rentController = new RentFilterController($('.rentFilter'));
         // Die Auswahl der Serien
@@ -20,23 +13,38 @@ var RecordingFilter = (function (_super) {
         this.languageController = new LanguageFilterController($('.languageFilter'));
         // Verwaltet die Auswahl der Kategorien
         this.genreController = new GenreFilterController($('.genreFilter'));
+        // Verwaltet die Eingabe der Freitextsuche
+        this.textController = new TextFilterController($('#textSearch'));
         // Hiermit stellen wir sicher, dass ein nervös klickender Anwender immer nur das letzte Suchergebnis bekommt
         this.pending = 0;
-        // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
-        this.timeout = null;
         // Gesetzt, wenn keine automatische Suche ausgelöst werden soll
         this.disallowQuery = false;
-
+        // Die Anzahl der Ergebnisse pro Seite
+        this.size = new Model(15);
+        // Die aktuelle Seite
+        this.page = new Model(0);
+        // Die Spalte, nach der sortiert werden soll
+        this.order = new Model(OrderSelector.title);
+        // Die Sortierordnung
+        this.ascending = new Model(true);
         this.callback = resultProcessor;
         this.seriesLookup = getSeries;
 
-        this.prepareText();
-        this.prepareRent();
-        this.prepareGenres();
-        this.prepareSeries();
-        this.prepareLanguage();
+        this.page.change(function () {
+            return _this.query(false);
+        });
 
-        this.reset(false);
+        var newRequest = function () {
+            return _this.query(true);
+        };
+
+        this.languageController.model.change(newRequest);
+        this.seriesController.model.change(newRequest);
+        this.genreController.model.change(newRequest);
+        this.rentController.model.change(newRequest);
+        this.size.change(newRequest);
+
+        this.textController.elapsed = newRequest;
     }
     // Setzt die Suchbedingung und die zugehörigen Oberflächenelemente auf den Grundzustand zurück und fordert ein neues Suchergebnis an
     RecordingFilter.prototype.reset = function (query) {
@@ -44,13 +52,10 @@ var RecordingFilter = (function (_super) {
         try  {
             this.languageController.model.val(null);
             this.seriesController.model.val(null);
+            this.textController.model.val(null);
             this.rentController.model.val(null);
             this.genreController.model.val([]);
-
-            this.text = null;
-            $('#textSearch').val(null);
-
-            this.page = 0;
+            this.page.val(0);
         } finally {
             this.disallowQuery = false;
         }
@@ -59,36 +64,23 @@ var RecordingFilter = (function (_super) {
             this.query();
     };
 
-    // Asynchrone automatische Suche deaktivieren
-    RecordingFilter.prototype.stopAutoQuery = function () {
-        if (this.timeout != null)
-            window.clearTimeout(this.timeout);
-
-        this.timeout = null;
-    };
-
-    // Automatisch Suche nach der Änderung der Texteingabe
-    RecordingFilter.prototype.onAutoQuery = function () {
-        var newText = $('#textSearch').val();
-        if (this.text == newText)
-            return;
-
-        this.text = newText;
-        this.page = 0;
-        this.query();
-    };
-
     // Führt eine Suche mit der aktuellen Einschränkung aus
     RecordingFilter.prototype.query = function (resetPage) {
         var _this = this;
         if (typeof resetPage === "undefined") { resetPage = false; }
+        if (resetPage) {
+            this.disallowQuery = true;
+            try  {
+                this.page.val(0);
+            } finally {
+                this.disallowQuery = false;
+            }
+        }
+
         if (this.disallowQuery)
             return;
 
-        if (resetPage)
-            this.page = 0;
-
-        this.stopAutoQuery();
+        this.textController.stop();
 
         // Anzeige auf der Oberfläche herrichten
         var busyIndicator = $('#busyIndicator');
@@ -100,15 +92,15 @@ var RecordingFilter = (function (_super) {
 
         // Suche zusammenstellen
         var request = {
+            series: this.getSeries(this.seriesLookup(this.seriesController.model.val())),
             language: this.languageController.model.val(),
             genres: this.genreController.model.val(),
             rent: this.rentController.model.val(),
-            ascending: this.ascending,
-            series: this.series,
-            order: this.order,
-            text: this.text,
-            size: this.size,
-            page: this.page
+            text: this.textController.model.val(),
+            ascending: this.ascending.val(),
+            order: this.order.val(),
+            size: this.size.val(),
+            page: this.page.val()
         };
 
         $.ajax('movie/db/query', {
@@ -143,37 +135,6 @@ var RecordingFilter = (function (_super) {
         });
     };
 
-    // Jeder Tastendruck führt verzögert zu einer neuen Suche
-    RecordingFilter.prototype.onTextChanged = function () {
-        var _this = this;
-        this.stopAutoQuery();
-        this.timeout = window.setTimeout(function () {
-            return _this.onAutoQuery();
-        }, 300);
-    };
-
-    // Verbindet die Oberflächenelemente der Freitextsuche
-    RecordingFilter.prototype.prepareText = function () {
-        var _this = this;
-        $('#textSearch').on('change', function () {
-            return _this.onTextChanged();
-        });
-        $('#textSearch').on('input', function () {
-            return _this.onTextChanged();
-        });
-        $('#textSearch').on('keypress', function () {
-            return _this.onTextChanged();
-        });
-    };
-
-    // Bereitet die Auswahl des Ausleihers vor
-    RecordingFilter.prototype.prepareRent = function () {
-        var _this = this;
-        this.rentController.model.change(function () {
-            return _this.query(true);
-        });
-    };
-
     // Legt die bekannten Sprachen fest
     RecordingFilter.prototype.setLanguages = function (languages) {
         this.languageController.initialize(languages);
@@ -182,14 +143,6 @@ var RecordingFilter = (function (_super) {
     // Setzt die Anzahl von Aufzeichnungen pro Sprache gemäß der aktuelle Suchbedingung
     RecordingFilter.prototype.setLanguageCounts = function (languages) {
         this.languageController.setCounts(languages);
-    };
-
-    // Verbindet die Oberflächenelemente zur Auswahl der Sprache
-    RecordingFilter.prototype.prepareLanguage = function () {
-        var _this = this;
-        this.languageController.model.change(function () {
-            return _this.query(true);
-        });
     };
 
     // Meldet alle bekannten Arten von Aufzeichnungen
@@ -202,54 +155,26 @@ var RecordingFilter = (function (_super) {
         this.genreController.setCounts(genres);
     };
 
-    // Verbindet die Oberflächenelemente zur Auswahl der Art von Aufzeichnung
-    RecordingFilter.prototype.prepareGenres = function () {
-        var _this = this;
-        this.genreController.model.change(function () {
-            return _this.query(true);
-        });
-    };
-
     // Fügt eine Serie und alle untergeordneten Serien zur Suche hinzu
-    RecordingFilter.prototype.applySeriesToFilterRecursive = function (series) {
+    RecordingFilter.prototype.getSeries = function (series, complete) {
         var _this = this;
-        this.series.push(series.id);
+        if (typeof complete === "undefined") { complete = []; }
+        if (series == null)
+            return complete;
+
+        complete.push(series.id);
 
         $.each(series.children, function (index, child) {
-            return _this.applySeriesToFilterRecursive(child);
+            return _this.getSeries(child, complete);
         });
-    };
 
-    // Wird aufgerufen, sobald der die Serie verändert hat
-    RecordingFilter.prototype.onSeriesChanged = function () {
-        var series = this.seriesController.model.val();
-
-        this.series = [];
-        this.page = 0;
-
-        //        $('#seriesFilterHeader').text(name || '(egal)');
-        // In dieser Oberfläche bedeutet die Auswahl einer Serie automatisch auch, dass alle untergeordneten Serien mit berücksichtigt werden sollen
-        if (series != null)
-            this.applySeriesToFilterRecursive(this.seriesLookup(series));
-
-        this.query();
-    };
-
-    // Verbindet mit dem Oberflächenelement zur Auswahl der Serie
-    RecordingFilter.prototype.prepareSeries = function () {
-        var _this = this;
-        this.seriesController.model.change(function () {
-            return _this.onSeriesChanged();
-        });
+        return complete;
     };
 
     // Meldet alle bekannten Serien
     RecordingFilter.prototype.setSeries = function (series) {
-        this.series = [];
-        this.page = 0;
-
         this.seriesController.initialize(series);
     };
     return RecordingFilter;
-})(SearchRequestContract);
+})();
 //# sourceMappingURL=recFilter.js.map

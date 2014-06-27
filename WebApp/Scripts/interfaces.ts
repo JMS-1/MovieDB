@@ -180,24 +180,24 @@ interface IContainerEditInfoContract {
     recordings: IContainerRecordingContract[];
 }
 
-class SearchRequestContract {
-    size: number = 15;
+interface ISearchRequestContract {
+    size: number;
 
-    page: number = 0;
+    page: number;
 
-    order: string = OrderSelector.title;
+    order: string;
 
-    ascending: boolean = true;
+    ascending: boolean;
 
-    genres: string[] = [];
+    genres: string[];
 
-    language: string = null;
+    language: string;
 
-    series: string[] = [];
+    series: string[];
 
-    rent: boolean = null;
+    rent: boolean;
 
-    text: string = null;
+    text: string;
 }
 
 

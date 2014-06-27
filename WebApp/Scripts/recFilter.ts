@@ -21,20 +21,22 @@ interface ISeriesMapping extends ISeriesMappingContract {
 }
 
 // Die Verwaltung der Suche nach Aufzeichnungen
-class RecordingFilter extends SearchRequestContract {
+class RecordingFilter {
     constructor(resultProcessor: (result: ISearchInformation) => void, getSeries: (series: string) => ISeriesMapping) {
-        super();
-
         this.callback = resultProcessor;
         this.seriesLookup = getSeries;
 
-        this.prepareText();
-        this.prepareRent();
-        this.prepareGenres();
-        this.prepareSeries();
-        this.prepareLanguage();
+        this.page.change(() => this.query(false));
 
-        this.reset(false);
+        var newRequest = () => this.query(true);
+
+        this.languageController.model.change(newRequest);
+        this.seriesController.model.change(newRequest);
+        this.genreController.model.change(newRequest);
+        this.rentController.model.change(newRequest);
+        this.size.change(newRequest);
+
+        this.textController.elapsed = newRequest;
     }
 
     // Verwaltet die Auswahl für den Verleiher
@@ -49,6 +51,9 @@ class RecordingFilter extends SearchRequestContract {
     // Verwaltet die Auswahl der Kategorien
     private genreController = new GenreFilterController($('.genreFilter'));
 
+    // Verwaltet die Eingabe der Freitextsuche
+    private textController = new TextFilterController($('#textSearch'));
+
     // Hiermit stellen wir sicher, dass ein nervös klickender Anwender immer nur das letzte Suchergebnis bekommt
     private pending: number = 0;
 
@@ -58,11 +63,20 @@ class RecordingFilter extends SearchRequestContract {
     // Wird verwendet, um zur eindeutigen Kennung einer Serie die erweiterten Serieninformationen zu ermitteln
     private seriesLookup: (series: string) => ISeriesMapping;
 
-    // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
-    private timeout: number = null;
-
     // Gesetzt, wenn keine automatische Suche ausgelöst werden soll
     private disallowQuery: boolean = false;
+
+    // Die Anzahl der Ergebnisse pro Seite
+    size = new Model<number>(15);
+
+    // Die aktuelle Seite
+    page = new Model<number>(0);
+
+    // Die Spalte, nach der sortiert werden soll
+    order = new Model<string>(OrderSelector.title);
+
+    // Die Sortierordnung
+    ascending = new Model<boolean>(true);
 
     // Setzt die Suchbedingung und die zugehörigen Oberflächenelemente auf den Grundzustand zurück und fordert ein neues Suchergebnis an
     reset(query: boolean): void {
@@ -70,13 +84,10 @@ class RecordingFilter extends SearchRequestContract {
         try {
             this.languageController.model.val(null);
             this.seriesController.model.val(null);
+            this.textController.model.val(null);
             this.rentController.model.val(null);
             this.genreController.model.val([]);
-
-            this.text = null;
-            $('#textSearch').val(null);
-
-            this.page = 0;
+            this.page.val(0);
         }
         finally {
             this.disallowQuery = false;
@@ -86,34 +97,21 @@ class RecordingFilter extends SearchRequestContract {
             this.query();
     }
 
-    // Asynchrone automatische Suche deaktivieren
-    private stopAutoQuery(): void {
-        if (this.timeout != null)
-            window.clearTimeout(this.timeout);
-
-        this.timeout = null;
-    }
-
-    // Automatisch Suche nach der Änderung der Texteingabe
-    private onAutoQuery(): void {
-        var newText = $('#textSearch').val();
-        if (this.text == newText)
-            return;
-
-        this.text = newText;
-        this.page = 0;
-        this.query();
-    }
-
     // Führt eine Suche mit der aktuellen Einschränkung aus
     query(resetPage: boolean = false): void {
+        if (resetPage) {
+            this.disallowQuery = true;
+            try {
+                this.page.val(0);
+            } finally {
+                this.disallowQuery = false;
+            }
+        }
+
         if (this.disallowQuery)
             return;
 
-        if (resetPage)
-            this.page = 0;
-
-        this.stopAutoQuery();
+        this.textController.stop();
 
         // Anzeige auf der Oberfläche herrichten
         var busyIndicator = $('#busyIndicator');
@@ -124,16 +122,16 @@ class RecordingFilter extends SearchRequestContract {
         var thisRequest = ++this.pending;
 
         // Suche zusammenstellen
-        var request: SearchRequestContract = {
+        var request: ISearchRequestContract = {
+            series: this.getSeries(this.seriesLookup(this.seriesController.model.val())),
             language: this.languageController.model.val(),
             genres: this.genreController.model.val(),
             rent: this.rentController.model.val(),
-            ascending: this.ascending,
-            series: this.series,
-            order: this.order,
-            text: this.text,
-            size: this.size,
-            page: this.page,
+            text: this.textController.model.val(),
+            ascending: this.ascending.val(),
+            order: this.order.val(),
+            size: this.size.val(),
+            page: this.page.val(),
         };
 
         $.ajax('movie/db/query', {
@@ -166,24 +164,6 @@ class RecordingFilter extends SearchRequestContract {
             });
     }
 
-    // Jeder Tastendruck führt verzögert zu einer neuen Suche
-    private onTextChanged(): void {
-        this.stopAutoQuery();
-        this.timeout = window.setTimeout(() => this.onAutoQuery(), 300);
-    }
-
-    // Verbindet die Oberflächenelemente der Freitextsuche
-    private prepareText(): void {
-        $('#textSearch').on('change', () => this.onTextChanged());
-        $('#textSearch').on('input', () => this.onTextChanged());
-        $('#textSearch').on('keypress', () => this.onTextChanged());
-    }
-
-    // Bereitet die Auswahl des Ausleihers vor
-    private prepareRent(): void {
-        this.rentController.model.change(() => this.query(true));
-    }
-
     // Legt die bekannten Sprachen fest
     setLanguages(languages: ILanguageContract[]): void {
         this.languageController.initialize(languages);
@@ -192,11 +172,6 @@ class RecordingFilter extends SearchRequestContract {
     // Setzt die Anzahl von Aufzeichnungen pro Sprache gemäß der aktuelle Suchbedingung
     setLanguageCounts(languages: ILanguageStatisticsContract[]): void {
         this.languageController.setCounts(languages);
-    }
-
-    // Verbindet die Oberflächenelemente zur Auswahl der Sprache
-    private prepareLanguage(): void {
-        this.languageController.model.change(() => this.query(true));
     }
 
     // Meldet alle bekannten Arten von Aufzeichnungen
@@ -209,45 +184,20 @@ class RecordingFilter extends SearchRequestContract {
         this.genreController.setCounts(genres);
     }
 
-    // Verbindet die Oberflächenelemente zur Auswahl der Art von Aufzeichnung
-    private prepareGenres(): void {
-        this.genreController.model.change(() => this.query(true));
-    }
-
     // Fügt eine Serie und alle untergeordneten Serien zur Suche hinzu
-    private applySeriesToFilterRecursive(series: ISeriesMapping): void {
-        this.series.push(series.id);
+    private getSeries(series: ISeriesMapping, complete: string[]= []): string[] {
+        if (series == null)
+            return complete;
 
-        $.each(series.children, (index, child) => this.applySeriesToFilterRecursive(child));
-    }
+        complete.push(series.id);
 
-    // Wird aufgerufen, sobald der die Serie verändert hat
-    private onSeriesChanged(): void {
-        var series = this.seriesController.model.val();
+        $.each(series.children, (index, child) => this.getSeries(child, complete));
 
-        this.series = [];
-        this.page = 0;
-
-        //        $('#seriesFilterHeader').text(name || '(egal)');
-
-
-        // In dieser Oberfläche bedeutet die Auswahl einer Serie automatisch auch, dass alle untergeordneten Serien mit berücksichtigt werden sollen
-        if (series != null)
-            this.applySeriesToFilterRecursive(this.seriesLookup(series));
-
-        this.query();
-    }
-
-    // Verbindet mit dem Oberflächenelement zur Auswahl der Serie
-    private prepareSeries(): void {        
-        this.seriesController.model.change(() => this.onSeriesChanged());
+        return complete;
     }
 
     // Meldet alle bekannten Serien
     setSeries(series: ISeriesMapping[]): void {
-        this.series = [];
-        this.page = 0;
-
         this.seriesController.initialize(series);
     }
 } 
