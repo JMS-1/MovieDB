@@ -17,8 +17,6 @@
 
     Styles.activePageButton = 'pageButtonSelected';
 
-    Styles.disabledOption = 'disabledOption';
-
     Styles.notSorted = 'ui-icon-arrowthick-2-n-s';
 
     Styles.sortedUp = 'ui-icon-arrowthick-1-n';

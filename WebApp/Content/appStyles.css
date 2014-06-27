@@ -43,6 +43,9 @@
   -webkit-user-select: none;
   user-select: none;
 }
+.seriesFilter .ui-accordion-content div.treeItem {
+  padding: 1px;
+}
 .treeNodeHeader div.ui-icon {
   margin-left: -3px;
   margin-top: 1px;
@@ -61,6 +64,9 @@
 .treeItem.nodeSelected {
   background-color: #1e90ff;
 }
+body {
+  background-color: #f8f8f8;
+}
 #headline {
   margin-bottom: -0.7em;
 }
@@ -74,9 +80,6 @@
 #queryMode {
   padding: 5px;
 }
-.recordingTable {
-  background-color: lightgoldenrodyellow;
-}
 .pageButtons {
   padding-top: 5px;
 }
@@ -85,9 +88,6 @@
 }
 .pageButtonSelected {
   font-weight: bold;
-}
-.disabledOption {
-  text-decoration: line-through;
 }
 .sortIndicator {
   float: left;
@@ -168,5 +168,32 @@
 .textfilter .queryToEditButtons {
   margin-bottom: 5px;
   float: right;
+}
+.recordingTable table {
+  padding: 5px;
+  width: 100%;
+}
+.recordingTable thead {
+  font-weight: bold;
+  background-color: #c0c0c0;
+}
+.recordingTable thead td {
+  padding: 2px 6px 0px 4px;
+}
+.recordingTable thead .nameColumn {
+  width: 50%;
+}
+.recordingTable tbody tr:nth-child(even) {
+  background: #c0c0c0;
+}
+.recordingTable tbody tr:nth-child(odd) {
+  background: #e0e0e0;
+}
+.recordingTable tbody a {
+  text-decoration: none;
+  color: black;
+}
+.recordingTable tbody a:hover {
+  text-decoration: underline;
 }
 /*# sourceMappingURL=appStyles.css.map */

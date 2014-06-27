@@ -43,6 +43,9 @@
   -webkit-user-select: none;
   user-select: none;
 }
+.seriesFilter .ui-accordion-content div.treeItem {
+  padding: 1px;
+}
 .treeNodeHeader div.ui-icon {
   margin-left: -3px;
   margin-top: 1px;

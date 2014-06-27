@@ -1,6 +1,7 @@
 ﻿@import "filter.less";
 
 body {
+    background-color: #f8f8f8;
 }
 
 #headline {
@@ -26,10 +27,6 @@ body {
 .filterArea {
 }
 
-.recordingTable {
-    background-color: lightgoldenrodyellow;
-}
-
 .pageButtons {
     padding-top: 5px;
 
@@ -40,10 +37,6 @@ body {
 
 .pageButtonSelected {
     font-weight: bold;
-}
-
-.disabledOption {
-    text-decoration: line-through;
 }
 
 .sortIndicator {
@@ -155,5 +148,44 @@ body {
     .queryToEditButtons {
         margin-bottom: 5px;
         float: right;
+    }
+}
+
+.recordingTable {
+    table {
+        padding: 5px;
+        width: 100%;
+    }
+
+    thead {
+        font-weight: bold;
+        background-color: #c0c0c0;
+
+        td {
+            padding: 2px 6px 0px 4px;
+        }
+
+        .nameColumn {
+            width: 50%;
+        }
+    }
+
+    tbody {
+        tr:nth-child(even) {
+            background: #c0c0c0;
+        }
+
+        tr:nth-child(odd) {
+            background: #e0e0e0;
+        }
+
+        a {
+            text-decoration: none;
+            color: black;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
     }
 }
