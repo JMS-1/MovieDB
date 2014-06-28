@@ -31,14 +31,14 @@ namespace WebApp.Models
         /// <summary>
         /// Der eigentliche Verweis.
         /// </summary>
-        [Required, StringLength( 2000 ), Url]
+        [Required, StringLength( 2000, MinimumLength = 1 ), Url]
         [Column( "Url" )]
         public string Url { get; set; }
 
         /// <summary>
         /// Der Name des Verweises.
         /// </summary>
-        [Required, StringLength( 100 )]
+        [Required, StringLength( 100, MinimumLength = 1 )]
         [Column( "Name" )]
         public string Name { get; set; }
 

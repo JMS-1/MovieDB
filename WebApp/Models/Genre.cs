@@ -22,7 +22,7 @@ namespace WebApp.Models
         /// <summary>
         /// Der Beschreibung der Kategorie.
         /// </summary>
-        [Required, StringLength( 100 )]
+        [Required, StringLength( 100, MinimumLength = 1 )]
         [Column( "Long" )]
         public string Name { get; set; }
 

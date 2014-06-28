@@ -22,7 +22,7 @@ namespace WebApp.Models
         /// <summary>
         /// Der Langname der Sprache.
         /// </summary>
-        [Required, StringLength( 100 )]
+        [Required, StringLength( 100, MinimumLength = 1 )]
         [Column( "Long" )]
         public string Name { get; set; }
 

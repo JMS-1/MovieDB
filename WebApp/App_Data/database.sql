@@ -1,4 +1,4 @@
-﻿-- Container
+﻿-- Aufbewahrungen
 
 	CREATE TABLE [Containers] (
 		[Id]				UNIQUEIDENTIFIER	NOT NULL,
@@ -17,6 +17,9 @@
 		ON [Containers]([Parent]);
 	GO
 
+	-- Wir möchten hier beim Löschen einer Aufbewahrung nicht einfach nur die Referenz aller untergeordneten
+	-- Aufbewahrungen auf NULL setzen (das könnte der FOREIGN KEY natürlich auch schon alleine), sondern auch
+	-- den Vermerk der relativen Position entfernen.
 	CREATE TRIGGER [Container_Delete]
 		ON [Containers]
 		INSTEAD OF DELETE
@@ -28,7 +31,7 @@
 		END
 	GO
 
--- Genre
+-- Kategorien
 
 	CREATE TABLE [Genres] (
 		[Id]	UNIQUEIDENTIFIER	NOT NULL,
@@ -38,17 +41,17 @@
 	);
 	GO
 
--- Language
+-- Sprachen
 
 	CREATE TABLE [Languages] (
 		[Id]	UNIQUEIDENTIFIER	NOT NULL,
-		[Long]	NVARCHAR (100)	NOT NULL,
+		[Long]	NVARCHAR (100)		NOT NULL,
 		PRIMARY KEY CLUSTERED ([Id]),
 		CONSTRAINT [U_Languages_Long] UNIQUE ([Long]) 
 	);
 	GO
 
--- Links
+-- Verweise (in der ersten version noch nicht genutzt)
 
 	CREATE TABLE [Links] (
 		[For]         UNIQUEIDENTIFIER NOT NULL,
@@ -68,7 +71,7 @@
 		ON [Links]([Ordinal]);
 	GO
 
--- Media
+-- Physikalische Ablage
 
 	CREATE TABLE [Media] (
 		[Id]		UNIQUEIDENTIFIER	NOT NULL,
@@ -76,11 +79,11 @@
 		[Container]	UNIQUEIDENTIFIER	NULL,
 		[Position]	NVARCHAR (100)		NULL,
 		PRIMARY KEY CLUSTERED ([Id]),
-		CONSTRAINT	[FK_Media_Container]	FOREIGN KEY	([Container])	REFERENCES [Containers] ([Id])	ON DELETE SET NULL
+		CONSTRAINT [FK_Media_Container] FOREIGN KEY ([Container]) REFERENCES [Containers] ([Id]) ON DELETE SET NULL
 	);
 	GO
 
--- Series
+-- Serien
 
 	CREATE TABLE [Series] (
 		[Id]          UNIQUEIDENTIFIER NOT NULL,
@@ -142,7 +145,7 @@
 
 			UNION ALL
 
-			SELECT [s].[Parent], [h].[Child], CAST(CONCAT(s.[Name], ' > ', [RelativeName]) AS nvarchar(4000)), [h].[Depth] + 1
+			SELECT [s].[Parent], [h].[Child], CAST(CONCAT(s.[Name], ' > ', [h].[RelativeName]) AS nvarchar(4000)), [h].[Depth] + 1
 			FROM [Series] AS [s] 
 			JOIN [SeriesHierarchy] AS [h] ON [s].[Id] = [h].[Parent]
 			WHERE [s].[Parent] IS NOT NULL
