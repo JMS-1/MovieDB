@@ -11,10 +11,6 @@
 .genreFilter .ui-accordion-header {
   font-weight: bold;
   font-size: small;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
 }
 .seriesFilter .ui-accordion-content,
 .rentFilter .ui-accordion-content,

@@ -88,7 +88,7 @@ class Tools {
     static openDialog(dialog: JQuery): void {
         dialog.dialog({
             position: { of: '#main', at: 'center top+100', my: 'center top' },
-            closeOnEscape: false,
+            closeOnEscape: true,
             width: 'auto',
             modal: true,
         });

@@ -5,6 +5,13 @@ body {
     background-color: #f8f8f8;
 }
 
+.ui-accordion-header {
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
 #headline {
     margin-bottom: -0.7em;
 }
@@ -144,5 +151,25 @@ body {
         a:hover {
             text-decoration: underline;
         }
+    }
+}
+
+.containerChildren, .containerRecordings {
+    .ui-accordion-header {
+        font-size: small;
+    }
+
+    .ui-accordion-content {
+        margin-left: 10px;
+        padding: 0px;
+        font-size: small;
+    }
+
+    thead {
+        font-weight: bold;
+    }
+
+    td {
+        padding-right: 10px;
     }
 }

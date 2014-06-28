@@ -4,6 +4,9 @@
         this.identifier = null;
         this.reload = reloadApplicationData;
 
+        this.childTable().accordion(Styles.accordionSettings);
+        this.recordingTable().accordion(Styles.accordionSettings);
+
         this.confirmedDelete = new DeleteButton(this.dialog().find('.dialogDelete'), function () {
             return _this.remove();
         });
@@ -43,6 +46,9 @@
         this.choose();
 
         Tools.openDialog(this.dialog());
+
+        // Wir positionieren uns etwas weiter oben als die anderen Dialog, da wir eine dynamische Größe haben können
+        this.dialog().dialog('option', 'position', { of: '#main', at: 'center top', my: 'center top' });
     };
 
     ContainerEditor.prototype.close = function () {
@@ -92,6 +98,58 @@
         return isValid;
     };
 
+    ContainerEditor.prototype.fillChildTable = function (containers) {
+        var table = this.childTable();
+        var count = containers.length;
+
+        if (count > 0) {
+            if (count == 1)
+                table.find('.ui-accordion-header>span').text('Eine Aufbewahrung');
+            else
+                table.find('.ui-accordion-header>span').text(count + ' Aufbewahrungen');
+
+            var content = table.find('tbody');
+
+            content.empty();
+
+            $.each(containers, function (index, container) {
+                return $('<td />').text(container).appendTo($('<tr />').appendTo(content));
+            });
+
+            table.removeClass(Styles.invisble);
+
+            table.accordion('option', 'active', false);
+        } else
+            table.addClass(Styles.invisble);
+    };
+
+    ContainerEditor.prototype.fillRecordingTable = function (recordings) {
+        var table = this.recordingTable();
+        var count = recordings.length;
+        if (count > 0) {
+            if (count == 1)
+                table.find('.ui-accordion-header>span').text('Eine Aufzeichnung');
+            else
+                table.find('.ui-accordion-header>span').text(count + ' Aufzeichnungen');
+
+            var content = table.find('tbody');
+
+            content.empty();
+
+            $.each(recordings, function (index, recording) {
+                var row = $('<tr />').appendTo(content);
+
+                $('<td />').text(recording.name).appendTo(row);
+                $('<td />').text(recording.position).appendTo(row);
+            });
+
+            table.removeClass(Styles.invisble);
+
+            table.accordion('option', 'active', false);
+        } else
+            table.addClass(Styles.invisble);
+    };
+
     ContainerEditor.prototype.choose = function () {
         var _this = this;
         // Die aktuelle Auswahl ermitteln
@@ -133,30 +191,8 @@
                 _this.parentChooser().val(info.parent);
                 _this.nameField().val(info.name);
 
-                var childTable = _this.childTable();
-                var childCount = info.children.length;
-                if (info.children.length > 0) {
-                    if (childCount == 1)
-                        childTable.find('.collabsableCount').text('Eine Aufbewahrung');
-                    else
-                        childTable.find('.collabsableCount').text(childCount + ' Aufbewahrungen');
-
-                    childTable.removeClass(Styles.invisble);
-                } else
-                    childTable.addClass(Styles.invisble);
-
-                var recordingTable = _this.recordingTable();
-                var recordingCount = info.recordings.length;
-                if (recordingCount > 0) {
-                    if (recordingCount == 1)
-                        recordingTable.find('.collabsableCount').text('Eine Aufzeichnung');
-                    else
-                        recordingTable.find('.collabsableCount').text(recordingCount + ' Aufzeichnungen');
-
-                    recordingTable.removeClass(Styles.invisble);
-                } else
-                    recordingTable.addClass(Styles.invisble);
-
+                _this.fillChildTable(info.children);
+                _this.fillRecordingTable(info.recordings);
                 _this.confirmedDelete.enable();
 
                 // Für den unwahrscheinlichen Fall, dass sich die Spielregeln verändert haben - und um die Schaltfläche zum Speichern zu aktivieren

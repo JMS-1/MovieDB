@@ -11,10 +11,6 @@
 .genreFilter .ui-accordion-header {
   font-weight: bold;
   font-size: small;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
 }
 .seriesFilter .ui-accordion-content,
 .rentFilter .ui-accordion-content,
@@ -122,6 +118,12 @@
 body {
   background-color: #f8f8f8;
 }
+.ui-accordion-header {
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
 #headline {
   margin-bottom: -0.7em;
 }
@@ -218,5 +220,23 @@ body {
 }
 .recordingTable tbody a:hover {
   text-decoration: underline;
+}
+.containerChildren .ui-accordion-header,
+.containerRecordings .ui-accordion-header {
+  font-size: small;
+}
+.containerChildren .ui-accordion-content,
+.containerRecordings .ui-accordion-content {
+  margin-left: 10px;
+  padding: 0px;
+  font-size: small;
+}
+.containerChildren thead,
+.containerRecordings thead {
+  font-weight: bold;
+}
+.containerChildren td,
+.containerRecordings td {
+  padding-right: 10px;
 }
 /*# sourceMappingURL=appStyles.css.map */
