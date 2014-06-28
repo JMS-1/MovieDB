@@ -100,7 +100,6 @@ class MultiValueEditor<T extends IMappingContract> {
         this.onChange = onChange;
 
         this.container = $(containerSelector);
-        this.container.buttonset();
     }
 
     private static idCounter = 0;
@@ -121,10 +120,8 @@ class MultiValueEditor<T extends IMappingContract> {
             $.each(this.container.find('input[type=checkbox]'), (index, checkbox: HTMLInputElement) => {
                 var selector = $(checkbox);
 
-                selector.prop('checked', map[selector.val()] == true);
+                selector.prop('checked', map[selector.val()] == true).button('refresh');
             });
-
-            this.container.buttonset('refresh');
 
             return newVal;
         } else {
@@ -149,6 +146,8 @@ class MultiValueEditor<T extends IMappingContract> {
 
             var checkbox = $('<input />', { type: 'checkbox', id: id, value: item.id }).appendTo(this.container).click(() => this.onChange());
             var label = $('<label />', { 'for': id, text: item.name }).appendTo(this.container);
+
+            checkbox.button();
         });
 
         // Alle Werte, die wir ausgewählt haben, werden wieder aktiviert - sofern sie bekannt sind
@@ -361,6 +360,7 @@ class DeleteButton {
 
     disable(): void {
         this.button.removeClass(Styles.deleteConfirmation);
+        this.button.removeAttr('title');
         this.button.button('option', 'disabled', true);
     }
 
@@ -371,7 +371,9 @@ class DeleteButton {
     private remove(): void {
         if (this.button.hasClass(Styles.deleteConfirmation))
             this.process();
-        else
+        else {
             this.button.addClass(Styles.deleteConfirmation);
+            this.button.attr('title', 'Noch einmal Drücken zum unwiederruflichen Löschen');
+        }
     }
 }

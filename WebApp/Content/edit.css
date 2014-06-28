@@ -1,24 +1,41 @@
 ﻿.editNavigation {
-  background-color: cyan;
+  margin-top: 10px;
 }
-.editForm {
-  background-color: darkseagreen;
+.editNavigation .editButton .ui-button-text {
+  font-size: medium;
+}
+.editForm table {
+  border-collapse: collapse;
+}
+.editForm table td {
+  padding-left: 0px;
+}
+.editForm fieldset {
+  padding: 10px;
 }
 .editLabel {
   min-width: 10em;
   vertical-align: top;
 }
-.genreEdit {
-  background-color: gold;
+.genreEdit .ui-button:not(.openGenreEditDialog) {
+  margin: 2px 4px 2px 0px;
+  min-width: 10em;
 }
-.languageEdit {
-  background-color: aquamarine;
+.genreEdit .ui-button-text {
+  font-size: small;
 }
-.seriesEdit {
-  background-color: lemonchiffon;
+.languageEdit .ui-button:not(.openLanguageEditDialog) {
+  margin: 2px 4px 2px 0px;
+  min-width: 10em;
 }
-.containerEdit {
-  background-color: sandybrown;
+.languageEdit .ui-button-text {
+  font-size: small;
+}
+.seriesEdit .ui-button-text {
+  font-size: small;
+}
+.containerEdit .ui-button-text {
+  font-size: small;
 }
 .editSelector {
   vertical-align: top;

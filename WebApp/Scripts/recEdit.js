@@ -1,7 +1,7 @@
 ﻿var RecordingEditor = (function () {
     function RecordingEditor(recording, genreEditor, languageEditor) {
-        this.genreEditor = genreEditor;
         this.languageEditor = languageEditor;
+        this.genreEditor = genreEditor;
 
         this.initialize(recording);
 
@@ -9,7 +9,7 @@
     }
     RecordingEditor.prototype.initialize = function (recording) {
         if (recording == null) {
-            this.identifier = '';
+            this.identifier = null;
             RecordingEditor.descriptionField().val('');
             RecordingEditor.containerField().val('');
             RecordingEditor.locationField().val('');
@@ -43,6 +43,18 @@
 
     RecordingEditor.saveAndNewButton = function () {
         return $('#newAfterUpdateRecording');
+    };
+
+    RecordingEditor.saveAndCloneButton = function () {
+        return $('#cloneAfterUpdateRecording');
+    };
+
+    RecordingEditor.cloneButton = function () {
+        return $('#cloneRecording');
+    };
+
+    RecordingEditor.deleteButton = function () {
+        return $('#deleteRecording');
     };
 
     RecordingEditor.titleField = function () {
@@ -88,11 +100,11 @@
             return;
 
         var url = 'movie/db';
-        if (this.identifier.length > 0)
+        if (this.identifier != null)
             url += '/' + this.identifier;
 
         $.ajax(url, {
-            type: (this.identifier.length < 1) ? 'POST' : 'PUT',
+            type: (this.identifier == null) ? 'POST' : 'PUT',
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(newData)
         }).done(success).fail(function () {
@@ -102,7 +114,7 @@
     };
 
     RecordingEditor.prototype.remove = function (success) {
-        if (this.identifier.length < 1)
+        if (this.identifier == null)
             return;
 
         $.ajax('movie/db/' + this.identifier, {
@@ -111,6 +123,14 @@
             // Bei der Fehlerbehandlung ist noch Potential
             alert('Da ist leider etwas schief gegangen');
         });
+    };
+
+    RecordingEditor.prototype.clone = function () {
+        RecordingEditor.titleField().val('Kopie von ' + (RecordingEditor.titleField().val() || '').trim());
+
+        this.identifier = null;
+
+        this.validate();
     };
 
     RecordingEditor.prototype.createContract = function () {
@@ -184,8 +204,10 @@
         if (Tools.setError(RecordingEditor.locationField(), this.validateLocation(recording)))
             isValid = false;
 
-        RecordingEditor.saveButton().button('option', 'disabled', !isValid);
+        RecordingEditor.cloneButton().button('option', 'disabled', this.identifier == null);
+        RecordingEditor.saveAndCloneButton().button('option', 'disabled', !isValid);
         RecordingEditor.saveAndNewButton().button('option', 'disabled', !isValid);
+        RecordingEditor.saveButton().button('option', 'disabled', !isValid);
 
         return isValid;
     };

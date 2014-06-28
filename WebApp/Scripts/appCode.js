@@ -285,14 +285,14 @@
             indicator.addClass(Styles.notSorted);
         };
 
-        Application.prototype.enableSort = function (indicator) {
-            var sortDown = indicator.hasClass(Styles.sortedUp);
+        Application.prototype.enableSort = function (indicator, defaultIsUp) {
+            var sortUp = indicator.hasClass(Styles.notSorted) ? defaultIsUp : !indicator.hasClass(Styles.sortedUp);
 
             indicator.removeClass(Styles.notSorted);
-            indicator.removeClass(sortDown ? Styles.sortedUp : Styles.sortedDown);
-            indicator.addClass(sortDown ? Styles.sortedDown : Styles.sortedUp);
+            indicator.removeClass(sortUp ? Styles.sortedDown : Styles.sortedUp);
+            indicator.addClass(sortUp ? Styles.sortedUp : Styles.sortedDown);
 
-            return !sortDown;
+            return sortUp;
         };
 
         Application.prototype.getChildren = function (series) {
@@ -311,6 +311,11 @@
             window.location.hash = '';
 
             this.recordingFilter.query();
+        };
+
+        Application.prototype.cloneRecording = function () {
+            this.currentRecording.clone();
+            this.deleteRecording.disable();
         };
 
         Application.prototype.startup = function () {
@@ -363,7 +368,7 @@
             sortName.click(function () {
                 _this.disableSort(sortDate);
 
-                _this.recordingFilter.ascending.val(_this.enableSort(sortName));
+                _this.recordingFilter.ascending.val(_this.enableSort(sortName, true));
                 _this.recordingFilter.order.val(OrderSelector.title);
 
                 _this.recordingFilter.query();
@@ -372,7 +377,7 @@
             sortDate.click(function () {
                 _this.disableSort(sortName);
 
-                _this.recordingFilter.ascending.val(_this.enableSort(sortDate));
+                _this.recordingFilter.ascending.val(_this.enableSort(sortDate, false));
                 _this.recordingFilter.order.val(OrderSelector.created);
 
                 _this.recordingFilter.query();
@@ -391,22 +396,31 @@
                 return window.location.hash = 'new';
             });
 
-            this.deleteRecording = new DeleteButton($('#deleteRecording'), function () {
+            this.deleteRecording = new DeleteButton(RecordingEditor.deleteButton(), function () {
                 return _this.currentRecording.remove(function () {
                     return _this.backToQuery();
                 });
             });
 
-            RecordingEditor.saveButton().click(function () {
-                return _this.currentRecording.save(function () {
-                    return _this.backToQuery();
-                });
-            });
             RecordingEditor.saveAndNewButton().click(function () {
                 return _this.currentRecording.save(function () {
                     return window.location.hash = 'new';
                 });
             });
+            RecordingEditor.saveAndCloneButton().click(function () {
+                return _this.currentRecording.save(function () {
+                    return _this.cloneRecording();
+                });
+            });
+            RecordingEditor.saveButton().click(function () {
+                return _this.currentRecording.save(function () {
+                    return _this.backToQuery();
+                });
+            });
+            RecordingEditor.cloneButton().click(function () {
+                return _this.cloneRecording();
+            });
+
             RecordingEditor.titleField().on('change', validateRecordingEditForm);
             RecordingEditor.titleField().on('input', validateRecordingEditForm);
             RecordingEditor.descriptionField().on('change', validateRecordingEditForm);

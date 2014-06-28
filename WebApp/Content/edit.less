@@ -1,9 +1,25 @@
 ﻿.editNavigation {
-    background-color: cyan;
+    margin-top: 10px;
+
+    .editButton {
+        .ui-button-text {
+            font-size: medium;
+        }
+    }
 }
 
 .editForm {
-    background-color: darkseagreen;
+    table {
+        border-collapse: collapse;
+
+        td {
+            padding-left: 0px;
+        }
+    }
+
+    fieldset{
+        padding: 10px;
+    }
 }
 
 .editLabel {
@@ -12,19 +28,37 @@
 }
 
 .genreEdit {
-    background-color: gold;
+    .ui-button:not(.openGenreEditDialog) {
+        margin: 2px 4px 2px 0px;
+        min-width: 10em;
+    }
+
+    .ui-button-text {
+        font-size: small;
+    }
 }
 
 .languageEdit {
-    background-color: aquamarine;
+    .ui-button:not(.openLanguageEditDialog) {
+        margin: 2px 4px 2px 0px;
+        min-width: 10em;
+    }
+
+    .ui-button-text {
+        font-size: small;
+    }
 }
 
 .seriesEdit {
-    background-color: lemonchiffon;
+    .ui-button-text {
+        font-size: small;
+    }
 }
 
 .containerEdit {
-    background-color: sandybrown;
+    .ui-button-text {
+        font-size: small;
+    }
 }
 
 .editSelector {
@@ -49,4 +83,3 @@
 .validationError {
     border: 2px solid red;
 }
-

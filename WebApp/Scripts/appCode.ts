@@ -293,14 +293,14 @@ module MovieDatabase {
             indicator.addClass(Styles.notSorted);
         }
 
-        private enableSort(indicator: JQuery): boolean {
-            var sortDown = indicator.hasClass(Styles.sortedUp);
+        private enableSort(indicator: JQuery, defaultIsUp: boolean): boolean {
+            var sortUp = indicator.hasClass(Styles.notSorted) ? defaultIsUp : !indicator.hasClass(Styles.sortedUp);
 
             indicator.removeClass(Styles.notSorted);
-            indicator.removeClass(sortDown ? Styles.sortedUp : Styles.sortedDown);
-            indicator.addClass(sortDown ? Styles.sortedDown : Styles.sortedUp);
+            indicator.removeClass(sortUp ? Styles.sortedDown : Styles.sortedUp);
+            indicator.addClass(sortUp ? Styles.sortedUp : Styles.sortedDown);
 
-            return !sortDown;
+            return sortUp;
         }
 
         private getChildren(series: string): ISeriesMappingContract[] {
@@ -317,6 +317,11 @@ module MovieDatabase {
             window.location.hash = '';
 
             this.recordingFilter.query();
+        }
+
+        private cloneRecording(): void {
+            this.currentRecording.clone();
+            this.deleteRecording.disable();
         }
 
         private startup(): void {
@@ -346,7 +351,7 @@ module MovieDatabase {
             sortName.click(() => {
                 this.disableSort(sortDate);
 
-                this.recordingFilter.ascending.val(this.enableSort(sortName));
+                this.recordingFilter.ascending.val(this.enableSort(sortName, true));
                 this.recordingFilter.order.val(OrderSelector.title);
 
                 this.recordingFilter.query();
@@ -355,7 +360,7 @@ module MovieDatabase {
             sortDate.click(() => {
                 this.disableSort(sortName);
 
-                this.recordingFilter.ascending.val(this.enableSort(sortDate));
+                this.recordingFilter.ascending.val(this.enableSort(sortDate, false));
                 this.recordingFilter.order.val(OrderSelector.created);
 
                 this.recordingFilter.query();
@@ -368,10 +373,13 @@ module MovieDatabase {
             $('#gotoQuery').click(() => window.location.hash = '');
             $('#newRecording').click(() => window.location.hash = 'new');
 
-            this.deleteRecording = new DeleteButton($('#deleteRecording'), () => this.currentRecording.remove(() => this.backToQuery()));
+            this.deleteRecording = new DeleteButton(RecordingEditor.deleteButton(), () => this.currentRecording.remove(() => this.backToQuery()));
 
-            RecordingEditor.saveButton().click(() => this.currentRecording.save(() => this.backToQuery()));
             RecordingEditor.saveAndNewButton().click(() => this.currentRecording.save(() => window.location.hash = 'new'));
+            RecordingEditor.saveAndCloneButton().click(() => this.currentRecording.save(() => this.cloneRecording()));
+            RecordingEditor.saveButton().click(() => this.currentRecording.save(() => this.backToQuery()));
+            RecordingEditor.cloneButton().click(() => this.cloneRecording());
+
             RecordingEditor.titleField().on('change', validateRecordingEditForm);
             RecordingEditor.titleField().on('input', validateRecordingEditForm);
             RecordingEditor.descriptionField().on('change', validateRecordingEditForm);

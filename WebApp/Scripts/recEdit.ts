@@ -1,8 +1,8 @@
 ﻿
 class RecordingEditor {
     constructor(recording: IRecordingEditContract, genreEditor: MultiValueEditor<IGenreContract>, languageEditor: MultiValueEditor<ILanguageContract>) {
-        this.genreEditor = genreEditor;
         this.languageEditor = languageEditor;
+        this.genreEditor = genreEditor;
 
         this.initialize(recording);
 
@@ -11,7 +11,7 @@ class RecordingEditor {
 
     private initialize(recording: IRecordingEditContract) {
         if (recording == null) {
-            this.identifier = '';
+            this.identifier = null;
             RecordingEditor.descriptionField().val('');
             RecordingEditor.containerField().val('');
             RecordingEditor.locationField().val('');
@@ -52,7 +52,19 @@ class RecordingEditor {
     static saveAndNewButton(): JQuery {
         return $('#newAfterUpdateRecording');
     }
-    
+
+    static saveAndCloneButton(): JQuery {
+        return $('#cloneAfterUpdateRecording');
+    }
+
+    static cloneButton(): JQuery {
+        return $('#cloneRecording');
+    }
+
+    static deleteButton(): JQuery {
+        return $('#deleteRecording');
+    }
+
     static titleField(): JQuery {
         return $('#recordingEditTitle');
     }
@@ -96,12 +108,12 @@ class RecordingEditor {
             return;
 
         var url = 'movie/db';
-        if (this.identifier.length > 0)
+        if (this.identifier != null)
             url += '/' + this.identifier;
 
         $
             .ajax(url, {
-                type: (this.identifier.length < 1) ? 'POST' : 'PUT',
+                type: (this.identifier == null) ? 'POST' : 'PUT',
                 contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify(newData),
             })
@@ -113,7 +125,7 @@ class RecordingEditor {
     }
 
     remove(success: () => void): void {
-        if (this.identifier.length < 1)
+        if (this.identifier == null)
             return;
 
         $
@@ -125,6 +137,14 @@ class RecordingEditor {
                 // Bei der Fehlerbehandlung ist noch Potential
                 alert('Da ist leider etwas schief gegangen');
             });
+    }
+
+    clone() {
+        RecordingEditor.titleField().val('Kopie von ' + (RecordingEditor.titleField().val() || '').trim());
+
+        this.identifier = null;
+
+        this.validate();
     }
 
     private createContract(): IRecordingEditContract {
@@ -198,9 +218,11 @@ class RecordingEditor {
         if (Tools.setError(RecordingEditor.locationField(), this.validateLocation(recording)))
             isValid = false;
 
-        RecordingEditor.saveButton().button('option', 'disabled', !isValid);
+        RecordingEditor.cloneButton().button('option', 'disabled', this.identifier == null);
+        RecordingEditor.saveAndCloneButton().button('option', 'disabled', !isValid);
         RecordingEditor.saveAndNewButton().button('option', 'disabled', !isValid);
-        
+        RecordingEditor.saveButton().button('option', 'disabled', !isValid);
+
         return isValid;
     }
 }

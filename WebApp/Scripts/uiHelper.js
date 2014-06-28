@@ -114,7 +114,6 @@ var MultiValueEditor = (function () {
         this.onChange = onChange;
 
         this.container = $(containerSelector);
-        this.container.buttonset();
     }
     MultiValueEditor.prototype.val = function (newVal) {
         if (newVal) {
@@ -126,10 +125,8 @@ var MultiValueEditor = (function () {
             $.each(this.container.find('input[type=checkbox]'), function (index, checkbox) {
                 var selector = $(checkbox);
 
-                selector.prop('checked', map[selector.val()] == true);
+                selector.prop('checked', map[selector.val()] == true).button('refresh');
             });
-
-            this.container.buttonset('refresh');
 
             return newVal;
         } else {
@@ -159,6 +156,8 @@ var MultiValueEditor = (function () {
                 return _this.onChange();
             });
             var label = $('<label />', { 'for': id, text: item.name }).appendTo(_this.container);
+
+            checkbox.button();
         });
 
         // Alle Werte, die wir ausgewählt haben, werden wieder aktiviert - sofern sie bekannt sind
@@ -384,6 +383,7 @@ var DeleteButton = (function () {
     }
     DeleteButton.prototype.disable = function () {
         this.button.removeClass(Styles.deleteConfirmation);
+        this.button.removeAttr('title');
         this.button.button('option', 'disabled', true);
     };
 
@@ -394,8 +394,10 @@ var DeleteButton = (function () {
     DeleteButton.prototype.remove = function () {
         if (this.button.hasClass(Styles.deleteConfirmation))
             this.process();
-        else
+        else {
             this.button.addClass(Styles.deleteConfirmation);
+            this.button.attr('title', 'Noch einmal Drücken zum unwiederruflichen Löschen');
+        }
     };
     return DeleteButton;
 })();
