@@ -98,6 +98,12 @@
     <Content Include="Content\appStyles.min.css">
       <DependentUpon>appStyles.css</DependentUpon>
     </Content>
+    <Content Include="Content\edit.css">
+      <DependentUpon>edit.less</DependentUpon>
+    </Content>
+    <Content Include="Content\edit.min.css">
+      <DependentUpon>edit.css</DependentUpon>
+    </Content>
     <Content Include="Content\filter.css">
       <DependentUpon>filter.less</DependentUpon>
     </Content>
@@ -174,6 +180,10 @@
     <Content Include="Content\filter.less" />
     <Content Include="Content\filter.css.map">
       <DependentUpon>filter.css</DependentUpon>
+    </Content>
+    <Content Include="Content\edit.less" />
+    <Content Include="Content\edit.css.map">
+      <DependentUpon>edit.css</DependentUpon>
     </Content>
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />

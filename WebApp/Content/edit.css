@@ -1,0 +1,39 @@
+﻿.editNavigation {
+  background-color: cyan;
+}
+.editForm {
+  background-color: darkseagreen;
+}
+.editLabel {
+  min-width: 10em;
+  vertical-align: top;
+}
+.genreEdit {
+  background-color: gold;
+}
+.languageEdit {
+  background-color: aquamarine;
+}
+.seriesEdit {
+  background-color: lemonchiffon;
+}
+.containerEdit {
+  background-color: sandybrown;
+}
+.editSelector {
+  vertical-align: top;
+  width: 100%;
+}
+.editSelectorEdit {
+  vertical-align: top;
+}
+.containerParentEdit input[type=text] {
+  margin-left: 10px;
+}
+#recordingEditLocation {
+  margin-left: 5px;
+}
+.validationError {
+  border: 2px solid red;
+}
+/*# sourceMappingURL=edit.css.map */

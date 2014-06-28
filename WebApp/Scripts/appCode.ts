@@ -371,6 +371,7 @@ module MovieDatabase {
             this.deleteRecording = new DeleteButton($('#deleteRecording'), () => this.currentRecording.remove(() => this.backToQuery()));
 
             RecordingEditor.saveButton().click(() => this.currentRecording.save(() => this.backToQuery()));
+            RecordingEditor.saveAndNewButton().click(() => this.currentRecording.save(() => window.location.hash = 'new'));
             RecordingEditor.titleField().on('change', validateRecordingEditForm);
             RecordingEditor.titleField().on('input', validateRecordingEditForm);
             RecordingEditor.descriptionField().on('change', validateRecordingEditForm);

@@ -47,7 +47,7 @@
   padding: 1px;
 }
 .treeNodeHeader div.ui-icon {
-  margin-left: -3px;
+  margin-left: -5px;
   margin-top: 1px;
   float: left;
 }
@@ -63,38 +63,6 @@
 }
 .treeItem.nodeSelected {
   background-color: #1e90ff;
-}
-body {
-  background-color: #f8f8f8;
-}
-#headline {
-  margin-bottom: -0.7em;
-}
-#countInfo {
-  margin-left: 1em;
-  margin-top: -1em;
-}
-.invisible {
-  display: none;
-}
-#queryMode {
-  padding: 5px;
-}
-.pageButtons {
-  padding-top: 5px;
-}
-.pageButtons a {
-  width: 3em;
-}
-.pageButtonSelected {
-  font-weight: bold;
-}
-.sortIndicator {
-  float: left;
-  margin-left: -0.1em;
-}
-#busyIndicator {
-  float: right;
 }
 .editNavigation {
   background-color: cyan;
@@ -133,6 +101,38 @@ body {
 }
 .validationError {
   border: 2px solid red;
+}
+body {
+  background-color: #f8f8f8;
+}
+#headline {
+  margin-bottom: -0.7em;
+}
+#countInfo {
+  margin-left: 1em;
+  margin-top: -1em;
+}
+.invisible {
+  display: none;
+}
+#queryMode {
+  padding: 5px;
+}
+.pageButtons {
+  padding-top: 5px;
+}
+.pageButtons a {
+  width: 3em;
+}
+.pageButtonSelected {
+  font-weight: bold;
+}
+.sortIndicator {
+  float: left;
+  margin-left: -0.1em;
+}
+#busyIndicator {
+  float: right;
 }
 .dialog {
   background-color: whitesmoke !important;

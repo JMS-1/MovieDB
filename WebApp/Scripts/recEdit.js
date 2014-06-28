@@ -3,6 +3,11 @@
         this.genreEditor = genreEditor;
         this.languageEditor = languageEditor;
 
+        this.initialize(recording);
+
+        $('#editRecordingMode').removeClass(Styles.invisble);
+    }
+    RecordingEditor.prototype.initialize = function (recording) {
         if (recording == null) {
             this.identifier = '';
             RecordingEditor.descriptionField().val('');
@@ -13,8 +18,8 @@
             RecordingEditor.titleField().val('');
             RecordingEditor.rentField().val('');
 
-            languageEditor.val([]);
-            genreEditor.val([]);
+            this.languageEditor.val([]);
+            this.genreEditor.val([]);
         } else {
             this.identifier = recording.id;
             RecordingEditor.mediaField().val(recording.mediaType.toString());
@@ -25,16 +30,19 @@
             RecordingEditor.titleField().val(recording.title);
             RecordingEditor.rentField().val(recording.rent);
 
-            languageEditor.val(recording.languages);
-            genreEditor.val(recording.genres);
+            this.languageEditor.val(recording.languages);
+            this.genreEditor.val(recording.genres);
         }
 
         this.validate();
+    };
 
-        $('#editRecordingMode').removeClass(Styles.invisble);
-    }
     RecordingEditor.saveButton = function () {
         return $('#updateRecording');
+    };
+
+    RecordingEditor.saveAndNewButton = function () {
+        return $('#newAfterUpdateRecording');
     };
 
     RecordingEditor.titleField = function () {
@@ -177,6 +185,7 @@
             isValid = false;
 
         RecordingEditor.saveButton().button('option', 'disabled', !isValid);
+        RecordingEditor.saveAndNewButton().button('option', 'disabled', !isValid);
 
         return isValid;
     };

@@ -402,6 +402,11 @@
                     return _this.backToQuery();
                 });
             });
+            RecordingEditor.saveAndNewButton().click(function () {
+                return _this.currentRecording.save(function () {
+                    return window.location.hash = 'new';
+                });
+            });
             RecordingEditor.titleField().on('change', validateRecordingEditForm);
             RecordingEditor.titleField().on('input', validateRecordingEditForm);
             RecordingEditor.descriptionField().on('change', validateRecordingEditForm);

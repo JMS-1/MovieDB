@@ -4,6 +4,12 @@ class RecordingEditor {
         this.genreEditor = genreEditor;
         this.languageEditor = languageEditor;
 
+        this.initialize(recording);
+
+        $('#editRecordingMode').removeClass(Styles.invisble);
+    }
+
+    private initialize(recording: IRecordingEditContract) {
         if (recording == null) {
             this.identifier = '';
             RecordingEditor.descriptionField().val('');
@@ -14,8 +20,8 @@ class RecordingEditor {
             RecordingEditor.titleField().val('');
             RecordingEditor.rentField().val('');
 
-            languageEditor.val([]);
-            genreEditor.val([]);
+            this.languageEditor.val([]);
+            this.genreEditor.val([]);
         } else {
             this.identifier = recording.id;
             RecordingEditor.mediaField().val(recording.mediaType.toString());
@@ -26,13 +32,11 @@ class RecordingEditor {
             RecordingEditor.titleField().val(recording.title);
             RecordingEditor.rentField().val(recording.rent);
 
-            languageEditor.val(recording.languages);
-            genreEditor.val(recording.genres);
+            this.languageEditor.val(recording.languages);
+            this.genreEditor.val(recording.genres);
         }
 
         this.validate();
-
-        $('#editRecordingMode').removeClass(Styles.invisble);
     }
 
     private genreEditor: MultiValueEditor<IGenreContract>;
@@ -45,6 +49,10 @@ class RecordingEditor {
         return $('#updateRecording');
     }
 
+    static saveAndNewButton(): JQuery {
+        return $('#newAfterUpdateRecording');
+    }
+    
     static titleField(): JQuery {
         return $('#recordingEditTitle');
     }
@@ -191,7 +199,8 @@ class RecordingEditor {
             isValid = false;
 
         RecordingEditor.saveButton().button('option', 'disabled', !isValid);
-
+        RecordingEditor.saveAndNewButton().button('option', 'disabled', !isValid);
+        
         return isValid;
     }
 }

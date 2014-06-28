@@ -8,9 +8,9 @@ class Styles {
 
     static idle = 'ui-icon-check';
 
-    static expanded = 'ui-icon-circlesmall-minus';
+    static expanded = 'ui-icon-triangle-1-s';
 
-    static collapsed = 'ui-icon-circlesmall-plus';
+    static collapsed = 'ui-icon-triangle-1-e';
 
     static pageButton = 'pageButton';
 

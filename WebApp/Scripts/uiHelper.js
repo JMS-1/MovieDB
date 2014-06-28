@@ -9,9 +9,9 @@
 
     Styles.idle = 'ui-icon-check';
 
-    Styles.expanded = 'ui-icon-circlesmall-minus';
+    Styles.expanded = 'ui-icon-triangle-1-s';
 
-    Styles.collapsed = 'ui-icon-circlesmall-plus';
+    Styles.collapsed = 'ui-icon-triangle-1-e';
 
     Styles.pageButton = 'pageButton';
 
