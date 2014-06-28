@@ -272,7 +272,7 @@ namespace MovieDB
                     if (series.Description == null)
                     {
                         Series seriesInfo;
-                        if (infoMap.TryGetValue( series.FullName, out seriesInfo ))
+                        if (infoMap.TryGetValue( GetFullName( series ), out seriesInfo ))
                         {
                             if (seriesInfo.Links != null)
                                 if (seriesInfo.Links.Length > 0)
@@ -306,6 +306,21 @@ namespace MovieDB
         }
 
         /// <summary>
+        /// Ermittelt den vollen Namen einer Serie - der erst NACH dem Einspielen in die Datenbank von dieser bereit
+        /// gestellt wird.
+        /// </summary>
+        /// <param name="series">Die Serie.</param>
+        /// <returns>Der volle Name.</returns>
+        private static string GetFullName( WebApp.Models.Series series )
+        {
+            var parent = series.ParentSeries;
+            if (parent == null)
+                return series.Name;
+            else
+                return string.Format( "{0} {1} {2}", GetFullName( parent ), WebApp.Models.Series.JoinCharacter, series.Name );
+        }
+
+        /// <summary>
         /// Ermittelt eine Serie.
         /// </summary>
         /// <param name="legacySeries">Die Referenz auf die Serie.</param>
@@ -324,7 +339,7 @@ namespace MovieDB
 
             // Create in-memory instance for reference checks
             var series = new WebApp.Models.Series { Name = legacySeries.Name, ParentSeries = parent };
-            var fullName = series.FullName;
+            var fullName = GetFullName( series );
 
             // See if we already know it
             WebApp.Models.Series existing;

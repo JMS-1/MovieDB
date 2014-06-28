@@ -179,6 +179,65 @@ namespace WebApp.UnitTests
         }
 
         /// <summary>
+        /// Die vollständigen Namen werden automatisch ermittelt.
+        /// </summary>
+        [Test]
+        public void CanConstructFullName()
+        {
+            var series = TestContext.Series;
+
+            var outer = series.Add( new Series { Name = "outer", ParentSeries = null } );
+            var middle = series.Add( new Series { Name = "middle", ParentSeries = outer } );
+            var inner = series.Add( new Series { Name = "inner", ParentSeries = middle } );
+            var innerId = inner.UniqueIdentifier;
+            var middleId = middle.UniqueIdentifier;
+            var outerId = outer.UniqueIdentifier;
+
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            series = TestContext.Series;
+            inner = series.Find( innerId );
+            middle = series.Find( middleId );
+            outer = series.Find( outerId );
+
+            Assert.AreEqual( "outer", outer.FullName, "outer before" );
+            Assert.AreEqual( "outer > middle", middle.FullName, "middle before" );
+            Assert.AreEqual( "outer > middle > inner", inner.FullName, "inner before" );
+
+            middle.Name = "changed";
+
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            series = TestContext.Series;
+            inner = series.Find( innerId );
+            middle = series.Find( middleId );
+            outer = series.Find( outerId );
+
+            Assert.AreEqual( "outer", outer.FullName, "outer change" );
+            Assert.AreEqual( "outer > changed", middle.FullName, "middle change" );
+            Assert.AreEqual( "outer > changed > inner", inner.FullName, "inner change" );
+
+            series.Remove( middle );
+
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            series = TestContext.Series;
+            inner = series.Find( innerId );
+            middle = series.Find( middleId );
+            outer = series.Find( outerId );
+
+            Assert.AreEqual( "outer", outer.FullName, "outer delete" );
+            Assert.IsNull( middle, "middle delete" );
+            Assert.AreEqual( "inner", inner.FullName, "inner delete" );
+        }
+
+        /// <summary>
         /// Das Löschen einer Serie setzt die Referenz auf die übergeordnete Serie zurück.
         /// </summary>
         [Test]
@@ -186,15 +245,15 @@ namespace WebApp.UnitTests
         {
             var series = TestContext.Series;
 
-            var inner = series.Add( new Series { Name = "inner", ParentSeries = null } );
-            var outer = series.Add( new Series { Name = "outer", ParentSeries = inner } );
+            var inner = series.Add( new Series { Name = "inner2", ParentSeries = null } );
+            var outer = series.Add( new Series { Name = "outer2", ParentSeries = inner } );
             var innerId = inner.UniqueIdentifier;
 
             TestContext.SaveChanges();
 
             Recreate();
 
-            var retest = TestContext.Series.AsNoTracking().Include( c => c.ParentSeries ).Single( c => c.Name == "outer" );
+            var retest = TestContext.Series.AsNoTracking().Include( c => c.ParentSeries ).Single( c => c.Name == "outer2" );
 
             Assert.IsNotNull( retest.ParentSeries, "before" );
             Assert.AreEqual( innerId, retest.ParentIdentifier, "before ParentName" );
@@ -207,7 +266,7 @@ namespace WebApp.UnitTests
 
             Recreate();
 
-            retest = TestContext.Series.Include( c => c.ParentSeries ).Single( c => c.Name == "outer" );
+            retest = TestContext.Series.Include( c => c.ParentSeries ).Single( c => c.Name == "outer2" );
 
             Assert.IsNull( retest.ParentSeries, "after" );
             Assert.IsNull( retest.ParentIdentifier, "after ParentName" );

@@ -86,16 +86,23 @@
 -- Serien
 
 	CREATE TABLE [Series] (
-		[Id]          UNIQUEIDENTIFIER NOT NULL,
-		[Name]        NVARCHAR (50)    NOT NULL,
-		[Description] NVARCHAR (2000)  NULL,
-		[Parent]      UNIQUEIDENTIFIER NULL,
+		[Id]			UNIQUEIDENTIFIER NOT NULL,
+		[Name]			NVARCHAR (50)    NOT NULL,
+		[Description]	NVARCHAR (2000)  NULL,
+		[Parent]		UNIQUEIDENTIFIER NULL,
+		[FullName]		NVARCHAR (4000)  NULL,
 		PRIMARY KEY CLUSTERED ([Id]),
 		CONSTRAINT [FK_Series_Parent] FOREIGN KEY ([Parent]) REFERENCES [Series] ([Id]),
 		CONSTRAINT [U_Series_RelativeName] UNIQUE NONCLUSTERED ([Parent], [Name])
 	);
 	GO
 
+	CREATE NONCLUSTERED INDEX [IX_Series_FullName]
+		ON [Series]([FullName]);
+	GO
+
+	-- Neben dem Löschen der Verweise müssen wir hier auch kompensieren, dass wir bei dem
+	-- FOREIGN KEY mit Selbstbezug kein ON DELETE SET NULL einsetzen können.
 	CREATE TRIGGER [Series_Delete]
 		ON [Series]
 		INSTEAD OF DELETE
@@ -103,31 +110,38 @@
 		BEGIN
 			SET NoCount ON
 			DELETE FROM [Links] WHERE [For] IN (Select [Id] FROM DELETED)
+
+			-- Das wäre dann einfach das fehlende ON DELETE SET NULL des FOREIGN KEYs
 			UPDATE [Series] SET [Parent] = NULL WHERE [Parent] IN (Select [Id] FROM DELETED)
 			DELETE FROM [Series] WHERE [Id] IN (Select [Id] FROM DELETED)
 		END
 	GO
 
-	-- Dieser TRIGGER sorgt dafür, dass für alle von einer Serienänderung betroffenen Aufzeichnungen die hierarchischen Namen neu berechnet werden
-	CREATE TRIGGER [Series_Recordings]
+	-- Dieser TRIGGER aktualisiert nach jeder Änderung an irgendeiner Serie die hierarchichen Namen ALLER
+	-- Serien - ja, das ist etwas brutal und muss noch entsprechend herunter gefiltert werden!
+	CREATE TRIGGER [Series_FullName]
 		ON [Series]
 		AFTER INSERT, UPDATE, DELETE
 		AS
 		BEGIN
-			SET NoCount ON
+			SET NoCount ON			
 
-			UPDATE [Recordings]
-			SET [HierarchicalName] = NULL
-			WHERE [Series] IN 			
+			UPDATE [Series]
+			SET	
+				[Series].[FullName] = [SeriesNames].[FullName]
+			FROM [Series]   		    
+			LEFT OUTER JOIN 
 			(
-				-- Das sind die tatsächlich veränderten Serien
-				SELECT [Id] FROM INSERTED UNION SELECT [Id] FROM DELETED 
-				
-				UNION ALL
-
-				-- Wird müssen aber noch die gesamte Vererbungslinie verfolgen
-				SELECT [Child] FROM [SeriesHierarchy] WHERE [Parent] IN (SELECT [Id] FROM INSERTED UNION ALL SELECT [Id] FROM DELETED)
-			)
+				SELECT 
+					[sh].[Child] As [Id], IIF(
+						[sh].[Parent] IS NULL, 
+						[sh].[RelativeName], 
+						CONCAT((SELECT [s].[Name] FROM [Series] [s] WHERE [s].[Id] = [sh].[Parent]), ' > ', [sh].[RelativeName])) AS [FullName]
+				FROM 
+					[SeriesHierarchy] [sh]
+				WHERE
+					[sh].[Depth] = (SELECT MAX([h].[Depth]) FROM [SeriesHierarchy] [h] WHERE ([h].[Child] = [sh].[Child]))
+			) AS [SeriesNames] ON [SeriesNames].[Id] = [Series].[Id]			
 		END
 	GO
 
@@ -165,7 +179,6 @@
 		[Description]		NVARCHAR (2000)  NULL,
 		[Media]				UNIQUEIDENTIFIER NOT NULL,
 		[Series]			UNIQUEIDENTIFIER NULL,
-		[HierarchicalName]	NVARCHAR(4000)	 NULL
 		PRIMARY KEY CLUSTERED ([Id]),
 		CONSTRAINT [FK_Recordings_Media] FOREIGN KEY ([Media]) REFERENCES [Media] ([Id]),
 		CONSTRAINT [FK_Recordings_Series] FOREIGN KEY ([Series]) REFERENCES [Series] ([Id]) ON DELETE SET NULL
@@ -178,10 +191,6 @@
 
 	CREATE NONCLUSTERED INDEX [IX_Recordings_Name]
 		ON [Recordings]([Name]);
-	GO
-
-	CREATE NONCLUSTERED INDEX [IX_Recordings_HierarchicalName]
-		ON [Recordings]([HierarchicalName]);
 	GO
 
 	CREATE NONCLUSTERED INDEX [IX_Recordings_Series]
@@ -205,43 +214,6 @@
 		BEGIN
 			SET NoCount ON
 			DELETE FROM [Media] WHERE NOT ([Id] IN (SELECT [Media] FROM [Recordings]))
-		END
-	GO
-
-	-- Dieser TRIGGER berechnet für alle veränderten Aufzeichnungen den hierarchischen Namen neu
-	CREATE TRIGGER [Recordings_FullName]
-		ON [Recordings]
-		AFTER INSERT, UPDATE
-		AS
-		BEGIN
-			SET NoCount ON			
-
-			UPDATE [Recordings]
-			SET	
-				-- Hat die Aufzeichnung keine Serie, so wird einfach der eigene Name verwendet und ansonsten der Serienname davor gesetzt
-				[Recordings].[HierarchicalName] = 
-					IIF(
-						[Recordings].[Series] IS NULL, 
-						[Recordings].[Name], 
-						CONCAT([SeriesNames].[HierarchicalName], ' > ', [Recordings].[Name]))
-			FROM [Recordings]   		    
-			LEFT OUTER JOIN 
-			(
-				SELECT 
-					[sh].[Child] As [Id], 
-					-- Den Namen der Serie ermitteln wir aus der Serienhierarchie, wobei bei Serien mit übergeordneten Serien dieser Name erst einmal zusammen gesetzt werden muss
-					IIF(
-						[sh].[Parent] IS NULL, 
-						[sh].[RelativeName], 
-						CONCAT((SELECT [s].[Name] FROM [Series] [s] WHERE [s].[Id] = [sh].[Parent]), ' > ', [sh].[RelativeName])) AS [HierarchicalName]
-				FROM 
-					[SeriesHierarchy] [sh]
-				WHERE
-					-- Wichtig ist, dass wir den jeweils letzten Eintrag aus der Hierarchie nehmen, der direkt auf die Wurzelserie zeigt und einen geeignet aufgebauten relativen Namen bereitstellt 
-					[sh].[Depth] = (SELECT MAX([h].[Depth]) FROM [SeriesHierarchy] [h] WHERE ([h].[Child] = [sh].[Child]))
-			) AS [SeriesNames] ON [SeriesNames].[Id] = [Recordings].[Series]			
-			WHERE 
-				[Recordings].[Id] IN (SELECT [Id] FROM INSERTED)
 		END
 	GO
 

@@ -48,7 +48,7 @@ namespace WebApp.UnitTests
 
             Recreate();
 
-            var recover = TestContext.Recordings.Find( recording );
+            var recover = TestContext.Recordings.Include( r => r.Series ).Single( r => r.UniqueIdentifier == recording );
             Assert.AreEqual( "A > B > C > X", recover.FullName, "initial" );
 
             recover.Name = "Y";
@@ -58,7 +58,7 @@ namespace WebApp.UnitTests
 
             Recreate();
 
-            recover = TestContext.Recordings.Find( recording );
+            recover = TestContext.Recordings.Include( r => r.Series ).Single( r => r.UniqueIdentifier == recording );
             Assert.AreEqual( "A > B > C > Y", recover.FullName, "title" );
 
             TestContext.Series.Find( series2 ).Name = "M";
@@ -68,7 +68,7 @@ namespace WebApp.UnitTests
 
             Recreate();
 
-            recover = TestContext.Recordings.Find( recording );
+            recover = TestContext.Recordings.Include( r => r.Series ).Single( r => r.UniqueIdentifier == recording );
             Assert.AreEqual( "A > M > C > Y", recover.FullName, "middle" );
 
             TestContext.Series.Find( series3 ).Name = "N";
@@ -78,9 +78,9 @@ namespace WebApp.UnitTests
 
             Recreate();
 
-            recover = TestContext.Recordings.Find( recording );
+            recover = TestContext.Recordings.Include( r => r.Series ).Single( r => r.UniqueIdentifier == recording );
             Assert.AreEqual( "A > M > N > Y", recover.FullName, "inner" );
-            
+
             TestContext.Series.Find( series1 ).Name = "O";
 
             // Die äußere Serie wurde umbenannt
@@ -88,7 +88,7 @@ namespace WebApp.UnitTests
 
             Recreate();
 
-            recover = TestContext.Recordings.Find( recording );
+            recover = TestContext.Recordings.Include( r => r.Series ).Single( r => r.UniqueIdentifier == recording );
             Assert.AreEqual( "O > M > N > Y", recover.FullName, "outer" );
 
             TestContext.Entry( new Series { UniqueIdentifier = series2 } ).State = EntityState.Deleted;
@@ -98,8 +98,10 @@ namespace WebApp.UnitTests
 
             Recreate();
 
-            recover = TestContext.Recordings.Find( recording );
+            recover = TestContext.Recordings.Include( r => r.Series ).Single( r => r.UniqueIdentifier == recording );
             Assert.AreEqual( "N > Y", recover.FullName, "remove middle" );
+
+            Recreate();
 
             TestContext.Entry( new Series { UniqueIdentifier = series3 } ).State = EntityState.Deleted;
 
@@ -108,7 +110,7 @@ namespace WebApp.UnitTests
 
             Recreate();
 
-            recover = TestContext.Recordings.Find( recording );
+            recover = TestContext.Recordings.Include( r => r.Series ).Single( r => r.UniqueIdentifier == recording );
             Assert.AreEqual( "Y", recover.FullName, "remove direct" );
 
             recover.Name = "Z";
@@ -119,17 +121,17 @@ namespace WebApp.UnitTests
 
             Recreate();
 
-            recover = TestContext.Recordings.Find( recording );
+            recover = TestContext.Recordings.Include( r => r.Series ).Single( r => r.UniqueIdentifier == recording );
             Assert.AreEqual( "O > Z", recover.FullName, "reconnect" );
 
             recover.SeriesIdentifier = null;
- 
+
             // Die Aufzeichnung wurde von der Serie gelöst
             TestContext.SaveChanges();
 
             Recreate();
 
-            recover = TestContext.Recordings.Find( recording );
+            recover = TestContext.Recordings.Include( r => r.Series ).Single( r => r.UniqueIdentifier == recording );
             Assert.AreEqual( "Z", recover.FullName, "disconnect" );
         }
 
