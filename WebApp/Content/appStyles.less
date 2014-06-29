@@ -89,68 +89,6 @@ body {
     }
 }
 
-.textfilter {
-    span:first-child {
-        font-weight: bold;
-    }
-
-    .ui-button-text {
-        font-size: small;
-    }
-
-    .queryToEditButtons {
-        margin-bottom: 5px;
-        float: right;
-    }
-}
-
-.recordingTable {
-    table {
-        padding: 5px;
-        width: 100%;
-    }
-
-    td {
-        padding: 2px 6px 0px 4px;
-    }
-
-    thead {
-        font-weight: bold;
-        background-color: #c0c0c0;
-
-        .nameColumn {
-            width: 40%;
-        }
-
-        .dateColumn {
-            width: 9em;
-        }
-    }
-
-    tbody {
-        td {
-            vertical-align: top;
-        }
-
-        tr:nth-child(even) {
-            background: #c0c0c0;
-        }
-
-        tr:nth-child(odd) {
-            background: #e0e0e0;
-        }
-
-        a {
-            text-decoration: none;
-            color: black;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-    }
-}
-
 .containerChildren, .containerRecordings {
     .ui-accordion-header {
         font-size: small;
@@ -170,3 +108,61 @@ body {
         padding-right: 10px;
     }
 }
+
+// Die Tabelle mit den zur Suche passenden Aufzeichnungen
+.recordingTable {
+    // Die Tabelle selbst nimmt die volle Breite ein
+    table {
+        padding: 5px;
+        width: 100%;
+    }
+
+    // Die einzelnen Zellen sind nur einseitig mit Leerraum bestückt
+    td {
+        padding: 2px 6px 0px 4px;
+    }
+
+    // Die Kopfzeile mit den Spaltennamen wollen wir etwas hervorheben
+    thead {
+        font-weight: bold;
+        background-color: #c0c0c0;
+
+        // Dem eigentlichen Name (mit Serienname) der Aufzeichnung spendieren wird 40% der gesamten Breite
+        .nameColumn {
+            width: 40%;
+        }
+
+        // Hier muss einfach nur das Datum mit Uhrzeit vollständig passen
+        .dateColumn {
+            width: 9em;
+        }
+    }
+
+    tbody {
+        // Zellinhalte werden nicht vertikal zentriert, selbst wenn die Zeilenhöhe angepasst wird
+        td {
+            vertical-align: top;
+        }
+
+        // Die bekannte odd/even Einfärbung der Zeilen
+        tr:nth-child(even) {
+            background: #c0c0c0;
+        }
+
+        tr:nth-child(odd) {
+            background: #e0e0e0;
+        }
+
+        // Das die Namen der Aufzeichnungen Verweise zum Ändern sind interessiert erst einmal nicht ...
+        a {
+            text-decoration: none;
+            color: black;
+        }
+
+        // ... es sein denn, man fährt mit der Maus darüber
+        a:hover {
+            text-decoration: underline;
+        }
+    }
+}
+

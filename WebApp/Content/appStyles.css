@@ -60,6 +60,16 @@
 .treeItem.nodeSelected {
   background-color: #1e90ff;
 }
+.textfilter span:first-child {
+  font-weight: bold;
+}
+.textfilter .ui-button-text {
+  font-size: small;
+}
+.textfilter .queryToEditButtons {
+  margin-bottom: 5px;
+  float: right;
+}
 .editNavigation {
   margin-top: 10px;
 }
@@ -177,15 +187,23 @@ body {
 .pageSize .ui-button-text {
   font-size: small;
 }
-.textfilter span:first-child {
-  font-weight: bold;
-}
-.textfilter .ui-button-text {
+.containerChildren .ui-accordion-header,
+.containerRecordings .ui-accordion-header {
   font-size: small;
 }
-.textfilter .queryToEditButtons {
-  margin-bottom: 5px;
-  float: right;
+.containerChildren .ui-accordion-content,
+.containerRecordings .ui-accordion-content {
+  margin-left: 10px;
+  padding: 0px;
+  font-size: small;
+}
+.containerChildren thead,
+.containerRecordings thead {
+  font-weight: bold;
+}
+.containerChildren td,
+.containerRecordings td {
+  padding-right: 10px;
 }
 .recordingTable table {
   padding: 5px;
@@ -219,23 +237,5 @@ body {
 }
 .recordingTable tbody a:hover {
   text-decoration: underline;
-}
-.containerChildren .ui-accordion-header,
-.containerRecordings .ui-accordion-header {
-  font-size: small;
-}
-.containerChildren .ui-accordion-content,
-.containerRecordings .ui-accordion-content {
-  margin-left: 10px;
-  padding: 0px;
-  font-size: small;
-}
-.containerChildren thead,
-.containerRecordings thead {
-  font-weight: bold;
-}
-.containerChildren td,
-.containerRecordings td {
-  padding-right: 10px;
 }
 /*# sourceMappingURL=appStyles.css.map */

@@ -38,15 +38,16 @@ namespace WebApp.DTO
         /// Erstellt eine neue Beschreibung.
         /// </summary>
         /// <param name="series">Die Entität aus der Datenbank.</param>
+        /// <param name="getFullName">Ermittelt den vollständigen (hierarchichen) Namen einer Serie.</param>
         /// <returns>Die gewünschte Beschreibung.</returns>
-        public static SeriesDescription Create( Models.Series series )
+        public static SeriesDescription Create( Models.Series series, Func<Guid, string> getFullName )
         {
             return
                 new SeriesDescription
                 {
+                    FullName = getFullName( series.UniqueIdentifier ),
                     ParentIdentifier = series.ParentIdentifier,
                     UniqueIdentifier = series.UniqueIdentifier,
-                    FullName = series.FullName,
                     Name = series.Name,
                 };
         }

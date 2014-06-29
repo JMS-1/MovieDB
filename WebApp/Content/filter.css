@@ -60,4 +60,14 @@
 .treeItem.nodeSelected {
   background-color: #1e90ff;
 }
+.textfilter span:first-child {
+  font-weight: bold;
+}
+.textfilter .ui-button-text {
+  font-size: small;
+}
+.textfilter .queryToEditButtons {
+  margin-bottom: 5px;
+  float: right;
+}
 /*# sourceMappingURL=filter.css.map */
