@@ -18,7 +18,7 @@ var RecordingFilter = (function () {
         // Hiermit stellen wir sicher, dass ein nervös klickender Anwender immer nur das letzte Suchergebnis bekommt
         this.pending = 0;
         // Gesetzt, wenn keine automatische Suche ausgelöst werden soll
-        this.disallowQuery = false;
+        this.disallowQuery = 0;
         // Die Anzahl der Ergebnisse pro Seite
         this.size = new Model(15);
         // Die aktuelle Seite
@@ -48,7 +48,7 @@ var RecordingFilter = (function () {
     }
     // Setzt die Suchbedingung und die zugehörigen Oberflächenelemente auf den Grundzustand zurück und fordert ein neues Suchergebnis an
     RecordingFilter.prototype.reset = function (query) {
-        this.disallowQuery = true;
+        this.disallowQuery += 1;
         try  {
             this.languageController.model.val(null);
             this.seriesController.model.val(null);
@@ -57,7 +57,7 @@ var RecordingFilter = (function () {
             this.genreController.model.val([]);
             this.page.val(0);
         } finally {
-            this.disallowQuery = false;
+            this.disallowQuery -= 1;
         }
 
         if (query)
@@ -69,15 +69,15 @@ var RecordingFilter = (function () {
         var _this = this;
         if (typeof resetPage === "undefined") { resetPage = false; }
         if (resetPage) {
-            this.disallowQuery = true;
+            this.disallowQuery += 1;
             try  {
                 this.page.val(0);
             } finally {
-                this.disallowQuery = false;
+                this.disallowQuery -= 1;
             }
         }
 
-        if (this.disallowQuery)
+        if (this.disallowQuery > 0)
             return;
 
         this.textController.stop();

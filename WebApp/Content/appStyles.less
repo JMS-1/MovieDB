@@ -1,10 +1,12 @@
 ﻿@import "filter.less";
 @import "edit.less";
 
+// Wir nehmen als Hintergrundfarbe ein sehr helles Grau
 body {
     background-color: #f8f8f8;
 }
 
+// Wir möchten nicht, dass auf den verwendeten Aufklappbereichen eine Auswahl durch den Anwender möglich ist - das sieht einfach eigenartig aus
 .ui-accordion-header {
     -moz-user-select: none;
     -ms-user-select: none;
@@ -12,27 +14,29 @@ body {
     user-select: none;
 }
 
+// Wie auch schon in VCR.NET arbeiten wir hier verstärkt mit dem Ausblenden von Elementen
+.invisible {
+    display: none;
+}
+
+// Die Hauptüberschrift positioniert sich direkt über die Zusammenfassung des Suchergebnisses
 #headline {
     margin-bottom: -0.7em;
 }
 
-#countline {
-}
-
+// Auch für die Zusammenfassung des Suchergebnisses gibt es noch etwas Feintuning
 #countInfo {
     margin-left: 1em;
     margin-top: -1em;
 }
 
-.invisible {
-    display: none;
+// Die Aktivitätsanzeige kommt immer ganz unscheinbar nach rechts aussen
+#busyIndicator {
+    float: right;
 }
 
 #queryMode {
     padding: 5px;
-}
-
-.filterArea {
 }
 
 .pageButtons {
@@ -50,10 +54,6 @@ body {
 .sortIndicator {
     float: left;
     margin-left: -0.1em;
-}
-
-#busyIndicator {
-    float: right;
 }
 
 .dialog {
@@ -79,9 +79,6 @@ body {
 .deleteConfirm {
     border: 2px solid red;
     color: red !important;
-}
-
-.descriptionEdit {
 }
 
 .pageSize {

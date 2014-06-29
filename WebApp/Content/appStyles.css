@@ -123,6 +123,9 @@ body {
   -webkit-user-select: none;
   user-select: none;
 }
+.invisible {
+  display: none;
+}
 #headline {
   margin-bottom: -0.7em;
 }
@@ -130,8 +133,8 @@ body {
   margin-left: 1em;
   margin-top: -1em;
 }
-.invisible {
-  display: none;
+#busyIndicator {
+  float: right;
 }
 #queryMode {
   padding: 5px;
@@ -148,9 +151,6 @@ body {
 .sortIndicator {
   float: left;
   margin-left: -0.1em;
-}
-#busyIndicator {
-  float: right;
 }
 .dialog {
   background-color: whitesmoke !important;

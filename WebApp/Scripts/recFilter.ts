@@ -64,7 +64,7 @@ class RecordingFilter {
     private seriesLookup: (series: string) => ISeriesMapping;
 
     // Gesetzt, wenn keine automatische Suche ausgelöst werden soll
-    private disallowQuery: boolean = false;
+    private disallowQuery = 0;
 
     // Die Anzahl der Ergebnisse pro Seite
     size = new Model<number>(15);
@@ -80,7 +80,7 @@ class RecordingFilter {
 
     // Setzt die Suchbedingung und die zugehörigen Oberflächenelemente auf den Grundzustand zurück und fordert ein neues Suchergebnis an
     reset(query: boolean): void {
-        this.disallowQuery = true;
+        this.disallowQuery += 1;
         try {
             this.languageController.model.val(null);
             this.seriesController.model.val(null);
@@ -90,7 +90,7 @@ class RecordingFilter {
             this.page.val(0);
         }
         finally {
-            this.disallowQuery = false;
+            this.disallowQuery -= 1;
         }
 
         if (query)
@@ -100,15 +100,15 @@ class RecordingFilter {
     // Führt eine Suche mit der aktuellen Einschränkung aus
     query(resetPage: boolean = false): void {
         if (resetPage) {
-            this.disallowQuery = true;
+            this.disallowQuery += 1;
             try {
                 this.page.val(0);
             } finally {
-                this.disallowQuery = false;
+                this.disallowQuery -= 1;
             }
         }
 
-        if (this.disallowQuery)
+        if (this.disallowQuery > 0)
             return;
 
         this.textController.stop();

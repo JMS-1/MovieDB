@@ -116,17 +116,17 @@ namespace WebApp.DTO
         {
             // Validate parameters
             if (PageSize < 1)
-                throw new InvalidOperationException( Resources.MovieDBStrings.Exception_BadPageSize );
+                throw new InvalidOperationException( "Die Anzahl der Ergebnisse einer Suche muss zwischen 1 und 250 liegen (jeweils einschließlich)." );
             if (PageSize > 250)
-                throw new InvalidOperationException( Resources.MovieDBStrings.Exception_BadPageSize );
+                throw new InvalidOperationException( "Die Anzahl der Ergebnisse einer Suche muss zwischen 1 und 250 liegen (jeweils einschließlich)." );
             if (PageIndex < 0)
-                throw new InvalidOperationException( Resources.MovieDBStrings.Exception_BadPageIndex );
+                throw new InvalidOperationException( "Die Nummer der Ergebnisseite darf nicht negativ sein." );
             if (!Enum.IsDefined( typeof( SearchRequestOrderBy ), OrderBy ))
-                throw new InvalidOperationException( Resources.MovieDBStrings.Exception_BadProperty );
+                throw new InvalidOperationException( "Nach der Eigenschaft kann nicht sortiert werden." );
 
             // Full check against limit
             if ((RawOffset + PageSize) > int.MaxValue)
-                throw new InvalidOperationException( Resources.MovieDBStrings.Exception_BadPageIndex );
+                throw new InvalidOperationException( "Die Nummer der Ergebnisseite darf nicht negativ sein." );
         }
     }
 

@@ -206,11 +206,6 @@
     <Compile Include="DAL\Legacy\MovieDBMediaTypes.cs" />
     <Compile Include="DAL\Legacy\MovieDBRecording.cs" />
     <Compile Include="DAL\Legacy\MovieDBSeries.cs" />
-    <Compile Include="App_GlobalResources\MovieDBStrings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MovieDBStrings.resx</DependentUpon>
-    </Compile>
     <Compile Include="App_Start\GlobalStartupCode.cs" />
     <Compile Include="Controllers\ApplicationController.cs" />
     <Compile Include="Controllers\MovieController.cs" />
@@ -305,12 +300,6 @@
     <TypeScriptCompile Include="Scripts\views.ts" />
     <Content Include="Scripts\views.js">
       <DependentUpon>views.ts</DependentUpon>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="App_GlobalResources\MovieDBStrings.resx">
-      <Generator>GlobalResourceProxyGenerator</Generator>
-      <LastGenOutput>MovieDBStrings.Designer.cs</LastGenOutput>
     </Content>
   </ItemGroup>
   <PropertyGroup>
