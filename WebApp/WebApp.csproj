@@ -185,6 +185,7 @@
     <Content Include="Content\edit.css.map">
       <DependentUpon>edit.css</DependentUpon>
     </Content>
+    <None Include="Properties\PublishProfiles\Local Web Server.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
@@ -251,9 +252,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\PublishProfiles\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\appCode.ts" />
     <Content Include="Scripts\appCode.js">
