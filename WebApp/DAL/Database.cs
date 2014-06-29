@@ -36,7 +36,8 @@ namespace WebApp.DAL
             Configuration.LazyLoadingEnabled = false;
 
             // Only executed when compiled in DEBUG mode
-            RegisterLogger();
+            if (Debugger.IsAttached)
+                RegisterLogger();
         }
 
         /// <summary>

@@ -174,3 +174,4 @@ UpgradeLog*.htm
 FakesAssemblies/
 
 /WebApp.UnitTests/Files/SampleDatabase.zip
+*.pubxml

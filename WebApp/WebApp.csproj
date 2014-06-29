@@ -185,6 +185,7 @@
     <Content Include="Content\edit.css.map">
       <DependentUpon>edit.css</DependentUpon>
     </Content>
+    <None Include="Properties\PublishProfiles\Local Web Server.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
