@@ -29,6 +29,13 @@ namespace WebApp.Models
         public string Name { get; set; }
 
         /// <summary>
+        /// Der volle Name der aufgezeichneten Sendung.
+        /// </summary>
+        [Column( "HierarchicalName" )]
+        [DatabaseGenerated( DatabaseGeneratedOption.Computed )]
+        public string FullName { get; set; }
+
+        /// <summary>
         /// Der Name des Entleihers.
         /// </summary>
         [StringLength( 200 )]
@@ -102,21 +109,6 @@ namespace WebApp.Models
         /// Alle Verweise.
         /// </summary>
         public virtual ICollection<Link> Links { get; set; }
-
-        /// <summary>
-        /// Meldet den hierarchischen Namen dieser Aufzeichnung
-        /// </summary>
-        public string FullName
-        {
-            get
-            {
-                var series = Series;
-                if (series == null)
-                    return Name;
-                else
-                    return string.Format( "{0} {1} {2}", series.FullName, Series.JoinCharacter, Name );
-            }
-        }
 
         /// <summary>
         /// Wird beim Anlegen des Datenbankmodells aufgerufen.

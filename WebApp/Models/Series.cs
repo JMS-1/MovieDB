@@ -38,13 +38,6 @@ namespace WebApp.Models
         public string Name { get; set; }
 
         /// <summary>
-        /// Der volle Name der aufgezeichneten Sendung.
-        /// </summary>
-        [Column( "FullName" )]
-        [DatabaseGenerated( DatabaseGeneratedOption.Computed )]
-        public string FullName { get; set; }
-
-        /// <summary>
         /// Die Beschreibung der Serie.
         /// </summary>
         [StringLength( 2000 )]
@@ -66,6 +59,21 @@ namespace WebApp.Models
         /// Alle Verweise.
         /// </summary>
         public virtual ICollection<Link> Links { get; set; }
+
+        /// <summary>
+        /// Meldet den vollen Namen der Serie.
+        /// </summary>
+        public string FullName
+        {
+            get
+            {
+                var parent = ParentSeries;
+                if (parent == null)
+                    return Name;
+                else
+                    return string.Format( "{0} {1} {2}", parent.FullName, JoinCharacter, Name );
+            }
+        }
 
         /// <summary>
         /// Erstellt eine neue Serie.

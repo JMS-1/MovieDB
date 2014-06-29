@@ -168,7 +168,7 @@ namespace WebApp.DTO
 
             // Free text
             if (!string.IsNullOrEmpty( request.Text ))
-                recordings = recordings.Where( r => r.Series.FullName.Contains( request.Text ) || r.Name.Contains( request.Text ) );
+                recordings = recordings.Where( r => r.FullName.Contains( request.Text ) );
 
             // Language statistics is made just prior to setting the language because currently only one language may be choosen
             response.LanguageStatistics =
@@ -179,7 +179,7 @@ namespace WebApp.DTO
                     .ToArray();
 
             // Apply language filter
-            if (request.RequiredLanguage.HasValue)
+            if ( request.RequiredLanguage .HasValue)
                 recordings = recordings.Where( r => r.Languages.Any( l => l.UniqueIdentifier == request.RequiredLanguage.Value ) );
 
             // Check counter after filter is applied but bevore we start restricting
@@ -198,9 +198,9 @@ namespace WebApp.DTO
             {
                 case SearchRequestOrderBy.HierarchicalName:
                     if (request.SortAscending)
-                        recordings = recordings.OrderBy( recording => recording.Series.FullName ).ThenBy( recording => recording.Name );
+                        recordings = recordings.OrderBy( recording => recording.FullName );
                     else
-                        recordings = recordings.OrderByDescending( recording => recording.Series.FullName ).ThenByDescending( recording => recording.Name );
+                        recordings = recordings.OrderByDescending( recording => recording.FullName );
                     break;
 
                 case SearchRequestOrderBy.Created:

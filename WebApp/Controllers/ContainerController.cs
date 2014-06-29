@@ -41,10 +41,8 @@ namespace WebApp.Controllers
                 Database
                     .Recordings
                     .Include( r => r.Store )
-                    .Include( r => r.Series )
                     .Where( r => r.Store.ContainerIdentifier == container.UniqueIdentifier )
-                    .OrderBy( r => r.Series.FullName )
-                    .ThenBy( r => r.Name );
+                    .OrderBy( r => r.FullName );
 
             // Construct
             return ContainerEditInfo.Create( container, children, recordings );
