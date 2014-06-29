@@ -17,19 +17,18 @@
   min-width: 10em;
   vertical-align: top;
 }
-.genreEdit .ui-button:not(.openGenreEditDialog) {
+.genreEdit .ui-button:not(.openEditDialog),
+.languageEdit .ui-button:not(.openEditDialog) {
   margin: 2px 4px 2px 0px;
   min-width: 10em;
 }
-.genreEdit .ui-button-text {
-  font-size: small;
-}
-.languageEdit .ui-button:not(.openLanguageEditDialog) {
-  margin: 2px 4px 2px 0px;
-  min-width: 10em;
-}
+.genreEdit .ui-button-text,
 .languageEdit .ui-button-text {
   font-size: small;
+}
+.genreEdit .ui-state-active,
+.languageEdit .ui-state-active {
+  font-weight: bold;
 }
 .seriesEdit .ui-button-text {
   font-size: small;

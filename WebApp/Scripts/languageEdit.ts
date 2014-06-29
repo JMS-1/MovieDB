@@ -1,4 +1,5 @@
 ﻿
+// Pflegt die Vorgabeliste der Sprachen
 class LanguageEditor extends SuggestionListEditor<ILanguageEditInfoContract, ILanguageContract> {
 
     constructor(openButtonSelector: string, reloadApplicationData: () => void) {

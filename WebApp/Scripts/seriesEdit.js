@@ -1,4 +1,5 @@
-﻿var SeriesEditor = (function () {
+﻿// Der Dialog zum Pflegen der Serien
+var SeriesEditor = (function () {
     function SeriesEditor(openButtonSelector, reloadApplicationData, getChildren) {
         var _this = this;
         this.seriesIdentifier = null;

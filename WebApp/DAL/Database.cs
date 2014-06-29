@@ -32,8 +32,10 @@ namespace WebApp.DAL
         public Database()
             : base( _DatabaseConnectionString )
         {
+            // Enforce full control on SQL commands
             Configuration.LazyLoadingEnabled = false;
 
+            // Only executed when compiled in DEBUG mode
             RegisterLogger();
         }
 
@@ -45,6 +47,7 @@ namespace WebApp.DAL
         /// <returns>Das Ergebnis der Prüfung.</returns>
         protected override DbEntityValidationResult ValidateEntity( DbEntityEntry entityEntry, IDictionary<object, object> items )
         {
+            // Links must be numbered
             var linkHolder = entityEntry.Entity as ILinkHolder;
             if (linkHolder != null)
             {
@@ -73,7 +76,7 @@ namespace WebApp.DAL
         private static string _DatabaseConnectionString;
 
         /// <summary>
-        /// Zum Zugriff über den SQL Server.
+        /// Zum Zugriff über den SQL Server - zurzeit gekoppelt an SQL Express 2014ff
         /// </summary>
         private const string _LocalDb = @"Data Source=(LocalDB)\MSSQLLocalDB;Integrated Security=True";
 
@@ -127,6 +130,7 @@ namespace WebApp.DAL
         /// <param name="modelBuilder">Die Feinsteuerung der Modellerzeugung.</param>
         protected override void OnModelCreating( DbModelBuilder modelBuilder )
         {
+            // Each type of entity gets the chance to fine tune its behaviour
             Models.Series.BuildModel( modelBuilder );
             Recording.BuildModel( modelBuilder );
             Container.BuildModel( modelBuilder );

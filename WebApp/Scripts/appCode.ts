@@ -5,24 +5,6 @@ module MovieDatabase {
         series: ISeriesMapping[];
     };
 
-    class DateTimeTools {
-        private static toNumber(val: number): string {
-            if (val < 10)
-                return '0' + val.toString();
-            else
-                return val.toString();
-        }
-
-        static toStandard(dateTime: Date): string {
-            return DateTimeTools.toNumber(dateTime.getDate()) + '.' +
-                DateTimeTools.toNumber(1 + dateTime.getMonth()) + '.' +
-                dateTime.getFullYear().toString() + ' ' +
-                DateTimeTools.toNumber(dateTime.getHours()) + ':' +
-                DateTimeTools.toNumber(dateTime.getMinutes()) + ':' +
-                DateTimeTools.toNumber(dateTime.getSeconds());
-        }
-    }
-
     class Application {
         constructor() {
             $(() => this.startup());
@@ -249,7 +231,7 @@ module MovieDatabase {
                 var recordingRow = $('<tr></tr>').appendTo(tableBody);
 
                 $('<a />', { text: recording.hierarchicalName, href: '#' + recording.id }).appendTo($('<td class="nameColumn"/>').appendTo(recordingRow));
-                $('<td class="dateColumn"/>').appendTo(recordingRow).text(DateTimeTools.toStandard(recording.created));
+                $('<td class="dateColumn"/>').appendTo(recordingRow).text(Tools.toFullDateWithTime(recording.created));
                 $('<td class="languageColumn"/>').appendTo(recordingRow).text($.map(recording.languages, language => this.allLanguages[language] || language).join('; '));
                 $('<td class="genreColumn"/>').appendTo(recordingRow).text($.map(recording.genres, genre=> this.allGenres[genre] || genre).join('; '));
                 $('<td class="rentColumn"/>').appendTo(recordingRow).text(recording.rent);
@@ -370,15 +352,20 @@ module MovieDatabase {
 
             $('.navigationButton, .editButton').button();
 
-            $('#gotoQuery').click(() => window.location.hash = '');
             $('#newRecording').click(() => window.location.hash = 'new');
+            $('#gotoQuery').click(() => this.backToQuery());
 
             this.deleteRecording = new DeleteButton(RecordingEditor.deleteButton(), () => this.currentRecording.remove(() => this.backToQuery()));
 
-            RecordingEditor.saveAndNewButton().click(() => this.currentRecording.save(() => window.location.hash = 'new'));
-            RecordingEditor.saveAndCloneButton().click(() => this.currentRecording.save(() => this.cloneRecording()));
             RecordingEditor.saveButton().click(() => this.currentRecording.save(() => this.backToQuery()));
             RecordingEditor.cloneButton().click(() => this.cloneRecording());
+            RecordingEditor.saveAndCloneButton().click(() => this.currentRecording.save(() => this.cloneRecording()));
+            RecordingEditor.saveAndNewButton().click(() => this.currentRecording.save(() => {
+                if (window.location.hash == '#new')
+                    this.setMode();
+                else
+                    window.location.hash = 'new';
+            }));
 
             RecordingEditor.titleField().on('change', validateRecordingEditForm);
             RecordingEditor.titleField().on('input', validateRecordingEditForm);

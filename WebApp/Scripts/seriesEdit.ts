@@ -1,4 +1,5 @@
 ﻿
+// Der Dialog zum Pflegen der Serien
 class SeriesEditor {
     constructor(openButtonSelector: string, reloadApplicationData: () => void, getChildren: (series: string) => ISeriesMappingContract[]) {
         this.reload = reloadApplicationData;

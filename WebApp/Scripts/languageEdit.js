@@ -4,6 +4,7 @@
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+// Pflegt die Vorgabeliste der Sprachen
 var LanguageEditor = (function (_super) {
     __extends(LanguageEditor, _super);
     function LanguageEditor(openButtonSelector, reloadApplicationData) {

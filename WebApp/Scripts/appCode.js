@@ -2,22 +2,6 @@
 (function (MovieDatabase) {
     ;
 
-    var DateTimeTools = (function () {
-        function DateTimeTools() {
-        }
-        DateTimeTools.toNumber = function (val) {
-            if (val < 10)
-                return '0' + val.toString();
-            else
-                return val.toString();
-        };
-
-        DateTimeTools.toStandard = function (dateTime) {
-            return DateTimeTools.toNumber(dateTime.getDate()) + '.' + DateTimeTools.toNumber(1 + dateTime.getMonth()) + '.' + dateTime.getFullYear().toString() + ' ' + DateTimeTools.toNumber(dateTime.getHours()) + ':' + DateTimeTools.toNumber(dateTime.getMinutes()) + ':' + DateTimeTools.toNumber(dateTime.getSeconds());
-        };
-        return DateTimeTools;
-    })();
-
     var Application = (function () {
         function Application() {
             var _this = this;
@@ -231,7 +215,7 @@
                 var recordingRow = $('<tr></tr>').appendTo(tableBody);
 
                 $('<a />', { text: recording.hierarchicalName, href: '#' + recording.id }).appendTo($('<td class="nameColumn"/>').appendTo(recordingRow));
-                $('<td class="dateColumn"/>').appendTo(recordingRow).text(DateTimeTools.toStandard(recording.created));
+                $('<td class="dateColumn"/>').appendTo(recordingRow).text(Tools.toFullDateWithTime(recording.created));
                 $('<td class="languageColumn"/>').appendTo(recordingRow).text($.map(recording.languages, function (language) {
                     return _this.allLanguages[language] || language;
                 }).join('; '));
@@ -389,11 +373,11 @@
 
             $('.navigationButton, .editButton').button();
 
-            $('#gotoQuery').click(function () {
-                return window.location.hash = '';
-            });
             $('#newRecording').click(function () {
                 return window.location.hash = 'new';
+            });
+            $('#gotoQuery').click(function () {
+                return _this.backToQuery();
             });
 
             this.deleteRecording = new DeleteButton(RecordingEditor.deleteButton(), function () {
@@ -402,16 +386,6 @@
                 });
             });
 
-            RecordingEditor.saveAndNewButton().click(function () {
-                return _this.currentRecording.save(function () {
-                    return window.location.hash = 'new';
-                });
-            });
-            RecordingEditor.saveAndCloneButton().click(function () {
-                return _this.currentRecording.save(function () {
-                    return _this.cloneRecording();
-                });
-            });
             RecordingEditor.saveButton().click(function () {
                 return _this.currentRecording.save(function () {
                     return _this.backToQuery();
@@ -419,6 +393,19 @@
             });
             RecordingEditor.cloneButton().click(function () {
                 return _this.cloneRecording();
+            });
+            RecordingEditor.saveAndCloneButton().click(function () {
+                return _this.currentRecording.save(function () {
+                    return _this.cloneRecording();
+                });
+            });
+            RecordingEditor.saveAndNewButton().click(function () {
+                return _this.currentRecording.save(function () {
+                    if (window.location.hash == '#new')
+                        _this.setMode();
+                    else
+                        window.location.hash = 'new';
+                });
             });
 
             RecordingEditor.titleField().on('change', validateRecordingEditForm);

@@ -17,7 +17,7 @@
         }
     }
 
-    fieldset{
+    fieldset {
         padding: 10px;
     }
 }
@@ -27,8 +27,8 @@
     vertical-align: top;
 }
 
-.genreEdit {
-    .ui-button:not(.openGenreEditDialog) {
+.genreEdit, .languageEdit {
+    .ui-button:not(.openEditDialog) {
         margin: 2px 4px 2px 0px;
         min-width: 10em;
     }
@@ -36,16 +36,9 @@
     .ui-button-text {
         font-size: small;
     }
-}
 
-.languageEdit {
-    .ui-button:not(.openLanguageEditDialog) {
-        margin: 2px 4px 2px 0px;
-        min-width: 10em;
-    }
-
-    .ui-button-text {
-        font-size: small;
+    .ui-state-active {
+        font-weight: bold;
     }
 }
 

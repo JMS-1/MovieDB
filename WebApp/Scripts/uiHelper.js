@@ -106,6 +106,16 @@ var Tools = (function () {
             modal: true
         });
     };
+
+    // Erstellt das Standardeinzeigeformat für ein Datum mit Uhrzeit.
+    Tools.toFullDateWithTime = function (dateTime) {
+        // Eine zweistellig Zahl erzeugen
+        var formatNumber = function (val) {
+            return (val < 10) ? ('0' + val.toString()) : val.toString();
+        };
+
+        return formatNumber(dateTime.getDate()) + '.' + formatNumber(1 + dateTime.getMonth()) + '.' + dateTime.getFullYear().toString() + ' ' + formatNumber(dateTime.getHours()) + ':' + formatNumber(dateTime.getMinutes()) + ':' + formatNumber(dateTime.getSeconds());
+    };
     return Tools;
 })();
 
@@ -282,9 +292,9 @@ var SuggestionListEditor = (function () {
                     return;
 
                 _this.identifier = info.id;
-
                 _this.nameField().val(info.name);
 
+                // Einträge der Voschlaglisten dürfen nur gelöscht werden, wenn sie nicht in Verwendung sind
                 if (info.unused)
                     _this.confirmedDelete.enable();
 
@@ -301,13 +311,10 @@ var SuggestionListEditor = (function () {
         if (this.identifier.length < 1)
             return;
 
-        $.ajax('movie/' + this.controllerName() + '/' + this.identifier, {
-            type: 'DELETE'
-        }).done(function () {
+        $.ajax('movie/' + this.controllerName() + '/' + this.identifier, { type: 'DELETE' }).done(function () {
             return _this.restart();
         }).fail(function () {
-            // Bei der Fehlerbehandlung ist noch Potential
-            alert('Da ist leider etwas schief gegangen');
+            return alert('Da ist leider etwas schief gegangen');
         });
     };
 
@@ -333,8 +340,7 @@ var SuggestionListEditor = (function () {
         }).done(function () {
             return _this.restart();
         }).fail(function () {
-            // Bei der Fehlerbehandlung ist noch Potential
-            alert('Da ist leider etwas schief gegangen');
+            return alert('Da ist leider etwas schief gegangen');
         });
     };
 
@@ -373,6 +379,8 @@ var SuggestionListEditor = (function () {
     return SuggestionListEditor;
 })();
 
+// Beim Löschen verzichten wir auf eine explizite Rückfrage sondern erzwingen einfach das
+// doppelte Betätigung der Schaltfläche nach einem visuellen Feedback mit dem ersten Drücken.
 var DeleteButton = (function () {
     function DeleteButton(button, process) {
         var _this = this;

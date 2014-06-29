@@ -1,15 +1,10 @@
 ﻿
+// Der Dialog zum Pflegen einer Aufzeichnung - diese Instanzen werden für jeden Änderungsvorgang neu erzeugt
 class RecordingEditor {
     constructor(recording: IRecordingEditContract, genreEditor: MultiValueEditor<IGenreContract>, languageEditor: MultiValueEditor<ILanguageContract>) {
         this.languageEditor = languageEditor;
         this.genreEditor = genreEditor;
 
-        this.initialize(recording);
-
-        $('#editRecordingMode').removeClass(Styles.invisble);
-    }
-
-    private initialize(recording: IRecordingEditContract) {
         if (recording == null) {
             this.identifier = null;
             RecordingEditor.descriptionField().val('');
@@ -37,6 +32,8 @@ class RecordingEditor {
         }
 
         this.validate();
+
+        $('#editRecordingMode').removeClass(Styles.invisble);
     }
 
     private genreEditor: MultiValueEditor<IGenreContract>;
@@ -102,7 +99,7 @@ class RecordingEditor {
     }
 
     save(success: () => void): void {
-        var newData = this.createContract();
+        var newData = this.viewToModel();
 
         if (!this.validate(newData))
             return;
@@ -111,34 +108,26 @@ class RecordingEditor {
         if (this.identifier != null)
             url += '/' + this.identifier;
 
-        $
-            .ajax(url, {
-                type: (this.identifier == null) ? 'POST' : 'PUT',
-                contentType: 'application/json; charset=utf-8',
-                data: JSON.stringify(newData),
-            })
+        $.ajax(url, {
+            type: (this.identifier == null) ? 'POST' : 'PUT',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(newData),
+        })
             .done(success)
-            .fail(() => {
-                // Bei der Fehlerbehandlung ist noch Potential
-                alert('Da ist leider etwas schief gegangen');
-            });
+            .fail(() => alert('Da ist leider etwas schief gegangen'));
     }
 
     remove(success: () => void): void {
         if (this.identifier == null)
             return;
 
-        $
-            .ajax('movie/db/' + this.identifier, {
-                type: 'DELETE',
-            })
+        $.ajax('movie/db/' + this.identifier, { type: 'DELETE' })
             .done(success)
-            .fail(() => {
-                // Bei der Fehlerbehandlung ist noch Potential
-                alert('Da ist leider etwas schief gegangen');
-            });
+            .fail(() => alert('Da ist leider etwas schief gegangen'));
     }
 
+    // Behält alle EIngabedaten bis auf den Titel bei und markiert die aktuelle Aufzeichnung als
+    // eine neu angelegte Aufzeichnung. Der Titel erhält einen entsprechenden Zusatz.
     clone() {
         RecordingEditor.titleField().val('Kopie von ' + (RecordingEditor.titleField().val() || '').trim());
 
@@ -147,7 +136,8 @@ class RecordingEditor {
         this.validate();
     }
 
-    private createContract(): IRecordingEditContract {
+    // Überträgt die Eingabefelder in die zugehörige Datenstruktur.
+    private viewToModel(): IRecordingEditContract {
         var newData: IRecordingEditContract =
             {
                 description: (RecordingEditor.descriptionField().val() || '').trim(),
@@ -207,8 +197,9 @@ class RecordingEditor {
         var isValid = true;
 
         if (recording == null)
-            recording = this.createContract();
+            recording = this.viewToModel();
 
+        // Wir prüfen im wesentlichen die Freitextfelder auf deren Länge
         if (Tools.setError(RecordingEditor.titleField(), this.validateTitle(recording)))
             isValid = false;
         if (Tools.setError(RecordingEditor.descriptionField(), this.validateDescription(recording)))
@@ -218,6 +209,7 @@ class RecordingEditor {
         if (Tools.setError(RecordingEditor.locationField(), this.validateLocation(recording)))
             isValid = false;
 
+        // Die Schaltflächen werden gemäß dem aktuellen Formularstand frei geschaltet
         RecordingEditor.cloneButton().button('option', 'disabled', this.identifier == null);
         RecordingEditor.saveAndCloneButton().button('option', 'disabled', !isValid);
         RecordingEditor.saveAndNewButton().button('option', 'disabled', !isValid);

@@ -4,6 +4,7 @@
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+// Pflegt die Vorgabeliste der Kategorien
 var GenreEditor = (function (_super) {
     __extends(GenreEditor, _super);
     function GenreEditor(openButtonSelector, reloadApplicationData) {

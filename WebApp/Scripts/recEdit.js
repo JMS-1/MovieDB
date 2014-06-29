@@ -1,13 +1,9 @@
-﻿var RecordingEditor = (function () {
+﻿// Der Dialog zum Pflegen einer Aufzeichnung - diese Instanzen werden für jeden Änderungsvorgang neu erzeugt
+var RecordingEditor = (function () {
     function RecordingEditor(recording, genreEditor, languageEditor) {
         this.languageEditor = languageEditor;
         this.genreEditor = genreEditor;
 
-        this.initialize(recording);
-
-        $('#editRecordingMode').removeClass(Styles.invisble);
-    }
-    RecordingEditor.prototype.initialize = function (recording) {
         if (recording == null) {
             this.identifier = null;
             RecordingEditor.descriptionField().val('');
@@ -35,8 +31,9 @@
         }
 
         this.validate();
-    };
 
+        $('#editRecordingMode').removeClass(Styles.invisble);
+    }
     RecordingEditor.saveButton = function () {
         return $('#updateRecording');
     };
@@ -94,7 +91,7 @@
     };
 
     RecordingEditor.prototype.save = function (success) {
-        var newData = this.createContract();
+        var newData = this.viewToModel();
 
         if (!this.validate(newData))
             return;
@@ -108,8 +105,7 @@
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(newData)
         }).done(success).fail(function () {
-            // Bei der Fehlerbehandlung ist noch Potential
-            alert('Da ist leider etwas schief gegangen');
+            return alert('Da ist leider etwas schief gegangen');
         });
     };
 
@@ -117,14 +113,13 @@
         if (this.identifier == null)
             return;
 
-        $.ajax('movie/db/' + this.identifier, {
-            type: 'DELETE'
-        }).done(success).fail(function () {
-            // Bei der Fehlerbehandlung ist noch Potential
-            alert('Da ist leider etwas schief gegangen');
+        $.ajax('movie/db/' + this.identifier, { type: 'DELETE' }).done(success).fail(function () {
+            return alert('Da ist leider etwas schief gegangen');
         });
     };
 
+    // Behält alle EIngabedaten bis auf den Titel bei und markiert die aktuelle Aufzeichnung als
+    // eine neu angelegte Aufzeichnung. Der Titel erhält einen entsprechenden Zusatz.
     RecordingEditor.prototype.clone = function () {
         RecordingEditor.titleField().val('Kopie von ' + (RecordingEditor.titleField().val() || '').trim());
 
@@ -133,7 +128,8 @@
         this.validate();
     };
 
-    RecordingEditor.prototype.createContract = function () {
+    // Überträgt die Eingabefelder in die zugehörige Datenstruktur.
+    RecordingEditor.prototype.viewToModel = function () {
         var newData = {
             description: (RecordingEditor.descriptionField().val() || '').trim(),
             location: (RecordingEditor.locationField().val() || '').trim(),
@@ -193,8 +189,9 @@
         var isValid = true;
 
         if (recording == null)
-            recording = this.createContract();
+            recording = this.viewToModel();
 
+        // Wir prüfen im wesentlichen die Freitextfelder auf deren Länge
         if (Tools.setError(RecordingEditor.titleField(), this.validateTitle(recording)))
             isValid = false;
         if (Tools.setError(RecordingEditor.descriptionField(), this.validateDescription(recording)))
@@ -204,6 +201,7 @@
         if (Tools.setError(RecordingEditor.locationField(), this.validateLocation(recording)))
             isValid = false;
 
+        // Die Schaltflächen werden gemäß dem aktuellen Formularstand frei geschaltet
         RecordingEditor.cloneButton().button('option', 'disabled', this.identifier == null);
         RecordingEditor.saveAndCloneButton().button('option', 'disabled', !isValid);
         RecordingEditor.saveAndNewButton().button('option', 'disabled', !isValid);

@@ -93,6 +93,14 @@ class Tools {
             modal: true,
         });
     }
+
+    // Erstellt das Standardeinzeigeformat für ein Datum mit Uhrzeit.
+    static toFullDateWithTime(dateTime: Date): string {
+        // Eine zweistellig Zahl erzeugen
+        var formatNumber = (val: number) => (val < 10) ? ('0' + val.toString()) : val.toString();
+
+        return formatNumber(dateTime.getDate()) + '.' + formatNumber(1 + dateTime.getMonth()) + '.' + dateTime.getFullYear().toString() + ' ' + formatNumber(dateTime.getHours()) + ':' + formatNumber(dateTime.getMinutes()) + ':' + formatNumber(dateTime.getSeconds());
+    }
 }
 
 class MultiValueEditor<T extends IMappingContract> {
@@ -257,9 +265,9 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
                     return;
 
                 this.identifier = info.id;
-
                 this.nameField().val(info.name);
 
+                // Einträge der Voschlaglisten dürfen nur gelöscht werden, wenn sie nicht in Verwendung sind
                 if (info.unused)
                     this.confirmedDelete.enable();
 
@@ -275,15 +283,9 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
         if (this.identifier.length < 1)
             return;
 
-        $
-            .ajax('movie/' + this.controllerName() + '/' + this.identifier, {
-                type: 'DELETE',
-            })
+        $.ajax('movie/' + this.controllerName() + '/' + this.identifier, { type: 'DELETE' })
             .done(() => this.restart())
-            .fail(() => {
-                // Bei der Fehlerbehandlung ist noch Potential
-                alert('Da ist leider etwas schief gegangen');
-            });
+            .fail(() => alert('Da ist leider etwas schief gegangen'));
     }
 
     private save(): void {
@@ -300,17 +302,13 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
         if (this.identifier.length > 0)
             url += '/' + this.identifier;
 
-        $
-            .ajax(url, {
-                type: (this.identifier.length < 1) ? 'POST' : 'PUT',
-                contentType: 'application/json; charset=utf-8',
-                data: JSON.stringify(newData),
-            })
+        $.ajax(url, {
+            type: (this.identifier.length < 1) ? 'POST' : 'PUT',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(newData),
+        })
             .done(() => this.restart())
-            .fail(() => {
-                // Bei der Fehlerbehandlung ist noch Potential
-                alert('Da ist leider etwas schief gegangen');
-            });
+            .fail(() => alert('Da ist leider etwas schief gegangen'));
     }
 
     // Alles was jetzt kommt sind eigentlich die abstrakten Methoden der Basisklasse
@@ -348,6 +346,8 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
     }
 }
 
+// Beim Löschen verzichten wir auf eine explizite Rückfrage sondern erzwingen einfach das
+// doppelte Betätigung der Schaltfläche nach einem visuellen Feedback mit dem ersten Drücken.
 class DeleteButton {
     public constructor(button: JQuery, process: () => void) {
         this.button = button.click(() => this.remove());

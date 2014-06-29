@@ -1,4 +1,5 @@
 ﻿
+// Pflegt die Vorgabeliste der Kategorien
 class GenreEditor extends SuggestionListEditor<IGenreEditInfoContract, IGenreContract> {
 
     constructor(openButtonSelector: string, reloadApplicationData: () => void) {
