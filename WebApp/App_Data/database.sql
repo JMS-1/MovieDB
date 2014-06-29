@@ -96,6 +96,12 @@
 	);
 	GO
 
+	CREATE NONCLUSTERED INDEX [IX_Series_Parent]
+		ON [Series]([Parent]);
+	GO
+
+	-- Da wir hier einen FOREIGN KEY in die selbe Tabelle haben funktioniert das ON DELETE SET NULL leider nicht
+	-- und wir müssen das von Hand nachstellen.
 	CREATE TRIGGER [Series_Delete]
 		ON [Series]
 		INSTEAD OF DELETE
@@ -103,19 +109,24 @@
 		BEGIN
 			SET NoCount ON
 			DELETE FROM [Links] WHERE [For] IN (Select [Id] FROM DELETED)
+
+			-- Das wäre eigentlich das ON DELETE SET NULL
 			UPDATE [Series] SET [Parent] = NULL WHERE [Parent] IN (Select [Id] FROM DELETED)
 			DELETE FROM [Series] WHERE [Id] IN (Select [Id] FROM DELETED)
 		END
 	GO
 
-	-- Dieser TRIGGER sorgt dafür, dass für alle von einer Serienänderung betroffenen Aufzeichnungen die hierarchischen Namen neu berechnet werden
-	CREATE TRIGGER [Series_Recordings]
+	-- Dieser TRIGGER sorgt dafür, dass für alle von einer Serienänderung betroffenen Aufzeichnungen die hierarchischen
+	-- Namen neu berechnet werden. Das ist zwar etwas teuer, beschleunigt aber die Suchoperationen durch die dadurch
+	-- eingeführte Redundanz ganz erheblich.
+	CREATE TRIGGER [Series_RecordingName]
 		ON [Series]
 		AFTER INSERT, UPDATE, DELETE
 		AS
 		BEGIN
 			SET NoCount ON
 
+			-- Hier nutzen wir einfach das kaskadieren der TRIGGER aus und müssen den Code nicht zweimal schreiben
 			UPDATE [Recordings]
 			SET [HierarchicalName] = NULL
 			WHERE [Series] IN 			
@@ -129,10 +140,6 @@
 				SELECT [Child] FROM [SeriesHierarchy] WHERE [Parent] IN (SELECT [Id] FROM INSERTED UNION ALL SELECT [Id] FROM DELETED)
 			)
 		END
-	GO
-
-	CREATE NONCLUSTERED INDEX [IX_Series_Parent]
-		ON [Series]([Parent]);
 	GO
 
 	-- Dieser VIEW liefert zu jeder Serie ALLE übergeordneten Serien und nicht nur den direkten Vorgänger
@@ -155,7 +162,7 @@
 		FROM [SeriesHierarchy]
 	GO
 
--- Recordings
+-- Aufzeichnungen
 
 	CREATE TABLE [Recordings] (
 		[Id]				UNIQUEIDENTIFIER NOT NULL,
@@ -188,6 +195,7 @@
 		ON [Recordings]([Series]);
 	GO
 
+	-- Da die Verweise Fremdschlüssel gegen zwei Tabellen müssen wir diese von Hand entfernen
 	CREATE TRIGGER [Recordings_Links]
 		ON [Recordings]
 		AFTER DELETE
@@ -198,6 +206,10 @@
 		END
 	GO
 
+	-- Die physikalischen Ablagen werden blind bereinigt, wenn sich Aufzeichnungen verändern: es
+	-- gibt keine Ablagen ohne dass mindestens eine Aufzeichnung darauf eine Referenz hält. Da
+	-- wir keinen Referenzzähler führen gehen wir hier den teueren Weg der vollständigen Prüfung
+	-- über alle noch verbleibenden Aufzeichnungen.
 	CREATE TRIGGER [Recordings_Media]
 		ON [Recordings]
 		AFTER DELETE, UPDATE
@@ -209,7 +221,7 @@
 	GO
 
 	-- Dieser TRIGGER berechnet für alle veränderten Aufzeichnungen den hierarchischen Namen neu
-	CREATE TRIGGER [Recordings_FullName]
+	CREATE TRIGGER [Recordings_Name]
 		ON [Recordings]
 		AFTER INSERT, UPDATE
 		AS
