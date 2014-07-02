@@ -1,4 +1,5 @@
-﻿
+﻿/// <reference path="uihelper.ts" />
+
 // Pflegt die Vorgabeliste der Kategorien
 class GenreEditor extends SuggestionListEditor<IGenreEditInfoContract, IGenreContract> {
 

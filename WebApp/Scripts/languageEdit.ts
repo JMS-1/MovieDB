@@ -1,4 +1,5 @@
-﻿
+﻿/// <reference path="uihelper.ts" />
+
 // Pflegt die Vorgabeliste der Sprachen
 class LanguageEditor extends SuggestionListEditor<ILanguageEditInfoContract, ILanguageContract> {
 
