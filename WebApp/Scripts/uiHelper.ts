@@ -163,7 +163,7 @@ class MultiValueEditor<T extends IMappingContract> {
     }
 }
 
-// Diese Basisklasse unterstützt die Pflege der festen Auswahllisten für Sprachen und Arten von Aufzeichnungen
+// Diese Basisklasse unterstützt die Pflege der festen Auswahllisten für Sprachen und Kategorien
 class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateContext extends IMappingContract> {
     constructor(openButtonSelector: string, reloadApplicationData: () => void) {
         this.reload = reloadApplicationData;
@@ -187,7 +187,7 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
     private confirmedDelete: DeleteButton;
 
     private open(): void {
-        // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
+        // Vorher noch einmal schnell alles aufbereiten
         this.chooser().val('');
         this.choose();
 
@@ -244,8 +244,7 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
         var choosen: string = this.chooser().val();
 
         // Und dann ganz defensiv erst einmal alles zurück setzen
-        this.saveButton().button('option', 'disabled', choosen.length > 0);
-
+        this.saveButton().button('option', 'disabled', true);
         this.confirmedDelete.disable();
 
         this.nameField().val('');
@@ -303,26 +302,12 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
             url += '/' + this.identifier;
 
         $.ajax(url, {
-            type: (this.identifier.length < 1) ? 'POST' : 'PUT',
+            type: (this.identifier.length > 0) ? 'PUT' : 'POST',
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(newData),
         })
             .done(() => this.restart())
             .fail(() => alert('Da ist leider etwas schief gegangen'));
-    }
-
-    // Alles was jetzt kommt sind eigentlich die abstrakten Methoden der Basisklasse
-
-    controllerName(): string {
-        throw 'Bitte controllerName implementieren';
-    }
-
-    createNewOption(): string {
-        throw 'Bitte createNewOption implementieren';
-    }
-
-    dialog(): JQuery {
-        throw 'Bitte dialog implementieren';
     }
 
     private chooser(): JQuery {
@@ -339,6 +324,20 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
 
     private nameField(): JQuery {
         return this.dialog().find('.editName');
+    }
+
+    // Alles was jetzt kommt sind eigentlich die abstrakten Methoden der Basisklasse
+
+    controllerName(): string {
+        throw 'Bitte controllerName implementieren';
+    }
+
+    createNewOption(): string {
+        throw 'Bitte createNewOption implementieren';
+    }
+
+    dialog(): JQuery {
+        throw 'Bitte dialog implementieren';
     }
 
     validateName(newData: TUpdateContext): string {
