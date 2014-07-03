@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 
 
@@ -37,7 +35,7 @@ namespace WebApp.DTO
         public string Description { get; set; }
 
         /// <summary>
-        /// Gesetzt, wenn die Art gelöscht werden darf.
+        /// Gesetzt, wenn die Serie gelöscht werden darf.
         /// </summary>
         [DataMember( Name = "unused" )]
         public bool CanBeDeleted { get; set; }

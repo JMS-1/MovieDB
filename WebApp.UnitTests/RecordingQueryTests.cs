@@ -254,7 +254,7 @@ namespace WebApp.UnitTests
         public void RestrictBySeries()
         {
             var series = m_series["CSI > Las Vegas > Season 13"];
-            var recordings = Controller.Query( new SearchRequest { RequiredSeries = { series } } );
+            var recordings = Controller.Query( new SearchRequest { AllowedSeries = { series } } );
 
             Assert.AreEqual( 0, recordings.PageIndex, "index" );
             Assert.AreEqual( 15, recordings.PageSize, "size" );

@@ -66,7 +66,7 @@ namespace WebApp.DTO
         /// <summary>
         /// Die 0-basierte laufenden Nummer der ersten Ergebniszeile.
         /// </summary>
-        public long Offset { get { return checked( (int) RawOffset ); } }
+        public int Offset { get { return checked( (int) RawOffset ); } }
 
         /// <summary>
         /// Eine Liste von Arten, die alle berücksichtigt werden sollen.
@@ -84,7 +84,7 @@ namespace WebApp.DTO
         /// Die zu betrachtende Serie.
         /// </summary>
         [DataMember( Name = "series" )]
-        public readonly List<Guid> RequiredSeries = new List<Guid>();
+        public readonly List<Guid> AllowedSeries = new List<Guid>();
 
         /// <summary>
         /// Gesetzt, wenn ausgeliehene Aufzeichnungen gesucht werden sollen.
@@ -115,9 +115,7 @@ namespace WebApp.DTO
         public void Validate()
         {
             // Validate parameters
-            if (PageSize < 1)
-                throw new InvalidOperationException( "Die Anzahl der Ergebnisse einer Suche muss zwischen 1 und 250 liegen (jeweils einschließlich)." );
-            if (PageSize > 250)
+            if ((PageSize < 1) || (PageSize > 250))
                 throw new InvalidOperationException( "Die Anzahl der Ergebnisse einer Suche muss zwischen 1 und 250 liegen (jeweils einschließlich)." );
             if (PageIndex < 0)
                 throw new InvalidOperationException( "Die Nummer der Ergebnisseite darf nicht negativ sein." );
@@ -151,20 +149,17 @@ namespace WebApp.DTO
             {
                 var capturedGenre = genre;
 
-                // Require ALL genres to be available simultanously
+                // Require ALL genres to be available simultanously - found no better way to define this restriction
                 recordings = recordings.Where( r => r.Genres.Any( g => g.UniqueIdentifier == capturedGenre ) );
             }
 
             // Apply series
-            if (request.RequiredSeries.Count > 0)
-                recordings = recordings.Where( r => request.RequiredSeries.Contains( r.SeriesIdentifier.Value ) );
+            if (request.AllowedSeries.Count > 0)
+                recordings = recordings.Where( r => request.AllowedSeries.Contains( r.SeriesIdentifier.Value ) );
 
             // Apply rent option
             if (request.IsRent.HasValue)
-                if (request.IsRent.Value)
-                    recordings = recordings.Where( r => r.RentTo != null );
-                else
-                    recordings = recordings.Where( r => r.RentTo == null );
+                recordings = recordings.Where( r => request.IsRent.Value == (r.RentTo != null) );
 
             // Free text
             if (!string.IsNullOrEmpty( request.Text ))
@@ -179,7 +174,7 @@ namespace WebApp.DTO
                     .ToArray();
 
             // Apply language filter
-            if ( request.RequiredLanguage .HasValue)
+            if (request.RequiredLanguage.HasValue)
                 recordings = recordings.Where( r => r.Languages.Any( l => l.UniqueIdentifier == request.RequiredLanguage.Value ) );
 
             // Check counter after filter is applied but bevore we start restricting
@@ -214,7 +209,7 @@ namespace WebApp.DTO
             // Apply start offset
             var offset = request.Offset;
             if (offset > 0)
-                recordings = recordings.Skip( (int) offset );
+                recordings = recordings.Skip( offset );
 
             // Always restrict number of results
             return recordings.Take( request.PageSize );
