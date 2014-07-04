@@ -43,11 +43,5 @@ namespace MovieDB
         /// Liest oder setzt die Beschreibung der Serie.
         /// </summary>
         public string Description { get; set; }
-
-        /// <summary>
-        /// Liest oder setzt die externen Informationen zur Serie.
-        /// </summary>
-        public Link[] Links { get; set; }
     }
-
 }

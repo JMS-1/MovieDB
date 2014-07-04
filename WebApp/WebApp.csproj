@@ -202,7 +202,6 @@
     <Compile Include="Controllers\GenreController.cs" />
     <Compile Include="DAL\Legacy\MovieDBContainer.cs" />
     <Compile Include="DAL\Legacy\MovieDBDatabase.cs" />
-    <Compile Include="DAL\Legacy\MovieDBLink.cs" />
     <Compile Include="DAL\Legacy\MovieDBMedia.cs" />
     <Compile Include="DAL\Legacy\MovieDBMediaTypes.cs" />
     <Compile Include="DAL\Legacy\MovieDBRecording.cs" />

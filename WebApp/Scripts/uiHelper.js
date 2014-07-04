@@ -177,7 +177,7 @@ var MultiValueEditor = (function () {
     return MultiValueEditor;
 })();
 
-// Diese Basisklasse unterstützt die Pflege der festen Auswahllisten für Sprachen und Arten von Aufzeichnungen
+// Diese Basisklasse unterstützt die Pflege der festen Auswahllisten für Sprachen und Kategorien
 var SuggestionListEditor = (function () {
     function SuggestionListEditor(openButtonSelector, reloadApplicationData) {
         var _this = this;
@@ -210,7 +210,7 @@ var SuggestionListEditor = (function () {
         });
     }
     SuggestionListEditor.prototype.open = function () {
-        // Vorher noch einmal schnell alles aufbereiten - eventuell erfolgt auch ein Aufruf an den Web Service
+        // Vorher noch einmal schnell alles aufbereiten
         this.chooser().val('');
         this.choose();
 
@@ -272,8 +272,7 @@ var SuggestionListEditor = (function () {
         var choosen = this.chooser().val();
 
         // Und dann ganz defensiv erst einmal alles zurück setzen
-        this.saveButton().button('option', 'disabled', choosen.length > 0);
-
+        this.saveButton().button('option', 'disabled', true);
         this.confirmedDelete.disable();
 
         this.nameField().val('');
@@ -334,7 +333,7 @@ var SuggestionListEditor = (function () {
             url += '/' + this.identifier;
 
         $.ajax(url, {
-            type: (this.identifier.length < 1) ? 'POST' : 'PUT',
+            type: (this.identifier.length > 0) ? 'PUT' : 'POST',
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(newData)
         }).done(function () {
@@ -342,19 +341,6 @@ var SuggestionListEditor = (function () {
         }).fail(function () {
             return alert('Da ist leider etwas schief gegangen');
         });
-    };
-
-    // Alles was jetzt kommt sind eigentlich die abstrakten Methoden der Basisklasse
-    SuggestionListEditor.prototype.controllerName = function () {
-        throw 'Bitte controllerName implementieren';
-    };
-
-    SuggestionListEditor.prototype.createNewOption = function () {
-        throw 'Bitte createNewOption implementieren';
-    };
-
-    SuggestionListEditor.prototype.dialog = function () {
-        throw 'Bitte dialog implementieren';
     };
 
     SuggestionListEditor.prototype.chooser = function () {
@@ -371,6 +357,19 @@ var SuggestionListEditor = (function () {
 
     SuggestionListEditor.prototype.nameField = function () {
         return this.dialog().find('.editName');
+    };
+
+    // Alles was jetzt kommt sind eigentlich die abstrakten Methoden der Basisklasse
+    SuggestionListEditor.prototype.controllerName = function () {
+        throw 'Bitte controllerName implementieren';
+    };
+
+    SuggestionListEditor.prototype.createNewOption = function () {
+        throw 'Bitte createNewOption implementieren';
+    };
+
+    SuggestionListEditor.prototype.dialog = function () {
+        throw 'Bitte dialog implementieren';
     };
 
     SuggestionListEditor.prototype.validateName = function (newData) {

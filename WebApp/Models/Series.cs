@@ -14,14 +14,9 @@ namespace WebApp.Models
     public class Series : ILinkHolder
     {
         /// <summary>
-        /// Das Trennzeichen zwischen Ebenen von Serien - als <see cref="string"/>.
-        /// </summary>
-        private const string JoinCharacterAsString = ">";
-
-        /// <summary>
         /// Das Trennzeichen zwischen Ebenen von Serien - als <see cref="char"/>.
         /// </summary>
-        public static char JoinCharacter { get { return JoinCharacterAsString[0]; } }
+        public const char JoinCharacter = '>';
 
         /// <summary>
         /// Die eindeutige Kennung der Serie.
@@ -33,7 +28,7 @@ namespace WebApp.Models
         /// <summary>
         /// Der relative Name der Serie.
         /// </summary>
-        [Required, StringLength( 50 )]
+        [Required, StringLength( 50, MinimumLength = 1 )]
         [Column( "Name" )]
         public string Name { get; set; }
 
@@ -101,7 +96,8 @@ namespace WebApp.Models
                 .Entity<Series>()
                 .HasMany( s => s.Links )
                 .WithRequired()
-                .HasForeignKey( l => l.UniqueIdentifier );
+                .HasForeignKey( l => l.UniqueIdentifier )
+                .WillCascadeOnDelete( true );
         }
     }
 }

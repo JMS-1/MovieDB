@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
-using System.Globalization;
 
 
 namespace WebApp.Models
@@ -24,7 +23,7 @@ namespace WebApp.Models
         /// <summary>
         /// Der Name der aufgezeichneten Sendung.
         /// </summary>
-        [Required, StringLength( 200 )]
+        [Required, StringLength( 200, MinimumLength = 1 )]
         [Column( "Name" )]
         public string Name { get; set; }
 
@@ -156,7 +155,8 @@ namespace WebApp.Models
                 .Entity<Recording>()
                 .HasMany( r => r.Links )
                 .WithRequired()
-                .HasForeignKey( l => l.UniqueIdentifier );
+                .HasForeignKey( l => l.UniqueIdentifier )
+                .WillCascadeOnDelete( true );
         }
 
         /// <summary>
@@ -164,8 +164,8 @@ namespace WebApp.Models
         /// </summary>
         public Recording()
         {
-            Languages = new List<Language>();
             UniqueIdentifier = Guid.NewGuid();
+            Languages = new List<Language>();
             Genres = new List<Genre>();
             Links = new List<Link>();
         }

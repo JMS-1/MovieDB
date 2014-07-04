@@ -55,7 +55,7 @@ namespace WebApp
                         return;
 
                     // We use implicit route bindings
-                    GlobalConfiguration.Configure( config => config.MapHttpAttributeRoutes() );
+                    GlobalConfiguration.Configure( HttpConfigurationExtensions.MapHttpAttributeRoutes );
 
                     // Prepare database
                     Database.CreateOnce( Path.Combine( HttpRuntime.AppDomainAppPath, @"App_Data\Movie.mdf" ) );

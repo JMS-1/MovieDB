@@ -1,38 +1,40 @@
+
+
 namespace MovieDB
 {
     /// <summary>
     /// Die Medien, auf die eine Aufzeichnung vorgenommen wurde.
     /// </summary>
-	public enum MediaTypes
-	{
+    public enum MediaTypes
+    {
         /// <summary>
         /// Unbekannt.
         /// </summary>
-		Unknown,
+        Unknown,
 
         /// <summary>
         /// Video auf CD niedriger Qualität (VCD).
         /// </summary>
-		VideoCD,
+        VideoCD,
 
         /// <summary>
         /// Video auf CD hoher Qualität (SVCD).
         /// </summary>
-		SuperVideoCD,
+        SuperVideoCD,
 
         /// <summary>
         /// Selbstaufgenommene DVD.
         /// </summary>
-		RecordedDVD,
+        RecordedDVD,
 
         /// <summary>
         /// Gekaufte DVD.
         /// </summary>
-		DVD,
+        DVD,
 
         /// <summary>
         /// Gekaufte BD.
         /// </summary>
         BluRay,
-	}
+    }
 }

@@ -149,53 +149,12 @@ namespace MovieDB
         public readonly List<Container> Containers = new List<Container>();
 
         /// <summary>
-        /// Ermittelt alle aktuell verwendeten Genres.
-        /// </summary>
-        public IEnumerable<string> Genres
-        {
-            get
-            {
-                // Create
-                var genres = new HashSet<string>();
-
-                // Fill
-                foreach (var recording in Recordings)
-                    foreach (var genre in recording.Genres)
-                        if (!string.IsNullOrEmpty( genre ))
-                            genres.Add( genre );
-
-                // Report
-                return genres;
-            }
-        }
-
-        /// <summary>
-        /// Ermittelt alle aktuell verwendeten Sprachen.
-        /// </summary>
-        public IEnumerable<string> Languages
-        {
-            get
-            {
-                // Create
-                var languages = new HashSet<string>();
-
-                // Fill
-                foreach (var recording in Recordings)
-                    foreach (var language in recording.Languages)
-                        if (!string.IsNullOrEmpty( language ))
-                            languages.Add( language );
-
-                // Report
-                return languages;
-            }
-        }
-
-        /// <summary>
         /// Initialisiert die Datenbank.
         /// </summary>
         /// <param name="database">Die Zieldatenbank für die neue Version.</param>
         public void CopyTo( WebApp.DAL.Database database )
         {
+            // Must do on bulk import - still slow anyway but with automatic change detection is nearly unusable
             database.Configuration.AutoDetectChangesEnabled = false;
 
             // Just improve lookup speed a bit - hey, EF is not so fast...
@@ -251,35 +210,25 @@ namespace MovieDB
 
             // Add all languages
             var dbLanguages = database.Languages;
-            foreach (var language in new HashSet<string>( Languages.Select( l => l.ToLower() ) ))
+            foreach (var language in new HashSet<string>( Recordings.SelectMany( r => r.Languages ).Where( l => !string.IsNullOrEmpty( l ) ).Select( l => l.ToLower() ) ))
                 languageMap.Add( language, dbLanguages.Add( new WebApp.Models.Language { Name = language } ) );
 
             // Add all genres
             var dbGenres = database.Genres;
-            foreach (var genre in new HashSet<string>( Genres ))
+            foreach (var genre in new HashSet<string>( Recordings.SelectMany( r => r.Genres ).Where( g => !string.IsNullOrEmpty( g ) ) ))
                 genreMap.Add( genre, dbGenres.Add( new WebApp.Models.Genre { Name = genre } ) );
 
             // Add all recordings
             var dbRecordings = database.Recordings;
             foreach (var recording in Recordings)
             {
-                if (recording.Links != null)
-                    if (recording.Links.Length > 0)
-                        throw new NotSupportedException( "Verweise werden bei der Migration nicht unterstützt" );
-
                 var series = GetSeries( recording.Series, seriesMap, database );
                 if (series != null)
                     if (series.Description == null)
                     {
                         Series seriesInfo;
                         if (infoMap.TryGetValue( series.FullName, out seriesInfo ))
-                        {
-                            if (seriesInfo.Links != null)
-                                if (seriesInfo.Links.Length > 0)
-                                    throw new NotSupportedException( "Verweise werden bei der Migration nicht unterstützt" );
-
                             series.Description = seriesInfo.Description ?? string.Empty;
-                        }
                     }
 
                 var mediaType = (recording.Location == null) ? WebApp.Models.StoreType.Undefined : (WebApp.Models.StoreType) recording.Location.Type;
@@ -296,7 +245,6 @@ namespace MovieDB
                         Genres = recording.Genres.Where( genre => !string.IsNullOrEmpty( genre ) ).Select( genre => genreMap[genre] ).ToList(),
                         Languages = recording.Languages.Select( language => languageMap[language.ToLower()] ).ToList(),
                         RentTo = string.IsNullOrEmpty( recording.Rent ) ? null : recording.Rent,
-                        UniqueIdentifier = recording.UniqueId,
                         CreationTime = recording.Added,
                         Name = recording.Title,
                         Series = series,

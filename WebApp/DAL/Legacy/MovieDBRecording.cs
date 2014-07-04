@@ -15,12 +15,6 @@ namespace MovieDB
     public class Recording
     {
         /// <summary>
-        /// Jede Aufzeichnung erhält zur Laufzeit eine eindeutige Kennung.
-        /// </summary>
-        [XmlIgnore]
-        public Guid UniqueId { get; set; }
-
-        /// <summary>
         /// Der Name der Aufzeichnung.
         /// </summary>
         public string Title { get; set; }
@@ -29,13 +23,13 @@ namespace MovieDB
         /// Die Sprachen, in der die Aufzeichnung vorliegt.
         /// </summary>
         [XmlArrayItem( "Language" )]
-        public List<string> Languages { get; set; }
+        public readonly List<string> Languages = new List<string>();
 
         /// <summary>
         /// Eine Liste von Kategorien für die Aufzeichnung.
         /// </summary>
         [XmlArrayItem( "Genre" )]
-        public List<string> Genres { get; set; }
+        public readonly List<string> Genres = new List<string>();
 
         /// <summary>
         /// An wen die Aufzeichnung gerade verliehen ist.
@@ -53,11 +47,6 @@ namespace MovieDB
         public DateTime Added { get; set; }
 
         /// <summary>
-        /// Eine Liste freier Verweise für die Aufzeichnung.
-        /// </summary>
-        public Link[] Links { get; set; }
-
-        /// <summary>
         /// Optional eine Referenz auf die zugehörige Serie.
         /// </summary>
         public MovieDB.SeriesReference Series { get; set; }
@@ -66,18 +55,5 @@ namespace MovieDB
         /// Eine freie Beschreibung zur Aufzeichnung.
         /// </summary>
         public string Description { get; set; }
-
-        /// <summary>
-        /// Erzeugt die Daten einer Aufzeichnung.
-        /// </summary>
-        public Recording()
-        {
-            // Load
-            Languages = new List<string>();
-            Genres = new List<string>();
-
-            // Mark
-            UniqueId = Guid.NewGuid();
-        }
     }
 }

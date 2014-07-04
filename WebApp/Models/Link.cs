@@ -29,6 +29,13 @@ namespace WebApp.Models
         public Guid UniqueIdentifier { get; set; }
 
         /// <summary>
+        /// Die laufende Nummer des Verweises relativ zur zugehörigen Entität.
+        /// </summary>
+        [Required, Key]
+        [Column( "Ordinal", Order = 1 )]
+        public int Index { get; set; }
+
+        /// <summary>
         /// Der eigentliche Verweis.
         /// </summary>
         [Required, StringLength( 2000, MinimumLength = 1 ), Url]
@@ -48,13 +55,6 @@ namespace WebApp.Models
         [StringLength( 2000 )]
         [Column( "Description" )]
         public string Description { get; set; }
-
-        /// <summary>
-        /// Die laufende Nummer des Verweises relativ zur zugehörigen Entität.
-        /// </summary>
-        [Required, Key]
-        [Column( "Ordinal", Order = 1 )]
-        public int Index { get; set; }
 
         /// <summary>
         /// Wird beim Anlegen des Datenbankmodells aufgerufen.

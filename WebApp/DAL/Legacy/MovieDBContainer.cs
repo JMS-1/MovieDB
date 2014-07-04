@@ -49,13 +49,6 @@ namespace MovieDB
         /// lokalisiert.
         /// </summary>
         public string UnitIdentifier { get; set; }
-
-        /// <summary>
-        /// Erzeugt eine neue Referenz.
-        /// </summary>
-        public ContainerReference()
-        {
-        }
     }
 
     /// <summary>
@@ -86,14 +79,5 @@ namespace MovieDB
         /// Eine Kurzbeschreibung des Standorts der Aufbewahrungseinheit.
         /// </summary>
         public string Location { get; set; }
-
-        /// <summary>
-        /// Erzeugt eine neue Beschreibung.
-        /// </summary>
-        public Container()
-        {
-            // Set up
-            Type = ContainerType.Unknown;
-        }
     }
 }

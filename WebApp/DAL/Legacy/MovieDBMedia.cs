@@ -27,14 +27,5 @@ namespace MovieDB
         /// Der Standardort der Aufzeichnung.
         /// </summary>
         public ContainerReference Container { get; set; }
-
-        /// <summary>
-        /// Erzeugt eine neue Beschreibung.
-        /// </summary>
-        public Media()
-        {
-            // Setup
-            Type = MediaTypes.Unknown;
-        }
     }
 }
