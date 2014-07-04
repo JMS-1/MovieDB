@@ -23,6 +23,7 @@ namespace WebApp.DAL
         /// </summary>
         static Database()
         {
+            // First try is to do all database stuff manually - have to check how easy triggers can be integrated in auto-versioning
             System.Data.Entity.Database.SetInitializer<Database>( null );
         }
 
@@ -32,7 +33,7 @@ namespace WebApp.DAL
         public Database()
             : base( _DatabaseConnectionString )
         {
-            // Enforce full control on SQL commands
+            // Enforce full control on SQL commands - known as "DO WHAT I SAY" :-)
             Configuration.LazyLoadingEnabled = false;
 
             // Only executed when compiled in DEBUG mode
@@ -132,13 +133,13 @@ namespace WebApp.DAL
         protected override void OnModelCreating( DbModelBuilder modelBuilder )
         {
             // Each type of entity gets the chance to fine tune its behaviour
+            Models.Recording.BuildModel( modelBuilder );
+            Models.Container.BuildModel( modelBuilder );
+            Models.Language.BuildModel( modelBuilder );
             Models.Series.BuildModel( modelBuilder );
-            Recording.BuildModel( modelBuilder );
-            Container.BuildModel( modelBuilder );
-            Language.BuildModel( modelBuilder );
-            Store.BuildModel( modelBuilder );
-            Genre.BuildModel( modelBuilder );
-            Link.BuildModel( modelBuilder );
+            Models.Store.BuildModel( modelBuilder );
+            Models.Genre.BuildModel( modelBuilder );
+            Models.Link.BuildModel( modelBuilder );
 
             base.OnModelCreating( modelBuilder );
         }
@@ -171,7 +172,8 @@ namespace WebApp.DAL
         }
 
         /// <summary>
-        /// Entfernt die Datenbank aus der Verwaltung.
+        /// Entfernt die Datenbank aus der Verwaltung - dieser Aufruf wird hauptsächlich für die Tests
+        /// verwendet.
         /// </summary>
         public static void DetachFromDatabase()
         {

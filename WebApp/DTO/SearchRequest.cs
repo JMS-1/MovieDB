@@ -145,13 +145,8 @@ namespace WebApp.DTO
             var recordings = (IQueryable<Models.Recording>) database.Recordings;
 
             // Apply genre filter
-            foreach (var genre in request.RequiredGenres)
-            {
-                var capturedGenre = genre;
-
-                // Require ALL genres to be available simultanously - found no better way to define this restriction
-                recordings = recordings.Where( r => r.Genres.Any( g => g.UniqueIdentifier == capturedGenre ) );
-            }
+            if (request.RequiredGenres.Count > 0)
+                recordings = recordings.Where( r => request.RequiredGenres.All( g => r.Genres.Any( rg => rg.UniqueIdentifier == g ) ) );
 
             // Apply series
             if (request.AllowedSeries.Count > 0)
