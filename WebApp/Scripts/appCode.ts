@@ -230,11 +230,15 @@ module MovieDatabase {
 
                 var recordingRow = $('<tr></tr>').appendTo(tableBody);
 
-                $('<a />', { text: recording.hierarchicalName, href: '#' + recording.id }).appendTo($('<td class="nameColumn"/>').appendTo(recordingRow));
+                var titleCell = $('<td class="nameColumn"/>').appendTo(recordingRow);
+                $('<a />', { text: recording.hierarchicalName, href: '#' + recording.id }).appendTo(titleCell);
+
+                if (recording.rent != null)
+                    $('<div />', { 'class': 'ui-icon ui-icon-transferthick-e-w rentIcon', title: recording.rent }).appendTo(titleCell);
+
                 $('<td class="dateColumn"/>').appendTo(recordingRow).text(Tools.toFullDateWithTime(recording.created));
                 $('<td class="languageColumn"/>').appendTo(recordingRow).text($.map(recording.languages, language => this.allLanguages[language] || language).join('; '));
                 $('<td class="genreColumn"/>').appendTo(recordingRow).text($.map(recording.genres, genre=> this.allGenres[genre] || genre).join('; '));
-                $('<td class="rentColumn"/>').appendTo(recordingRow).text(recording.rent);
             });
 
             this.setMode();

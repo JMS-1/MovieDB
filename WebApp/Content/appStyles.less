@@ -116,22 +116,19 @@ body {
         padding: 5px;
         width: 100%;
     }
-
     // Die einzelnen Zellen sind nur einseitig mit Leerraum bestückt
     td {
         padding: 2px 6px 0px 4px;
+        min-height: 16px;
     }
-
     // Die Kopfzeile mit den Spaltennamen wollen wir etwas hervorheben
     thead {
         font-weight: bold;
         background-color: #c0c0c0;
-
         // Dem eigentlichen Name (mit Serienname) der Aufzeichnung spendieren wird 40% der gesamten Breite
         .nameColumn {
-            width: 40%;
+            width: 50%;
         }
-
         // Hier muss einfach nur das Datum mit Uhrzeit vollständig passen
         .dateColumn {
             width: 9em;
@@ -143,7 +140,6 @@ body {
         td {
             vertical-align: top;
         }
-
         // Die bekannte odd/even Einfärbung der Zeilen
         tr:nth-child(even) {
             background: #c0c0c0;
@@ -152,13 +148,11 @@ body {
         tr:nth-child(odd) {
             background: #e0e0e0;
         }
-
         // Das die Namen der Aufzeichnungen Verweise zum Ändern sind interessiert erst einmal nicht ...
         a {
             text-decoration: none;
             color: black;
         }
-
         // ... es sein denn, man fährt mit der Maus darüber
         a:hover {
             text-decoration: underline;
@@ -166,3 +160,8 @@ body {
     }
 }
 
+.rentIcon {
+    margin-left: -5px;
+    margin-top: 1px;
+    float: right;
+}
