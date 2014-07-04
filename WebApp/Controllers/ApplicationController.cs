@@ -23,7 +23,7 @@ namespace WebApp.Controllers
         [HttpGet]
         public ApplicationInformation GetInformation()
         {
-            // All series known
+            // All series known - without filling the navigation property!
             var allSeries = Database.Series.ToDictionary( s => s.UniqueIdentifier );
 
             // Lookup the full name of a series
@@ -36,7 +36,7 @@ namespace WebApp.Controllers
                 var series = allSeries[seriesIdentifier];
                 if (!series.ParentIdentifier.HasValue)
                     return series.Name;
-                
+
                 // Merge with parent
                 return string.Format( "{0} {1} {2}", getFullName( series.ParentIdentifier.Value ), Models.Series.JoinCharacter, series.Name );
             };

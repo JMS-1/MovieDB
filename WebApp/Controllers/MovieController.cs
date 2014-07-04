@@ -76,7 +76,7 @@ namespace WebApp.Controllers
         [HttpGet]
         public RecordingEditInfo Find( Guid identifier )
         {
-            // Find with relations loaded
+            // Find with relations loaded - to include relation targets we have to use a query instead of a simple find (remember: auto query is switched off)
             var recording =
                 Database
                     .Recordings
@@ -116,8 +116,6 @@ namespace WebApp.Controllers
             if (recording == null)
                 throw new HttpResponseException( HttpStatusCode.NotFound );
 
-            var location = GetEmptyAsNull( newData.Location );
-
             // Reset languages
             recording.Languages.Clear();
             foreach (var language in Database.Languages.Where( l => newData.Languages.Contains( l.UniqueIdentifier ) ))
@@ -129,17 +127,40 @@ namespace WebApp.Controllers
                 recording.Genres.Add( genre );
 
             // Copy all
-            recording.Store = Database.Stores.FirstOrDefault( s => s.ContainerIdentifier == newData.Container && s.Location == location && s.Type == newData.StoreType ) ?? new Models.Store { ContainerIdentifier = newData.Container, Location = location, Type = newData.StoreType };
             recording.Description = GetEmptyAsNull( newData.Description );
             recording.RentTo = GetEmptyAsNull( newData.RentTo );
             recording.Name = GetEmptyAsNull( newData.Name );
             recording.SeriesIdentifier = newData.Series;
+            recording.Store = GetOrCreateStore( newData );
 
             // Process update
             await Database.SaveChangesAsync();
 
             // Done
             return Ok();
+        }
+
+        /// <summary>
+        /// Ermittelt eine exisierenden physikalische Ablage und legt bei Bedarf eine neue an.
+        /// </summary>
+        /// <param name="recording">Die Daten zur Ablage.</param>
+        /// <returns>Die gewünschte Ablage.</returns>
+        private Models.Store GetOrCreateStore( RecordingEditInfo recording )
+        {
+            // Relative location
+            var location = GetEmptyAsNull( recording.Location );
+
+            // Try to locate in database
+            var store =
+                Database
+                    .Stores
+                    .FirstOrDefault( s => s.ContainerIdentifier == recording.Container && s.Location == location && s.Type == recording.StoreType );
+
+            // Report existing or newly created one
+            if (store != null)
+                return store;
+            else
+                return new Models.Store { ContainerIdentifier = recording.Container, Location = location, Type = recording.StoreType };
         }
 
         /// <summary>
@@ -152,13 +173,12 @@ namespace WebApp.Controllers
         public async Task<IHttpActionResult> Update( [FromBody] RecordingEditInfo newData )
         {
             // Create
-            var location = GetEmptyAsNull( newData.Location );
             var recording = new Models.Recording
             {
-                Store = Database.Stores.FirstOrDefault( s => s.ContainerIdentifier == newData.Container && s.Location == location && s.Type == newData.StoreType ) ?? new Models.Store { ContainerIdentifier = newData.Container, Location = location, Type = newData.StoreType },
                 Description = GetEmptyAsNull( newData.Description ),
                 RentTo = GetEmptyAsNull( newData.RentTo ),
                 Name = GetEmptyAsNull( newData.Name ),
+                Store = GetOrCreateStore( newData ),
                 SeriesIdentifier = newData.Series,
                 CreationTime = DateTime.UtcNow,
             };
@@ -219,7 +239,7 @@ namespace WebApp.Controllers
             foreach (var data in decoder.Contents)
             {
                 // Check the name
-                if (!StringComparer.InvariantCultureIgnoreCase.Equals( data.Headers.ContentDisposition.Name, @"""legacyFile""" ))
+                if (!StringComparer.InvariantCultureIgnoreCase.Equals( data.Headers.ContentDisposition.Name, "\"legacyFile\"" ))
                     continue;
 
                 // Read the stream
