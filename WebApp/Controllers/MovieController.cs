@@ -50,9 +50,20 @@ namespace WebApp.Controllers
                 {
                     // Just copy
                     if (value != null)
-                        using (var memoryStream = new MemoryStream( Encoding.UTF8.GetBytes( (string) value ) ))
-                            memoryStream.CopyTo( stream );
+                    {
+                        var encoding = Encoding.UTF8;
+                        var bom = encoding.GetPreamble();
 
+                        // Byte order mark
+                        if (bom != null)
+                            stream.Write( bom, 0, bom.Length );
+
+                        // Pure string
+                        using (var memoryStream = new MemoryStream( encoding.GetBytes( (string) value ) ))
+                            memoryStream.CopyTo( stream );
+                    }
+
+                    // Did it synchronously
                     task.SetResult( null );
                 }
                 catch (Exception e)
