@@ -97,6 +97,21 @@ class RecordingFilter {
             this.query();
     }
 
+    // Erstellt die Beschreibung der aktuellen Suche
+    createRequest(): ISearchRequestContract {
+        return {
+            series: this.getSeries(this.seriesLookup(this.seriesController.model.val())),
+            language: this.languageController.model.val(),
+            genres: this.genreController.model.val(),
+            rent: this.rentController.model.val(),
+            text: this.textController.model.val(),
+            ascending: this.ascending.val(),
+            order: this.order.val(),
+            size: this.size.val(),
+            page: this.page.val(),
+        };
+    }
+
     // Führt eine Suche mit der aktuellen Einschränkung aus
     query(resetPage: boolean = false): void {
         if (resetPage) {
@@ -122,17 +137,7 @@ class RecordingFilter {
         var thisRequest = ++this.pending;
 
         // Suche zusammenstellen
-        var request: ISearchRequestContract = {
-            series: this.getSeries(this.seriesLookup(this.seriesController.model.val())),
-            language: this.languageController.model.val(),
-            genres: this.genreController.model.val(),
-            rent: this.rentController.model.val(),
-            text: this.textController.model.val(),
-            ascending: this.ascending.val(),
-            order: this.order.val(),
-            size: this.size.val(),
-            page: this.page.val(),
-        };
+        var request = this.createRequest();
 
         $.ajax('movie/db/query', {
             contentType: 'application/json; charset=utf-8',

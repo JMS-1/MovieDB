@@ -161,22 +161,25 @@ namespace WebApp.DTO
                 recordings = recordings.Where( r => r.FullName.Contains( request.Text ) );
 
             // Language statistics is made just prior to setting the language because currently only one language may be choosen
-            response.LanguageStatistics =
-                recordings
-                    .SelectMany( r => r.Languages )
-                    .GroupBy( l => l.UniqueIdentifier )
-                    .Select( g => new SearchInformation.Language { Identifier = g.Key, Count = g.Count() } )
-                    .ToArray();
+            if (response != null)
+                response.LanguageStatistics =
+                    recordings
+                        .SelectMany( r => r.Languages )
+                        .GroupBy( l => l.UniqueIdentifier )
+                        .Select( g => new SearchInformation.Language { Identifier = g.Key, Count = g.Count() } )
+                        .ToArray();
 
             // Apply language filter
             if (request.RequiredLanguage.HasValue)
                 recordings = recordings.Where( r => r.Languages.Any( l => l.UniqueIdentifier == request.RequiredLanguage.Value ) );
 
             // Check counter after filter is applied but bevore we start restricting
-            response.TotalCount = recordings.Count();
+            if (response != null)
+                response.TotalCount = recordings.Count();
 
             // Genre statistics will be made on full restriction to support multi value
-            response.GenreStatistics =
+            if (response != null)
+                response.GenreStatistics =
                 recordings
                     .SelectMany( r => r.Genres )
                     .GroupBy( g => g.UniqueIdentifier )
@@ -200,6 +203,10 @@ namespace WebApp.DTO
                         recordings = recordings.OrderByDescending( recording => recording.CreationTimeInDatabase );
                     break;
             }
+
+            // Done
+            if (response == null)
+                return recordings;
 
             // Apply start offset
             var offset = request.Offset;

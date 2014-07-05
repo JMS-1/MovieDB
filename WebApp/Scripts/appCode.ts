@@ -314,6 +314,16 @@ module MovieDatabase {
             return $('#specialFeatureDialog');
         }
 
+        private exportForm(): JQuery {
+            return $('#exportForm');
+        }
+
+        private doExport(): void {
+            this.exportForm().find('input[name="request"]').val(JSON.stringify(this.recordingFilter.createRequest()));
+
+            this.featuresDialog().dialog('close');
+        }
+
         private doBackup(): void {
             $.ajax('movie/db/backup', {
                 type: 'POST',
@@ -370,9 +380,13 @@ module MovieDatabase {
 
             $('.navigationButton, .editButton').button();
 
+            var exporter = this.exportForm();
+            exporter.submit(() => this.doExport());
+
             var features = this.featuresDialog();
             features.find('.dialogCancel').click(() => features.dialog('close'));
             features.find('.dialogBackup').click(() => this.doBackup());
+            features.find('.dialogExport').click(() => exporter.submit());
 
             $('#newRecording').click(() => window.location.hash = 'new');
             $('#gotoQuery').click(() => this.backToQuery());

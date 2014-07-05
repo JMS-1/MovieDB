@@ -310,6 +310,16 @@
             return $('#specialFeatureDialog');
         };
 
+        Application.prototype.exportForm = function () {
+            return $('#exportForm');
+        };
+
+        Application.prototype.doExport = function () {
+            this.exportForm().find('input[name="request"]').val(JSON.stringify(this.recordingFilter.createRequest()));
+
+            this.featuresDialog().dialog('close');
+        };
+
         Application.prototype.doBackup = function () {
             var _this = this;
             $.ajax('movie/db/backup', {
@@ -394,12 +404,20 @@
 
             $('.navigationButton, .editButton').button();
 
+            var exporter = this.exportForm();
+            exporter.submit(function () {
+                return _this.doExport();
+            });
+
             var features = this.featuresDialog();
             features.find('.dialogCancel').click(function () {
                 return features.dialog('close');
             });
             features.find('.dialogBackup').click(function () {
                 return _this.doBackup();
+            });
+            features.find('.dialogExport').click(function () {
+                return exporter.submit();
             });
 
             $('#newRecording').click(function () {
@@ -1632,6 +1650,21 @@ var RecordingFilter = (function () {
             this.query();
     };
 
+    // Erstellt die Beschreibung der aktuellen Suche
+    RecordingFilter.prototype.createRequest = function () {
+        return {
+            series: this.getSeries(this.seriesLookup(this.seriesController.model.val())),
+            language: this.languageController.model.val(),
+            genres: this.genreController.model.val(),
+            rent: this.rentController.model.val(),
+            text: this.textController.model.val(),
+            ascending: this.ascending.val(),
+            order: this.order.val(),
+            size: this.size.val(),
+            page: this.page.val()
+        };
+    };
+
     // Führt eine Suche mit der aktuellen Einschränkung aus
     RecordingFilter.prototype.query = function (resetPage) {
         var _this = this;
@@ -1659,17 +1692,7 @@ var RecordingFilter = (function () {
         var thisRequest = ++this.pending;
 
         // Suche zusammenstellen
-        var request = {
-            series: this.getSeries(this.seriesLookup(this.seriesController.model.val())),
-            language: this.languageController.model.val(),
-            genres: this.genreController.model.val(),
-            rent: this.rentController.model.val(),
-            text: this.textController.model.val(),
-            ascending: this.ascending.val(),
-            order: this.order.val(),
-            size: this.size.val(),
-            page: this.page.val()
-        };
+        var request = this.createRequest();
 
         $.ajax('movie/db/query', {
             contentType: 'application/json; charset=utf-8',

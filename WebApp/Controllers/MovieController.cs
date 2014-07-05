@@ -4,9 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 using WebApp.DAL;
 using WebApp.DTO;
 
@@ -23,6 +26,11 @@ namespace WebApp.Controllers
         /// Kann die alte Darstellung deserialisieren.
         /// </summary>
         private static readonly XmlSerializer _LegacyDeserializer = new XmlSerializer( typeof( MovieDB.Database ), MovieDB.Database.DatabaseNamespace );
+
+        /// <summary>
+        /// Kann JSON deserialisieren.
+        /// </summary>
+        private static readonly JsonSerializer _JsonDeserializer = new JsonSerializer();
 
         /// <summary>
         /// Führt eine einfache Suche durch.
@@ -303,6 +311,79 @@ namespace WebApp.Controllers
 
             // Done
             return Ok();
+        }
+
+        /// <summary>
+        /// Führt eine einfache Suche durch.
+        /// </summary>
+        /// <param name="request">Die Beschreibung der auszuführenden Suche.</param>
+        /// <returns>Eine Liste passender Ergebnisse.</returns>
+        [HttpPost]
+        [Route( "export" )]
+        public async Task<HttpResponseMessage> Export( HttpRequestMessage request )
+        {
+            // Default
+            var formData = await request.Content.ReadAsFormDataAsync();
+
+            // We have to decode by hand because we are using FORM INPUT and redirection - not a problem at all!
+            SearchRequest searchRequest;
+            using (var reader = new StringReader( formData["request"] ))
+            using (var json = new JsonTextReader( reader ))
+                searchRequest = _JsonDeserializer.Deserialize<SearchRequest>( json );
+
+            // Root query
+            var recordings =
+                await Database
+                    .Apply( searchRequest, null )
+                    .Include( r => r.Languages )
+                    .Include( r => r.Genres )
+                    .ToArrayAsync();
+
+            // Create result
+            using (var memoryStream = new MemoryStream())
+            using (var writer = new StreamWriter( memoryStream, Encoding.UTF8 ))
+            {
+                // Format
+                const string format = "{0};{1};{2}";
+
+                // Header
+                writer.WriteLine( format, "Name", "Sprachen", "Kategorien" );
+
+                // Data
+                foreach (var recording in recordings)
+                    writer.WriteLine
+                        (
+                            format,
+                            GetExportString( recording.FullName ),
+                            GetExportString( string.Join( "; ", recording.Languages.Select( l => l.Name ) ) ),
+                            GetExportString( string.Join( "; ", recording.Genres.Select( g => g.Name ) ) )
+                        );
+
+                // Finish
+                writer.Flush();
+
+                // Create response
+                var response = new HttpResponseMessage { Content = new StreamContent( new MemoryStream( memoryStream.ToArray(), false ) ) };
+
+                // Configure it
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue( "text/csv" );
+
+                // Send to client
+                return response;
+            }
+        }
+
+        /// <summary>
+        /// Erstellt aus einer Zeichenkette eine Darstellung passend für einen Export nach <i>Excel</i>.
+        /// </summary>
+        /// <param name="rawValue">Die orginale Zeichenkette.</param>
+        /// <returns>Die Zeichenkette für Excel.</returns>
+        private static string GetExportString( string rawValue )
+        {
+            if (string.IsNullOrEmpty( rawValue ))
+                return string.Empty;
+            else
+                return string.Format( "\"{0}\"", rawValue.Replace( "\t", " " ).Replace( "\r", " " ).Replace( "\n", " " ).Replace( "\"", "\"\"" ) );
         }
     }
 }
