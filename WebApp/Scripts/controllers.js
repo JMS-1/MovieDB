@@ -50,7 +50,10 @@ var TextFilterController = (function () {
     };
 
     TextFilterController.prototype.modelToView = function () {
-        this.view.val(this.model.val());
+        var text = this.model.val();
+
+        if (text !== this.view.val())
+            this.view.val(text);
     };
     return TextFilterController;
 })();

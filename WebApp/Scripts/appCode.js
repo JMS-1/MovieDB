@@ -214,7 +214,12 @@
 
                 var recordingRow = $('<tr></tr>').appendTo(tableBody);
 
-                $('<a />', { text: recording.hierarchicalName, href: '#' + recording.id }).appendTo($('<td class="nameColumn"/>').appendTo(recordingRow));
+                var titleCell = $('<td class="nameColumn"/>').appendTo(recordingRow);
+                $('<a />', { text: recording.hierarchicalName, href: '#' + recording.id }).appendTo(titleCell);
+
+                if (recording.rent != null)
+                    $('<div />', { 'class': 'ui-icon ui-icon-transferthick-e-w rentIcon', title: recording.rent }).appendTo(titleCell);
+
                 $('<td class="dateColumn"/>').appendTo(recordingRow).text(Tools.toFullDateWithTime(recording.created));
                 $('<td class="languageColumn"/>').appendTo(recordingRow).text($.map(recording.languages, function (language) {
                     return _this.allLanguages[language] || language;
@@ -222,7 +227,6 @@
                 $('<td class="genreColumn"/>').appendTo(recordingRow).text($.map(recording.genres, function (genre) {
                     return _this.allGenres[genre] || genre;
                 }).join('; '));
-                $('<td class="rentColumn"/>').appendTo(recordingRow).text(recording.rent);
             });
 
             this.setMode();
@@ -302,6 +306,33 @@
             this.deleteRecording.disable();
         };
 
+        Application.prototype.featuresDialog = function () {
+            return $('#specialFeatureDialog');
+        };
+
+        Application.prototype.exportForm = function () {
+            return $('#exportForm');
+        };
+
+        Application.prototype.doExport = function () {
+            this.exportForm().find('input[name="request"]').val(JSON.stringify(this.recordingFilter.createRequest()));
+
+            this.featuresDialog().dialog('close');
+        };
+
+        Application.prototype.doBackup = function () {
+            var _this = this;
+            $.ajax('movie/db/backup', {
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({})
+            }).done(function () {
+                return _this.featuresDialog().dialog('close');
+            }).fail(function () {
+                return alert('Da ist leider etwas schief gegangen');
+            });
+        };
+
         Application.prototype.startup = function () {
             var _this = this;
             // Man beachte, dass alle der folgenden Benachrichtigungen immer an den aktuellen Änderungsvorgang koppeln, so dass keine Abmeldung notwendig ist
@@ -373,11 +404,32 @@
 
             $('.navigationButton, .editButton').button();
 
+            var exporter = this.exportForm();
+            exporter.submit(function () {
+                return _this.doExport();
+            });
+
+            var features = this.featuresDialog();
+            features.find('.dialogCancel').click(function () {
+                return features.dialog('close');
+            });
+            features.find('.dialogBackup').click(function () {
+                return _this.doBackup();
+            });
+            features.find('.dialogExport').click(function () {
+                return exporter.submit();
+            });
+
             $('#newRecording').click(function () {
                 return window.location.hash = 'new';
             });
             $('#gotoQuery').click(function () {
                 return _this.backToQuery();
+            });
+            $('#busyIndicator').click(function () {
+                Tools.openDialog(features);
+
+                features.dialog('option', 'width', '70%');
             });
 
             this.deleteRecording = new DeleteButton(RecordingEditor.deleteButton(), function () {
