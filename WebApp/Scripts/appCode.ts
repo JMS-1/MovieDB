@@ -38,26 +38,6 @@ module MovieDatabase {
 
         private deleteRecording: DeleteButton;
 
-        private migrate(): void {
-            var legacyFile = $('#theFile');
-
-            var fileInput = <HTMLInputElement>(legacyFile[0]);
-            if (fileInput.files.length != 1)
-                return;
-
-            var data = new FormData();
-            data.append('legacyFile', fileInput.files[0]);
-
-            var request: JQueryAjaxSettings = {
-                contentType: false,
-                processData: false,
-                type: 'POST',
-                data: data,
-            };
-
-            $.ajax('movie/db/initialize', request).done(() => this.refresh());
-        }
-
         private refresh(): void {
             this.requestApplicationInformation().done(info => this.fillApplicationInformation(info));
         }
@@ -347,10 +327,9 @@ module MovieDatabase {
             this.genreDialog = new GenreEditor('.openGenreEditDialog', () => this.requestApplicationInformation());
 
             var legacyFile = $('#theFile');
-            var migrateButton = $('#migrate');
 
-            legacyFile.change(() => this.migrate());
-            migrateButton.button().click(() => legacyFile.click());
+            legacyFile.change(() => $('#importForm').submit());
+            $('#migrate').button().click(() => legacyFile.click());
 
             $('input[name="pageSize"][value="15"]').prop('checked', true);
             $('input[name="pageSize"]').button().click(ev => this.recordingFilter.size.val(parseInt($(ev.target).val())));

@@ -340,7 +340,7 @@ namespace WebApp.Controllers
             }
 
             // Must provide proper synchronisation code for the framework to run the request
-            return Ok();
+            return Redirect( Url.Content( "../../default.html" ) );
         }
 
         /// <summary>

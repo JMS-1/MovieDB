@@ -174,7 +174,10 @@
     <h1 id="headline">(Bitte etwas Geduld)</h1>
     <h4 id="countline"><span id="countInfo"></span><span id="busyIndicator" class="ui-icon ui-icon-power"></span></h4>
 
-    <input id="theFile" type="file" class="invisible" />
+    <form id="importForm" action="movie/db/initialize" method="POST" class="invisible" enctype="multipart/form-data">
+        <input id="theFile" type="file" name="legacyFile" />
+    </form>
+
     <form id="exportForm" action="movie/db/export" method="POST" class="invisible">
         <input type="text" name="request" />
     </form>

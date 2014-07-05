@@ -12,29 +12,6 @@
                 return _this.startup();
             });
         }
-        Application.prototype.migrate = function () {
-            var _this = this;
-            var legacyFile = $('#theFile');
-
-            var fileInput = (legacyFile[0]);
-            if (fileInput.files.length != 1)
-                return;
-
-            var data = new FormData();
-            data.append('legacyFile', fileInput.files[0]);
-
-            var request = {
-                contentType: false,
-                processData: false,
-                type: 'POST',
-                data: data
-            };
-
-            $.ajax('movie/db/initialize', request).done(function () {
-                return _this.refresh();
-            });
-        };
-
         Application.prototype.refresh = function () {
             var _this = this;
             this.requestApplicationInformation().done(function (info) {
@@ -363,12 +340,11 @@
             });
 
             var legacyFile = $('#theFile');
-            var migrateButton = $('#migrate');
 
             legacyFile.change(function () {
-                return _this.migrate();
+                return $('#importForm').submit();
             });
-            migrateButton.button().click(function () {
+            $('#migrate').button().click(function () {
                 return legacyFile.click();
             });
 
