@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Web;
 using WebApp.Models;
 
 
@@ -65,12 +66,12 @@ namespace WebApp.DAL
         /// <summary>
         /// Der Name unserer Datenbank.
         /// </summary>
-        private static string _DatabaseName;
+        public static string DatabaseName { get; private set; }
 
         /// <summary>
         /// Der volle Pfad zur Datenbank.
         /// </summary>
-        private static string _DatabasePath;
+        public static string DatabasePath { get; private set; }
 
         /// <summary>
         /// Die vollen Verbindungsinformationen zur Datenbank.
@@ -178,9 +179,9 @@ namespace WebApp.DAL
         public static void DetachFromDatabase()
         {
             // Remember and test
-            if (string.IsNullOrEmpty( _DatabasePath ))
+            if (string.IsNullOrEmpty( DatabasePath ))
                 return;
-            if (!File.Exists( _DatabasePath ))
+            if (!File.Exists( DatabasePath ))
                 return;
 
             // Connect to master database
@@ -191,12 +192,12 @@ namespace WebApp.DAL
                 // Create the database
                 using (var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = string.Format( "SELECT DB_ID('{0}')", _DatabaseName );
+                    cmd.CommandText = string.Format( "SELECT DB_ID('{0}')", DatabaseName );
                     if (cmd.ExecuteScalar() == DBNull.Value)
                         return;
 
                     // Must detach first
-                    cmd.CommandText = string.Format( "exec sp_detach_db '{0}'", _DatabaseName );
+                    cmd.CommandText = string.Format( "exec sp_detach_db '{0}'", DatabaseName );
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -204,17 +205,25 @@ namespace WebApp.DAL
         }
 
         /// <summary>
+        /// Meldet den Pfad zur Datenbank Datei innerhalb der Webanwendung.
+        /// </summary>
+        public static string InWebPath { get { return Path.Combine( HttpRuntime.AppDomainAppPath, @"App_Data\Movie.mdf" ); } }
+
+        /// <summary>
         /// Legt einmalig die Datenbank an.
         /// </summary>
         /// <param name="pathToDatabase">Der volle Pfad zur Datenbank.</param>
         /// <param name="databaseName">Der Name der Datenbank.</param>
-        public static void CreateOnce( string pathToDatabase, string databaseName = null )
+        public static void CreateOnce( string pathToDatabase = null, string databaseName = null )
         {
+            if (string.IsNullOrEmpty( pathToDatabase ))
+                pathToDatabase = InWebPath;
+
             _DatabaseConnectionString = string.Format( _LocalDb + @";AttachDbFilename={0};MultipleActiveResultSets=True", pathToDatabase );
-            _DatabaseName = databaseName ?? "JmsMovieDb10";
+            DatabaseName = databaseName ?? "JmsMovieDb10";
 
             // Remember and test
-            if (File.Exists( _DatabasePath = pathToDatabase ))
+            if (File.Exists( DatabasePath = pathToDatabase ))
                 using (var connection = new SqlConnection( _DatabaseConnectionString ))
                 {
                     connection.Open();
@@ -224,7 +233,7 @@ namespace WebApp.DAL
                         cmd.CommandText = string.Format( "SELECT DB_NAME()" );
 
                         // Ask the database for or name
-                        _DatabaseName = (string) cmd.ExecuteScalar();
+                        DatabaseName = (string) cmd.ExecuteScalar();
                     }
 
                     return;
@@ -239,21 +248,21 @@ namespace WebApp.DAL
                 using (var cmd = connection.CreateCommand())
                 {
                     // Must detach first
-                    cmd.CommandText = string.Format( "SELECT DB_ID('{0}')", _DatabaseName );
+                    cmd.CommandText = string.Format( "SELECT DB_ID('{0}')", DatabaseName );
                     if (cmd.ExecuteScalar() != DBNull.Value)
                     {
-                        cmd.CommandText = string.Format( "exec sp_detach_db '{0}'", _DatabaseName );
+                        cmd.CommandText = string.Format( "exec sp_detach_db '{0}'", DatabaseName );
                         cmd.ExecuteNonQuery();
                     }
 
                     // Create new
-                    cmd.CommandText = string.Format( "CREATE DATABASE {0} ON (NAME = N'{0}', FILENAME = '{1}')", _DatabaseName, _DatabasePath );
+                    cmd.CommandText = string.Format( "CREATE DATABASE {0} ON (NAME = N'{0}', FILENAME = '{1}')", DatabaseName, DatabasePath );
                     cmd.ExecuteNonQuery();
                 }
             }
 
             // Prepare to run script
-            var script = File.ReadAllLines( Path.Combine( Path.GetDirectoryName( _DatabasePath ), "database.sql" ) );
+            var script = File.ReadAllLines( Path.Combine( Path.GetDirectoryName( DatabasePath ), "database.sql" ) );
             var command = new StringBuilder();
 
             // Start processing script

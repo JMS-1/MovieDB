@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -257,6 +258,50 @@ namespace WebApp.Controllers
             }
 
             // Must provide proper synchronisation code for the framework to run the request
+            return Ok();
+        }
+
+        /// <summary>
+        /// Wird aufgerufen, um eine Sicherungskopie der Datenbank anzulegen.
+        /// </summary>
+        /// <returns>Die Steuerung des asynchronen Aufrufs.</returns>
+        [Route( "backup" )]
+        [HttpPost]
+        public async Task<IHttpActionResult> CreateBackup()
+        {
+            // All paths
+            var databaseFile = DAL.Database.DatabasePath;
+            var backupFile = Path.ChangeExtension( databaseFile, ".bak" );
+            var backupCopy = Path.Combine( Path.GetDirectoryName( backupFile ), Path.GetFileNameWithoutExtension( backupFile ) + " (previous)" + Path.GetExtension( backupFile ) );
+
+            // Copy current backup
+            if (File.Exists( backupFile ))
+                File.Copy( backupFile, backupCopy, true );
+
+            // Attach to the raw database connection
+            var connection = Database.Database.Connection;
+
+            // Open the connection
+            connection.Open();
+
+            // Make sure we close it
+            try
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    // Configure
+                    command.CommandText = string.Format( "BACKUP DATABASE {0} TO DISK = '{1}' WITH FORMAT", DAL.Database.DatabaseName, backupFile.Replace( "'", "''" ) );
+
+                    // Process
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            // Done
             return Ok();
         }
     }

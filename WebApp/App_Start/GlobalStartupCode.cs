@@ -58,7 +58,7 @@ namespace WebApp
                     GlobalConfiguration.Configure( HttpConfigurationExtensions.MapHttpAttributeRoutes );
 
                     // Prepare database
-                    Database.CreateOnce( Path.Combine( HttpRuntime.AppDomainAppPath, @"App_Data\Movie.mdf" ) );
+                    Database.CreateOnce();
 
                     // Mark as initialized
                     application[_InitializationKey] = true;

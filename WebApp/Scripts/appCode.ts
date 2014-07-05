@@ -314,6 +314,16 @@ module MovieDatabase {
             return $('#specialFeatureDialog');
         }
 
+        private doBackup(): void {
+            $.ajax('movie/db/backup', {
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({}),
+            })
+                .done(() => this.featuresDialog().dialog('close'))
+                .fail(() => alert('Da ist leider etwas schief gegangen'));
+        }
+
         private startup(): void {
             // Man beachte, dass alle der folgenden Benachrichtigungen immer an den aktuellen Änderungsvorgang koppeln, so dass keine Abmeldung notwendig ist
             var validateRecordingEditForm = () => this.currentRecording.validate();
@@ -362,10 +372,15 @@ module MovieDatabase {
 
             var features = this.featuresDialog();
             features.find('.dialogCancel').click(() => features.dialog('close'));
+            features.find('.dialogBackup').click(() => this.doBackup());
 
             $('#newRecording').click(() => window.location.hash = 'new');
             $('#gotoQuery').click(() => this.backToQuery());
-            $('#busyIndicator').click(() => Tools.openDialog(features));
+            $('#busyIndicator').click(() => {
+                Tools.openDialog(features);
+
+                features.dialog('option', 'width', '70%');
+            });
 
             this.deleteRecording = new DeleteButton(RecordingEditor.deleteButton(), () => this.currentRecording.remove(() => this.backToQuery()));
 
