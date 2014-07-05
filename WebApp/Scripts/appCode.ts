@@ -310,6 +310,10 @@ module MovieDatabase {
             this.deleteRecording.disable();
         }
 
+        private featuresDialog(): JQuery {
+            return $('#specialFeatureDialog');
+        }
+
         private startup(): void {
             // Man beachte, dass alle der folgenden Benachrichtigungen immer an den aktuellen Änderungsvorgang koppeln, so dass keine Abmeldung notwendig ist
             var validateRecordingEditForm = () => this.currentRecording.validate();
@@ -356,8 +360,12 @@ module MovieDatabase {
 
             $('.navigationButton, .editButton').button();
 
+            var features = this.featuresDialog();
+            features.find('.dialogCancel').click(() => features.dialog('close'));
+
             $('#newRecording').click(() => window.location.hash = 'new');
             $('#gotoQuery').click(() => this.backToQuery());
+            $('#busyIndicator').click(() => Tools.openDialog(features));
 
             this.deleteRecording = new DeleteButton(RecordingEditor.deleteButton(), () => this.currentRecording.remove(() => this.backToQuery()));
 

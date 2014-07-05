@@ -35,7 +35,10 @@ class TextFilterController {
     }
 
     private modelToView(): void {
-        this.view.val(this.model.val());
+        var text = this.model.val();
+
+        if (text !== this.view.val())
+            this.view.val(text);
     }
 }
 

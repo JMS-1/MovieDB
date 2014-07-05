@@ -306,6 +306,10 @@
             this.deleteRecording.disable();
         };
 
+        Application.prototype.featuresDialog = function () {
+            return $('#specialFeatureDialog');
+        };
+
         Application.prototype.startup = function () {
             var _this = this;
             // Man beachte, dass alle der folgenden Benachrichtigungen immer an den aktuellen Änderungsvorgang koppeln, so dass keine Abmeldung notwendig ist
@@ -377,11 +381,19 @@
 
             $('.navigationButton, .editButton').button();
 
+            var features = this.featuresDialog();
+            features.find('.dialogCancel').click(function () {
+                return features.dialog('close');
+            });
+
             $('#newRecording').click(function () {
                 return window.location.hash = 'new';
             });
             $('#gotoQuery').click(function () {
                 return _this.backToQuery();
+            });
+            $('#busyIndicator').click(function () {
+                return Tools.openDialog(features);
             });
 
             this.deleteRecording = new DeleteButton(RecordingEditor.deleteButton(), function () {
@@ -814,7 +826,10 @@ var TextFilterController = (function () {
     };
 
     TextFilterController.prototype.modelToView = function () {
-        this.view.val(this.model.val());
+        var text = this.model.val();
+
+        if (text !== this.view.val())
+            this.view.val(text);
     };
     return TextFilterController;
 })();
