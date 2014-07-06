@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,79 +22,6 @@ namespace WebApp.Controllers
     [RoutePrefix( "movie/db" )]
     public class MovieController : ControllerWithDatabase
     {
-        /// <summary>
-        /// Überträgt eine Zeichenkette unverändert an den Client.
-        /// </summary>
-        private class StringCopyFormatter : MediaTypeFormatter
-        {
-            /// <summary>
-            /// Die einzige Instanz.
-            /// </summary>
-            public static readonly MediaTypeFormatter Instance = new StringCopyFormatter();
-
-            /// <summary>
-            /// Überträgte die Zeichenkette.
-            /// </summary>
-            /// <param name="type">Die Art des Wertes.</param>
-            /// <param name="value">Der Wert, hoffentlich eine Zeichenkette.</param>
-            /// <param name="stream">Da soll die Zeichenkette hin.</param>
-            /// <param name="content">Die Informationen zum gesamten Inhalt.</param>
-            /// <param name="transportContext">Die Informationen zur Übertragung.</param>
-            /// <returns>Die Aufgabe zur Übertragung.</returns>
-            public override Task WriteToStreamAsync( Type type, object value, Stream stream, HttpContent content, TransportContext transportContext )
-            {
-                // Create response
-                var task = new TaskCompletionSource<object>();
-                try
-                {
-                    // Just copy
-                    if (value != null)
-                    {
-                        var encoding = Encoding.UTF8;
-                        var bom = encoding.GetPreamble();
-
-                        // Byte order mark
-                        if (bom != null)
-                            stream.Write( bom, 0, bom.Length );
-
-                        // Pure string
-                        using (var memoryStream = new MemoryStream( encoding.GetBytes( (string) value ) ))
-                            memoryStream.CopyTo( stream );
-                    }
-
-                    // Did it synchronously
-                    task.SetResult( null );
-                }
-                catch (Exception e)
-                {
-                    task.SetException( e );
-                }
-
-                // Report
-                return task.Task;
-            }
-
-            /// <summary>
-            /// Prüft, ob wir einen Eingangstypen wandeln können.
-            /// </summary>
-            /// <param name="type">Der Eingangstyp.</param>
-            /// <returns>Niemals.</returns>
-            public override bool CanReadType( Type type )
-            {
-                return false;
-            }
-
-            /// <summary>
-            /// Prüft, ob wir einen Ausgangstypen wandeln können.
-            /// </summary>
-            /// <param name="type">Der Ausgangstyp.</param>
-            /// <returns>Wir können Zeichenketten und sonst nichts.</returns>
-            public override bool CanWriteType( Type type )
-            {
-                return type == typeof( string );
-            }
-        }
-
         /// <summary>
         /// Kann die alte Darstellung deserialisieren.
         /// </summary>
@@ -394,10 +320,10 @@ namespace WebApp.Controllers
         /// <returns>Eine Liste passender Ergebnisse.</returns>
         [HttpPost]
         [Route( "export" )]
-        public HttpResponseMessage Export( HttpRequestMessage request )
+        public async Task<HttpResponseMessage> Export( HttpRequestMessage request )
         {
             // Default
-            var formData = request.Content.ReadAsFormDataAsync().Result;
+            var formData = await request.Content.ReadAsFormDataAsync();
 
             // We have to decode by hand because we are using FORM INPUT and redirection - not a problem at all!
             SearchRequest searchRequest;
@@ -407,39 +333,45 @@ namespace WebApp.Controllers
 
             // Root query
             var recordings =
-                Database
+                await Database
                     .Apply( searchRequest, null )
                     .Include( r => r.Languages )
                     .Include( r => r.Genres )
-                    .ToArray();
+                    .ToArrayAsync();
 
-            var writer = new StringBuilder();
+            // Create result
+            using (var memoryStream = new MemoryStream())
+            using (var writer = new StreamWriter( memoryStream, Encoding.UTF8 ))
+            {
+                // Format
+                const string format = "{0};{1};{2}";
 
-            // Format
-            const string format = "{0};{1};{2}\r\n";
+                // Header
+                writer.WriteLine( format, "Name", "Sprachen", "Kategorien" );
 
-            // Header
-            writer.AppendFormat( format, "Name", "Sprachen", "Kategorien" );
+                // Data
+                foreach (var recording in recordings)
+                    writer.WriteLine
+                        (
+                            format,
+                            GetExportString( recording.FullName ),
+                            GetExportString( string.Join( "; ", recording.Languages.Select( l => l.Name ) ) ),
+                            GetExportString( string.Join( "; ", recording.Genres.Select( g => g.Name ) ) )
+                        );
 
-            // Data
-            foreach (var recording in recordings)
-                writer.AppendFormat
-                    (
-                        format,
-                        GetExportString( recording.FullName ),
-                        GetExportString( string.Join( "; ", recording.Languages.Select( l => l.Name ).OrderBy( l => l ) ) ),
-                        GetExportString( string.Join( "; ", recording.Genres.Select( g => g.Name ).OrderBy( g => g ) ) )
-                    );
+                // Finish
+                writer.Flush();
 
-            // Create response
-            var response = request.CreateResponse( HttpStatusCode.OK, writer.ToString(), StringCopyFormatter.Instance );
+                // Create response
+                var response = new HttpResponseMessage { Content = new StreamContent( new MemoryStream( memoryStream.ToArray(), false ) ) };
 
-            // Configure it
-            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue( "attachment" ) { FileName = "export.csv" };
-            response.Content.Headers.ContentType = new MediaTypeHeaderValue( "text/csv" ) { CharSet = "utf-8" };
+                // Configure it
+                response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue( "attachment" ) { FileName = "export.csv" };
+                response.Content.Headers.ContentType = new MediaTypeHeaderValue( "text/csv" ) { CharSet = "utf-8" };
 
-            // Send to client
-            return response;
+                // Send to client
+                return response;
+            }
         }
 
         /// <summary>
