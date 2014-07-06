@@ -427,8 +427,8 @@ namespace WebApp.Controllers
                     (
                         format,
                         GetExportString( recording.FullName ),
-                        GetExportString( string.Join( "; ", recording.Languages.Select( l => l.Name ) ) ),
-                        GetExportString( string.Join( "; ", recording.Genres.Select( g => g.Name ) ) )
+                        GetExportString( string.Join( "; ", recording.Languages.Select( l => l.Name ).OrderBy( l => l ) ) ),
+                        GetExportString( string.Join( "; ", recording.Genres.Select( g => g.Name ).OrderBy( g => g ) ) )
                     );
 
             // Create response
