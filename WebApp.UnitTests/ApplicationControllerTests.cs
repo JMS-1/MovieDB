@@ -19,7 +19,7 @@ namespace WebApp.UnitTests
             var info = Controller.GetInformation();
 
             Assert.IsFalse( info.DatabaseIsEmpty, "empty" );
-            Assert.AreEqual( 7749, info.NumberOfRecordings, "#recordings" );
+            Assert.AreEqual( 7757, info.NumberOfRecordings, "#recordings" );
             Assert.AreEqual( 13, info.Languages.Length, "#languages" );
             Assert.AreEqual( 528, info.Series.Length, "#series" );
             Assert.AreEqual( 23, info.Genres.Length, "#genres" );

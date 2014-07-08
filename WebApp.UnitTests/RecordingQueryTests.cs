@@ -59,7 +59,7 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( 0, recordings.PageIndex, "index" );
             Assert.AreEqual( 15, recordings.PageSize, "size" );
-            Assert.AreEqual( 7749, recordings.TotalCount, "total" );
+            Assert.AreEqual( 7757, recordings.TotalCount, "total" );
             Assert.AreEqual( 15, recordings.Recordings.Length, "#recordings" );
 
             var first = recordings.Recordings[0];
@@ -86,16 +86,16 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( 200, recordings.PageIndex, "index" );
             Assert.AreEqual( 15, recordings.PageSize, "size" );
-            Assert.AreEqual( 7749, recordings.TotalCount, "total" );
+            Assert.AreEqual( 7757, recordings.TotalCount, "total" );
             Assert.AreEqual( 15, recordings.Recordings.Length, "#recordings" );
 
             var first = recordings.Recordings[0];
 
-            Assert.AreEqual( new DateTime( 2006, 9, 18, 5, 23, 41, 187, DateTimeKind.Utc ), first.CreationTime, "time" );
-            Assert.AreEqual( "Independance Day", first.Name, "name" );
-            CollectionAssert.IsEmpty( first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { m_genres["Action"], m_genres["SciFi"] }, first.Genres, "genre" );
-            Assert.IsNull( first.Series, "series" );
+            Assert.AreEqual( new DateTime( 2008, 4, 3, 14, 42, 3, 500, DateTimeKind.Utc ), first.CreationTime, "time" );
+            Assert.AreEqual( "22 Einzug der Sandkneifer", first.Name, "name" );
+            CollectionAssert.AreEquivalent( new[] { m_languages["de"] }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { m_genres["Animation"], m_genres["Kids"] }, first.Genres, "genre" );
+            Assert.IsNotNull( first.Series, "series" );
         }
 
         /// <summary>
@@ -108,16 +108,16 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( 154, recordings.PageIndex, "index" );
             Assert.AreEqual( 50, recordings.PageSize, "size" );
-            Assert.AreEqual( 7749, recordings.TotalCount, "total" );
-            Assert.AreEqual( 49, recordings.Recordings.Length, "#recordings" );
+            Assert.AreEqual( 7757, recordings.TotalCount, "total" );
+            Assert.AreEqual( 50, recordings.Recordings.Length, "#recordings" );
 
             var first = recordings.Recordings[0];
 
-            Assert.AreEqual( new DateTime( 2011, 10, 21, 19, 48, 5, 100, DateTimeKind.Utc ), first.CreationTime, "time" );
-            Assert.AreEqual( "X-Men (0)", first.Name, "name" );
-            CollectionAssert.AreEquivalent( new[] { m_languages["de"], m_languages["en"], m_languages["fr"] }, first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { m_genres["Action"], m_genres["Comic"] }, first.Genres, "genre" );
-            Assert.IsNull( first.Series, "series" );
+            Assert.AreEqual( new DateTime( 2009, 2, 7, 17, 3, 2, 530, DateTimeKind.Utc ), first.CreationTime, "time" );
+            Assert.AreEqual( "Meteoriten in Süddeutschland", first.Name, "name" );
+            CollectionAssert.AreEquivalent( new[] { m_languages["de"] }, first.Languages, "language" );
+            CollectionAssert.AreEquivalent( new[] { m_genres["Docu"] }, first.Genres, "genre" );
+            Assert.IsNotNull( first.Series, "series" );
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( 13, recordings.PageIndex, "index" );
             Assert.AreEqual( 75, recordings.PageSize, "size" );
-            Assert.AreEqual( 7749, recordings.TotalCount, "total" );
+            Assert.AreEqual( 7757, recordings.TotalCount, "total" );
             Assert.AreEqual( 75, recordings.Recordings.Length, "#recordings" );
 
             var first = recordings.Recordings[0];
@@ -152,7 +152,7 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( 38, recordings.PageIndex, "index" );
             Assert.AreEqual( 30, recordings.PageSize, "size" );
-            Assert.AreEqual( 7749, recordings.TotalCount, "total" );
+            Assert.AreEqual( 7757, recordings.TotalCount, "total" );
             Assert.AreEqual( 30, recordings.Recordings.Length, "#recordings" );
 
             var first = recordings.Recordings[0];
@@ -174,16 +174,16 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( 0, recordings.PageIndex, "index" );
             Assert.AreEqual( 15, recordings.PageSize, "size" );
-            Assert.AreEqual( 7749, recordings.TotalCount, "total" );
+            Assert.AreEqual( 7757, recordings.TotalCount, "total" );
             Assert.AreEqual( 15, recordings.Recordings.Length, "#recordings" );
 
             var first = recordings.Recordings[0];
 
-            Assert.AreEqual( new DateTime( 2014, 6, 14, 9, 37, 12, 743, DateTimeKind.Utc ), first.CreationTime, "time" );
-            Assert.AreEqual( "Safe", first.Name, "name" );
+            Assert.AreEqual( new DateTime( 2014, 6, 27, 20, 28, 52, 883, DateTimeKind.Utc ), first.CreationTime, "time" );
+            Assert.AreEqual( "17 Carpe Diem", first.Name, "name" );
             CollectionAssert.AreEquivalent( new[] { m_languages["de"] }, first.Languages, "language" );
-            CollectionAssert.AreEquivalent( new[] { m_genres["Action"] }, first.Genres, "genre" );
-            Assert.IsNull( first.Series, "series" );
+            CollectionAssert.AreEquivalent( new[] { m_genres["Crime"], m_genres["Thriller"] }, first.Genres, "genre" );
+            Assert.IsNotNull( first.Series, "series" );
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace WebApp.UnitTests
         /// <summary>
         /// Sortiert nach dem Verleihmodus.
         /// </summary>
-        [TestCase( false, 7695 )]
+        [TestCase( false, 7703 )]
         [TestCase( true, 54 )]
         public void CheckRentOption( bool isRent, int expected )
         {

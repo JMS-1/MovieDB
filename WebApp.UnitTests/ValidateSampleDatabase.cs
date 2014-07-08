@@ -20,10 +20,10 @@ namespace WebApp.UnitTests
         [Test]
         public void ValidateAllCounts()
         {
-            Assert.AreEqual( 7749, TestContext.Recordings.Count(), "#recordings" );
-            Assert.AreEqual( 103, TestContext.Containers.Count(), "#containers" );
+            Assert.AreEqual( 7757, TestContext.Recordings.Count(), "#recordings" );
+            Assert.AreEqual( 104, TestContext.Containers.Count(), "#containers" );
             Assert.AreEqual( 13, TestContext.Languages.Count(), "#languages" );
-            Assert.AreEqual( 2854, TestContext.Stores.Count(), "#stores" );
+            Assert.AreEqual( 2857, TestContext.Stores.Count(), "#stores" );
             Assert.AreEqual( 528, TestContext.Series.Count(), "#series" );
             Assert.AreEqual( 23, TestContext.Genres.Count(), "#genres" );
             Assert.AreEqual( 0, TestContext.Links.Count(), "#links" );
