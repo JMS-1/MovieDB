@@ -8,7 +8,7 @@ namespace WebApp.DTO
     /// Beschreibt eine Aufzeichnung für die Pflege.
     /// </summary>
     [DataContract]
-    public class RecordingEditInfo : Recording
+    public class RecordingEditCore : Recording
     {
         /// <summary>
         /// Die Beschreibung der Aufzeichnung.
@@ -38,6 +38,35 @@ namespace WebApp.DTO
         /// Erstellt eine neue Beschreibung.
         /// </summary>
         /// <param name="recording">Die Repräsentation aus der Datenbank.</param>
+        protected RecordingEditCore( Models.Recording recording )
+            : base( recording )
+        {
+        }
+
+        /// <summary>
+        /// Erstellt eine neue Beschreibung.
+        /// </summary>
+        public RecordingEditCore()
+        {
+        }
+    }
+
+    /// <summary>
+    /// Beschreibt eine Aufzeichnung für die Pflege.
+    /// </summary>
+    [DataContract]
+    public class RecordingEditInfo : RecordingEditCore
+    {
+        /// <summary>
+        /// Die eindeutige Kennung der Aufzeichnung.
+        /// </summary>
+        [DataMember( Name = "id" )]
+        public Guid RecordingIdentifier { get; set; }
+
+        /// <summary>
+        /// Erstellt eine neue Beschreibung.
+        /// </summary>
+        /// <param name="recording">Die Repräsentation aus der Datenbank.</param>
         private RecordingEditInfo( Models.Recording recording )
             : base( recording )
         {
@@ -59,6 +88,7 @@ namespace WebApp.DTO
         {
             return new RecordingEditInfo( recording )
             {
+                RecordingIdentifier = recording.UniqueIdentifier,
                 Container = recording.Store.ContainerIdentifier,
                 Location = recording.Store.Location,
                 Description = recording.Description,

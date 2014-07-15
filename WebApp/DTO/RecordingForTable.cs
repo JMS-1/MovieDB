@@ -12,6 +12,12 @@ namespace WebApp.DTO
     public class RecordingForTable : Recording
     {
         /// <summary>
+        /// Die eindeutige Kennung der Aufzeichnung.
+        /// </summary>
+        [DataMember( Name = "id" )]
+        public Guid RecordingIdentifier { get; set; }
+
+        /// <summary>
         /// Der Zeitpunkt in GMT / UTC Notation zu dem die Aufzeichnung angelegt wurde.
         /// </summary>
         public DateTime CreationTime { get; set; }
@@ -44,6 +50,7 @@ namespace WebApp.DTO
         {
             return new RecordingForTable( recording )
             {
+                RecordingIdentifier = recording.UniqueIdentifier,
                 CreationTime = recording.CreationTime,
             };
         }

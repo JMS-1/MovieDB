@@ -8,19 +8,26 @@ namespace WebApp.DTO
     /// Beschreibt eine Sprache.
     /// </summary>
     [DataContract]
-    public class LanguageDescription
+    public class LanguageDescriptionCore
+    {
+        /// <summary>
+        /// Die eindeutige Beschreibung der Sprache.
+        /// </summary>
+        [DataMember( Name = "name" )]
+        public string Name { get; set; }
+    }
+
+    /// <summary>
+    /// Beschreibt eine Sprache.
+    /// </summary>
+    [DataContract]
+    public class LanguageDescription : LanguageDescriptionCore
     {
         /// <summary>
         /// Der eindeutige Kurzname der Sprache.
         /// </summary>
         [DataMember( Name = "id" )]
         public Guid Identifier { get; set; }
-
-        /// <summary>
-        /// Die eindeutige Beschreibung der Sprache.
-        /// </summary>
-        [DataMember( Name = "name" )]
-        public string Name { get; set; }
 
         /// <summary>
         /// Erstellt eine neue Beschreibung.

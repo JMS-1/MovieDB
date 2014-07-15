@@ -47,7 +47,8 @@ var RecordingFilter = (function () {
         this.textController.elapsed = newRequest;
     }
     // Setzt die Suchbedingung und die zugehörigen Oberflächenelemente auf den Grundzustand zurück und fordert ein neues Suchergebnis an
-    RecordingFilter.prototype.reset = function (query) {
+    RecordingFilter.prototype.reset = function (query, editInfo) {
+        if (typeof editInfo === "undefined") { editInfo = null; }
         this.disallowQuery += 1;
         try  {
             this.languageController.model.val(null);
@@ -61,7 +62,7 @@ var RecordingFilter = (function () {
         }
 
         if (query)
-            this.query();
+            this.query(false, editInfo);
     };
 
     // Erstellt die Beschreibung der aktuellen Suche
@@ -80,9 +81,10 @@ var RecordingFilter = (function () {
     };
 
     // Führt eine Suche mit der aktuellen Einschränkung aus
-    RecordingFilter.prototype.query = function (resetPage) {
+    RecordingFilter.prototype.query = function (resetPage, editInfo) {
         var _this = this;
         if (typeof resetPage === "undefined") { resetPage = false; }
+        if (typeof editInfo === "undefined") { editInfo = null; }
         if (resetPage) {
             this.disallowQuery += 1;
             try  {
@@ -136,7 +138,7 @@ var RecordingFilter = (function () {
             });
 
             // Und verarbeiten
-            _this.callback(searchResult);
+            _this.callback(searchResult, editInfo);
         });
     };
 

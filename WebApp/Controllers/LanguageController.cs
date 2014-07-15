@@ -44,7 +44,7 @@ namespace WebApp.Controllers
         /// <param name="newLanguage">Die Daten zur Sprache.</param>
         [Route( "" )]
         [HttpPost]
-        public async Task<IHttpActionResult> Create( [FromBody] LanguageDescription newLanguage )
+        public async Task<IHttpActionResult> Create( [FromBody] LanguageDescriptionCore newLanguage )
         {
             // Add to collection
             Database.Languages.Add( new Language { Name = newLanguage.Name } );
@@ -63,7 +63,7 @@ namespace WebApp.Controllers
         /// <param name="newData">Die neuen Daten für die Sprache.</param>
         [Route( "{identifier}" )]
         [HttpPut]
-        public async Task<IHttpActionResult> Update( Guid identifier, [FromBody] LanguageDescription newData )
+        public async Task<IHttpActionResult> Update( Guid identifier, [FromBody] LanguageDescriptionCore newData )
         {
             // Locate
             var language = Database.Languages.Find( identifier );

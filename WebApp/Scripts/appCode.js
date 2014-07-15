@@ -1,7 +1,5 @@
 ﻿var MovieDatabase;
 (function (MovieDatabase) {
-    ;
-
     var Application = (function () {
         function Application() {
             var _this = this;
@@ -56,8 +54,9 @@
             $('#countInfo').text(text + ')');
         };
 
-        Application.prototype.fillApplicationInformation = function (info) {
+        Application.prototype.fillApplicationInformation = function (info, currentEdit) {
             var _this = this;
+            if (typeof currentEdit === "undefined") { currentEdit = null; }
             var busyIndicator = $('#busyIndicator');
 
             busyIndicator.removeClass(Styles.loading);
@@ -102,14 +101,14 @@
             this.recordingFilter.setGenres(info.genres);
             this.recordingFilter.setSeries(info.series);
 
-            this.recordingFilter.reset(true);
+            this.recordingFilter.reset(true, currentEdit);
         };
 
         /*
         Hier werden die Rohdaten einer Suche nach Aufzeichnungen erst einmal angereichert
         und dann als Tabellenzeilen in die Oberfläche übernommen.
         */
-        Application.prototype.fillResultTable = function (results) {
+        Application.prototype.fillResultTable = function (results, editInfo) {
             var _this = this;
             this.setCountInfo(results.total);
 
@@ -206,13 +205,14 @@
                 }).join('; '));
             });
 
-            this.setMode();
+            this.setMode(editInfo);
         };
 
-        Application.prototype.requestApplicationInformation = function () {
+        Application.prototype.requestApplicationInformation = function (currentEdit) {
             var _this = this;
+            if (typeof currentEdit === "undefined") { currentEdit = null; }
             return $.ajax('movie/info').done(function (info) {
-                return _this.fillApplicationInformation(info);
+                return _this.fillApplicationInformation(info, currentEdit);
             });
         };
 
@@ -220,13 +220,16 @@
             $('.operationMode').addClass(Styles.invisble);
         };
 
-        Application.prototype.setMode = function () {
+        Application.prototype.setMode = function (previousEdit) {
             var _this = this;
+            if (typeof previousEdit === "undefined") { previousEdit = null; }
             this.resetAllModes();
 
             var hash = window.location.hash;
             if (hash.length < 2)
                 $('#queryMode').removeClass(Styles.invisble);
+            else if (previousEdit != null)
+                this.fillEditForm(previousEdit);
             else if (hash == '#new')
                 this.fillEditForm(null);
             else
@@ -239,7 +242,8 @@
             this.deleteRecording.disable();
 
             if (recording != null)
-                this.deleteRecording.enable();
+                if (recording.id != null)
+                    this.deleteRecording.enable();
 
             this.currentRecording = new RecordingEditor(recording, this.genreEditor, this.languageEditor);
         };
@@ -317,27 +321,24 @@
                 return _this.currentRecording.validate();
             };
 
-            this.seriesDialog = new SeriesEditor('.openSeriesEditDialog', function () {
-                return _this.requestApplicationInformation();
-            }, function (series) {
-                return _this.getChildren(series);
-            });
-            this.recordingFilter = new RecordingFilter(function (result) {
-                return _this.fillResultTable(result);
+            // Wurde eine Vorschlagsliste verändert, so müssen wir den Neustart abhängig davon machen, ob wir Suchen oder Ändern
+            var conditionalReload = function () {
+                return _this.requestApplicationInformation($('#editRecordingMode').hasClass(Styles.invisble) ? null : _this.currentRecording.viewToModel());
+            };
+
+            this.recordingFilter = new RecordingFilter(function (result, edit) {
+                return _this.fillResultTable(result, edit);
             }, function (series) {
                 return _this.allSeries[series];
             });
-            this.containerDialog = new ContainerEditor('.openContainerEditDialog', function () {
-                return _this.requestApplicationInformation();
-            });
             this.languageEditor = new MultiValueEditor('#recordingEditLanguage', validateRecordingEditForm);
-            this.languageDialog = new LanguageEditor('.openLanguageEditDialog', function () {
-                return _this.requestApplicationInformation();
+            this.seriesDialog = new SeriesEditor('.openSeriesEditDialog', conditionalReload, function (series) {
+                return _this.getChildren(series);
             });
             this.genreEditor = new MultiValueEditor('#recordingEditGenre', validateRecordingEditForm);
-            this.genreDialog = new GenreEditor('.openGenreEditDialog', function () {
-                return _this.requestApplicationInformation();
-            });
+            this.containerDialog = new ContainerEditor('.openContainerEditDialog', conditionalReload);
+            this.languageDialog = new LanguageEditor('.openLanguageEditDialog', conditionalReload);
+            this.genreDialog = new GenreEditor('.openGenreEditDialog', conditionalReload);
 
             var legacyFile = $('#theFile');
 

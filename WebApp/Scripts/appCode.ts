@@ -3,7 +3,7 @@ module MovieDatabase {
 
     interface IApplicationInformation extends IApplicationInformationContract {
         series: ISeriesMapping[];
-    };
+    }
 
     class Application {
         constructor() {
@@ -78,7 +78,7 @@ module MovieDatabase {
             $('#countInfo').text(text + ')');
         }
 
-        private fillApplicationInformation(info: IApplicationInformation): void {
+        private fillApplicationInformation(info: IApplicationInformation, currentEdit: IRecordingEditContract = null): void {
             var busyIndicator = $('#busyIndicator');
 
             busyIndicator.removeClass(Styles.loading);
@@ -119,14 +119,14 @@ module MovieDatabase {
             this.recordingFilter.setGenres(info.genres);
             this.recordingFilter.setSeries(info.series);
 
-            this.recordingFilter.reset(true);
+            this.recordingFilter.reset(true, currentEdit);
         }
 
         /*
           Hier werden die Rohdaten einer Suche nach Aufzeichnungen erst einmal angereichert
           und dann als Tabellenzeilen in die Oberfläche übernommen.
         */
-        private fillResultTable(results: ISearchInformation): void {
+        private fillResultTable(results: ISearchInformation, editInfo: IRecordingEditContract): void {
             this.setCountInfo(results.total);
 
             var pageButtons = $('#pageButtons');
@@ -221,23 +221,25 @@ module MovieDatabase {
                 $('<td class="genreColumn"/>').appendTo(recordingRow).text($.map(recording.genres, genre=> this.allGenres[genre] || genre).join('; '));
             });
 
-            this.setMode();
+            this.setMode(editInfo);
         }
 
-        private requestApplicationInformation(): JQueryPromise<IApplicationInformation> {
-            return $.ajax('movie/info').done((info: IApplicationInformation) => this.fillApplicationInformation(info));
+        private requestApplicationInformation(currentEdit: IRecordingEditContract = null): JQueryPromise<IApplicationInformation> {
+            return $.ajax('movie/info').done((info: IApplicationInformation) => this.fillApplicationInformation(info, currentEdit));
         }
 
         private resetAllModes(): void {
             $('.operationMode').addClass(Styles.invisble);
         }
 
-        private setMode(): void {
+        private setMode(previousEdit: IRecordingEditContract = null): void {
             this.resetAllModes();
 
             var hash: string = window.location.hash;
             if (hash.length < 2)
                 $('#queryMode').removeClass(Styles.invisble);
+            else if (previousEdit != null)
+                this.fillEditForm(previousEdit);
             else if (hash == '#new')
                 this.fillEditForm(null);
             else
@@ -248,7 +250,8 @@ module MovieDatabase {
             this.deleteRecording.disable();
 
             if (recording != null)
-                this.deleteRecording.enable();
+                if (recording.id != null)
+                    this.deleteRecording.enable();
 
             this.currentRecording = new RecordingEditor(recording, this.genreEditor, this.languageEditor);
         }
@@ -318,13 +321,16 @@ module MovieDatabase {
             // Man beachte, dass alle der folgenden Benachrichtigungen immer an den aktuellen Änderungsvorgang koppeln, so dass keine Abmeldung notwendig ist
             var validateRecordingEditForm = () => this.currentRecording.validate();
 
-            this.seriesDialog = new SeriesEditor('.openSeriesEditDialog', () => this.requestApplicationInformation(), series => this.getChildren(series));
-            this.recordingFilter = new RecordingFilter(result => this.fillResultTable(result), series => this.allSeries[series]);
-            this.containerDialog = new ContainerEditor('.openContainerEditDialog', () => this.requestApplicationInformation());
+            // Wurde eine Vorschlagsliste verändert, so müssen wir den Neustart abhängig davon machen, ob wir Suchen oder Ändern
+            var conditionalReload = () => this.requestApplicationInformation($('#editRecordingMode').hasClass(Styles.invisble) ? null : this.currentRecording.viewToModel());
+
+            this.recordingFilter = new RecordingFilter((result, edit) => this.fillResultTable(result, edit), series => this.allSeries[series]);
             this.languageEditor = new MultiValueEditor<ILanguageContract>('#recordingEditLanguage', validateRecordingEditForm);
-            this.languageDialog = new LanguageEditor('.openLanguageEditDialog', () => this.requestApplicationInformation());
+            this.seriesDialog = new SeriesEditor('.openSeriesEditDialog', conditionalReload, series => this.getChildren(series));
             this.genreEditor = new MultiValueEditor<IGenreContract>('#recordingEditGenre', validateRecordingEditForm);
-            this.genreDialog = new GenreEditor('.openGenreEditDialog', () => this.requestApplicationInformation());
+            this.containerDialog = new ContainerEditor('.openContainerEditDialog', conditionalReload);
+            this.languageDialog = new LanguageEditor('.openLanguageEditDialog', conditionalReload);
+            this.genreDialog = new GenreEditor('.openGenreEditDialog', conditionalReload);
 
             var legacyFile = $('#theFile');
 

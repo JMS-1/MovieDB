@@ -44,7 +44,7 @@ namespace WebApp.Controllers
         /// <param name="newGenre">Die Daten zur Art.</param>
         [Route( "" )]
         [HttpPost]
-        public async Task<IHttpActionResult> Create( [FromBody] GenreDescription newGenre )
+        public async Task<IHttpActionResult> Create( [FromBody] GenreDescriptionCore newGenre )
         {
             // Add to collection
             Database.Genres.Add( new Genre { Name = newGenre.Name } );
@@ -63,7 +63,7 @@ namespace WebApp.Controllers
         /// <param name="newData">Die neuen Daten für die Art.</param>
         [Route( "{identifier}" )]
         [HttpPut]
-        public async Task<IHttpActionResult> Update( Guid identifier, [FromBody] GenreDescription newData )
+        public async Task<IHttpActionResult> Update( Guid identifier, [FromBody] GenreDescriptionCore newData )
         {
             // Locate
             var genre = Database.Genres.Find( identifier );

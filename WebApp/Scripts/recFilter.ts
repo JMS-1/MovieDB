@@ -22,7 +22,7 @@ interface ISeriesMapping extends ISeriesMappingContract {
 
 // Die Verwaltung der Suche nach Aufzeichnungen
 class RecordingFilter {
-    constructor(resultProcessor: (result: ISearchInformation) => void, getSeries: (series: string) => ISeriesMapping) {
+    constructor(resultProcessor: (result: ISearchInformation, editInfo: IRecordingEditContract) => void, getSeries: (series: string) => ISeriesMapping) {
         this.callback = resultProcessor;
         this.seriesLookup = getSeries;
 
@@ -58,7 +58,7 @@ class RecordingFilter {
     private pending: number = 0;
 
     // Wird aufgerufen, sobald ein Suchergebnis bereit steht
-    private callback: (result: ISearchInformation) => void;
+    private callback: (result: ISearchInformation, editInfo: IRecordingEditContract) => void;
 
     // Wird verwendet, um zur eindeutigen Kennung einer Serie die erweiterten Serieninformationen zu ermitteln
     private seriesLookup: (series: string) => ISeriesMapping;
@@ -79,7 +79,7 @@ class RecordingFilter {
     ascending = new Model<boolean>(true);
 
     // Setzt die Suchbedingung und die zugehörigen Oberflächenelemente auf den Grundzustand zurück und fordert ein neues Suchergebnis an
-    reset(query: boolean): void {
+    reset(query: boolean, editInfo: IRecordingEditContract = null): void {
         this.disallowQuery += 1;
         try {
             this.languageController.model.val(null);
@@ -94,7 +94,7 @@ class RecordingFilter {
         }
 
         if (query)
-            this.query();
+            this.query(false, editInfo);
     }
 
     // Erstellt die Beschreibung der aktuellen Suche
@@ -113,7 +113,7 @@ class RecordingFilter {
     }
 
     // Führt eine Suche mit der aktuellen Einschränkung aus
-    query(resetPage: boolean = false): void {
+    query(resetPage: boolean = false, editInfo: IRecordingEditContract = null): void {
         if (resetPage) {
             this.disallowQuery += 1;
             try {
@@ -165,7 +165,7 @@ class RecordingFilter {
                 $.each(recordings, (index, recording) => recording.created = new Date(recording.createdAsString));
 
                 // Und verarbeiten
-                this.callback(searchResult);
+                this.callback(searchResult, editInfo);
             });
     }
 

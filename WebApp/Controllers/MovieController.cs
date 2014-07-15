@@ -118,7 +118,7 @@ namespace WebApp.Controllers
         /// <param name="newData">Die neue Daten.</param>
         [Route( "{identifier}" )]
         [HttpPut]
-        public async Task<IHttpActionResult> Update( Guid identifier, [FromBody] RecordingEditInfo newData )
+        public async Task<IHttpActionResult> Update( Guid identifier, [FromBody] RecordingEditCore newData )
         {
             // Locate
             var recording = Database.Recordings.Include( r => r.Languages ).Include( r => r.Genres ).SingleOrDefault( r => r.UniqueIdentifier == identifier );
@@ -154,7 +154,7 @@ namespace WebApp.Controllers
         /// </summary>
         /// <param name="recording">Die Daten zur Ablage.</param>
         /// <returns>Die gewünschte Ablage.</returns>
-        private Models.Store GetOrCreateStore( RecordingEditInfo recording )
+        private Models.Store GetOrCreateStore( RecordingEditCore recording )
         {
             // Relative location
             var location = GetEmptyAsNull( recording.Location );
@@ -179,7 +179,7 @@ namespace WebApp.Controllers
         /// <returns>Steuerung des Ergebnisses.</returns>
         [Route( "" )]
         [HttpPost]
-        public async Task<IHttpActionResult> Update( [FromBody] RecordingEditInfo newData )
+        public async Task<IHttpActionResult> Update( [FromBody] RecordingEditCore newData )
         {
             // Create
             var recording = new Models.Recording

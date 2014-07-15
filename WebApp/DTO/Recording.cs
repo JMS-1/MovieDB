@@ -12,12 +12,6 @@ namespace WebApp.DTO
     public abstract class Recording
     {
         /// <summary>
-        /// Die eindeutige Kennung der Aufzeichnung.
-        /// </summary>
-        [DataMember( Name = "id" )]
-        public Guid RecordingIdentifier { get; set; }
-
-        /// <summary>
         /// Der Name der Aufzeichnung.
         /// </summary>
         [DataMember( Name = "title" )]
@@ -54,7 +48,6 @@ namespace WebApp.DTO
         {
             Languages = recording.Languages.OrderBy( l => l.Name ).Select( l => l.UniqueIdentifier ).ToArray();
             Genres = recording.Genres.OrderBy( g => g.Name ).Select( g => g.UniqueIdentifier ).ToArray();
-            RecordingIdentifier = recording.UniqueIdentifier;
             Series = recording.SeriesIdentifier;
             RentTo = recording.RentTo;
             Name = recording.Name;

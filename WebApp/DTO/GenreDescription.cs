@@ -8,19 +8,26 @@ namespace WebApp.DTO
     /// Beschreibt die Art einer Aufzeichnung.
     /// </summary>
     [DataContract]
-    public class GenreDescription
+    public class GenreDescriptionCore
+    {
+        /// <summary>
+        /// Die eindeutige Beschreibung der Art.
+        /// </summary>
+        [DataMember( Name = "name" )]
+        public string Name { get; set; }
+    }
+
+    /// <summary>
+    /// Beschreibt die Art einer Aufzeichnung.
+    /// </summary>
+    [DataContract]
+    public class GenreDescription : GenreDescriptionCore
     {
         /// <summary>
         /// Der eindeutige Kurzname der Art.
         /// </summary>
         [DataMember( Name = "id" )]
         public Guid Identifier { get; set; }
-
-        /// <summary>
-        /// Die eindeutige Beschreibung der Art.
-        /// </summary>
-        [DataMember( Name = "name" )]
-        public string Name { get; set; }
 
         /// <summary>
         /// Erstellt eine neue Beschreibung.

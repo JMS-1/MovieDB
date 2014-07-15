@@ -137,7 +137,7 @@ class RecordingEditor {
     }
 
     // Überträgt die Eingabefelder in die zugehörige Datenstruktur.
-    private viewToModel(): IRecordingEditContract {
+    public viewToModel(): IRecordingEditContract {
         var newData: IRecordingEditContract =
             {
                 description: (RecordingEditor.descriptionField().val() || '').trim(),
@@ -149,7 +149,7 @@ class RecordingEditor {
                 series: RecordingEditor.seriesField().val(),
                 languages: this.languageEditor.val(),
                 genres: this.genreEditor.val(),
-                id: null,
+                id: this.identifier,
             };
 
         return newData;

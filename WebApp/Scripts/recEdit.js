@@ -140,7 +140,7 @@ var RecordingEditor = (function () {
             series: RecordingEditor.seriesField().val(),
             languages: this.languageEditor.val(),
             genres: this.genreEditor.val(),
-            id: null
+            id: this.identifier
         };
 
         return newData;
