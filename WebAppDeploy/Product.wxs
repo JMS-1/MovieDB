@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <?include ..\..\SetupHelper\ManufacturerSettings.wxi ?>
+
+  <Product
+    Id="*"
+    Name="Mediendatenbank 1.0"
+    Language="1031"
+    Version="!(wix.SETUPVERSION)"
+    Manufacturer="$(var.Manufacturer)"
+    UpgradeCode="13709658-051d-4138-8ad2-af5f054863e3">
+
+    <Package
+      InstallPrivileges="elevated"
+      Languages="1031"
+      InstallerVersion="200"
+      Compressed="yes"
+      Platform="x86"
+      InstallScope="perMachine" />
+
+    <WixVariable Id="WixUIBannerBmp" Value="..\..\SetupHelper\PsiMarronBanner.bmp" />
+
+    <!-- Wir verwenden ein einziges CAB Archiv und das wird auch in das MSI integriert -->
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- Für alle Installationen identische Einstellungen -->
+    <Property Id="ARPURLINFOABOUT" Value="$(var.ManufacturerUrl)" />
+    <Property Id="ARPCONTACT" Value="$(var.Author)" />
+
+    <!-- Ohne .NET in der richtigen Version geht gar nichts -->
+    <PropertyRef Id="NETFRAMEWORK45"/>
+    <Condition Message="!(loc.DOTNETMISSING)">
+      <![CDATA[NETFRAMEWORK45]]>
+    </Condition>
+
+    <Feature Id="ProductFeature" Title="!(loc.FEATUREBINARIES)" Level="1" Absent="disallow" TypicalDefault="install" AllowAdvertise="no">
+      <ComponentGroupRef Id="WebApp.Binaries"/>
+      <ComponentGroupRef Id="WebApp.Content"/>
+      <ComponentRef Id="References"/>
+      <ComponentRef Id="Sources"/>
+    </Feature>
+
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <UIRef Id="CommonWizard" />
+
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="ManufacturerFolder" Name="$(var.Manufacturer)">
+          <Directory Id="VCRNET" Name="VCR.NET">
+            <Directory Id="APPLICATIONS" Name="Apps">
+              <Directory Id="INSTALLFOLDER" Name="MovieDb">
+                <Directory Id="WebApp.Content" />
+
+                <Directory Id="BINARIES" Name="bin">
+                  <Directory Id="WebApp.Binaries"/>
+                </Directory>
+
+                <Directory Id="SCRIPTS" Name="Scripts" />
+              </Directory>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Component Id="References" Directory="BINARIES" Guid="b29d0e07-7450-445b-8faa-157d2f9bf189">
+      <File Source="$(var.WebApp.TargetDir)EntityFramework.dll" />
+      <File Source="$(var.WebApp.TargetDir)EntityFramework.SqlServer.dll" />
+      <File Source="$(var.WebApp.TargetDir)Newtonsoft.Json.dll" />
+      <File Source="$(var.WebApp.TargetDir)System.Net.Http.Formatting.dll" />
+      <File Source="$(var.WebApp.TargetDir)System.Web.Http.dll" />
+      <File Source="$(var.WebApp.TargetDir)System.Web.Http.WebHost.dll" />
+    </Component>
+
+    <Component Id="Sources" Directory="SCRIPTS" Guid="79987068-c22e-4334-a18b-d2e612ebbc51">
+      <File Source="$(var.WebApp.ProjectDir)Scripts/appCode.ts" />
+      <File Source="$(var.WebApp.ProjectDir)Scripts/containerEdit.ts" />
+      <File Source="$(var.WebApp.ProjectDir)Scripts/controllers.ts" />
+      <File Source="$(var.WebApp.ProjectDir)Scripts/genreEdit.ts" />
+      <File Source="$(var.WebApp.ProjectDir)Scripts/interfaces.ts" />
+      <File Source="$(var.WebApp.ProjectDir)Scripts/languageEdit.ts" />
+      <File Source="$(var.WebApp.ProjectDir)Scripts/models.ts" />
+      <File Source="$(var.WebApp.ProjectDir)Scripts/recEdit.ts" />
+      <File Source="$(var.WebApp.ProjectDir)Scripts/recFilter.ts" />
+      <File Source="$(var.WebApp.ProjectDir)Scripts/seriesEdit.ts" />
+      <File Source="$(var.WebApp.ProjectDir)Scripts/uiHelper.ts" />
+      <File Source="$(var.WebApp.ProjectDir)Scripts/views.ts" />
+    </Component>
+  </Fragment>
+
+</Wix>
