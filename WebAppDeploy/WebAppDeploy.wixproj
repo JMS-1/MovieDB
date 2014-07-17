@@ -19,6 +19,7 @@
     <WixVariables>SETUPVERSION=1.0.1</WixVariables>
     <Cultures>de-de</Cultures>
     <SuppressPdbOutput>True</SuppressPdbOutput>
+    <SuppressIces>ICE61</SuppressIces>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>..\msi\</OutputPath>
@@ -26,6 +27,7 @@
     <WixVariables>SETUPVERSION=1.0.1</WixVariables>
     <Cultures>de-de</Cultures>
     <SuppressPdbOutput>True</SuppressPdbOutput>
+    <SuppressIces>ICE61</SuppressIces>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\SetupHelper\CommonWizard.wxs">
