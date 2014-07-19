@@ -53,13 +53,8 @@ var CheckView = (function () {
         this.checkbox.button();
     }
     CheckView.prototype.reset = function () {
-        if (this.checkbox.prop('checked')) {
-            this.label.removeClass(Styles.invisble);
-            this.checkbox.removeClass(Styles.invisble);
-        } else {
-            this.label.addClass(Styles.invisble);
-            this.checkbox.addClass(Styles.invisble);
-        }
+        this.checkbox.button('option', 'label', this.model.name + ' (0)');
+        this.checkbox.button('option', 'disabled', true);
     };
 
     CheckView.prototype.isChecked = function () {
@@ -72,9 +67,7 @@ var CheckView = (function () {
 
     CheckView.prototype.setCount = function (count) {
         this.checkbox.button('option', 'label', this.model.name + ' (' + count + ')');
-
-        this.checkbox.removeClass(Styles.invisble);
-        this.label.removeClass(Styles.invisble);
+        this.checkbox.button('option', 'disabled', false);
     };
     return CheckView;
 })();

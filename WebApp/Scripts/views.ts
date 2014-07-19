@@ -56,14 +56,8 @@ class CheckView {
     private label: JQuery;
 
     reset(): void {
-        if (this.checkbox.prop('checked')) {
-            this.label.removeClass(Styles.invisble);
-            this.checkbox.removeClass(Styles.invisble);
-        }
-        else {
-            this.label.addClass(Styles.invisble);
-            this.checkbox.addClass(Styles.invisble);
-        }
+        this.checkbox.button('option', 'label', this.model.name + ' (0)');
+        this.checkbox.button('option', 'disabled', true);
     }
 
     isChecked(): boolean {
@@ -76,9 +70,7 @@ class CheckView {
 
     setCount(count: number): void {
         this.checkbox.button('option', 'label', this.model.name + ' (' + count + ')');
-
-        this.checkbox.removeClass(Styles.invisble);
-        this.label.removeClass(Styles.invisble);
+        this.checkbox.button('option', 'disabled', false);
     }
 }
 
