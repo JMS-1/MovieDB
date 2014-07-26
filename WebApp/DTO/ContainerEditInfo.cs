@@ -29,6 +29,12 @@ namespace WebApp.DTO
             /// </summary>
             [DataMember( Name = "position" )]
             public string Position { get; set; }
+
+            /// <summary>
+            /// Die eindeutige Kennung der Aufzeichnung.
+            /// </summary>
+            [DataMember( Name = "id" )]
+            public Guid Identifier { get; set; }
         }
 
         /// <summary>
@@ -91,7 +97,7 @@ namespace WebApp.DTO
             return
                 new ContainerEditInfo
                 {
-                    Recordings = recordings.Select( r => new Recording { FullName = r.FullName, Position = r.Store.Location } ).ToArray(),
+                    Recordings = recordings.Select( r => new Recording { FullName = r.FullName, Position = r.Store.Location, Identifier = r.UniqueIdentifier } ).ToArray(),
                     ChildContainerNames = children.Select( c => c.Name ).ToArray(),
                     ParentContainer = container.ParentIdentifier,
                     Identifier = container.UniqueIdentifier,

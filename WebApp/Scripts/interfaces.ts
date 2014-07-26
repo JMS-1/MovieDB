@@ -157,6 +157,8 @@ interface ISeriesEditInfoContract {
 }
 
 interface IContainerRecordingContract {
+    id: string;
+
     name: string;
 
     position: string;
