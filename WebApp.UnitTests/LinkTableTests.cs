@@ -226,5 +226,40 @@ namespace WebApp.UnitTests
 
             Assert.AreEqual( linkCount, TestContext.Links.Count(), "after" );
         }
+
+        /// <summary>
+        /// Verweise können auch über eine Aktualisierung gelöscht werden.
+        /// </summary>
+        [Test]
+        public void LinksWillBeDeletedOnUpdate()
+        {
+            var linkCount = TestContext.Links.Count();
+
+            var recording = TestContext.Recordings.Add( new Recording { CreationTime = DateTime.UtcNow, Name = "A12", Store = new Store() } );
+            var recordingId = recording.UniqueIdentifier;
+            recording.Links.Add( new Link { Name = "A12", Url = "http://www.psimarron.net" } );
+            recording.Links.Add( new Link { Name = "B12", Url = "http://www.jochen-manns.de" } );
+            recording.Links.Add( new Link { Name = "C12", Url = "http://www.zdf.de" } );
+            recording.Links.Add( new Link { Name = "D12", Url = "http://www.ard.de" } );
+
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            Assert.AreEqual( linkCount + 4, TestContext.Links.Count(), "before" );
+
+            recording = TestContext.Recordings.Include( r => r.Links ).Single( r => r.UniqueIdentifier == recordingId );
+            
+            recording.Links.Clear();
+            recording.Links.Add( new Link { Name = "E12", Url = "http://www.microsoft.com" } );
+            recording.Links.Add( new Link { Name = "F12", Url = "http://www.github.com" } );
+
+            TestContext.Entry( recording ).State = EntityState.Modified;
+            TestContext.SaveChanges();
+
+            Recreate();
+
+            Assert.AreEqual( linkCount + 2, TestContext.Links.Count(), "after" );
+        }
     }
 }
