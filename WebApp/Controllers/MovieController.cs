@@ -92,6 +92,7 @@ namespace WebApp.Controllers
                     .Include( r => r.Languages )
                     .Include( r => r.Genres )
                     .Include( r => r.Store )
+                    .Include( r => r.Links )
                     .SingleOrDefault( r => r.UniqueIdentifier == identifier );
 
             // Report

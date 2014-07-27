@@ -275,11 +275,36 @@
                         <tbody>
                             <tr>
                                 <td class="editLabel">Name:</td>
-                                <td class="editField"><input type="text" id="recordingEditTitle" size="120" /></td>
+                                <td class="editField titleEdit">
+                                    <table>
+                                        <tr>
+                                            <td class="editSelector"><input type="text" id="recordingEditTitle" size="120" /></td>
+                                            <td class="editSelectorEdit"><a class="editButton openTitleEditDialog openEditDialog placeholder" href="javascript:void(0)">...</a></td>
+                                        </tr>
+                                    </table>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="editLabel">Beschreibung:</td>
-                                <td class="editField"><textarea id="recordingEditDescription" rows="5" cols="120"></textarea></td>
+                                <td class="editField descriptionEdit">
+                                    <table>
+                                        <tr>
+                                            <td class="editSelector"><textarea id="recordingEditDescription" rows="5" cols="120"></textarea></td>
+                                            <td class="editSelectorEdit"><a class="editButton openDescriptionEditDialog openEditDialog placeholder" href="javascript:void(0)">...</a></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="editLabel">Verweise:</td>
+                                <td class="editField linkEdit">
+                                    <table>
+                                        <tr>
+                                            <td class="editSelector">&nbsp;</td>
+                                            <td class="editSelectorEdit"><a class="editButton openLinkEditDialog openEditDialog" href="javascript:void(0)">...</a></td>
+                                        </tr>
+                                    </table>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="editLabel">Serie:</td>
@@ -294,15 +319,22 @@
                             </tr>
                             <tr>
                                 <td class="editLabel">Medium:</td>
-                                <td class="editField">
-                                    <select id="recordingEditMedia">
-                                        <option value="0">(Unbekannt)</option>
-                                        <option value="1">Video CD</option>
-                                        <option value="2">Super-Video CD</option>
-                                        <option value="3">Selbstaufgenommene DVD</option>
-                                        <option value="4">Gekaufte DVD</option>
-                                        <option value="5">Blu-Ray</option>
-                                    </select>
+                                <td class="editField mediaEdit">
+                                    <table>
+                                        <tr>
+                                            <td class="editSelector">
+                                                <select id="recordingEditMedia">
+                                                    <option value="0">(Unbekannt)</option>
+                                                    <option value="1">Video CD</option>
+                                                    <option value="2">Super-Video CD</option>
+                                                    <option value="3">Selbstaufgenommene DVD</option>
+                                                    <option value="4">Gekaufte DVD</option>
+                                                    <option value="5">Blu-Ray</option>
+                                                </select>
+                                            </td>
+                                            <td class="editSelectorEdit"><a class="editButton openMediaEditDialog openEditDialog placeholder" href="javascript:void(0)">...</a></td>
+                                        </tr>
+                                    </table>
                                 </td>
                             </tr>
                             <tr>
@@ -343,7 +375,14 @@
                             </tr>
                             <tr>
                                 <td class="editLabel">Verliehen an:</td>
-                                <td class="editField"><input type="text" id="recordingEditRent" size="60" /></td>
+                                <td class="editField rentEdit">
+                                    <table>
+                                        <tr>
+                                            <td class="editSelector"><input type="text" id="recordingEditRent" size="60" /></td>
+                                            <td class="editSelectorEdit"><a class="editButton openRentEditDialog openEditDialog placeholder" href="javascript:void(0)">...</a></td>
+                                        </tr>
+                                    </table>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.Serialization;
 
 
@@ -10,6 +11,25 @@ namespace WebApp.DTO
     [DataContract]
     public class RecordingEditCore : Recording
     {
+        /// <summary>
+        /// Alle Verweise zur Aufzeichnung.
+        /// </summary>
+        [DataContract]
+        public class Link
+        {
+            /// <summary>
+            /// Der Name des Verweises.
+            /// </summary>
+            [DataMember]
+            public string Name { get; set; }
+
+            /// <summary>
+            /// Die Beschreibung des Verweises.
+            /// </summary>
+            [DataMember]
+            public string Description { get; set; }
+        }
+
         /// <summary>
         /// Die Beschreibung der Aufzeichnung.
         /// </summary>
@@ -35,12 +55,31 @@ namespace WebApp.DTO
         public string Location { get; set; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        [DataMember( Name = "links" )]
+        public Link[] Links { get; set; }
+
+        /// <summary>
         /// Erstellt eine neue Beschreibung.
         /// </summary>
         /// <param name="recording">Die Repräsentation aus der Datenbank.</param>
         protected RecordingEditCore( Models.Recording recording )
             : base( recording )
         {
+            Container = recording.Store.ContainerIdentifier;
+            Location = recording.Store.Location;
+            Description = recording.Description;
+            StoreType = recording.Store.Type;
+
+            // Created ordered array of links
+            Links =
+                recording
+                    .Links
+                    .ToArray()
+                    .OrderBy( l => l.Index )
+                    .Select( l => new Link { Name = l.Name, Description = l.Description } )
+                    .ToArray();
         }
 
         /// <summary>
@@ -89,10 +128,6 @@ namespace WebApp.DTO
             return new RecordingEditInfo( recording )
             {
                 RecordingIdentifier = recording.UniqueIdentifier,
-                Container = recording.Store.ContainerIdentifier,
-                Location = recording.Store.Location,
-                Description = recording.Description,
-                StoreType = recording.Store.Type,
             };
         }
     }

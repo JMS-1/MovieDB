@@ -82,12 +82,24 @@
 .editForm table td {
   padding-left: 0px;
 }
+.editForm table tr {
+  min-height: 1em;
+}
 .editForm fieldset {
   padding: 10px;
 }
 .editLabel {
   min-width: 10em;
   vertical-align: top;
+}
+.titleEdit .ui-button-text,
+.descriptionEdit .ui-button-text,
+.seriesEdit .ui-button-text,
+.containerEdit .ui-button-text,
+.linkEdit .ui-button-text,
+.mediaEdit .ui-button-text,
+.rentEdit .ui-button-text {
+  font-size: small;
 }
 .genreEdit .ui-button:not(.openEditDialog),
 .languageEdit .ui-button:not(.openEditDialog) {
@@ -101,12 +113,6 @@
 .genreEdit .ui-state-active,
 .languageEdit .ui-state-active {
   font-weight: bold;
-}
-.seriesEdit .ui-button-text {
-  font-size: small;
-}
-.containerEdit .ui-button-text {
-  font-size: small;
 }
 .editSelector {
   vertical-align: top;
@@ -135,6 +141,9 @@ body {
 }
 .invisible {
   display: none;
+}
+.placeholder {
+  visibility: hidden;
 }
 #headline {
   margin-bottom: -0.7em;
