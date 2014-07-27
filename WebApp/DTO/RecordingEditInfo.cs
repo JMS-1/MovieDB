@@ -34,6 +34,21 @@ namespace WebApp.DTO
             /// </summary>
             [DataMember( Name = "description" )]
             public string Description { get; set; }
+
+            /// <summary>
+            /// Erzeugt eine entsprechende Repräsentation für die Anlage.
+            /// </summary>
+            /// <returns>Die gewünschte Repräsentation.</returns>
+            public Models.Link ToModel()
+            {
+                return
+                    new Models.Link
+                    {
+                        Url = Url,
+                        Name = Name,
+                        Description = Description,
+                    };
+            }
         }
 
         /// <summary>

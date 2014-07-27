@@ -122,7 +122,7 @@ namespace WebApp.Controllers
         public async Task<IHttpActionResult> Update( Guid identifier, [FromBody] RecordingEditCore newData )
         {
             // Locate
-            var recording = Database.Recordings.Include( r => r.Languages ).Include( r => r.Genres ).SingleOrDefault( r => r.UniqueIdentifier == identifier );
+            var recording = Database.Recordings.Include( r => r.Languages ).Include( r => r.Genres ).Include( r => r.Links ).SingleOrDefault( r => r.UniqueIdentifier == identifier );
             if (recording == null)
                 throw new HttpResponseException( HttpStatusCode.NotFound );
 
@@ -135,6 +135,14 @@ namespace WebApp.Controllers
             recording.Genres.Clear();
             foreach (var genre in Database.Genres.Where( g => newData.Genres.Contains( g.UniqueIdentifier ) ))
                 recording.Genres.Add( genre );
+
+            // Reset links
+            recording.Links.Clear();
+            foreach (var link in newData.Links)
+                recording.Links.Add( link.ToModel() );
+
+            // Enforce validation for links
+            Database.Entry( recording ).State = EntityState.Modified;
 
             // Copy all
             recording.Description = GetEmptyAsNull( newData.Description );
@@ -193,12 +201,13 @@ namespace WebApp.Controllers
                 CreationTime = DateTime.UtcNow,
             };
 
+            // Remember it
+            Database.Recordings.Add( recording );
+
             // Multi-value collections
             recording.Languages = Database.Languages.Where( l => newData.Languages.Contains( l.UniqueIdentifier ) ).ToList();
             recording.Genres = Database.Genres.Where( g => newData.Genres.Contains( g.UniqueIdentifier ) ).ToList();
-
-            // Remember it
-            Database.Recordings.Add( recording );
+            recording.Links = newData.Links.Select( l => l.ToModel() ).ToList();
 
             // Process update
             await Database.SaveChangesAsync();

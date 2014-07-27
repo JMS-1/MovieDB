@@ -16,6 +16,7 @@ var RecordingEditor = (function () {
 
             this.languageEditor.val([]);
             this.genreEditor.val([]);
+            this.links([]);
         } else {
             this.identifier = recording.id;
             RecordingEditor.mediaField().val(recording.mediaType.toString());
@@ -28,6 +29,7 @@ var RecordingEditor = (function () {
 
             this.languageEditor.val(recording.languages);
             this.genreEditor.val(recording.genres);
+            this.links(recording.links);
         }
 
         this.validate();
@@ -90,6 +92,10 @@ var RecordingEditor = (function () {
         return $('#recordingEditRent');
     };
 
+    RecordingEditor.linkArea = function () {
+        return $('#recordingEditLinks');
+    };
+
     RecordingEditor.prototype.save = function (success) {
         var newData = this.viewToModel();
 
@@ -141,7 +147,7 @@ var RecordingEditor = (function () {
             languages: this.languageEditor.val(),
             genres: this.genreEditor.val(),
             id: this.identifier,
-            links: []
+            links: this.links()
         };
 
         return newData;
@@ -209,6 +215,34 @@ var RecordingEditor = (function () {
         RecordingEditor.saveButton().button('option', 'disabled', !isValid);
 
         return isValid;
+    };
+
+    RecordingEditor.prototype.links = function (newVal) {
+        var area = RecordingEditor.linkArea();
+
+        if (newVal) {
+            area.empty();
+
+            $.each(newVal, function (index, link) {
+                return $('<a />', {
+                    href: link.url,
+                    text: link.name,
+                    target: '_blank',
+                    title: link.description
+                }).appendTo(area).button();
+            });
+
+            return newVal;
+        } else
+            return $.map(area.children(), function (anchor) {
+                var link = {
+                    description: anchor.title,
+                    name: anchor.innerText,
+                    url: anchor.href
+                };
+
+                return link;
+            });
     };
     return RecordingEditor;
 })();

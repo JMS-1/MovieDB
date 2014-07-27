@@ -2,7 +2,7 @@
     function LinkEditor(openButtonSelector, recordingAccessor) {
         var _this = this;
         this.identifier = null;
-        this.linkMap = {};
+        this.links = [];
         this.recording = recordingAccessor;
 
         this.confirmedDelete = new DeleteButton(this.dialog().find('.dialogDelete'), function () {
@@ -40,21 +40,17 @@
         });
     }
     LinkEditor.prototype.open = function () {
-        var _this = this;
-        var recording = this.recording();
-        var links = recording.viewToModel().links;
+        this.links = this.recording().links();
 
-        this.linkMap = {};
-
-        $.each(links, function (index, link) {
-            return _this.linkMap[link.name] = link;
-        });
-
-        Tools.fillSelection(this.chooser(), links, '(Neuen Verweis anlegen)', function (i) {
+        Tools.fillSelection(this.chooser(), this.links, '(Neuen Verweis anlegen)', function (i) {
             return i.name;
         }, function (i) {
             return i.name;
         });
+
+        this.descriptionField().val('');
+        this.nameField().val('');
+        this.urlField().val('');
 
         Tools.openDialog(this.dialog());
 
@@ -98,6 +94,13 @@
     };
 
     LinkEditor.prototype.save = function () {
+        var newData = this.viewToModel();
+
+        if (!this.validate(newData))
+            return;
+
+        this.recording().links([newData]);
+        this.close();
     };
 
     LinkEditor.prototype.dialog = function () {

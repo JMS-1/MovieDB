@@ -26,17 +26,16 @@ class LinkEditor {
 
     private confirmedDelete: DeleteButton;
 
-    private linkMap: any = {};
+    private links: ILinkEditContract[] = [];
 
     private open(): void {
-        var recording = this.recording();
-        var links = recording.viewToModel().links;
+        this.links = this.recording().links();
 
-        this.linkMap = {};
+        Tools.fillSelection(this.chooser(), this.links, '(Neuen Verweis anlegen)', i => i.name, i=> i.name);
 
-        $.each(links, (index, link) => this.linkMap[link.name] = link);
-
-        Tools.fillSelection(this.chooser(), links, '(Neuen Verweis anlegen)', i => i.name, i=> i.name);
+        this.descriptionField().val('');
+        this.nameField().val('');
+        this.urlField().val('');
 
         Tools.openDialog(this.dialog());
 
@@ -80,6 +79,13 @@ class LinkEditor {
     }
 
     private save(): void {
+        var newData = this.viewToModel();
+
+        if (!this.validate(newData))
+            return;
+
+        this.recording().links([newData]);
+        this.close();
     }
 
     private dialog(): JQuery {

@@ -17,6 +17,7 @@ class RecordingEditor {
 
             this.languageEditor.val([]);
             this.genreEditor.val([]);
+            this.links([]);
         } else {
             this.identifier = recording.id;
             RecordingEditor.mediaField().val(recording.mediaType.toString());
@@ -29,6 +30,7 @@ class RecordingEditor {
 
             this.languageEditor.val(recording.languages);
             this.genreEditor.val(recording.genres);
+            this.links(recording.links);
         }
 
         this.validate();
@@ -98,6 +100,10 @@ class RecordingEditor {
         return $('#recordingEditRent');
     }
 
+    static linkArea(): JQuery {
+        return $('#recordingEditLinks');
+    }
+
     save(success: () => void): void {
         var newData = this.viewToModel();
 
@@ -150,7 +156,7 @@ class RecordingEditor {
                 languages: this.languageEditor.val(),
                 genres: this.genreEditor.val(),
                 id: this.identifier,
-                links: [],
+                links: this.links(),
             };
 
         return newData;
@@ -217,5 +223,37 @@ class RecordingEditor {
         RecordingEditor.saveButton().button('option', 'disabled', !isValid);
 
         return isValid;
+    }
+
+    links(): ILinkEditContract[];
+
+    links(newVal: ILinkEditContract[]): void;
+
+    links(newVal?: ILinkEditContract[]): ILinkEditContract[] {
+        var area = RecordingEditor.linkArea();
+
+        if (newVal) {
+            area.empty();
+
+            $.each(newVal, (index, link) => $('<a />',
+                {
+                    href: link.url,
+                    text: link.name,
+                    target: '_blank',
+                    title: link.description,
+                }).appendTo(area).button());
+
+            return newVal;
+        }
+        else
+            return $.map(area.children(), (anchor: HTMLAnchorElement) => {
+                var link: ILinkEditContract = {
+                    description: anchor.title,
+                    name: anchor.innerText,
+                    url: anchor.href,
+                };
+
+                return link;
+            });
     }
 }
