@@ -19,23 +19,25 @@ class LinkEditor {
         this.chooser().change(() => this.choose());
     }
 
+    // Wir verwenden hier das Muster, dass auch im EF von .NET Verwendung findet und das bei ersten Zugriff auf den REST Web Service von dort ausgelesen wird
     static urlPattern = new RegExp(".{2001}");
 
+    // Da diese Dialoginstanz nur einmal existiert brauchen wir eine Möglichkeit, die jeweils aktuelle Aufzeichnung abzurufen
     private recording: () => RecordingEditor;
-
-    private identifier: string = null;
 
     private confirmedDelete: DeleteButton;
 
     private links: ILinkEditContract[] = [];
 
     private open(): void {
+        // Beim Öffnen lesen wir die aktuelle Liste der Verweise aus
         this.links = this.recording().links();
 
         Tools.fillSelection(this.chooser(), this.links, '(Neuen Verweis anlegen)', i => i.name, i=> i.name);
 
         Tools.openDialog(this.dialog());
 
+        // Und alles beginne ganz von vorne
         this.choose();
     }
 
@@ -58,6 +60,7 @@ class LinkEditor {
         var selected = this.chooser().val();
         var link: ILinkEditContract = null;
 
+        // Ist ein Verweis ausgewählt, so suchen wir den in der vorhandenen Liste, die wir beim Öffnen des Dialogs ermittelt haben
         if (selected != '')
             for (var i = 0; i < this.links.length; i++)
                 if (this.links[i].name == selected) {
@@ -66,6 +69,7 @@ class LinkEditor {
                     break;
                 }
 
+        // Haben wir einen Verweis, so gehen wir in den Änderungsmodus - ansonsten legen wir einen neuen Verweis an
         if (link == null) {
             this.confirmedDelete.disable();
             this.descriptionField().val('');
@@ -79,6 +83,7 @@ class LinkEditor {
             this.urlField().val(link.url);
         }
 
+        // Auch die initialen Werte sollen geprüft werden
         this.validate();
     }
 
@@ -101,10 +106,12 @@ class LinkEditor {
     }
 
     private remove(): void {
+        // Wir können nur existierende Verweise entfernen
         var selected = this.chooser().val();
         if (selected == '')
             return;
 
+        // Zum Löschen wird einfach der Verweis aus der Liste entfernt
         for (var i = 0; i < this.links.length; i++)
             if (this.links[i].name == selected) {
                 this.links.splice(i, 1);
@@ -119,11 +126,13 @@ class LinkEditor {
     private save(): void {
         var newData = this.viewToModel();
 
+        // Wir speichern nur gültige Verweise
         if (!this.validate(newData))
             return;
 
         var selected = this.chooser().val();
 
+        // Beim Neuanlegen wir die Liste der Verweise erweitert, sonst einfach nur der ausgewählte Verweis durch die neuen Daten ersetzt
         if (selected == '')
             this.links.push(newData);
         else for (var i = 0; i < this.links.length; i++)

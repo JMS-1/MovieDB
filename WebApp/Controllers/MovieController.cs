@@ -201,7 +201,7 @@ namespace WebApp.Controllers
                 CreationTime = DateTime.UtcNow,
             };
 
-            // Remember it
+            // Remember it - must be done before we try to add links or EF will not be able to create the foreign key reference correctly
             Database.Recordings.Add( recording );
 
             // Multi-value collections

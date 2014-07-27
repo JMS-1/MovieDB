@@ -223,10 +223,12 @@ var RecordingEditor = (function () {
         if (newVal) {
             area.empty();
 
+            // Wir zeigen die Verweise in alphabetischer Reihenfolge an und ignorieren die gespeicherte Ordnung (für den Moment)
             newVal.sort(function (l, r) {
                 return l.name.localeCompare(r.name);
             });
 
+            // Und der Einfachheit halber erstellen wir die einfachen jQuery Schaltflächen - da ist sicher noch UX Luft nach oben
             $.each(newVal, function (index, link) {
                 return $('<a />', {
                     href: link.url,
@@ -238,6 +240,7 @@ var RecordingEditor = (function () {
 
             return newVal;
         } else
+            // Das Gegenstück zur obigen Erstellung der Schaltflächen
             return $.map(area.children(), function (anchor) {
                 var link = {
                     description: anchor.title,

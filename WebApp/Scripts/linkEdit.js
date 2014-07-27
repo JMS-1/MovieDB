@@ -1,7 +1,6 @@
 ﻿var LinkEditor = (function () {
     function LinkEditor(openButtonSelector, recordingAccessor) {
         var _this = this;
-        this.identifier = null;
         this.links = [];
         this.recording = recordingAccessor;
 
@@ -43,6 +42,7 @@
         });
     }
     LinkEditor.prototype.open = function () {
+        // Beim Öffnen lesen wir die aktuelle Liste der Verweise aus
         this.links = this.recording().links();
 
         Tools.fillSelection(this.chooser(), this.links, '(Neuen Verweis anlegen)', function (i) {
@@ -53,6 +53,7 @@
 
         Tools.openDialog(this.dialog());
 
+        // Und alles beginne ganz von vorne
         this.choose();
     };
 
@@ -74,6 +75,7 @@
         var selected = this.chooser().val();
         var link = null;
 
+        // Ist ein Verweis ausgewählt, so suchen wir den in der vorhandenen Liste, die wir beim Öffnen des Dialogs ermittelt haben
         if (selected != '')
             for (var i = 0; i < this.links.length; i++)
                 if (this.links[i].name == selected) {
@@ -82,6 +84,7 @@
                     break;
                 }
 
+        // Haben wir einen Verweis, so gehen wir in den Änderungsmodus - ansonsten legen wir einen neuen Verweis an
         if (link == null) {
             this.confirmedDelete.disable();
             this.descriptionField().val('');
@@ -94,6 +97,7 @@
             this.urlField().val(link.url);
         }
 
+        // Auch die initialen Werte sollen geprüft werden
         this.validate();
     };
 
@@ -117,6 +121,7 @@
     };
 
     LinkEditor.prototype.remove = function () {
+        // Wir können nur existierende Verweise entfernen
         var selected = this.chooser().val();
         if (selected == '')
             return;
@@ -135,11 +140,13 @@
     LinkEditor.prototype.save = function () {
         var newData = this.viewToModel();
 
+        // Wir speichern nur gültige Verweise
         if (!this.validate(newData))
             return;
 
         var selected = this.chooser().val();
 
+        // Beim Neuanlegen wir die Liste der Verweise erweitert, sonst einfach nur der ausgewählte Verweis durch die neuen Daten ersetzt
         if (selected == '')
             this.links.push(newData);
         else
