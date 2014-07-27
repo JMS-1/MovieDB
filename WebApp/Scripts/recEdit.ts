@@ -150,6 +150,7 @@ class RecordingEditor {
                 languages: this.languageEditor.val(),
                 genres: this.genreEditor.val(),
                 id: this.identifier,
+                links: [],
             };
 
         return newData;

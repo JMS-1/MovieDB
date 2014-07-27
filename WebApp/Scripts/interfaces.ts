@@ -80,6 +80,14 @@ interface IRecordingRowContract extends IRecordingInfoContract {
     createdAsString: string;
 }
 
+interface ILinkEditContract {
+    name: string;
+
+    description: string;
+
+    url: string;
+}
+
 interface IRecordingEditContract extends IRecordingInfoContract {
     description: string;
 
@@ -88,6 +96,8 @@ interface IRecordingEditContract extends IRecordingInfoContract {
     container: string;
 
     location: string;
+
+    links: ILinkEditContract[];
 }
 
 // Die Eigenschaften, nach denen Aufzeichnungen sortiert werden können

@@ -30,6 +30,8 @@ module MovieDatabase {
 
         private containerDialog: ContainerEditor;
 
+        private linkDialog: LinkEditor;
+
         private allSeries: any = {};
 
         private allGenres: any = {};
@@ -330,6 +332,7 @@ module MovieDatabase {
             this.genreEditor = new MultiValueEditor<IGenreContract>('#recordingEditGenre', validateRecordingEditForm);
             this.containerDialog = new ContainerEditor('.openContainerEditDialog', conditionalReload);
             this.languageDialog = new LanguageEditor('.openLanguageEditDialog', conditionalReload);
+            this.linkDialog = new LinkEditor('.openLinkEditDialog', () => this.currentRecording);
             this.genreDialog = new GenreEditor('.openGenreEditDialog', conditionalReload);
 
             var legacyFile = $('#theFile');

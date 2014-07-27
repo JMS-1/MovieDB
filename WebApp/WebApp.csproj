@@ -273,6 +273,10 @@
     <Content Include="Scripts\languageEdit.js">
       <DependentUpon>languageEdit.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="Scripts\linkEdit.ts" />
+    <Content Include="Scripts\linkEdit.js">
+      <DependentUpon>linkEdit.ts</DependentUpon>
+    </Content>
     <TypeScriptCompile Include="Scripts\models.ts" />
     <Content Include="Scripts\models.js">
       <DependentUpon>models.ts</DependentUpon>

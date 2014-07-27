@@ -7,8 +7,6 @@ class GenreEditor extends SuggestionListEditor<IGenreEditInfoContract, IGenreCon
         super(openButtonSelector, reloadApplicationData);
     }
 
-    private static namePattern = /^[0-9A-Za-zäöüÄÖÜß]{1,20}$/;
-
     dialog(): JQuery {
         return $('#genreEditDialog');
     }

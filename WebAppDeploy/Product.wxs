@@ -108,6 +108,7 @@
       <File Source="$(var.WebApp.ProjectDir)Scripts/seriesEdit.ts" />
       <File Source="$(var.WebApp.ProjectDir)Scripts/uiHelper.ts" />
       <File Source="$(var.WebApp.ProjectDir)Scripts/views.ts" />
+      <File Source="$(var.WebApp.ProjectDir)Scripts/linkEdit.ts" />
     </Component>
   </Fragment>
 

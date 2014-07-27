@@ -20,13 +20,19 @@ namespace WebApp.DTO
             /// <summary>
             /// Der Name des Verweises.
             /// </summary>
-            [DataMember]
+            [DataMember( Name = "name" )]
             public string Name { get; set; }
+
+            /// <summary>
+            /// Der Verweis.
+            /// </summary>
+            [DataMember( Name = "url" )]
+            public string Url { get; set; }
 
             /// <summary>
             /// Die Beschreibung des Verweises.
             /// </summary>
-            [DataMember]
+            [DataMember( Name = "description" )]
             public string Description { get; set; }
         }
 
@@ -78,7 +84,7 @@ namespace WebApp.DTO
                     .Links
                     .ToArray()
                     .OrderBy( l => l.Index )
-                    .Select( l => new Link { Name = l.Name, Description = l.Description } )
+                    .Select( l => new Link { Name = l.Name, Description = l.Description, Url = l.Url } )
                     .ToArray();
         }
 

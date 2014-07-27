@@ -338,6 +338,9 @@
             this.genreEditor = new MultiValueEditor('#recordingEditGenre', validateRecordingEditForm);
             this.containerDialog = new ContainerEditor('.openContainerEditDialog', conditionalReload);
             this.languageDialog = new LanguageEditor('.openLanguageEditDialog', conditionalReload);
+            this.linkDialog = new LinkEditor('.openLinkEditDialog', function () {
+                return _this.currentRecording;
+            });
             this.genreDialog = new GenreEditor('.openGenreEditDialog', conditionalReload);
 
             var legacyFile = $('#theFile');

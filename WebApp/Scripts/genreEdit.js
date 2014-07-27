@@ -33,7 +33,6 @@ var GenreEditor = (function (_super) {
         else
             return null;
     };
-    GenreEditor.namePattern = /^[0-9A-Za-zäöüÄÖÜß]{1,20}$/;
     return GenreEditor;
 })(SuggestionListEditor);
 //# sourceMappingURL=genreEdit.js.map

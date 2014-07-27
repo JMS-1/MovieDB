@@ -14,6 +14,7 @@
     <script src="Scripts/containerEdit.js"></script>
     <script src="Scripts/genreEdit.js"></script>
     <script src="Scripts/languageEdit.js"></script>
+    <script src="Scripts/linkEdit.js"></script>
     <script src="Scripts/recEdit.js"></script>
     <script src="Scripts/seriesEdit.js"></script>
     <script src="Scripts/recFilter.js"></script>
@@ -156,6 +157,38 @@
                         </div>
                     </div>
                 </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="dialogButtons">
+                        <a href="javascript:void(0)" class="editButton dialogSave">Übernehmen</a>
+                        <a href="javascript:void(0)" class="editButton dialogDelete">Löschen</a>
+                        <a href="javascript:void(0)" class="editButton dialogCancel">Abbrechen</a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="linkEditDialog" title="Pflege der Verweise" class="invisible">
+        <table>
+            <tr>
+                <td>&nbsp;</td>
+                <td>
+                    <select class="editField selectName"></select>
+                </td>
+            </tr>
+            <tr>
+                <td class="editLabel">Neuer Name:</td>
+                <td class="editField"><input type="text" class="editName" size="40" /></td>
+            </tr>
+            <tr>
+                <td class="editLabel">Verweis:</td>
+                <td class="editField"><input type="text" class="editLink" size="80" /></td>
+            </tr>
+            <tr>
+                <td class="editLabel">Beschreibung:</td>
+                <td class="editField"><textarea class="editDescription" rows="8" cols="80"></textarea></td>
             </tr>
             <tr>
                 <td colspan="2">
