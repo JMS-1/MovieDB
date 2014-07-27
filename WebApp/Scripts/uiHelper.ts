@@ -194,7 +194,7 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
         Tools.openDialog(this.dialog());
     }
 
-    private close() {
+    private close(): void {
         this.dialog().dialog('close');
     }
 
@@ -348,7 +348,7 @@ class SuggestionListEditor<TInfoContract extends IEditInfoContract, TUpdateConte
 // Beim Löschen verzichten wir auf eine explizite Rückfrage sondern erzwingen einfach das
 // doppelte Betätigung der Schaltfläche nach einem visuellen Feedback mit dem ersten Drücken.
 class DeleteButton {
-    public constructor(button: JQuery, process: () => void) {
+    constructor(button: JQuery, process: () => void) {
         this.button = button.click(() => this.remove());
         this.process = process;
     }

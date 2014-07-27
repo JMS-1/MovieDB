@@ -52,11 +52,18 @@ namespace WebApp.DTO
         public char SeriesSeparator { get; set; }
 
         /// <summary>
+        /// Der reguläre Ausdruck zum Erkennen von Verweisen.
+        /// </summary>
+        [DataMember( Name = "urlExpression" )]
+        public string UrlMatchPattern { get; set; }
+
+        /// <summary>
         /// Erstellt eine neue Anwendungsinformation.
         /// </summary>
         public ApplicationInformation()
         {
             SeriesSeparator = Models.Series.JoinCharacter;
+            UrlMatchPattern = Models.Link.UrlMatchPattern;
         }
     }
 }

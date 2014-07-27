@@ -22,6 +22,11 @@ namespace WebApp.Models
     public class Link
     {
         /// <summary>
+        /// Der reguläre Ausdruck zum Erkennen von Verweisen.
+        /// </summary>
+        public const string UrlMatchPattern = @"https?:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?";
+
+        /// <summary>
         /// Die eindeutige Kennung einer Entität, zu der dieser Verweis gehört.
         /// </summary>
         [Required, Key]
@@ -38,7 +43,7 @@ namespace WebApp.Models
         /// <summary>
         /// Der eigentliche Verweis.
         /// </summary>
-        [Required, StringLength( 2000, MinimumLength = 1 ), Url]
+        [Required, StringLength( 2000, MinimumLength = 1 ), RegularExpression( UrlMatchPattern )]
         [Column( "Url" )]
         public string Url { get; set; }
 

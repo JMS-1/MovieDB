@@ -49,7 +49,7 @@ class SeriesEditor {
         Tools.openDialog(this.dialog());
     }
 
-    private close() {
+    private close(): void {
         this.dialog().dialog('close');
         this.dialog().empty();
     }

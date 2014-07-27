@@ -38,6 +38,9 @@
         this.urlField().on('input', function () {
             return _this.validate();
         });
+        this.chooser().change(function () {
+            return _this.choose();
+        });
     }
     LinkEditor.prototype.open = function () {
         this.links = this.recording().links();
@@ -48,13 +51,9 @@
             return i.name;
         });
 
-        this.descriptionField().val('');
-        this.nameField().val('');
-        this.urlField().val('');
-
         Tools.openDialog(this.dialog());
 
-        this.validate();
+        this.choose();
     };
 
     LinkEditor.prototype.viewToModel = function () {
@@ -69,6 +68,33 @@
 
     LinkEditor.prototype.close = function () {
         this.dialog().dialog('close');
+    };
+
+    LinkEditor.prototype.choose = function () {
+        var selected = this.chooser().val();
+        var link = null;
+
+        if (selected != '')
+            for (var i = 0; i < this.links.length; i++)
+                if (this.links[i].name == selected) {
+                    link = this.links[i];
+
+                    break;
+                }
+
+        if (link == null) {
+            this.confirmedDelete.disable();
+            this.descriptionField().val('');
+            this.nameField().val('');
+            this.urlField().val('');
+        } else {
+            this.confirmedDelete.enable();
+            this.descriptionField().val(link.description);
+            this.nameField().val(link.name);
+            this.urlField().val(link.url);
+        }
+
+        this.validate();
     };
 
     LinkEditor.prototype.validate = function (newData) {
@@ -91,6 +117,19 @@
     };
 
     LinkEditor.prototype.remove = function () {
+        var selected = this.chooser().val();
+        if (selected == '')
+            return;
+
+        for (var i = 0; i < this.links.length; i++)
+            if (this.links[i].name == selected) {
+                this.links.splice(i, 1);
+
+                break;
+            }
+
+        this.recording().links(this.links);
+        this.close();
     };
 
     LinkEditor.prototype.save = function () {
@@ -99,7 +138,19 @@
         if (!this.validate(newData))
             return;
 
-        this.recording().links([newData]);
+        var selected = this.chooser().val();
+
+        if (selected == '')
+            this.links.push(newData);
+        else
+            for (var i = 0; i < this.links.length; i++)
+                if (this.links[i].name == selected) {
+                    this.links[i] = newData;
+
+                    break;
+                }
+
+        this.recording().links(this.links);
         this.close();
     };
 
@@ -138,6 +189,16 @@
             return 'Es muss ein Name angegeben werden';
         else if (name.length > 100)
             return 'Der Name darf maximal 100 Zeichen haben';
+
+        var chooser = this.chooser();
+        var selected = chooser.val();
+        if (selected == name)
+            return null;
+
+        if (this.links.some(function (l) {
+            return l.name == name;
+        }))
+            return 'Der Name muss eindeutig sein';
         else
             return null;
     };
@@ -163,7 +224,7 @@
         else
             return null;
     };
-    LinkEditor.urlPattern = /http[s]?:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+    LinkEditor.urlPattern = new RegExp(".{2001}");
     return LinkEditor;
 })();
 //# sourceMappingURL=linkEdit.js.map

@@ -134,7 +134,7 @@ class RecordingEditor {
 
     // Behält alle EIngabedaten bis auf den Titel bei und markiert die aktuelle Aufzeichnung als
     // eine neu angelegte Aufzeichnung. Der Titel erhält einen entsprechenden Zusatz.
-    clone() {
+    clone(): void {
         RecordingEditor.titleField().val('Kopie von ' + (RecordingEditor.titleField().val() || '').trim());
 
         this.identifier = null;
@@ -234,6 +234,8 @@ class RecordingEditor {
 
         if (newVal) {
             area.empty();
+
+            newVal.sort((l, r) => l.name.localeCompare(r.name));
 
             $.each(newVal, (index, link) => $('<a />',
                 {

@@ -39,7 +39,7 @@ class ContainerEditor {
         this.dialog().dialog('option', 'position', { of: '#main', at: 'center top', my: 'center top' });
     }
 
-    private close() {
+    private close(): void {
         this.dialog().dialog('close');
     }
 
@@ -86,7 +86,7 @@ class ContainerEditor {
         return isValid;
     }
 
-    private fillChildTable(containers: string[]) {
+    private fillChildTable(containers: string[]): void {
         var table = this.childTable();
         var count = containers.length;
 
@@ -110,7 +110,7 @@ class ContainerEditor {
             table.addClass(Styles.invisble);
     }
 
-    private fillRecordingTable(recordings: IContainerRecordingContract[]) {
+    private fillRecordingTable(recordings: IContainerRecordingContract[]): void {
         var table = this.recordingTable();
         var count = recordings.length;
         if (count > 0) {
@@ -271,11 +271,11 @@ class ContainerEditor {
         return this.dialog().find('.editLocation');
     }
 
-    private childTable() {
+    private childTable(): JQuery {
         return this.dialog().find('.containerChildren');
     }
 
-    private recordingTable() {
+    private recordingTable(): JQuery {
         return this.dialog().find('.containerRecordings');
     }
 

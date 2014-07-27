@@ -57,6 +57,8 @@
         Application.prototype.fillApplicationInformation = function (info, currentEdit) {
             var _this = this;
             if (typeof currentEdit === "undefined") { currentEdit = null; }
+            LinkEditor.urlPattern = new RegExp(info.urlExpression);
+
             var busyIndicator = $('#busyIndicator');
 
             busyIndicator.removeClass(Styles.loading);

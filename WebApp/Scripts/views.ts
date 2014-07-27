@@ -101,7 +101,7 @@ class TreeItemView {
     }
 
     // Legt den Anzeigenamen fest
-    setText(name: string, view: JQuery) {
+    setText(name: string, view: JQuery): void {
         this.text = view.addClass(Styles.treeItem).text(name).click(() => this.click());
     }
 }

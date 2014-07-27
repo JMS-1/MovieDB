@@ -137,6 +137,8 @@ interface IApplicationInformationContract {
     containers: IContainerContract[];
 
     seriesSeparator: string;
+
+    urlExpression: string;
 };
 
 // Die Eingangsinformationen zum Pflegen einer Kategorie

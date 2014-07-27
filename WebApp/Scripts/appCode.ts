@@ -81,6 +81,8 @@ module MovieDatabase {
         }
 
         private fillApplicationInformation(info: IApplicationInformation, currentEdit: IRecordingEditContract = null): void {
+            LinkEditor.urlPattern = new RegExp(info.urlExpression);
+
             var busyIndicator = $('#busyIndicator');
 
             busyIndicator.removeClass(Styles.loading);

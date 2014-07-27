@@ -16,9 +16,10 @@ class LinkEditor {
         this.nameField().on('input', () => this.validate());
         this.urlField().on('change', () => this.validate());
         this.urlField().on('input', () => this.validate());
+        this.chooser().change(() => this.choose());
     }
 
-    private static urlPattern = /http[s]?:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+    static urlPattern = new RegExp(".{2001}");
 
     private recording: () => RecordingEditor;
 
@@ -33,13 +34,9 @@ class LinkEditor {
 
         Tools.fillSelection(this.chooser(), this.links, '(Neuen Verweis anlegen)', i => i.name, i=> i.name);
 
-        this.descriptionField().val('');
-        this.nameField().val('');
-        this.urlField().val('');
-
         Tools.openDialog(this.dialog());
 
-        this.validate();
+        this.choose();
     }
 
     private viewToModel(): ILinkEditContract {
@@ -53,8 +50,36 @@ class LinkEditor {
         return contract;
     }
 
-    private close() {
+    private close(): void {
         this.dialog().dialog('close');
+    }
+
+    private choose(): void {
+        var selected = this.chooser().val();
+        var link: ILinkEditContract = null;
+
+        if (selected != '')
+            for (var i = 0; i < this.links.length; i++)
+                if (this.links[i].name == selected) {
+                    link = this.links[i];
+
+                    break;
+                }
+
+        if (link == null) {
+            this.confirmedDelete.disable();
+            this.descriptionField().val('');
+            this.nameField().val('');
+            this.urlField().val('');
+        }
+        else {
+            this.confirmedDelete.enable();
+            this.descriptionField().val(link.description);
+            this.nameField().val(link.name);
+            this.urlField().val(link.url);
+        }
+
+        this.validate();
     }
 
     private validate(newData: ILinkEditContract = null): boolean {
@@ -76,6 +101,19 @@ class LinkEditor {
     }
 
     private remove(): void {
+        var selected = this.chooser().val();
+        if (selected == '')
+            return;
+
+        for (var i = 0; i < this.links.length; i++)
+            if (this.links[i].name == selected) {
+                this.links.splice(i, 1);
+
+                break;
+            }
+
+        this.recording().links(this.links);
+        this.close();
     }
 
     private save(): void {
@@ -84,7 +122,18 @@ class LinkEditor {
         if (!this.validate(newData))
             return;
 
-        this.recording().links([newData]);
+        var selected = this.chooser().val();
+
+        if (selected == '')
+            this.links.push(newData);
+        else for (var i = 0; i < this.links.length; i++)
+            if (this.links[i].name == selected) {
+                this.links[i] = newData;
+
+                break;
+            }
+
+        this.recording().links(this.links);
         this.close();
     }
 
@@ -123,6 +172,14 @@ class LinkEditor {
             return 'Es muss ein Name angegeben werden';
         else if (name.length > 100)
             return 'Der Name darf maximal 100 Zeichen haben';
+
+        var chooser = this.chooser();
+        var selected = chooser.val();
+        if (selected == name)
+            return null;
+
+        if (this.links.some(l => l.name == name))
+            return 'Der Name muss eindeutig sein';
         else
             return null;
     }

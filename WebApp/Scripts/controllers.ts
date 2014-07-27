@@ -58,7 +58,7 @@ class RentFilterController {
         this.modelToView();
     }
 
-    private viewToModel() {
+    private viewToModel(): void {
         var choice: string = this.view.find(':checked').val();
         if (choice.length < 1)
             this.model.val(null);
@@ -92,7 +92,7 @@ class RadioGroupController {
         this.model.change(() => this.modelToView());
     }
 
-    viewToModel() {
+    viewToModel(): void {
         this.model.val(this.val());
     }
 
@@ -178,7 +178,7 @@ class CheckGroupController {
             return check.model.name;
     }
 
-    viewToModel() {
+    viewToModel(): void {
         this.model.val(this.val());
     }
 
@@ -288,7 +288,7 @@ class SeriesFilterController {
         this.modelToView();
     }
 
-    private modelToView() {
+    private modelToView(): void {
         var selected = this.model.val();
         var name = '(egal)';
 

@@ -223,6 +223,10 @@ var RecordingEditor = (function () {
         if (newVal) {
             area.empty();
 
+            newVal.sort(function (l, r) {
+                return l.name.localeCompare(r.name);
+            });
+
             $.each(newVal, function (index, link) {
                 return $('<a />', {
                     href: link.url,
