@@ -27,5 +27,15 @@ namespace WebApp.Models
         /// Ein Regal oder ein Fach in einem Regal.
         /// </summary>
         Shelf,
+
+        /// <summary>
+        /// Eine (externe) Festplatte.
+        /// </summary>
+        Disk,
+
+        /// <summary>
+        /// Ein Dateiverzeichnis.
+        /// </summary>
+        Folder,
     }
 }
