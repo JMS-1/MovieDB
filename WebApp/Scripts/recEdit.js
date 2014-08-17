@@ -244,7 +244,7 @@ var RecordingEditor = (function () {
             return $.map(area.children(), function (anchor) {
                 var link = {
                     description: anchor.title,
-                    name: anchor.innerText,
+                    name: $(anchor).text(),
                     url: anchor.href
                 };
 

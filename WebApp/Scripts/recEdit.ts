@@ -254,7 +254,7 @@ class RecordingEditor {
             return $.map(area.children(), (anchor: HTMLAnchorElement) => {
                 var link: ILinkEditContract = {
                     description: anchor.title,
-                    name: anchor.innerText,
+                    name: $(anchor).text(),
                     url: anchor.href,
                 };
 
