@@ -301,7 +301,7 @@ class SeriesFilterController {
     }
 
     // Ein Tastendruck führt im allgemeinen dazu, dass sich die Liste auf den ersten Eintrag mit einem passenden Namen verschiebt
-    private onKeyPressed(ev: JQueryEventObject): void {
+    private onKeyPressed(ev: JQueryKeyEventObject): void {
         // Tasten innerhalb eines Zeitraums von einer Sekunde werden zu einem zu vergleichenden Gesamtpräfix zusammengefasst
         var now = $.now();
         if (now >= this.nextReset)

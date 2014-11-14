@@ -1,4 +1,4 @@
-﻿/// <reference path="uihelper.ts" />
+/// <reference path="uihelper.ts" />
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -14,18 +14,14 @@ var LanguageEditor = (function (_super) {
     LanguageEditor.prototype.dialog = function () {
         return $('#languageEditDialog');
     };
-
     LanguageEditor.prototype.controllerName = function () {
         return 'language';
     };
-
     LanguageEditor.prototype.createNewOption = function () {
         return '(neue Sprache anlegen)';
     };
-
     LanguageEditor.prototype.validateName = function (language) {
         var name = language.name;
-
         if (name.length < 1)
             return 'Es muss ein Name angegeben werden';
         else if (name.length > 100)

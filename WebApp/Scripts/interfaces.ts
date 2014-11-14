@@ -52,7 +52,7 @@ interface IContainerEditContract {
 interface IStatisticsContract {
     id: string;
 
-    count: string;
+    count: number;
 }
 
 interface ILanguageStatisticsContract extends IStatisticsContract {
