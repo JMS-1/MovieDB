@@ -55,10 +55,10 @@
   font-size: small;
 }
 .treeItem:hover {
-  background-color: #add8e6;
+  background-color: lightblue;
 }
 .treeItem.nodeSelected {
-  background-color: #1e90ff;
+  background-color: dodgerblue;
 }
 .textfilter span:first-child {
   font-weight: bold;
