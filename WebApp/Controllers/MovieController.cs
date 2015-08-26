@@ -308,7 +308,7 @@ namespace WebApp.Controllers
                 using (var command = connection.CreateCommand())
                 {
                     // Configure
-                    command.CommandText = string.Format( "BACKUP DATABASE {0} TO DISK = '{1}' WITH FORMAT", DAL.Database.DatabaseName, backupFile.Replace( "'", "''" ) );
+                    command.CommandText = string.Format( "BACKUP DATABASE [{0}] TO DISK = '{1}' WITH FORMAT", DAL.Database.DatabaseName, backupFile.Replace( "'", "''" ) );
 
                     // Process
                     await command.ExecuteNonQueryAsync();
