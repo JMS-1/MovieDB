@@ -1,8 +1,7 @@
-var __extends = this.__extends || function (d, b) {
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 // Ein einzelne Option einer Alternativauswahl
 var RadioView = (function () {
@@ -64,8 +63,7 @@ var CheckView = (function () {
 var TreeItemView = (function () {
     function TreeItemView(container, isRoot) {
         // Wird ausgelöst, wenn der Name angeklickt wird
-        this.click = function () {
-        };
+        this.click = function () { };
         this.view = $('<div />').appendTo(container);
         if (!isRoot)
             this.view.addClass(Styles.treeNode);
@@ -99,8 +97,7 @@ var TreeNodeView = (function (_super) {
     function TreeNodeView(name, isRoot, container) {
         var _this = this;
         _super.call(this, container, isRoot);
-        this.toggle = function () {
-        };
+        this.toggle = function () { };
         // Der Kopfbereich wird das Klappsymbol und den Namen enthalten
         var header = $('<div />', { 'class': Styles.nodeHeader }).appendTo(this.view);
         $('<div />', { 'class': 'ui-icon' }).click(function () { return _this.toggle(); }).appendTo(header);

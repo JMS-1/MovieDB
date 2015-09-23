@@ -32,9 +32,9 @@
     <Property Id="ARPCONTACT" Value="$(var.Author)" />
 
     <!-- Ohne .NET in der richtigen Version geht gar nichts -->
-    <PropertyRef Id="NETFRAMEWORK45"/>
+    <PropertyRef Id="WIX_IS_NETFRAMEWORK_46_OR_LATER_INSTALLED"/>
     <Condition Message="!(loc.DOTNETMISSING)">
-      <![CDATA[NETFRAMEWORK45]]>
+      <![CDATA[WIX_IS_NETFRAMEWORK_46_OR_LATER_INSTALLED]]>
     </Condition>
 
     <Property Id='ISINSTALLED' Secure='yes' />

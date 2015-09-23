@@ -79,6 +79,7 @@ var LinkEditor = (function () {
         var selected = this.chooser().val();
         if (selected == '')
             return;
+        // Zum Löschen wird einfach der Verweis aus der Liste entfernt
         for (var i = 0; i < this.links.length; i++)
             if (this.links[i].name == selected) {
                 this.links.splice(i, 1);

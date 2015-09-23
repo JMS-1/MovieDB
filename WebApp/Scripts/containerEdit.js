@@ -143,9 +143,12 @@ var ContainerEditor = (function () {
             return;
         if (this.identifier.length < 1)
             return;
-        $.ajax('movie/container/' + this.identifier, {
+        $
+            .ajax('movie/container/' + this.identifier, {
             type: 'DELETE',
-        }).done(function () { return _this.restart(); }).fail(function () {
+        })
+            .done(function () { return _this.restart(); })
+            .fail(function () {
             // Bei der Fehlerbehandlung ist noch Potential
             alert('Da ist leider etwas schief gegangen');
         });
@@ -161,11 +164,14 @@ var ContainerEditor = (function () {
         var url = 'movie/container';
         if (this.identifier.length > 0)
             url += '/' + this.identifier;
-        $.ajax(url, {
+        $
+            .ajax(url, {
             type: (this.identifier.length < 1) ? 'POST' : 'PUT',
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(newData),
-        }).done(function () { return _this.restart(); }).fail(function () {
+        })
+            .done(function () { return _this.restart(); })
+            .fail(function () {
             // Bei der Fehlerbehandlung ist noch Potential
             alert('Da ist leider etwas schief gegangen');
         });

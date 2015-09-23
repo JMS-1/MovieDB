@@ -98,9 +98,12 @@ var SeriesEditor = (function () {
             return;
         if (this.seriesIdentifier.length < 1)
             return;
-        $.ajax('movie/series/' + this.seriesIdentifier, {
+        $
+            .ajax('movie/series/' + this.seriesIdentifier, {
             type: 'DELETE',
-        }).done(function () { return _this.restart(); }).fail(function () {
+        })
+            .done(function () { return _this.restart(); })
+            .fail(function () {
             // Bei der Fehlerbehandlung ist noch Potential
             alert('Da ist leider etwas schief gegangen');
         });
@@ -117,11 +120,14 @@ var SeriesEditor = (function () {
         var series = this.seriesIdentifier;
         if (series.length > 0)
             url += '/' + series;
-        $.ajax(url, {
+        $
+            .ajax(url, {
             type: (series.length < 1) ? 'POST' : 'PUT',
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(newData),
-        }).done(function () { return _this.restart(); }).fail(function () {
+        })
+            .done(function () { return _this.restart(); })
+            .fail(function () {
             // Bei der Fehlerbehandlung ist noch Potential
             alert('Da ist leider etwas schief gegangen');
         });

@@ -89,6 +89,7 @@ var MovieDatabase;
                 var numberOfPages = Math.floor((results.total + results.size - 1) / results.size);
                 var firstIndex = Math.max(0, results.page - 2);
                 var lastIndex = Math.min(numberOfPages - 1, firstIndex + pagesShown - 1);
+                // Sieht ein bißchen komisch aus aber wir wollen zum Aufruf des Lambdas ein Closure auf die Schleifenkontrollvariable erzeugen
                 for (var index = firstIndex; index <= lastIndex; index++)
                     (function (capturedIndex) {
                         var anchor = $('<a href="javascript:void(0)" class="' + Styles.pageButton + '" />').appendTo(pageButtons).button();
@@ -225,7 +226,9 @@ var MovieDatabase;
                 type: 'POST',
                 contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify({}),
-            }).done(function () { return _this.featuresDialog().dialog('close'); }).fail(function () { return alert('Da ist leider etwas schief gegangen'); });
+            })
+                .done(function () { return _this.featuresDialog().dialog('close'); })
+                .fail(function () { return alert('Da ist leider etwas schief gegangen'); });
         };
         Application.prototype.startup = function () {
             var _this = this;

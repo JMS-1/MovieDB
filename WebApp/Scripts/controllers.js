@@ -1,8 +1,7 @@
-var __extends = this.__extends || function (d, b) {
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 // Das Freitextfeld ist wirklich nur ein Textfeld, allerdings mit einer zeitgesteuerten automatischen Suche
 var TextFilterController = (function () {
@@ -10,8 +9,7 @@ var TextFilterController = (function () {
         var _this = this;
         this.view = view;
         this.model = new Model(null);
-        this.elapsed = function () {
-        };
+        this.elapsed = function () { };
         // Gesetzt, wenn die automatische Suche nach der Eingabe eines Suchtextes aktiviert ist
         this.timeout = null;
         this.view.on('keypress', function () { return _this.viewToModel(); });
@@ -45,7 +43,11 @@ var RentFilterController = (function () {
         var _this = this;
         this.view = view;
         this.model = new Model(null);
-        this.view.accordion(Styles.accordionSettings).find('input').button().change(function () { return _this.viewToModel(); });
+        this.view
+            .accordion(Styles.accordionSettings)
+            .find('input')
+            .button()
+            .change(function () { return _this.viewToModel(); });
         this.model.change(function () { return _this.modelToView(); });
         this.modelToView();
     }
@@ -253,6 +255,7 @@ var SeriesFilterController = (function () {
             this.search = '';
         this.search = (this.search + ev.char).toLowerCase();
         this.nextReset = now + 1000;
+        // Wir suchen erst einmal nur nach den Namen auf der obersten Ebene, das sollte für fast alles reichen
         for (var i = 0; i < this.nodes.length; i++) {
             var node = this.nodes[i];
             var name = node.model.fullName;
@@ -338,8 +341,7 @@ var TreeController = (function () {
     function TreeController(model, view) {
         this.model = model;
         this.view = view;
-        this.selected = function (target) {
-        };
+        this.selected = function (target) { };
     }
     TreeController.prototype.click = function (callback) {
         this.selected = callback;

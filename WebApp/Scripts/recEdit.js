@@ -88,12 +88,16 @@ var RecordingEditor = (function () {
             type: (this.identifier == null) ? 'POST' : 'PUT',
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(newData),
-        }).done(success).fail(function () { return alert('Da ist leider etwas schief gegangen'); });
+        })
+            .done(success)
+            .fail(function () { return alert('Da ist leider etwas schief gegangen'); });
     };
     RecordingEditor.prototype.remove = function (success) {
         if (this.identifier == null)
             return;
-        $.ajax('movie/db/' + this.identifier, { type: 'DELETE' }).done(success).fail(function () { return alert('Da ist leider etwas schief gegangen'); });
+        $.ajax('movie/db/' + this.identifier, { type: 'DELETE' })
+            .done(success)
+            .fail(function () { return alert('Da ist leider etwas schief gegangen'); });
     };
     // Behält alle EIngabedaten bis auf den Titel bei und markiert die aktuelle Aufzeichnung als
     // eine neu angelegte Aufzeichnung. Der Titel erhält einen entsprechenden Zusatz.

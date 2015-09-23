@@ -204,7 +204,9 @@ var SuggestionListEditor = (function () {
             return;
         if (this.identifier.length < 1)
             return;
-        $.ajax('movie/' + this.controllerName() + '/' + this.identifier, { type: 'DELETE' }).done(function () { return _this.restart(); }).fail(function () { return alert('Da ist leider etwas schief gegangen'); });
+        $.ajax('movie/' + this.controllerName() + '/' + this.identifier, { type: 'DELETE' })
+            .done(function () { return _this.restart(); })
+            .fail(function () { return alert('Da ist leider etwas schief gegangen'); });
     };
     SuggestionListEditor.prototype.save = function () {
         var _this = this;
@@ -221,7 +223,9 @@ var SuggestionListEditor = (function () {
             type: (this.identifier.length > 0) ? 'PUT' : 'POST',
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify(newData),
-        }).done(function () { return _this.restart(); }).fail(function () { return alert('Da ist leider etwas schief gegangen'); });
+        })
+            .done(function () { return _this.restart(); })
+            .fail(function () { return alert('Da ist leider etwas schief gegangen'); });
     };
     SuggestionListEditor.prototype.chooser = function () {
         return this.dialog().find('.selectKey');

@@ -3,6 +3,6 @@
 <WixLocalization Culture="de-de" xmlns="http://schemas.microsoft.com/wix/2006/localization">
 
   <String Id="FEATUREBINARIES">Mediendatenbank 1.0</String>
-  <String Id="DOTNETMISSING">Die Mediendatenbank setzen eine Installation des Microsoft .NET Frameworks in der Version 4.5.1 voraus.</String>
+  <String Id="DOTNETMISSING">Die Mediendatenbank setzen eine Installation des Microsoft .NET Frameworks in der Version 4.6 voraus.</String>
 
 </WixLocalization>
