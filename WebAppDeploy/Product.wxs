@@ -93,6 +93,7 @@
       <File Source="$(var.WebApp.TargetDir)System.Net.Http.Formatting.dll" />
       <File Source="$(var.WebApp.TargetDir)System.Web.Http.dll" />
       <File Source="$(var.WebApp.TargetDir)System.Web.Http.WebHost.dll" />
+      <File Source="$(var.WebApp.TargetDir)Microsoft.Web.Infrastructure.dll" />
     </Component>
 
     <Component Id="Sources" Directory="SCRIPTS" Guid="79987068-c22e-4334-a18b-d2e612ebbc51">

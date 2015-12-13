@@ -177,3 +177,4 @@ FakesAssemblies/
 *.pubxml
 *.bak
 /msi
+/.vs
