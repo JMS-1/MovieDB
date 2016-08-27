@@ -306,6 +306,6 @@ var MovieDatabase;
         };
         Application.Current = new Application();
         return Application;
-    })();
+    }());
 })(MovieDatabase || (MovieDatabase = {}));
 //# sourceMappingURL=appCode.js.map

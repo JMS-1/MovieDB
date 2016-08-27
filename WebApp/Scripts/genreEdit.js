@@ -29,5 +29,5 @@ var GenreEditor = (function (_super) {
             return null;
     };
     return GenreEditor;
-})(SuggestionListEditor);
+}(SuggestionListEditor));
 //# sourceMappingURL=genreEdit.js.map

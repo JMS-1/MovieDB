@@ -30,5 +30,5 @@ var LanguageEditor = (function (_super) {
     };
     LanguageEditor.namePattern = /^[a-z]{2}$/;
     return LanguageEditor;
-})(SuggestionListEditor);
+}(SuggestionListEditor));
 //# sourceMappingURL=languageEdit.js.map

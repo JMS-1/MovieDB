@@ -148,5 +148,5 @@ var RecordingFilter = (function () {
         this.seriesController.initialize(series);
     };
     return RecordingFilter;
-})();
+}());
 //# sourceMappingURL=recFilter.js.map

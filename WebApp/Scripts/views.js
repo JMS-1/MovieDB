@@ -33,7 +33,7 @@ var RadioView = (function () {
         this.label.removeClass(Styles.invisble);
     };
     return RadioView;
-})();
+}());
 // Eine einzelne Option einer Mehrfachauswahl
 var CheckView = (function () {
     function CheckView(model, container, onChange, groupName) {
@@ -58,7 +58,7 @@ var CheckView = (function () {
         this.checkbox.button('option', 'disabled', false);
     };
     return CheckView;
-})();
+}());
 // Jedes Element in einem Baum wird durch einen Text in einem Oberflächenelement repräsentiert
 var TreeItemView = (function () {
     function TreeItemView(container, isRoot) {
@@ -81,7 +81,7 @@ var TreeItemView = (function () {
         this.text = view.addClass(Styles.treeItem).text(name).click(function () { return _this.click(); });
     };
     return TreeItemView;
-})();
+}());
 // Ein Blatt zeigt im wesentlichen nur seinen Namen an
 var TreeLeafView = (function (_super) {
     __extends(TreeLeafView, _super);
@@ -90,7 +90,7 @@ var TreeLeafView = (function (_super) {
         this.setText(name, this.view);
     }
     return TreeLeafView;
-})(TreeItemView);
+}(TreeItemView));
 // Ein Knoten hat zusätzlich einen Bereich für Kindknoten, der zudem auf- und zugeklappt werden kann
 var TreeNodeView = (function (_super) {
     __extends(TreeNodeView, _super);
@@ -118,5 +118,5 @@ var TreeNodeView = (function (_super) {
         }
     };
     return TreeNodeView;
-})(TreeItemView);
+}(TreeItemView));
 //# sourceMappingURL=views.js.map

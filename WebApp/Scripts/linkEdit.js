@@ -163,5 +163,5 @@ var LinkEditor = (function () {
     // Wir verwenden hier das Muster, dass auch im EF von .NET Verwendung findet und das bei ersten Zugriff auf den REST Web Service von dort ausgelesen wird
     LinkEditor.urlPattern = new RegExp(".{2001}");
     return LinkEditor;
-})();
+}());
 //# sourceMappingURL=linkEdit.js.map

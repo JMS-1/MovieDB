@@ -31,7 +31,7 @@ var Model = (function () {
         return this.value;
     };
     return Model;
-})();
+}());
 // Ein Element in einer hierarchischen Ansicht kann ausgewählt werden
 var TreeItemModel = (function () {
     function TreeItemModel(item) {
@@ -40,7 +40,7 @@ var TreeItemModel = (function () {
         this.fullName = item.hierarchicalName;
     }
     return TreeItemModel;
-})();
+}());
 // Ein Blatt in einer hierarchischen Ansicht kann nur ausgewählt werden
 var TreeLeafModel = (function (_super) {
     __extends(TreeLeafModel, _super);
@@ -48,7 +48,7 @@ var TreeLeafModel = (function (_super) {
         _super.call(this, item);
     }
     return TreeLeafModel;
-})(TreeItemModel);
+}(TreeItemModel));
 // Ein Knoten in einer hierarchischen Ansicht kann zusätzlicher zur Auswahl auch auf- und zugeklappt werden
 var TreeNodeModel = (function (_super) {
     __extends(TreeNodeModel, _super);
@@ -57,5 +57,5 @@ var TreeNodeModel = (function (_super) {
         this.expanded = new Model(false);
     }
     return TreeNodeModel;
-})(TreeItemModel);
+}(TreeItemModel));
 //# sourceMappingURL=models.js.map

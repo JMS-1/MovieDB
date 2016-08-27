@@ -36,7 +36,7 @@ var TextFilterController = (function () {
             this.view.val(text);
     };
     return TextFilterController;
-})();
+}());
 // Die Auswahl des Verleihers wird über drei separate Optionsfelder realisiert
 var RentFilterController = (function () {
     function RentFilterController(view) {
@@ -69,7 +69,7 @@ var RentFilterController = (function () {
             this.view.find('.ui-accordion-header>span').text(val ? 'nur verliehene' : 'nur nicht verliehene');
     };
     return RentFilterController;
-})();
+}());
 // Beschreibt die Auswahl aus eine Liste von Alternativen
 var RadioGroupController = (function () {
     function RadioGroupController(groupView, groupName) {
@@ -120,7 +120,7 @@ var RadioGroupController = (function () {
         return this.groupView.find(':checked').val();
     };
     return RadioGroupController;
-})();
+}());
 // Beschreibt eine Mehrfachauswahl
 var CheckGroupController = (function () {
     function CheckGroupController(groupView, groupName) {
@@ -177,7 +177,7 @@ var CheckGroupController = (function () {
         return selected;
     };
     return CheckGroupController;
-})();
+}());
 // Die Auswahl der Sprache erfolgt durch eine Reihe von Alternativen
 var LanguageFilterController = (function (_super) {
     __extends(LanguageFilterController, _super);
@@ -195,7 +195,7 @@ var LanguageFilterController = (function (_super) {
         this.fillView(this.groupView.find('.ui-accordion-content'), models);
     };
     return LanguageFilterController;
-})(RadioGroupController);
+}(RadioGroupController));
 // Bei den Kategorien ist im Filter eine Mehrfachauswahl möglich
 var GenreFilterController = (function (_super) {
     __extends(GenreFilterController, _super);
@@ -218,7 +218,7 @@ var GenreFilterController = (function (_super) {
         this.fillView(this.groupView.find('.ui-accordion-content'), models);
     };
     return GenreFilterController;
-})(CheckGroupController);
+}(CheckGroupController));
 // Serien werden über einen Baum ausgewählt
 var SeriesFilterController = (function () {
     function SeriesFilterController(view) {
@@ -335,7 +335,7 @@ var SeriesFilterController = (function () {
         });
     };
     return SeriesFilterController;
-})();
+}());
 // Die Steuerung der Hierarchien
 var TreeController = (function () {
     function TreeController(model, view) {
@@ -352,7 +352,7 @@ var TreeController = (function () {
             callback(this, path);
     };
     return TreeController;
-})();
+}());
 var TreeNodeController = (function (_super) {
     __extends(TreeNodeController, _super);
     function TreeNodeController(nodeModel, nodeView) {
@@ -386,7 +386,7 @@ var TreeNodeController = (function (_super) {
         path.pop();
     };
     return TreeNodeController;
-})(TreeController);
+}(TreeController));
 var TreeLeafController = (function (_super) {
     __extends(TreeLeafController, _super);
     function TreeLeafController(leafModel, leafView) {
@@ -402,5 +402,5 @@ var TreeLeafController = (function (_super) {
         this.selected(this);
     };
     return TreeLeafController;
-})(TreeController);
+}(TreeController));
 //# sourceMappingURL=controllers.js.map

@@ -236,5 +236,5 @@ var ContainerEditor = (function () {
             return null;
     };
     return ContainerEditor;
-})();
+}());
 //# sourceMappingURL=containerEdit.js.map

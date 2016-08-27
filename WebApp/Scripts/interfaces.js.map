@@ -1,1 +1,1 @@
-{"version":3,"file":"interfaces.js","sourceRoot":"","sources":["interfaces.ts"],"names":["OrderSelector","OrderSelector.constructor"],"mappings":"AAsGA,sEAAsE;AACtE;IAAAA;IAIAC,CAACA;IAHUD,mBAAKA,GAAWA,iBAAiBA,CAACA;IAElCA,qBAAOA,GAAWA,MAAMA,CAACA;IACpCA,oBAACA;AAADA,CAACA,AAJD,IAIC;AAkCA,CAAC"}
+{"version":3,"file":"interfaces.js","sourceRoot":"","sources":["interfaces.ts"],"names":[],"mappings":"AAsGA,sEAAsE;AACtE;IAAA;IAIA,CAAC;IAHU,mBAAK,GAAW,iBAAiB,CAAC;IAElC,qBAAO,GAAW,MAAM,CAAC;IACpC,oBAAC;AAAD,CAAC,AAJD,IAIC;AAkCA,CAAC"}

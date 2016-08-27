@@ -1,14 +1,11 @@
-﻿using System;
-using System.IO;
+﻿using Microsoft.Web.Infrastructure.DynamicModuleHelper;
+using System;
 using System.Web;
 using System.Web.Http;
-using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 using WebApp.DAL;
 
-
 // Meldet die Start-Methode für diese ASP.NET Anwendung an.
-[assembly: PreApplicationStartMethod( typeof( WebApp.GlobalStartupCode ), "Startup" )]
-
+[assembly: PreApplicationStartMethod( typeof( WebApp.GlobalStartupCode ), nameof( WebApp.GlobalStartupCode.Startup ) )]
 
 namespace WebApp
 {
@@ -73,9 +70,6 @@ namespace WebApp
         /// <summary>
         /// Meldet beim Starten der Anwendung ein Hilfsmodul an.
         /// </summary>
-        public static void Startup()
-        {
-            DynamicModuleUtility.RegisterModule( typeof( Starter ) );
-        }
+        public static void Startup() => DynamicModuleUtility.RegisterModule( typeof( Starter ) );
     }
 }

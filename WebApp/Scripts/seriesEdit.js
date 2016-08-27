@@ -177,5 +177,5 @@ var SeriesEditor = (function () {
             return null;
     };
     return SeriesEditor;
-})();
+}());
 //# sourceMappingURL=seriesEdit.js.map

@@ -25,7 +25,7 @@ var Styles = (function () {
         heightStyle: 'content',
     };
     return Styles;
-})();
+}());
 var Tools = (function () {
     function Tools() {
     }
@@ -75,7 +75,7 @@ var Tools = (function () {
         return formatNumber(dateTime.getDate()) + '.' + formatNumber(1 + dateTime.getMonth()) + '.' + dateTime.getFullYear().toString() + ' ' + formatNumber(dateTime.getHours()) + ':' + formatNumber(dateTime.getMinutes()) + ':' + formatNumber(dateTime.getSeconds());
     };
     return Tools;
-})();
+}());
 var MultiValueEditor = (function () {
     function MultiValueEditor(containerSelector, onChange) {
         this.onChange = onChange;
@@ -115,7 +115,7 @@ var MultiValueEditor = (function () {
     };
     MultiValueEditor.idCounter = 0;
     return MultiValueEditor;
-})();
+}());
 // Diese Basisklasse unterstützt die Pflege der festen Auswahllisten für Sprachen und Kategorien
 var SuggestionListEditor = (function () {
     function SuggestionListEditor(openButtonSelector, reloadApplicationData) {
@@ -253,7 +253,7 @@ var SuggestionListEditor = (function () {
         throw 'Bitte validateName implementieren';
     };
     return SuggestionListEditor;
-})();
+}());
 // Beim Löschen verzichten wir auf eine explizite Rückfrage sondern erzwingen einfach das
 // doppelte Betätigung der Schaltfläche nach einem visuellen Feedback mit dem ersten Drücken.
 var DeleteButton = (function () {
@@ -279,5 +279,5 @@ var DeleteButton = (function () {
         }
     };
     return DeleteButton;
-})();
+}());
 //# sourceMappingURL=uihelper.js.map

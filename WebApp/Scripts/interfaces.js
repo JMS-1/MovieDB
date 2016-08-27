@@ -5,6 +5,6 @@ var OrderSelector = (function () {
     OrderSelector.title = 'titleWithSeries';
     OrderSelector.created = 'date';
     return OrderSelector;
-})();
+}());
 ;
 //# sourceMappingURL=interfaces.js.map

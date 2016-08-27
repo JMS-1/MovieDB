@@ -201,5 +201,5 @@ var RecordingEditor = (function () {
             });
     };
     return RecordingEditor;
-})();
+}());
 //# sourceMappingURL=recEdit.js.map
